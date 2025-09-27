@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '../store/auth'
+import { buildApiUrl } from '../lib/api'
 
 export default function ProfilePage() {
   const user = useAuthStore(s => s.user)
@@ -21,9 +22,8 @@ export default function ProfilePage() {
         return
       }
       try {
-        const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
         const token = user?.token
-        const res = await fetch(`${API_BASE}/users/${encodeURIComponent(id)}`, {
+        const res = await fetch(buildApiUrl(`/users/${encodeURIComponent(id)}`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -47,9 +47,8 @@ export default function ProfilePage() {
         }
       } catch {}
       try {
-        const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
         const token = user?.token
-        const res = await fetch(`${API_BASE}/preferred-department/${encodeURIComponent(id)}`, {
+        const res = await fetch(buildApiUrl(`/preferred-department/${encodeURIComponent(id)}`), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -191,9 +190,9 @@ function PreferredDepartmentRow({ value, onChange, onClear }: PreferredDepartmen
     setOptionsLoading(true)
     setOptionsError(null)
     try {
-      const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
+      
       const token = authUser?.token
-      const res = await fetch(`${API_BASE}/gender`, {
+      const res = await fetch(buildApiUrl('/gender'), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -228,11 +227,11 @@ function PreferredDepartmentRow({ value, onChange, onClear }: PreferredDepartmen
 
   async function savePreferred(opt: GenderOption): Promise<boolean> {
     try {
-      const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
+      
       const token = authUser?.token
       const userId = authUser?.userId
       if (!userId) throw new Error('Missing user id')
-      const res = await fetch(`${API_BASE}/preferred-department`, {
+      const res = await fetch(buildApiUrl('/preferred-department'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -251,11 +250,11 @@ function PreferredDepartmentRow({ value, onChange, onClear }: PreferredDepartmen
 
   async function clearPreferred(): Promise<boolean> {
     try {
-      const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
+      
       const token = authUser?.token
       const userId = authUser?.userId
       if (!userId) throw new Error('Missing user id')
-      const res = await fetch(`${API_BASE}/preferred-department/${encodeURIComponent(userId)}`, {
+      const res = await fetch(buildApiUrl(`/preferred-department/${encodeURIComponent(userId)}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -2,6 +2,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import { useUIStore } from '../store/ui'
 import { clearAuthTokenCookie } from '../utils/token'
+import { buildApiUrl } from '../lib/api'
 
 export function Header() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated)
@@ -44,8 +45,7 @@ export function Header() {
                 style={{whiteSpace:'nowrap', padding:'6px 16px'}}
                 onClick={async () => {
                   try {
-                    const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
-                    const res = await fetch(`${API_BASE}/users/signOut`, {
+                    const res = await fetch(buildApiUrl('/users/signOut'), {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                     })

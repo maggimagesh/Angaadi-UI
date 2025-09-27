@@ -5,11 +5,11 @@ export type UserDetailsInsert = {
   password: string
 }
 
-const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
+import { buildApiUrl } from '../lib/api'
 
 export async function createUserRecord(payload: UserDetailsInsert): Promise<{ row: any | null; error: any | null }> {
   try {
-    const res = await fetch(`${API_BASE}/users/createUser`, {
+    const res = await fetch(buildApiUrl('/users/createUser'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -33,7 +33,7 @@ export type SignInInput = {
 
 export async function signIn(payload: SignInInput): Promise<{ user: any | null; token: string | null; error: any | null }>{
   try {
-    const res = await fetch(`${API_BASE}/users/signIn`, {
+    const res = await fetch(buildApiUrl('/users/signIn'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -62,7 +62,7 @@ import { getAuthTokenCookie } from '../utils/token'
 export async function fetchUserById(userId: string, token?: string): Promise<{ user: any | null; error: any | null }>{
   try {
     const headerToken = token || getAuthTokenCookie()
-    const res = await fetch(`${API_BASE}/users/${encodeURIComponent(userId)}`, {
+    const res = await fetch(buildApiUrl(`/users/${encodeURIComponent(userId)}`), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
