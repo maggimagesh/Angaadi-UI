@@ -3,7 +3,7 @@ export type UserDetailsInsert = {
   lastName: string
   emailId: string
   password: string
-}
+} 
 
 import { buildApiUrl } from '../lib/api'
 
