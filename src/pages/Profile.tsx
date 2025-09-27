@@ -1,0 +1,457 @@
+import { useEffect, useState } from 'react'
+import { useAuthStore } from '../store/auth'
+
+export default function ProfilePage() {
+  const user = useAuthStore(s => s.user)
+  const [profileName, setProfileName] = useState<string>('')
+  const [profileEmail, setProfileEmail] = useState<string>('')
+
+  useEffect(() => {
+    let mounted = true
+    async function load() {
+      const id = user?.userId
+      if (!id) {
+        // fallback to any locally available details (no hardcoded placeholder)
+        const nameFromParts = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim()
+        const name = nameFromParts || ''
+        if (mounted) {
+          setProfileName(name)
+          setProfileEmail(user?.emailId || '')
+        }
+        return
+      }
+      try {
+        const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
+        const token = user?.token
+        const res = await fetch(`${API_BASE}/users/${encodeURIComponent(id)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        })
+        if (res.ok) {
+          const body = await res.json()
+          const u = (body?.user || body?.userDetails || body?.row || body?.data || body?.result || body) as any
+          if (mounted && u) {
+            const first = (u.firstName ?? u.first_name ?? u.firstname) as string | undefined
+            const last = (u.lastName ?? u.last_name ?? u.lastname) as string | undefined
+            const altUserName = (u.userName ?? u.username) as string | undefined
+            const name = (u.name as string | undefined)
+              || [first, last].filter(Boolean).join(' ').trim()
+              || altUserName
+            const email = (u.email as string | undefined) || (u.emailId as string | undefined) || (u.email_id as string | undefined) || (user?.emailId || '')
+            setProfileName(name || '')
+            setProfileEmail(email || '')
+          }
+        }
+      } catch {}
+      try {
+        const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
+        const token = user?.token
+        const res = await fetch(`${API_BASE}/preferred-department/${encodeURIComponent(id)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const tk = (data?.titleKey as string) || 'gender'
+          const label =
+            (data?.preference?.gender?.[tk] as string | undefined) ||
+            (data?.gender?.[tk] as string | undefined) ||
+            (data?.[tk] as string | undefined) ||
+            (data?.genderName as string | undefined) ||
+            (data?.gender?.name as string | undefined) ||
+            (data?.preferredDepartment?.genderName as string | undefined) ||
+            (data?.name as string | undefined)
+          if (mounted) setPreferredDepartment(label || null)
+        }
+      } catch {}
+    }
+    load()
+    return () => { mounted = false }
+  }, [user])
+
+  const [activeDeptTab, setActiveDeptTab] = useState<'women' | 'men'>('women')
+
+  const [preferredDepartment, setPreferredDepartment] = useState<string | null>(null)
+
+  return (
+    <main className="app-main">
+      <section className="container p-6">
+        <header style={{display:'flex', alignItems:'center', gap:16, marginBottom:16}}>
+          <div style={{width:64, height:64, borderRadius:'50%', background:'var(--color-border)'}} aria-hidden="true" />
+          <div>
+            <h1 style={{margin:0}}>{profileName}</h1>
+            {profileEmail && (
+              <div style={{opacity:0.8, marginTop:4}}>{profileEmail}</div>
+            )}
+          </div>
+        </header>
+
+        <div className="card p-0" role="region" aria-label="Profile preferences">
+          <div style={{borderBottom:'1px solid var(--color-border)', padding:16, display:'flex', alignItems:'center', gap:12}}>
+            <button className="btn btn-ghost" aria-current="page">Clothing and Shoes</button>
+            <div className="surface" style={{padding:'6px 12px', borderRadius:'var(--radius-sm)', border:'1px solid var(--color-border)'}}>Size, fit and price</div>
+          </div>
+
+          <div style={{padding:16}}>
+            <section aria-label="About you" style={{borderTop:'1px solid var(--color-border)'}}>
+              <h2 className="sr-only">About you</h2>
+              <PreferredDepartmentRow
+                value={preferredDepartment}
+                onChange={(val) => setPreferredDepartment(val)}
+                onClear={() => setPreferredDepartment(null)}
+              />
+              <PreferenceRow label="Height and weight" />
+              <PreferenceRow label="Age group" />
+            </section>
+
+            <section aria-label="Department preferences" style={{marginTop:12}}>
+              <h2 style={{fontSize:16, fontWeight:700}}>Department preferences</h2>
+              <p style={{marginTop:4, opacity:0.85}}>Share preferences for each department to get improved recommendations when you shop there.</p>
+
+              <nav aria-label="Department tabs" style={{display:'flex', gap:16, borderBottom:'1px solid var(--color-border)', marginTop:12}}>
+                <button
+                  className="btn btn-ghost"
+                  role="tab"
+                  aria-selected={activeDeptTab==='women'}
+                  onClick={() => setActiveDeptTab('women')}
+                  style={{borderBottom: activeDeptTab==='women' ? '2px solid currentColor' : '2px solid transparent'}}
+                >
+                  Women’s
+                </button>
+                <button
+                  className="btn btn-ghost"
+                  role="tab"
+                  aria-selected={activeDeptTab==='men'}
+                  onClick={() => setActiveDeptTab('men')}
+                  style={{borderBottom: activeDeptTab==='men' ? '2px solid currentColor' : '2px solid transparent'}}
+                >
+                  Men’s
+                </button>
+              </nav>
+
+              <div role="tabpanel" style={{marginTop:8}}>
+                <PreferenceRow label="Fit attributes" />
+                <PreferenceRow label="Shoes" />
+              </div>
+            </section>
+
+            <section aria-label="Interests" style={{marginTop:12}}>
+              <h2 style={{fontSize:16, fontWeight:700}}>Interests</h2>
+              <div style={{display:'flex', flexWrap:'wrap', gap:8, marginTop:8}}>
+                {['Skin Care','Storage & Organization','Interior Design','Dorm Essentials','Hair Care and Styling','Babies and Toddlers','Baking','Women\'s Attire','Men\'s Attire','Party Planning'].map(tag => (
+                  <button key={tag} className="btn" aria-label={`Add interest ${tag}`}>+ {tag}</button>
+                ))}
+              </div>
+              <div style={{marginTop:16}}>
+                <button className="btn btn-primary">Save</button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  )
+}
+
+function PreferenceRow({ label }: { label: string }) {
+  return (
+    <div style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0', borderBottom:'1px solid var(--color-border)'}}>
+      <div style={{fontWeight:600}}>{label}</div>
+      <div style={{opacity:0.7}}>--</div>
+      <button className="btn" aria-label={`Edit ${label}`}>▾</button>
+    </div>
+  )
+}
+
+type PreferredDepartmentRowProps = {
+  value: string | null
+  onChange: (value: string) => void
+  onClear: () => void
+}
+
+type GenderOption = { id: string; label: string }
+
+function PreferredDepartmentRow({ value, onChange, onClear }: PreferredDepartmentRowProps) {
+  const [expanded, setExpanded] = useState<boolean>(false)
+  const [pickerOpen, setPickerOpen] = useState<boolean>(false)
+  const [clearOpen, setClearOpen] = useState<boolean>(false)
+  const authUser = useAuthStore(s => s.user)
+  const [options, setOptions] = useState<GenderOption[] | null>(null)
+  const [optionsLoading, setOptionsLoading] = useState<boolean>(false)
+  const [optionsError, setOptionsError] = useState<string | null>(null)
+
+  async function openPickerAndLoad() {
+    setPickerOpen(true)
+    setOptionsLoading(true)
+    setOptionsError(null)
+    try {
+      const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
+      const token = authUser?.token
+      const res = await fetch(`${API_BASE}/gender`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      })
+      if (!res.ok) {
+        const msg = (await res.json().catch(() => ({} as any)))?.message || res.statusText
+        throw new Error(msg || 'Failed to load gender list')
+      }
+      const data = await res.json()
+      const titleKey = (data && typeof data === 'object' && !Array.isArray(data) ? (data.titleKey as string) : undefined) || 'gender'
+      let arr: any = Array.isArray(data) ? data : (data?.genders ?? data?.items ?? data?.data ?? data?.rows ?? data?.results ?? [])
+      if (!Array.isArray(arr)) arr = []
+      const normalizedArr: GenderOption[] = arr.map((it: any) => {
+        if (typeof it === 'string') return { id: it, label: it }
+        const label: string = (it?.[titleKey] ?? it?.gender ?? it?.name ?? it?.label ?? it?.value ?? '').toString()
+        const id: string = (it?.id ?? it?.genderId ?? it?.valueId ?? it?._id ?? label).toString()
+        return { id, label }
+      }).filter((o: GenderOption) => !!o.label)
+      // de-duplicate by id
+      const dedupMap = new Map<string, GenderOption>()
+      normalizedArr.forEach(o => { if (!dedupMap.has(o.id)) dedupMap.set(o.id, o) })
+      setOptions(Array.from(dedupMap.values()))
+    } catch (e: any) {
+      setOptions([])
+      setOptionsError(e?.message || 'Failed to load options')
+    } finally {
+      setOptionsLoading(false)
+    }
+  }
+
+  async function savePreferred(opt: GenderOption): Promise<boolean> {
+    try {
+      const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
+      const token = authUser?.token
+      const userId = authUser?.userId
+      if (!userId) throw new Error('Missing user id')
+      const res = await fetch(`${API_BASE}/preferred-department`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ userId, genderId: opt.id }),
+      })
+      if (!res.ok) {
+        return false
+      }
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  async function clearPreferred(): Promise<boolean> {
+    try {
+      const API_BASE: string = (import.meta as any).env?.BACKEND_URL || 'http://localhost:3300/api/v1'
+      const token = authUser?.token
+      const userId = authUser?.userId
+      if (!userId) throw new Error('Missing user id')
+      const res = await fetch(`${API_BASE}/preferred-department/${encodeURIComponent(userId)}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({}),
+      })
+      if (!res.ok) return false
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  return (
+    <div style={{borderBottom:'1px solid var(--color-border)'}}>
+      <div
+        style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
+      >
+        <div style={{fontWeight:600}}>Preferred department</div>
+        <div style={{opacity: value ? 1 : 0.7}}>{value ?? '--'}</div>
+        <button
+          className="btn"
+          aria-expanded={expanded}
+          aria-controls="pref-dept-panel"
+          onClick={() => setExpanded(v => !v)}
+        >
+          {expanded ? '▴' : '▾'}
+        </button>
+      </div>
+
+      {expanded && (
+        <div id="pref-dept-panel" style={{padding:'0 0 12px 0'}}>
+          <div>
+            {!value ? (
+              <div style={{display:'flex', gap:8, alignItems:'center'}}>
+                <button
+                  className="btn"
+                  style={{borderRadius:9999}}
+                  onClick={openPickerAndLoad}
+                  aria-label="Add preferred department"
+                >
+                  + Add
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div style={{fontSize:22, fontWeight:800, marginBottom:8}}>{value}</div>
+                <div style={{display:'flex', gap:8, alignItems:'center'}}>
+                  <button
+                    className="btn btn-primary"
+                    style={{borderRadius:9999, height:32, padding:'0 12px', fontSize:14}}
+                    onClick={openPickerAndLoad}
+                    aria-label="Update preferred department"
+                  >
+                    Update
+                  </button>
+                  <button
+                    className="btn"
+                    style={{borderRadius:9999, height:32, padding:'0 12px', fontSize:14}}
+                    onClick={() => setClearOpen(true)}
+                    aria-label="Clear preferred department"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {pickerOpen && (
+        <DeptPickerModal
+          current={value}
+          options={options}
+          loading={optionsLoading}
+          error={optionsError}
+          onClose={() => setPickerOpen(false)}
+          onSave={async (opt: GenderOption) => {
+            const ok = await savePreferred(opt)
+            if (ok) {
+              onChange(opt.label)
+              setPickerOpen(false)
+              if (!expanded) setExpanded(true)
+            }
+          }}
+        />
+      )}
+
+      {clearOpen && (
+        <ConfirmClearModal
+          onCancel={() => setClearOpen(false)}
+          onConfirm={async () => {
+            const ok = await clearPreferred()
+            if (ok) {
+              onClear()
+              try {
+                const resJson = { message: 'The gender has been removed successfully' }
+                const { openSuccessWithDuration } = await import('../store/ui').then(m => ({ openSuccessWithDuration: m.useUIStore.getState().openSuccessWithDuration }))
+                openSuccessWithDuration(resJson.message, 4000)
+              } catch {}
+            }
+            setClearOpen(false)
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+function DeptPickerModal({ current, options, loading, error, onClose, onSave }: { current: string | null; options: { id: string; label: string }[] | null; loading: boolean; error: string | null; onClose: () => void; onSave: (opt: { id: string; label: string }) => void }) {
+  const [choice, setChoice] = useState<{ id: string; label: string } | null>(null)
+  // Preselect previously chosen option by label
+  useEffect(() => {
+    if (!choice && current && Array.isArray(options)) {
+      const found = options.find(o => String(o.label).toLowerCase() === String(current).toLowerCase()) || null
+      if (found) setChoice(found)
+    }
+  }, [options, current, choice])
+  const isDirty = choice !== null && (choice?.label !== current)
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Preferred Department" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:60}}>
+      <div className="card" style={{background:'#fff', color:'#000', padding:0, minWidth:520, position:'relative', borderRadius:16, boxShadow:'0 10px 24px rgba(0,0,0,0.45)'}}>
+        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 20px', background:'#f3f4f6', borderTopLeftRadius:16, borderTopRightRadius:16, borderBottom:'1px solid #e5e7eb'}}>
+          <h3 style={{margin:0, fontWeight:800, color:'#000'}}>Preferred department</h3>
+          <button
+            aria-label="Close"
+            onClick={onClose}
+            style={{width:40, height:40, borderRadius:12, background:'#0b0c0f', color:'#fff', border:'1px solid #0b0c0f', cursor:'pointer'}}
+          >
+            ×
+          </button>
+        </div>
+        <div style={{padding:24}}>
+          <p style={{fontSize:24, fontWeight:800, margin:'0 0 16px 0'}}>Which department do you typically shop in?</p>
+          {loading ? (
+            <div>Loading…</div>
+          ) : error ? (
+            <div style={{color:'#b91c1c'}}>Failed to load options</div>
+          ) : (
+            <div style={{display:'flex', gap:12, flexWrap:'wrap'}}>
+              {(options ?? []).map((opt) => {
+                const isSelected = choice?.id === opt.id
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => setChoice(opt)}
+                    style={{
+                      borderRadius:9999,
+                      padding:'12px 20px',
+                      background: isSelected ? '#3e6ae1' : '#ffffff',
+                      color: isSelected ? '#ffffff' : '#111827',
+                      border: `1px solid ${isSelected ? '#3e6ae1' : '#d1d5db'}`,
+                      fontWeight:700,
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+          <div style={{display:'flex', justifyContent:'flex-end', marginTop:28}}>
+            <button
+              onClick={() => { if (choice) { onSave(choice) } }}
+              disabled={!isDirty}
+              className="btn btn-primary"
+              style={{
+                borderRadius:9999,
+                padding:'10px 28px',
+                cursor: isDirty ? 'pointer' : 'not-allowed',
+                opacity: isDirty ? 1 : 0.6,
+              }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ConfirmClearModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Confirm clear" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
+      <div className="card" style={{background:'#fff', color:'#000', padding:20, minWidth:420, position:'relative', borderRadius:16}}>
+        <h3 style={{margin:'0 0 8px 0', fontWeight:800, color:'#000'}}>Are you sure want to clear?</h3>
+        <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
+          <button className="btn" onClick={onCancel} style={{borderRadius:9999, height:36, padding:'0 14px'}}>No</button>
+          <button className="btn btn-primary" onClick={onConfirm} style={{borderRadius:9999, height:36, padding:'0 14px'}}>Yes</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+

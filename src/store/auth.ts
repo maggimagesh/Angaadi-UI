@@ -4,6 +4,8 @@ export type AuthUser = {
   emailId: string
   firstName?: string
   lastName?: string
+  userId?: string
+  token?: string
 }
 
 type AuthState = {

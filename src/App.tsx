@@ -5,6 +5,7 @@ import HomePage from './pages/Home'
 import AuthPage from './pages/Auth'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
+import ProfilePage from './pages/Profile'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<AuthPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
         <SuccessModal />
         <DocModal />

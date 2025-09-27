@@ -1,6 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import { useUIStore } from '../store/ui'
+import { clearAuthTokenCookie } from '../utils/token'
 
 export function Header() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated)
@@ -53,6 +54,7 @@ export function Header() {
                       // Clear any local JWT storage keys if present
                       try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch {}
                       logout()
+                      try { clearAuthTokenCookie() } catch {}
                       const message = data?.message || 'Signed out successfully'
                       openSuccessWithDuration(message, 5000)
                     } else {

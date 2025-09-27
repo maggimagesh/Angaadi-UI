@@ -4,6 +4,7 @@ import { isStrongPassword } from '../utils/password'
 import { useUIStore } from '../store/ui'
 import { isLettersOnly } from '../utils/name'
 import { createUserRecord, signIn } from '../api/user'
+import { setAuthTokenCookie } from '../utils/token'
 import { useAuthStore } from '../store/auth'
 
 type AuthTab = 'signin' | 'signup'
@@ -180,7 +181,11 @@ function SignInPanel() {
                 return
               }
               if (statusEl) statusEl.textContent = ''
-              login({ emailId: e })
+              const signedInUser = res.user || {}
+              const userId: string | undefined = signedInUser.userId || signedInUser.id || signedInUser._id
+              const token: string | undefined = res.token || signedInUser.token || signedInUser.jwt || signedInUser.accessToken
+              if (token) setAuthTokenCookie(token, 7)
+              login({ emailId: e, userId, token })
               openSuccess('Login successful')
               setTimeout(() => { navigate('/') }, 2100)
             })()

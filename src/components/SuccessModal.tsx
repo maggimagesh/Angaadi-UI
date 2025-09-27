@@ -12,23 +12,52 @@ export function SuccessModal() {
 
   if (!successOpen) return null
   return (
-    <div role="dialog" aria-modal="true" aria-label="Success" id="success-modal" data-testid="success-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:50}}>
-      <div className="card p-6" style={{minWidth:320, textAlign:'center', position:'relative'}}>
-        <button aria-label="Close" id="success-close" data-testid="success-close" className="btn" style={{position:'absolute', right:12, top:12}} onClick={closeSuccess}>×</button>
-        <svg
-          id="success-icon"
-          data-testid="success-icon"
-          role="img"
-          aria-label="Success"
-          width="64"
-          height="64"
-          viewBox="0 0 24 24"
-          style={{display:'block', margin:'0 auto'}}
-        >
-          <path d="M5 13l4 4L19 7" fill="none" stroke="var(--color-success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <h3 className="mt-4" id="success-title" data-testid="success-title">{successMessage}</h3>
-      </div>
+    <div
+      role="status"
+      aria-live="polite"
+      id="success-toast"
+      data-testid="success-toast"
+      style={{
+        position:'fixed',
+        top:12,
+        right:12,
+        zIndex:60,
+        display:'inline-flex',
+        alignItems:'center',
+        gap:8,
+        padding:'6px 10px',
+        whiteSpace:'nowrap',
+        lineHeight:1.2,
+        maxWidth:'60vw',
+        borderRadius:8,
+        background:'#0f1219',
+        border:'1px solid var(--color-border)',
+        boxShadow:'var(--elev-2)'
+      }}
+    >
+      <span id="success-title" data-testid="success-title" style={{fontSize:14}}>{successMessage}</span>
+      <button
+        aria-label="Close"
+        id="success-close"
+        data-testid="success-close"
+        onClick={closeSuccess}
+        style={{
+          height:20,
+          width:20,
+          padding:0,
+          lineHeight:'20px',
+          display:'inline-flex',
+          alignItems:'center',
+          justifyContent:'center',
+          background:'transparent',
+          border:'1px solid var(--color-border)',
+          borderRadius:6,
+          color:'var(--color-text)',
+          cursor:'pointer',
+        }}
+      >
+        ×
+      </button>
     </div>
   )
 }
