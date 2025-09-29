@@ -15,6 +15,9 @@ const isDev = mode ? /^(dev|development)$/i.test(mode) : false
 // In production, require explicit VITE_BACKEND_URL configuration
 if (!isDev && !fromViteEnv) {
   console.warn('VITE_BACKEND_URL not configured for production. Please set it in your environment variables.')
+  console.warn('For Vercel deployment, add VITE_BACKEND_URL as environment variable with value like: https://your-api.vercel.app')
+} else if (!isDev && fromViteEnv) {
+  console.log('API base URL configured as:', fromViteEnv)
 }
 
 export const API_BASE: string = String(fromViteEnv || DEFAULT_DEV)
