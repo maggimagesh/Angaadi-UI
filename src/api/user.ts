@@ -201,3 +201,90 @@ export async function fetchUserById(userId: string): Promise<{ user?: UserRespon
     }
   }
 }
+
+// Protected endpoint: Save physical stats for a user
+export async function savePhysicalStats(userId: string, data: { heightUnit: string; weightUnit: string; heightValue: number; weightValue: number }): Promise<{ success?: boolean; error?: { message: string } }> {
+  try {
+    const token = getAuthTokenCookie()
+    if (!token) {
+      return { error: { message: 'Authentication required' } }
+    }
+
+    const response = await fetch(buildApiUrl('/users/physical-stats'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        userId,
+        ...data
+      }),
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        error: { 
+          message: result.message || 'Failed to save physical stats' 
+        } 
+      }
+    }
+
+    return { success: true }
+  } catch (error) {
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
+    }
+  }
+}
+
+// Protected endpoint: Fetch physical stats for the authenticated user
+export async function fetchPhysicalStats(): Promise<{ stats?: { 
+  id?: string; 
+  userId?: string; 
+  heightCm: number | null; 
+  heightFt: number | null; 
+  weightKg: number | null; 
+  weightLb: number | null; 
+  created_at?: string; 
+  updated_at?: string 
+}; error?: { message: string } }> {
+  try {
+    const token = getAuthTokenCookie()
+    if (!token) {
+      return { error: { message: 'Authentication required' } }
+    }
+
+    const response = await fetch(buildApiUrl('/users/physical-stats'), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        error: { 
+          message: result.message || 'Failed to fetch physical stats' 
+        } 
+      }
+    }
+
+    // The API returns { stats: { ... } }, so we should return the stats object directly
+    // Or if result is already the stats object, return it directly
+    return { stats: result.stats || result }
+  } catch (error) {
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
+    }
+  }
+}

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '../store/auth'
 import { fetchPreferredDepartment, setPreferredDepartment, deactivatePreferredDepartment, fetchGenderOptions } from '../api/gender'
+import { savePhysicalStats, fetchPhysicalStats } from '../api/user'
+import HeightWeightModal from '../components/HeightWeightModal'
 
 export default function ProfilePage() {
   const user = useAuthStore(s => s.user)
@@ -17,11 +19,16 @@ export default function ProfilePage() {
   const [activeDeptTab, setActiveDeptTab] = useState<'women' | 'men'>('women')
 
   const [preferredDepartment, setPreferredDepartment] = useState<string | null>(null)
+  
+  // Height and weight state
+  const [heightWeight, setHeightWeight] = useState<{ height: string; weight: string } | null>(null);
+  const [heightWeightModalOpen, setHeightWeightModalOpen] = useState<boolean>(false);
 
   // Load preferred department when component mounts
   useEffect(() => {
     if (user?.userId) {
-      loadPreferredDepartment()
+      loadPreferredDepartment();
+      loadHeightWeightData();
     }
   }, [user?.userId])
 
@@ -30,13 +37,96 @@ export default function ProfilePage() {
     
     try {
       const result = await fetchPreferredDepartment(user.userId)
-      if (result.department) {
-        setPreferredDepartment(result.department.department || result.department.gender)
+      if (result.preference) {
+        // The API response has a 'preference' object with 'gender' field
+        setPreferredDepartment(result.preference.gender)
       }
     } catch (error) {
       console.error('Failed to load preferred department:', error)
     }
   }
+
+  const loadHeightWeightData = async () => {
+    if (!user?.userId) return;
+    
+    try {
+      const result = await fetchPhysicalStats();
+      if (result.stats) {
+        // Extract values based on the actual API response structure
+        const stats = result.stats;
+        
+        // Determine height value and unit
+        let heightValue, heightUnit;
+        if (stats.heightCm !== null && stats.heightCm !== undefined) {
+          heightValue = stats.heightCm;
+          heightUnit = 'cm';
+        } else if (stats.heightFt !== null && stats.heightFt !== undefined) {
+          heightValue = stats.heightFt;
+          heightUnit = 'ft';
+        } else {
+          heightValue = null;
+          heightUnit = '';
+        }
+        
+        // Determine weight value and unit
+        let weightValue, weightUnit;
+        if (stats.weightKg !== null && stats.weightKg !== undefined) {
+          weightValue = stats.weightKg;
+          weightUnit = 'kg';
+        } else if (stats.weightLb !== null && stats.weightLb !== undefined) {
+          weightValue = stats.weightLb;
+          weightUnit = 'lb';
+        } else {
+          weightValue = null;
+          weightUnit = '';
+        }
+        
+        if (heightValue !== null && weightValue !== null) {
+          setHeightWeight({
+            height: `${heightValue} ${heightUnit}`,
+            weight: `${weightValue} ${weightUnit}`
+          });
+        } else {
+          setHeightWeight(null);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load height and weight data:', error);
+    }
+  };
+
+  const saveHeightWeightData = async (data: { heightUnit: string; weightUnit: string; heightValue: number; weightValue: number }) => {
+    if (!user?.userId) {
+      console.error('User not authenticated');
+      return;
+    }
+
+    try {
+      const result = await savePhysicalStats(user.userId, data);
+      if (result.success) {
+        setHeightWeight({
+          height: `${data.heightValue} ${data.heightUnit}`,
+          weight: `${data.weightValue} ${data.weightUnit}`
+        });
+        
+        // Show success message
+        try {
+          const { openSuccessWithDuration } = await import('../store/ui').then(m => ({ 
+            openSuccessWithDuration: m.useUIStore.getState().openSuccessWithDuration 
+          }));
+          openSuccessWithDuration('Height and weight saved successfully', 4000);
+        } catch {}
+        
+        return true;
+      } else {
+        console.error('Failed to save physical stats:', result.error?.message);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error saving physical stats:', error);
+      return false;
+    }
+  };
 
   return (
     <main className="app-main">
@@ -65,7 +155,11 @@ export default function ProfilePage() {
                 onChange={(val) => setPreferredDepartment(val)}
                 onClear={() => setPreferredDepartment(null)}
               />
-              <PreferenceRow label="Height and weight" />
+              <HeightWeightRow
+                value={heightWeight}
+                onAdd={() => setHeightWeightModalOpen(true)}
+                onUpdate={() => setHeightWeightModalOpen(true)}
+              />
               <PreferenceRow label="Age group" />
             </section>
 
@@ -114,6 +208,14 @@ export default function ProfilePage() {
           </div>
         </div>
       </section>
+
+      {heightWeightModalOpen && (
+        <HeightWeightModal
+          open={heightWeightModalOpen}
+          onClose={() => setHeightWeightModalOpen(false)}
+          onSave={saveHeightWeightData}
+        />
+      )}
     </main>
   )
 }
@@ -126,6 +228,71 @@ function PreferenceRow({ label }: { label: string }) {
       <button className="btn" aria-label={`Edit ${label}`}>▾</button>
     </div>
   )
+}
+
+type HeightWeightRowProps = {
+  value: { height: string; weight: string } | null;
+  onAdd: () => void;
+  onUpdate: () => void;
+}
+
+function HeightWeightRow({ value, onAdd, onUpdate }: HeightWeightRowProps) {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  
+  return (
+    <div style={{borderBottom:'1px solid var(--color-border)'}}>
+      <div
+        style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
+      >
+        <div style={{fontWeight:600, color: 'var(--color-text)'}}>Height and weight</div>
+        <div style={{opacity: value ? 1 : 0.7, color: 'var(--color-text)'}}>
+          {value ? `${value.height} | ${value.weight}` : '--'}
+        </div>
+        <button
+          className="btn"
+          aria-expanded={expanded}
+          aria-controls="height-weight-panel"
+          onClick={() => setExpanded(v => !v)}
+          style={{ color: 'var(--color-text)' }}
+        >
+          {expanded ? '▴' : '▾'}
+        </button>
+      </div>
+
+      {expanded && (
+        <div id="height-weight-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 8}}>
+          {!value ? (
+            <button
+              className="btn"
+              style={{borderRadius:'var(--radius-full)', alignSelf: 'flex-start'}}
+              onClick={onAdd}
+              aria-label="Add height and weight"
+            >
+              + Add
+            </button>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-text)' }}>
+                  {value.height} | {value.weight}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  className="btn btn-primary"
+                  style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 12px', fontSize: 14 }}
+                  onClick={onUpdate}
+                  aria-label="Update height and weight"
+                >
+                  Update
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 type PreferredDepartmentRowProps = {

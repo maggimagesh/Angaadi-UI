@@ -116,7 +116,7 @@ export async function setPreferredDepartment(userId: string, genderId: string): 
 }
 
 // Protected endpoint: Fetch latest preferred department for a user
-export async function fetchPreferredDepartment(userId: string): Promise<{ department?: PreferredDepartmentResponse; error?: { message: string } }> {
+export async function fetchPreferredDepartment(userId: string): Promise<{ preference?: any; error?: { message: string } }> {
   try {
     const token = getAuthTokenCookie()
     if (!token) {
@@ -141,9 +141,9 @@ export async function fetchPreferredDepartment(userId: string): Promise<{ depart
       }
     }
 
-    // Return the first (latest) department if multiple exist
-    const department = Array.isArray(result) ? result[0] : result
-    return { department }
+    // The API returns { "preference": { ... } } format as you specified
+    // Return the preference object directly
+    return { preference: result.preference || result }
   } catch (error) {
     return { 
       error: { 
