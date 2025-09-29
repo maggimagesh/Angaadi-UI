@@ -1,8 +1,8 @@
 import { Link, NavLink } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import { useUIStore } from '../store/ui'
+import { signOut } from '../api/user'
 import { clearAuthTokenCookie } from '../utils/token'
-import { buildApiUrl } from '../lib/api'
 
 export function Header() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated)
@@ -45,24 +45,26 @@ export function Header() {
                 style={{whiteSpace:'nowrap', padding:'6px 16px'}}
                 onClick={async () => {
                   try {
-                    const res = await fetch(buildApiUrl('/users/signOut'), {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                    })
-                    const data = await res.json().catch(() => ({}))
-                    if (res.ok) {
+                    const result = await signOut()
+                    if (result.success) {
                       // Clear any local JWT storage keys if present
                       try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch {}
                       logout()
                       try { clearAuthTokenCookie() } catch {}
-                      const message = data?.message || 'Signed out successfully'
-                      openSuccessWithDuration(message, 5000)
+                      openSuccessWithDuration(result.message || 'Signed out successfully', 5000)
                     } else {
-                      const errMessage = data?.message || 'Sign out failed'
-                      openSuccessWithDuration(errMessage, 5000)
+                      // Even if API call fails, still perform local logout
+                      try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch {}
+                      logout()
+                      try { clearAuthTokenCookie() } catch {}
+                      openSuccessWithDuration(result.error?.message || 'Signed out successfully', 5000)
                     }
-                  } catch (e: any) {
-                    openSuccessWithDuration('Network error during sign out', 5000)
+                  } catch (error) {
+                    // In case of network error, still perform local logout
+                    try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch {}
+                    logout()
+                    try { clearAuthTokenCookie() } catch {}
+                    openSuccessWithDuration('Signed out successfully', 5000)
                   }
                 }}
               >

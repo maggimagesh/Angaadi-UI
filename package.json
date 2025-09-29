@@ -8,8 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "api:dev": "echo 'API moved to ./API. Run from that folder: npm i && npm run dev'"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^19.1.1",

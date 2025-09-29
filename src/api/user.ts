@@ -1,102 +1,203 @@
-export type UserDetailsInsert = {
+import { buildApiUrl } from '../lib/api'
+import { getAuthTokenCookie, clearAuthTokenCookie } from '../utils/token'
+
+interface CreateUserRequest {
   firstName: string
   lastName: string
   emailId: string
   password: string
-} 
-
-import { buildApiUrl } from '../lib/api'
-
-export async function createUserRecord(payload: UserDetailsInsert): Promise<{ row: any | null; error: any | null }> {
-  try {
-    console.log('Making API call to:', buildApiUrl('/users/createUser'))
-    const res = await fetch(buildApiUrl('/users/createUser'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    if (!res.ok) {
-      const errJson = await res.json().catch(() => null)
-      const errorMessage = (errJson && (errJson.message || errJson.error)) || res.statusText || 'Request failed'
-      return { row: null, error: { message: errorMessage, details: errJson?.details ?? null, status: res.status } }
-    }
-    const data = await res.json()
-    return { row: data.user ?? data, error: null }
-  } catch (e: any) {
-    console.error('API call failed:', e)
-    // Check if this could be a CORS error
-    if (e.name === 'TypeError' && e.message.includes('fetch')) {
-      console.error('This might be a CORS error. Check that your API allows requests from your UI domain.')
-    }
-    return { row: null, error: { message: e?.message || 'Network error' } }
-  }
 }
 
-export type SignInInput = {
+interface SignInRequest {
   emailId: string
   password: string
 }
 
-export async function signIn(payload: SignInInput): Promise<{ user: any | null; token: string | null; error: any | null }>{
-  try {
-    console.log('Making sign-in API call to:', buildApiUrl('/users/signIn'))
-    const res = await fetch(buildApiUrl('/users/signIn'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    if (!res.ok) {
-      const errJson = await res.json().catch(() => null)
-      const errorMessage = (errJson && (errJson.message || errJson.error)) || res.statusText || 'Request failed'
-      return { user: null, token: null, error: { message: errorMessage, status: res.status } }
-    }
-    const authHeader = res.headers.get('authorization') || res.headers.get('Authorization') || res.headers.get('x-access-token')
-    const bearerToken = authHeader?.toLowerCase().startsWith('bearer ')
-      ? authHeader.slice(7)
-      : authHeader || null
-    const data = await res.json()
-    const bodyToken = data?.token || data?.jwt || data?.accessToken || data?.authToken || data?.user?.token || null
-    const token = bodyToken || bearerToken || null
-    return { user: data.user ?? data, token, error: null }
-  } catch (e: any) {
-    console.error('Sign-in API call failed:', e)
-    // Check if this could be a CORS error
-    if (e.name === 'TypeError' && e.message.includes('fetch')) {
-      console.error('This might be a CORS error. Check that your API allows requests from your UI domain.')
-    }
-    return { user: null, token: null, error: { message: e?.message || 'Network error' } }
+interface UserResponse {
+  id?: string
+  userId?: string
+  _id?: string
+  firstName?: string
+  lastName?: string
+  emailId?: string
+  token?: string
+  jwt?: string
+  accessToken?: string
+}
+
+interface ApiResponse<T> {
+  user?: T
+  token?: string
+  error?: {
+    message: string
   }
 }
 
-
-import { getAuthTokenCookie } from '../utils/token'
-
-export async function fetchUserById(userId: string, token?: string): Promise<{ user: any | null; error: any | null }>{
+// Public endpoint: Create a new user
+export async function createUserRecord(data: CreateUserRequest): Promise<ApiResponse<UserResponse>> {
   try {
-    const headerToken = token || getAuthTokenCookie()
-    console.log('Making fetch user API call to:', buildApiUrl(`/users/${encodeURIComponent(userId)}`))
-    const res = await fetch(buildApiUrl(`/users/${encodeURIComponent(userId)}`), {
+    const response = await fetch(buildApiUrl('/users/createUser'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        error: { 
+          message: result.message || 'Failed to create user' 
+        } 
+      }
+    }
+
+    return { user: result }
+  } catch (error) {
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
+    }
+  }
+}
+
+// Public endpoint: Sign in with email and password
+export async function signIn(data: SignInRequest): Promise<ApiResponse<UserResponse>> {
+  try {
+    const response = await fetch(buildApiUrl('/users/signIn'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        error: { 
+          message: result.message || 'Invalid email or password' 
+        } 
+      }
+    }
+
+    return { user: result.user || result, token: result.token }
+  } catch (error) {
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
+    }
+  }
+}
+
+// Public endpoint: Sign out
+export async function signOut(): Promise<{ success: boolean; message?: string; error?: { message: string } }> {
+  try {
+    const response = await fetch(buildApiUrl('/users/signOut'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    // Clear the auth token cookie regardless of API response
+    clearAuthTokenCookie()
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        success: false,
+        error: { 
+          message: result.message || 'Failed to sign out' 
+        } 
+      }
+    }
+
+    return { success: true, message: result.message || 'Signed out successfully' }
+  } catch (error) {
+    return { 
+      success: false,
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
+    }
+  }
+}
+
+// Protected endpoint: Fetch all users
+export async function fetchAllUsers(): Promise<{ users?: UserResponse[]; error?: { message: string } }> {
+  try {
+    const token = getAuthTokenCookie()
+    if (!token) {
+      return { error: { message: 'Authentication required' } }
+    }
+
+    const response = await fetch(buildApiUrl('/users'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        ...(headerToken ? { Authorization: `Bearer ${headerToken}` } : {}),
+        'Authorization': `Bearer ${token}`
       },
     })
-    if (!res.ok) {
-      const errJson = await res.json().catch(() => null)
-      const errorMessage = (errJson && (errJson.message || errJson.error)) || res.statusText || 'Request failed'
-      return { user: null, error: { message: errorMessage, status: res.status } }
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        error: { 
+          message: result.message || 'Failed to fetch users' 
+        } 
+      }
     }
-    const data = await res.json()
-    return { user: data.user ?? data, error: null }
-  } catch (e: any) {
-    console.error('Fetch user API call failed:', e)
-    // Check if this could be a CORS error
-    if (e.name === 'TypeError' && e.message.includes('fetch')) {
-      console.error('This might be a CORS error. Check that your API allows requests from your UI domain.')
+
+    return { users: result }
+  } catch (error) {
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
     }
-    return { user: null, error: { message: e?.message || 'Network error' } }
   }
 }
 
+// Protected endpoint: Fetch a specific user by ID
+export async function fetchUserById(userId: string): Promise<{ user?: UserResponse; error?: { message: string } }> {
+  try {
+    const token = getAuthTokenCookie()
+    if (!token) {
+      return { error: { message: 'Authentication required' } }
+    }
 
+    const response = await fetch(buildApiUrl(`/users/${userId}`), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        error: { 
+          message: result.message || 'Failed to fetch user' 
+        } 
+      }
+    }
+
+    return { user: result }
+  } catch (error) {
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
+    }
+  }
+}

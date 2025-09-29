@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '../store/auth'
-import { buildApiUrl } from '../lib/api'
+import { fetchPreferredDepartment, setPreferredDepartment, deactivatePreferredDepartment, fetchGenderOptions } from '../api/gender'
 
 export default function ProfilePage() {
   const user = useAuthStore(s => s.user)
@@ -8,75 +8,35 @@ export default function ProfilePage() {
   const [profileEmail, setProfileEmail] = useState<string>('')
 
   useEffect(() => {
-    let mounted = true
-    async function load() {
-      const id = user?.userId
-      if (!id) {
-        // fallback to any locally available details (no hardcoded placeholder)
-        const nameFromParts = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim()
-        const name = nameFromParts || ''
-        if (mounted) {
-          setProfileName(name)
-          setProfileEmail(user?.emailId || '')
-        }
-        return
-      }
-      try {
-        const token = user?.token
-        const res = await fetch(buildApiUrl(`/users/${encodeURIComponent(id)}`), {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        })
-        if (res.ok) {
-          const body = await res.json()
-          const u = (body?.user || body?.userDetails || body?.row || body?.data || body?.result || body) as any
-          if (mounted && u) {
-            const first = (u.firstName ?? u.first_name ?? u.firstname) as string | undefined
-            const last = (u.lastName ?? u.last_name ?? u.lastname) as string | undefined
-            const altUserName = (u.userName ?? u.username) as string | undefined
-            const name = (u.name as string | undefined)
-              || [first, last].filter(Boolean).join(' ').trim()
-              || altUserName
-            const email = (u.email as string | undefined) || (u.emailId as string | undefined) || (u.email_id as string | undefined) || (user?.emailId || '')
-            setProfileName(name || '')
-            setProfileEmail(email || '')
-          }
-        }
-      } catch {}
-      try {
-        const token = user?.token
-        const res = await fetch(buildApiUrl(`/preferred-department/${encodeURIComponent(id)}`), {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        })
-        if (res.ok) {
-          const data = await res.json()
-          const tk = (data?.titleKey as string) || 'gender'
-          const label =
-            (data?.preference?.gender?.[tk] as string | undefined) ||
-            (data?.gender?.[tk] as string | undefined) ||
-            (data?.[tk] as string | undefined) ||
-            (data?.genderName as string | undefined) ||
-            (data?.gender?.name as string | undefined) ||
-            (data?.preferredDepartment?.genderName as string | undefined) ||
-            (data?.name as string | undefined)
-          if (mounted) setPreferredDepartment(label || null)
-        }
-      } catch {}
-    }
-    load()
-    return () => { mounted = false }
+    // Only use local user data, no API calls
+    const nameFromParts = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim()
+    setProfileName(nameFromParts || '')
+    setProfileEmail(user?.emailId || '')
   }, [user])
 
   const [activeDeptTab, setActiveDeptTab] = useState<'women' | 'men'>('women')
 
   const [preferredDepartment, setPreferredDepartment] = useState<string | null>(null)
+
+  // Load preferred department when component mounts
+  useEffect(() => {
+    if (user?.userId) {
+      loadPreferredDepartment()
+    }
+  }, [user?.userId])
+
+  const loadPreferredDepartment = async () => {
+    if (!user?.userId) return
+    
+    try {
+      const result = await fetchPreferredDepartment(user.userId)
+      if (result.department) {
+        setPreferredDepartment(result.department.department || result.department.gender)
+      }
+    } catch (error) {
+      console.error('Failed to load preferred department:', error)
+    }
+  }
 
   return (
     <main className="app-main">
@@ -180,91 +140,90 @@ function PreferredDepartmentRow({ value, onChange, onClear }: PreferredDepartmen
   const [expanded, setExpanded] = useState<boolean>(false)
   const [pickerOpen, setPickerOpen] = useState<boolean>(false)
   const [clearOpen, setClearOpen] = useState<boolean>(false)
-  const authUser = useAuthStore(s => s.user)
-  const [options, setOptions] = useState<GenderOption[] | null>(null)
-  const [optionsLoading, setOptionsLoading] = useState<boolean>(false)
+  const [optionsLoading, setOptionsLoading] = useState<boolean>(true)
   const [optionsError, setOptionsError] = useState<string | null>(null)
-
-  async function openPickerAndLoad() {
-    setPickerOpen(true)
+  const authUser = useAuthStore(s => s.user)
+  const [options, setOptions] = useState<GenderOption[]>([])
+  
+  async function loadGenderOptions(): Promise<void> {
     setOptionsLoading(true)
     setOptionsError(null)
     try {
-      
-      const token = authUser?.token
-      const res = await fetch(buildApiUrl('/gender'), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      })
-      if (!res.ok) {
-        const msg = (await res.json().catch(() => ({} as any)))?.message || res.statusText
-        throw new Error(msg || 'Failed to load gender list')
+      const result = await fetchGenderOptions()
+      if (result.options) {
+        setOptions(result.options)
+      } else {
+        setOptionsError(result.error?.message || 'Failed to load gender options')
+        // Fallback to default options
+        setOptions([
+          { id: 'women', label: 'Women\'s' },
+          { id: 'men', label: 'Men\'s' },
+          { id: 'unisex', label: 'Unisex' }
+        ])
       }
-      const data = await res.json()
-      const titleKey = (data && typeof data === 'object' && !Array.isArray(data) ? (data.titleKey as string) : undefined) || 'gender'
-      let arr: any = Array.isArray(data) ? data : (data?.genders ?? data?.items ?? data?.data ?? data?.rows ?? data?.results ?? [])
-      if (!Array.isArray(arr)) arr = []
-      const normalizedArr: GenderOption[] = arr.map((it: any) => {
-        if (typeof it === 'string') return { id: it, label: it }
-        const label: string = (it?.[titleKey] ?? it?.gender ?? it?.name ?? it?.label ?? it?.value ?? '').toString()
-        const id: string = (it?.id ?? it?.genderId ?? it?.valueId ?? it?._id ?? label).toString()
-        return { id, label }
-      }).filter((o: GenderOption) => !!o.label)
-      // de-duplicate by id
-      const dedupMap = new Map<string, GenderOption>()
-      normalizedArr.forEach(o => { if (!dedupMap.has(o.id)) dedupMap.set(o.id, o) })
-      setOptions(Array.from(dedupMap.values()))
-    } catch (e: any) {
-      setOptions([])
-      setOptionsError(e?.message || 'Failed to load options')
+    } catch (error) {
+      setOptionsError(error instanceof Error ? error.message : 'Failed to load gender options')
+      // Fallback to default options
+      setOptions([
+        { id: 'women', label: 'Women\'s' },
+        { id: 'men', label: 'Men\'s' },
+        { id: 'unisex', label: 'Unisex' }
+      ])
     } finally {
       setOptionsLoading(false)
     }
   }
 
+
+
+  function openPickerAndLoad() {
+    setPickerOpen(true)
+    // Load options if they haven't been loaded yet, or refresh them
+    if (options.length === 0 || optionsLoading) {
+      loadGenderOptions()
+    }
+  }
+
   async function savePreferred(opt: GenderOption): Promise<boolean> {
+    if (!authUser?.userId) {
+      setOptionsError('User not authenticated')
+      return false
+    }
+    
     try {
-      
-      const token = authUser?.token
-      const userId = authUser?.userId
-      if (!userId) throw new Error('Missing user id')
-      const res = await fetch(buildApiUrl('/preferred-department'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ userId, genderId: opt.id }),
-      })
-      if (!res.ok) {
+      const result = await setPreferredDepartment(authUser.userId, opt.id)
+      if (result.department) {
+        onChange(opt.label)
+        setPickerOpen(false)
+        if (!expanded) setExpanded(true)
+        return true
+      } else {
+        setOptionsError(result.error?.message || 'Failed to save preferred department')
         return false
       }
-      return true
-    } catch {
+    } catch (error) {
+      setOptionsError(error instanceof Error ? error.message : 'Failed to save preferred department')
       return false
     }
   }
 
   async function clearPreferred(): Promise<boolean> {
+    if (!authUser?.userId) {
+      setOptionsError('User not authenticated')
+      return false
+    }
+    
     try {
-      
-      const token = authUser?.token
-      const userId = authUser?.userId
-      if (!userId) throw new Error('Missing user id')
-      const res = await fetch(buildApiUrl(`/preferred-department/${encodeURIComponent(userId)}`), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({}),
-      })
-      if (!res.ok) return false
-      return true
-    } catch {
+      const result = await deactivatePreferredDepartment(authUser.userId)
+      if (result.success) {
+        onClear()
+        return true
+      } else {
+        setOptionsError(result.error?.message || 'Failed to clear preferred department')
+        return false
+      }
+    } catch (error) {
+      setOptionsError(error instanceof Error ? error.message : 'Failed to clear preferred department')
       return false
     }
   }
