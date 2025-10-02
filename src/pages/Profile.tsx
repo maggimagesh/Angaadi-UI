@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '../store/auth'
+import { useUIStore } from '../store/ui'
 import { fetchPreferredDepartment, setPreferredDepartment, deactivatePreferredDepartment, fetchGenderOptions } from '../api/gender'
 import { savePhysicalStats, fetchPhysicalStats } from '../api/user'
+import { fetchAllAgeGroups, fetchUserAgeGroup, saveUserAgeGroup, removeUserAgeGroup } from '../api/ageGroup'
+import type { AgeGroup } from '../api/ageGroup'
 import HeightWeightModal from '../components/HeightWeightModal'
+import AgeGroupModal from '../components/AgeGroupModal'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 export default function ProfilePage() {
@@ -25,17 +29,33 @@ export default function ProfilePage() {
   const [heightWeight, setHeightWeight] = useState<{ height: string; weight: string } | null>(null);
   const [heightWeightModalOpen, setHeightWeightModalOpen] = useState<boolean>(false);
 
+  // Age group state
+  const [ageGroup, setAgeGroup] = useState<string | null>(null);
+  const [ageGroupId, setAgeGroupId] = useState<string | null>(null);
+  const [ageGroupModalOpen, setAgeGroupModalOpen] = useState<boolean>(false);
+  const [ageGroupClearOpen, setAgeGroupClearOpen] = useState<boolean>(false);
+  const [allAgeGroups, setAllAgeGroups] = useState<AgeGroup[]>([]);
+  const [ageGroupsError, setAgeGroupsError] = useState<string | null>(null);
+
   // Loading states
   const [preferredDeptLoading, setPreferredDeptLoading] = useState<boolean>(false);
   const [heightWeightLoading, setHeightWeightLoading] = useState<boolean>(false);
+  const [ageGroupLoading, setAgeGroupLoading] = useState<boolean>(false);
+  const [ageGroupsLoading, setAgeGroupsLoading] = useState<boolean>(false);
 
   // Load preferred department when component mounts
   useEffect(() => {
     if (user?.userId) {
       loadPreferredDepartment();
       loadHeightWeightData();
+      loadAgeGroupData();
     }
   }, [user?.userId])
+
+  // Load all age groups on component mount (only once)
+  useEffect(() => {
+    loadAllAgeGroups();
+  }, [])
 
   const loadPreferredDepartment = async () => {
     if (!user?.userId) return
@@ -139,6 +159,99 @@ export default function ProfilePage() {
     }
   };
 
+  const loadAllAgeGroups = async () => {
+    setAgeGroupsLoading(true);
+    setAgeGroupsError(null);
+    try {
+      const result = await fetchAllAgeGroups();
+      if (result.ageGroups) {
+        setAllAgeGroups(result.ageGroups);
+      } else {
+        setAgeGroupsError(result.error?.message || 'Failed to load age groups');
+      }
+    } catch (error) {
+      console.error('Failed to load age groups:', error);
+      setAgeGroupsError('Failed to load age groups');
+    } finally {
+      setAgeGroupsLoading(false);
+    }
+  };
+
+  const loadAgeGroupData = async () => {
+    if (!user?.userId) return;
+    
+    setAgeGroupLoading(true);
+    try {
+      const result = await fetchUserAgeGroup(user.userId);
+      if (result.userAgeGroup?.ageGroup) {
+        setAgeGroup(result.userAgeGroup.ageGroup.ageRange);
+        setAgeGroupId(result.userAgeGroup.ageGroupId);
+      } else {
+        setAgeGroup(null);
+        setAgeGroupId(null);
+      }
+    } catch (error) {
+      console.error('Failed to load age group data:', error);
+    } finally {
+      setAgeGroupLoading(false);
+    }
+  };
+
+  const saveAgeGroupData = async (ageGroupId: string) => {
+    if (!user?.userId) {
+      console.error('User not authenticated');
+      return false;
+    }
+
+    try {
+      const result = await saveUserAgeGroup(user.userId, ageGroupId);
+      if (result.userAgeGroup) {
+        // Find the age group object to get the ageRange
+        const selectedAgeGroup = allAgeGroups.find(ag => ag.id === ageGroupId);
+        if (selectedAgeGroup) {
+          setAgeGroup(selectedAgeGroup.ageRange);
+          setAgeGroupId(ageGroupId);
+        }
+        
+        // Show success message
+        try {
+          const { openSuccessWithDuration } = useUIStore.getState();
+          openSuccessWithDuration(result.message || 'Age group saved successfully', 4000);
+        } catch {}
+        
+        return true;
+      } else {
+        console.error('Failed to save age group:', result.error?.message);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error saving age group:', error);
+      return false;
+    }
+  };
+
+  const clearAgeGroupData = async (): Promise<boolean> => {
+    if (!user?.userId) {
+      console.error('User not authenticated');
+      return false;
+    }
+
+    try {
+      const result = await removeUserAgeGroup(user.userId);
+      if (result.success) {
+        setAgeGroup(null);
+        setAgeGroupId(null);
+        return true;
+      } else {
+        console.error('Failed to clear age group:', result.error?.message);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error clearing age group:', error);
+      return false;
+    }
+  };
+
   return (
     <main className="app-main">
       <section className="container p-6">
@@ -173,7 +286,13 @@ export default function ProfilePage() {
                 onUpdate={() => setHeightWeightModalOpen(true)}
                 loading={heightWeightLoading}
               />
-              <PreferenceRow label="Age group" />
+              <AgeGroupRow
+                value={ageGroup}
+                onAdd={() => setAgeGroupModalOpen(true)}
+                onUpdate={() => setAgeGroupModalOpen(true)}
+                onClear={() => setAgeGroupClearOpen(true)}
+                loading={ageGroupLoading}
+              />
             </section>
 
             <section aria-label="Department preferences" style={{marginTop:12}}>
@@ -227,6 +346,39 @@ export default function ProfilePage() {
           open={heightWeightModalOpen}
           onClose={() => setHeightWeightModalOpen(false)}
           onSave={saveHeightWeightData}
+        />
+      )}
+
+      {ageGroupModalOpen && (
+        <AgeGroupModal
+          open={ageGroupModalOpen}
+          onClose={() => setAgeGroupModalOpen(false)}
+          onSave={async (selectedAgeGroupId) => {
+            const success = await saveAgeGroupData(selectedAgeGroupId);
+            if (success) {
+              setAgeGroupModalOpen(false);
+            }
+          }}
+          currentAgeGroupId={ageGroupId}
+          ageGroups={allAgeGroups}
+          loading={ageGroupsLoading}
+          error={ageGroupsError}
+        />
+      )}
+
+      {ageGroupClearOpen && (
+        <ConfirmClearAgeGroupModal
+          onCancel={() => setAgeGroupClearOpen(false)}
+          onConfirm={async () => {
+            const ok = await clearAgeGroupData();
+            if (ok) {
+              try {
+                const { openSuccessWithDuration } = useUIStore.getState();
+                openSuccessWithDuration('Age group has been removed successfully', 4000);
+              } catch {}
+            }
+            setAgeGroupClearOpen(false);
+          }}
         />
       )}
     </main>
@@ -302,6 +454,84 @@ function HeightWeightRow({ value, onAdd, onUpdate, loading = false }: HeightWeig
                   aria-label="Update height and weight"
                 >
                   Update
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type AgeGroupRowProps = {
+  value: string | null;
+  onAdd: () => void;
+  onUpdate: () => void;
+  onClear: () => void;
+  loading?: boolean;
+}
+
+function AgeGroupRow({ value, onAdd, onUpdate, onClear, loading = false }: AgeGroupRowProps) {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  
+  return (
+    <div style={{borderBottom:'1px solid var(--color-border)'}}>
+      <div
+        style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
+      >
+        <div style={{fontWeight:600, color: 'var(--color-text)'}}>Age group</div>
+        <div style={{opacity: value ? 1 : 0.7, color: 'var(--color-text)'}}>
+          {loading ? (
+            <LoadingSpinner size="small" text="Loading..." />
+          ) : value || '--'}
+        </div>
+        <button
+          className="btn"
+          aria-expanded={expanded}
+          aria-controls="age-group-panel"
+          onClick={() => setExpanded(v => !v)}
+          style={{ color: 'var(--color-text)' }}
+          disabled={loading}
+        >
+          {expanded ? '▴' : '▾'}
+        </button>
+      </div>
+
+      {expanded && (
+        <div id="age-group-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 8}}>
+          {!value ? (
+            <button
+              className="btn"
+              style={{borderRadius:'var(--radius-full)', alignSelf: 'flex-start'}}
+              onClick={onAdd}
+              aria-label="Add age group"
+            >
+              + Add
+            </button>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-text)' }}>
+                  {value}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  className="btn btn-primary"
+                  style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 12px', fontSize: 14 }}
+                  onClick={onUpdate}
+                  aria-label="Update age group"
+                >
+                  Update
+                </button>
+                <button
+                  className="btn"
+                  style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 12px', fontSize: 14 }}
+                  onClick={onClear}
+                  aria-label="Clear age group"
+                >
+                  Clear
                 </button>
               </div>
             </div>
@@ -596,6 +826,20 @@ function ConfirmClearModal({ onCancel, onConfirm }: { onCancel: () => void; onCo
         <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
           <button className="btn" onClick={onCancel} style={{borderRadius:9999, height:36, padding:'0 14px'}}>No</button>
           <button className="btn btn-primary" onClick={onConfirm} style={{borderRadius:9999, height:36, padding:'0 14px'}}>Yes</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ConfirmClearAgeGroupModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Confirm clear age group" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
+      <div className="card" style={{background:'var(--color-card)', color:'var(--color-text)', padding:20, minWidth:420, position:'relative', borderRadius:16, boxShadow:'var(--elev-3)'}}>
+        <h3 style={{margin:'0 0 8px 0', fontWeight:800, color:'var(--color-text)'}}>Are you sure want to clear?</h3>
+        <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
+          <button className="btn" onClick={onCancel} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>No</button>
+          <button className="btn btn-primary" onClick={onConfirm} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>Yes</button>
         </div>
       </div>
     </div>
