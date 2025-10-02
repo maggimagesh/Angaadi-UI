@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/auth'
 import { fetchPreferredDepartment, setPreferredDepartment, deactivatePreferredDepartment, fetchGenderOptions } from '../api/gender'
 import { savePhysicalStats, fetchPhysicalStats } from '../api/user'
 import HeightWeightModal from '../components/HeightWeightModal'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 export default function ProfilePage() {
   const user = useAuthStore(s => s.user)
@@ -24,6 +25,10 @@ export default function ProfilePage() {
   const [heightWeight, setHeightWeight] = useState<{ height: string; weight: string } | null>(null);
   const [heightWeightModalOpen, setHeightWeightModalOpen] = useState<boolean>(false);
 
+  // Loading states
+  const [preferredDeptLoading, setPreferredDeptLoading] = useState<boolean>(false);
+  const [heightWeightLoading, setHeightWeightLoading] = useState<boolean>(false);
+
   // Load preferred department when component mounts
   useEffect(() => {
     if (user?.userId) {
@@ -35,6 +40,7 @@ export default function ProfilePage() {
   const loadPreferredDepartment = async () => {
     if (!user?.userId) return
     
+    setPreferredDeptLoading(true);
     try {
       const result = await fetchPreferredDepartment(user.userId)
       if (result.preference) {
@@ -43,12 +49,15 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error('Failed to load preferred department:', error)
+    } finally {
+      setPreferredDeptLoading(false);
     }
   }
 
   const loadHeightWeightData = async () => {
     if (!user?.userId) return;
     
+    setHeightWeightLoading(true);
     try {
       const result = await fetchPhysicalStats();
       if (result.stats) {
@@ -92,6 +101,8 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error('Failed to load height and weight data:', error);
+    } finally {
+      setHeightWeightLoading(false);
     }
   };
 
@@ -154,11 +165,13 @@ export default function ProfilePage() {
                 value={preferredDepartment}
                 onChange={(val) => setPreferredDepartment(val)}
                 onClear={() => setPreferredDepartment(null)}
+                loading={preferredDeptLoading}
               />
               <HeightWeightRow
                 value={heightWeight}
                 onAdd={() => setHeightWeightModalOpen(true)}
                 onUpdate={() => setHeightWeightModalOpen(true)}
+                loading={heightWeightLoading}
               />
               <PreferenceRow label="Age group" />
             </section>
@@ -234,9 +247,10 @@ type HeightWeightRowProps = {
   value: { height: string; weight: string } | null;
   onAdd: () => void;
   onUpdate: () => void;
+  loading?: boolean;
 }
 
-function HeightWeightRow({ value, onAdd, onUpdate }: HeightWeightRowProps) {
+function HeightWeightRow({ value, onAdd, onUpdate, loading = false }: HeightWeightRowProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
   
   return (
@@ -246,7 +260,9 @@ function HeightWeightRow({ value, onAdd, onUpdate }: HeightWeightRowProps) {
       >
         <div style={{fontWeight:600, color: 'var(--color-text)'}}>Height and weight</div>
         <div style={{opacity: value ? 1 : 0.7, color: 'var(--color-text)'}}>
-          {value ? `${value.height} | ${value.weight}` : '--'}
+          {loading ? (
+            <LoadingSpinner size="small" text="Loading..." />
+          ) : value ? `${value.height} | ${value.weight}` : '--'}
         </div>
         <button
           className="btn"
@@ -254,6 +270,7 @@ function HeightWeightRow({ value, onAdd, onUpdate }: HeightWeightRowProps) {
           aria-controls="height-weight-panel"
           onClick={() => setExpanded(v => !v)}
           style={{ color: 'var(--color-text)' }}
+          disabled={loading}
         >
           {expanded ? '▴' : '▾'}
         </button>
@@ -299,11 +316,12 @@ type PreferredDepartmentRowProps = {
   value: string | null
   onChange: (value: string) => void
   onClear: () => void
+  loading?: boolean
 }
 
 type GenderOption = { id: string; label: string }
 
-function PreferredDepartmentRow({ value, onChange, onClear }: PreferredDepartmentRowProps) {
+function PreferredDepartmentRow({ value, onChange, onClear, loading = false }: PreferredDepartmentRowProps) {
   const [expanded, setExpanded] = useState<boolean>(false)
   const [pickerOpen, setPickerOpen] = useState<boolean>(false)
   const [clearOpen, setClearOpen] = useState<boolean>(false)
@@ -401,12 +419,17 @@ function PreferredDepartmentRow({ value, onChange, onClear }: PreferredDepartmen
         style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
       >
         <div style={{fontWeight:600}}>Preferred department</div>
-        <div style={{opacity: value ? 1 : 0.7}}>{value ?? '--'}</div>
+        <div style={{opacity: value ? 1 : 0.7}}>
+          {loading ? (
+            <LoadingSpinner size="small" text="Loading..." />
+          ) : value ?? '--'}
+        </div>
         <button
           className="btn"
           aria-expanded={expanded}
           aria-controls="pref-dept-panel"
           onClick={() => setExpanded(v => !v)}
+          disabled={loading}
         >
           {expanded ? '▴' : '▾'}
         </button>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchPhysicalStats } from '../api/user';
+import LoadingSpinner from './LoadingSpinner';
 
 interface HeightWeightModalProps {
   open: boolean;
@@ -176,182 +177,188 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
         </div>
         
         <div style={{ padding: 24, background: 'var(--color-card)' }}>
-          <form onSubmit={handleSubmit}>
-            <p style={{ fontSize: 24, fontWeight: 800, margin: '0 0 20px 0', color: 'var(--color-text)' }}>What's your current height and weight?</p>
-            
-            {error && (
-              <div style={{ 
-                backgroundColor: '#fee2e2', 
-                color: '#b91c1c', 
-                padding: '10px', 
-                borderRadius: 'var(--radius-md)', 
-                marginBottom: '16px' 
-              }}>
-                {error}
-              </div>
-            )}
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              {/* Height input */}
-              <div>
-                <label style={{ 
-                  display: 'block', 
-                  fontWeight: 600, 
-                  marginBottom: 8,
-                  fontSize: 'var(--font-sm)',
-                  color: 'var(--color-text)'
+          {isLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+              <LoadingSpinner size="medium" text="Loading your data..." />
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <p style={{ fontSize: 24, fontWeight: 800, margin: '0 0 20px 0', color: 'var(--color-text)' }}>What's your current height and weight?</p>
+              
+              {error && (
+                <div style={{ 
+                  backgroundColor: '#fee2e2', 
+                  color: '#b91c1c', 
+                  padding: '10px', 
+                  borderRadius: 'var(--radius-md)', 
+                  marginBottom: '16px' 
                 }}>
-                  Height
-                </label>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <input
-                    type="number"
-                    value={heightValue}
-                    onChange={(e) => setHeightValue(e.target.value)}
-                    placeholder="Enter your height"
-                    className="input"
-                    style={{ 
-                      flex: 1,
-                      padding: '12px',
-                      fontSize: 'var(--font-md)',
-                      background: 'var(--color-surface)',
-                      color: 'var(--color-text)',
-                      border: '1px solid var(--color-border)'
-                    }}
-                    step="0.1"
-                  />
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    <button
-                      type="button"
-                      onClick={() => setHeightUnit('cm')}
-                      style={{
-                        borderRadius: 'var(--radius-full)',
-                        padding: '8px 16px',
-                        background: heightUnit === 'cm' ? 'var(--color-primary)' : 'var(--color-surface)',
-                        color: heightUnit === 'cm' ? 'white' : 'var(--color-text)',
-                        border: `1px solid ${heightUnit === 'cm' ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                        fontWeight: 700,
-                        fontSize: 'var(--font-sm)',
-                        cursor: 'pointer'
+                  {error}
+                </div>
+              )}
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                {/* Height input */}
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    fontWeight: 600, 
+                    marginBottom: 8,
+                    fontSize: 'var(--font-sm)',
+                    color: 'var(--color-text)'
+                  }}>
+                    Height
+                  </label>
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                    <input
+                      type="number"
+                      value={heightValue}
+                      onChange={(e) => setHeightValue(e.target.value)}
+                      placeholder="Enter your height"
+                      className="input"
+                      style={{ 
+                        flex: 1,
+                        padding: '12px',
+                        fontSize: 'var(--font-md)',
+                        background: 'var(--color-surface)',
+                        color: 'var(--color-text)',
+                        border: '1px solid var(--color-border)'
                       }}
-                      aria-pressed={heightUnit === 'cm'}
-                    >
-                      cm
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setHeightUnit('ft')}
-                      style={{
-                        borderRadius: 'var(--radius-full)',
-                        padding: '8px 16px',
-                        background: heightUnit === 'ft' ? 'var(--color-primary)' : 'var(--color-surface)',
-                        color: heightUnit === 'ft' ? 'white' : 'var(--color-text)',
-                        border: `1px solid ${heightUnit === 'ft' ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                        fontWeight: 700,
-                        fontSize: 'var(--font-sm)',
-                        cursor: 'pointer'
+                      step="0.1"
+                    />
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button
+                        type="button"
+                        onClick={() => setHeightUnit('cm')}
+                        style={{
+                          borderRadius: 'var(--radius-full)',
+                          padding: '8px 16px',
+                          background: heightUnit === 'cm' ? 'var(--color-primary)' : 'var(--color-surface)',
+                          color: heightUnit === 'cm' ? 'white' : 'var(--color-text)',
+                          border: `1px solid ${heightUnit === 'cm' ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                          fontWeight: 700,
+                          fontSize: 'var(--font-sm)',
+                          cursor: 'pointer'
+                        }}
+                        aria-pressed={heightUnit === 'cm'}
+                      >
+                        cm
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setHeightUnit('ft')}
+                        style={{
+                          borderRadius: 'var(--radius-full)',
+                          padding: '8px 16px',
+                          background: heightUnit === 'ft' ? 'var(--color-primary)' : 'var(--color-surface)',
+                          color: heightUnit === 'ft' ? 'white' : 'var(--color-text)',
+                          border: `1px solid ${heightUnit === 'ft' ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                          fontWeight: 700,
+                          fontSize: 'var(--font-sm)',
+                          cursor: 'pointer'
+                        }}
+                        aria-pressed={heightUnit === 'ft'}
+                      >
+                        ft
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Weight input */}
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    fontWeight: 600, 
+                    marginBottom: 8,
+                    fontSize: 'var(--font-sm)',
+                    color: 'var(--color-text)'
+                  }}>
+                    Weight
+                  </label>
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                    <input
+                      type="number"
+                      value={weightValue}
+                      onChange={(e) => setWeightValue(e.target.value)}
+                      placeholder="Enter your weight"
+                      className="input"
+                      style={{ 
+                        flex: 1,
+                        padding: '12px',
+                        fontSize: 'var(--font-md)',
+                        background: 'var(--color-surface)',
+                        color: 'var(--color-text)',
+                        border: '1px solid var(--color-border)'
                       }}
-                      aria-pressed={heightUnit === 'ft'}
-                    >
-                      ft
-                    </button>
+                      step="0.1"
+                    />
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button
+                        type="button"
+                        onClick={() => setWeightUnit('kg')}
+                        style={{
+                          borderRadius: 'var(--radius-full)',
+                          padding: '8px 16px',
+                          background: weightUnit === 'kg' ? 'var(--color-primary)' : 'var(--color-surface)',
+                          color: weightUnit === 'kg' ? 'white' : 'var(--color-text)',
+                          border: `1px solid ${weightUnit === 'kg' ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                          fontWeight: 700,
+                          fontSize: 'var(--font-sm)',
+                          cursor: 'pointer'
+                        }}
+                        aria-pressed={weightUnit === 'kg'}
+                      >
+                        kg
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setWeightUnit('lb')}
+                        style={{
+                          borderRadius: 'var(--radius-full)',
+                          padding: '8px 16px',
+                          background: weightUnit === 'lb' ? 'var(--color-primary)' : 'var(--color-surface)',
+                          color: weightUnit === 'lb' ? 'white' : 'var(--color-text)',
+                          border: `1px solid ${weightUnit === 'lb' ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                          fontWeight: 700,
+                          fontSize: 'var(--font-sm)',
+                          cursor: 'pointer'
+                        }}
+                        aria-pressed={weightUnit === 'lb'}
+                      >
+                        lb
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
               
-              {/* Weight input */}
-              <div>
-                <label style={{ 
-                  display: 'block', 
-                  fontWeight: 600, 
-                  marginBottom: 8,
-                  fontSize: 'var(--font-sm)',
-                  color: 'var(--color-text)'
-                }}>
-                  Weight
-                </label>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <input
-                    type="number"
-                    value={weightValue}
-                    onChange={(e) => setWeightValue(e.target.value)}
-                    placeholder="Enter your weight"
-                    className="input"
-                    style={{ 
-                      flex: 1,
-                      padding: '12px',
-                      fontSize: 'var(--font-md)',
-                      background: 'var(--color-surface)',
-                      color: 'var(--color-text)',
-                      border: '1px solid var(--color-border)'
-                    }}
-                    step="0.1"
-                  />
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    <button
-                      type="button"
-                      onClick={() => setWeightUnit('kg')}
-                      style={{
-                        borderRadius: 'var(--radius-full)',
-                        padding: '8px 16px',
-                        background: weightUnit === 'kg' ? 'var(--color-primary)' : 'var(--color-surface)',
-                        color: weightUnit === 'kg' ? 'white' : 'var(--color-text)',
-                        border: `1px solid ${weightUnit === 'kg' ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                        fontWeight: 700,
-                        fontSize: 'var(--font-sm)',
-                        cursor: 'pointer'
-                      }}
-                      aria-pressed={weightUnit === 'kg'}
-                    >
-                      kg
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setWeightUnit('lb')}
-                      style={{
-                        borderRadius: 'var(--radius-full)',
-                        padding: '8px 16px',
-                        background: weightUnit === 'lb' ? 'var(--color-primary)' : 'var(--color-surface)',
-                        color: weightUnit === 'lb' ? 'white' : 'var(--color-text)',
-                        border: `1px solid ${weightUnit === 'lb' ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                        fontWeight: 700,
-                        fontSize: 'var(--font-sm)',
-                        cursor: 'pointer'
-                      }}
-                      aria-pressed={weightUnit === 'lb'}
-                    >
-                      lb
-                    </button>
-                  </div>
-                </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 28, gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="btn"
+                  style={{
+                    borderRadius: 'var(--radius-full)',
+                    padding: '10px 28px',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{
+                    borderRadius: 'var(--radius-full)',
+                    padding: '10px 28px',
+                  }}
+                  disabled={isLoading}
+                >
+                  {isLoading ? <LoadingSpinner size="small" text="Saving..." /> : 'Save'}
+                </button>
               </div>
-            </div>
-            
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 28, gap: 12 }}>
-              <button
-                type="button"
-                onClick={onClose}
-                className="btn"
-                style={{
-                  borderRadius: 'var(--radius-full)',
-                  padding: '10px 28px',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{
-                  borderRadius: 'var(--radius-full)',
-                  padding: '10px 28px',
-                }}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Saving...' : 'Save'}
-              </button>
-            </div>
-          </form>
+            </form>
+          )}
         </div>
       </div>
     </div>

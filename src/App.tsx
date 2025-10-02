@@ -3,9 +3,10 @@ import './index.css'
 import { Header } from './components/Header'
 import HomePage from './pages/Home'
 import AuthPage from './pages/Auth'
+import ProfilePage from './pages/Profile'
+import HealthPage from './pages/Health'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
-import ProfilePage from './pages/Profile'
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/health" element={<HealthPage />} />
         </Routes>
         <SuccessModal />
         <DocModal />

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { checkHealth } from '../api/health'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 export default function HealthPage() {
   const [healthStatus, setHealthStatus] = useState<{ status?: string; message?: string; error?: string } | null>(null)
@@ -33,7 +34,7 @@ export default function HealthPage() {
         <div className="card p-6">
           <h1>System Health Status</h1>
           {loading ? (
-            <p>Loading...</p>
+            <LoadingSpinner size="medium" text="Checking system health..." />
           ) : healthStatus?.error ? (
             <div style={{ color: 'var(--color-danger)' }}>
               <p>Error: {healthStatus.error}</p>

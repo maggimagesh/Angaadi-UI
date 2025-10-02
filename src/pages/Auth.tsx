@@ -6,6 +6,7 @@ import { isLettersOnly } from '../utils/name'
 import { createUserRecord, signIn } from '../api/user'
 import { setAuthTokenCookie } from '../utils/token'
 import { useAuthStore } from '../store/auth'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 type AuthTab = 'signin' | 'signup'
 
@@ -61,6 +62,7 @@ function SignInPanel() {
   const [error, setError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState(false)
   const [passwordError, setPasswordError] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const REMEMBER_KEY = 'login.remember'
   const REMEMBER_EMAIL_KEY = 'login.email'
@@ -144,6 +146,7 @@ function SignInPanel() {
           data-testid="login-submit"
           data-test-name="login-submit"
           aria-label="Sign in"
+          disabled={isLoading}
           onClick={() => {
             setError(null)
             setEmailError(false)
@@ -173,25 +176,33 @@ function SignInPanel() {
             }
 
             ;(async () => {
-              const res = await signIn({ emailId: e, password: p })
-              if (res.error) {
-                setPasswordError(true)
-                setError(res.error.message || 'Invalid email or password')
-                if (statusEl) statusEl.textContent = res.error.message || 'Invalid email or password'
-                return
+              setIsLoading(true);
+              try {
+                const res = await signIn({ emailId: e, password: p })
+                if (res.error) {
+                  setPasswordError(true)
+                  setError(res.error.message || 'Invalid email or password')
+                  if (statusEl) statusEl.textContent = res.error.message || 'Invalid email or password'
+                  return
+                }
+                if (statusEl) statusEl.textContent = ''
+                const signedInUser = res.user || {}
+                const userId: string | undefined = signedInUser.userId || signedInUser.id || signedInUser._id
+                const token: string | undefined = res.token || signedInUser.token || signedInUser.jwt || signedInUser.accessToken
+                if (token) setAuthTokenCookie(token, 7)
+                login({ emailId: e, userId, token })
+                openSuccess('Login successful')
+                setTimeout(() => { navigate('/') }, 2100)
+              } catch (error) {
+                setError('An unexpected error occurred. Please try again.')
+                if (statusEl) statusEl.textContent = 'An unexpected error occurred. Please try again.'
+              } finally {
+                setIsLoading(false);
               }
-              if (statusEl) statusEl.textContent = ''
-              const signedInUser = res.user || {}
-              const userId: string | undefined = signedInUser.userId || signedInUser.id || signedInUser._id
-              const token: string | undefined = res.token || signedInUser.token || signedInUser.jwt || signedInUser.accessToken
-              if (token) setAuthTokenCookie(token, 7)
-              login({ emailId: e, userId, token })
-              openSuccess('Login successful')
-              setTimeout(() => { navigate('/') }, 2100)
             })()
           }}
         >
-          Sign in
+          {isLoading ? <LoadingSpinner size="small" text="Signing in..." /> : 'Sign in'}
         </button>
 
         <div className="mt-6" role="separator" style={{height:1, background:'var(--color-border)'}} />
@@ -254,6 +265,7 @@ function SignUpPanel() {
   const [emailError, setEmailError] = useState(false)
   const [passwordError, setPasswordError] = useState(false)
   const [confirmError, setConfirmError] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const statusEl = document.getElementById('signup-status')
@@ -346,6 +358,7 @@ function SignUpPanel() {
           data-testid="signup-submit"
           data-test-name="signup-submit"
           aria-label="Sign Up"
+          disabled={isLoading}
           onClick={() => {
             setError(null)
             setFirstNameError(false)
@@ -391,26 +404,33 @@ function SignUpPanel() {
               return
             }
             ;(async () => {
-              const res = await createUserRecord({
-                firstName,
-                lastName,
-                emailId: email,
-                password,
-              })
-              if (res.error) {
-                setError(res.error.message)
-                return
+              setIsLoading(true);
+              try {
+                const res = await createUserRecord({
+                  firstName,
+                  lastName,
+                  emailId: email,
+                  password,
+                })
+                if (res.error) {
+                  setError(res.error.message)
+                  return
+                }
+                const s = document.getElementById('signup-status')
+                if (s) s.textContent = ''
+                setSuccess(true)
+                login({ emailId: email, firstName, lastName })
+                openSuccess('Account created successfully')
+                setTimeout(() => { window.location.href = '/' }, 2100)
+              } catch (error) {
+                setError('An unexpected error occurred. Please try again.')
+              } finally {
+                setIsLoading(false);
               }
-              const s = document.getElementById('signup-status')
-              if (s) s.textContent = ''
-              setSuccess(true)
-              login({ emailId: email, firstName, lastName })
-              openSuccess('Account created successfully')
-              setTimeout(() => { window.location.href = '/' }, 2100)
             })()
           }}
         >
-          Sign Up
+          {isLoading ? <LoadingSpinner size="small" text="Creating account..." /> : 'Sign Up'}
         </button>
 
         {/* Success feedback removed per requirement (navigate directly) */}
