@@ -189,8 +189,10 @@ function SignInPanel() {
                 const signedInUser = res.user || {}
                 const userId: string | undefined = signedInUser.userId || signedInUser.id || signedInUser._id
                 const token: string | undefined = res.token || signedInUser.token || signedInUser.jwt || signedInUser.accessToken
+                const firstName: string | undefined = signedInUser.firstName
+                const lastName: string | undefined = signedInUser.lastName
                 if (token) setAuthTokenCookie(token, 7)
-                login({ emailId: e, userId, token })
+                login({ emailId: e, userId, token, firstName, lastName })
                 openSuccess('Login successful')
                 setTimeout(() => { navigate('/') }, 2100)
               } catch (error) {

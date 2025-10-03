@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react'
 import { useAuthStore } from '../store/auth'
 import { useUIStore } from '../store/ui'
 import { fetchPreferredDepartment, setPreferredDepartment, deactivatePreferredDepartment, fetchGenderOptions } from '../api/gender'
-import { savePhysicalStats, fetchPhysicalStats } from '../api/user'
+import { savePhysicalStats, fetchPhysicalStats, fetchUserById } from '../api/user'
 import { fetchAllAgeGroups, fetchUserAgeGroup, saveUserAgeGroup, removeUserAgeGroup } from '../api/ageGroup'
+import { fetchAllFitAttributes, fetchUserFitAttributes, batchSaveFitAttributes } from '../api/fitAttributes'
 import type { AgeGroup } from '../api/ageGroup'
+import type { FitAttribute, UserFitAttribute } from '../api/fitAttributes'
 import HeightWeightModal from '../components/HeightWeightModal'
 import AgeGroupModal from '../components/AgeGroupModal'
+import FitAttributesModal from '../components/FitAttributesModal'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 export default function ProfilePage() {
@@ -14,14 +17,44 @@ export default function ProfilePage() {
   const [profileName, setProfileName] = useState<string>('')
   const [profileEmail, setProfileEmail] = useState<string>('')
 
+  // Load user profile data from API
   useEffect(() => {
-    // Only use local user data, no API calls
-    const nameFromParts = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim()
-    setProfileName(nameFromParts || '')
-    setProfileEmail(user?.emailId || '')
-  }, [user])
+    const loadUserProfile = async () => {
+      if (!user?.userId) {
+        // Fallback to local user data if no userId
+        const nameFromParts = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim()
+        const emailId = user?.emailId || ''
+        setProfileName(nameFromParts || 'User')
+        setProfileEmail(emailId)
+        return
+      }
 
-  const [activeDeptTab, setActiveDeptTab] = useState<'women' | 'men'>('women')
+      try {
+        const result = await fetchUserById(user.userId)
+        if (result.user) {
+          const nameFromParts = [result.user.firstName, result.user.lastName].filter(Boolean).join(' ').trim()
+          const emailId = result.user.emailId || user.emailId || ''
+          setProfileName(nameFromParts || 'User')
+          setProfileEmail(emailId)
+        } else {
+          // Fallback to local user data on error
+          const nameFromParts = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim()
+          const emailId = user?.emailId || ''
+          setProfileName(nameFromParts || 'User')
+          setProfileEmail(emailId)
+        }
+      } catch (error) {
+        console.error('Failed to load user profile:', error)
+        // Fallback to local user data on error
+        const nameFromParts = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim()
+        const emailId = user?.emailId || ''
+        setProfileName(nameFromParts || 'User')
+        setProfileEmail(emailId)
+      }
+    }
+
+    loadUserProfile()
+  }, [user?.userId, user?.firstName, user?.lastName, user?.emailId])
 
   const [preferredDepartment, setPreferredDepartment] = useState<string | null>(null)
   
@@ -37,6 +70,16 @@ export default function ProfilePage() {
   const [allAgeGroups, setAllAgeGroups] = useState<AgeGroup[]>([]);
   const [ageGroupsError, setAgeGroupsError] = useState<string | null>(null);
 
+  // Fit attributes state
+  const [allFitAttributes, setAllFitAttributes] = useState<FitAttribute[]>([]);
+  const [userFitAttributes, setUserFitAttributes] = useState<UserFitAttribute[]>([]);
+  const [fitAttributesLastUpdated, setFitAttributesLastUpdated] = useState<string | null>(null);
+  const [fitAttributesModalOpen, setFitAttributesModalOpen] = useState<boolean>(false);
+  const [fitAttributesModalCategory, setFitAttributesModalCategory] = useState<'womens' | 'mens'>('womens');
+  const [fitAttributesClearOpen, setFitAttributesClearOpen] = useState<boolean>(false);
+  const [fitAttributesLoading, setFitAttributesLoading] = useState<boolean>(false);
+  const [fitAttributesError, setFitAttributesError] = useState<string | null>(null);
+
   // Loading states
   const [preferredDeptLoading, setPreferredDeptLoading] = useState<boolean>(false);
   const [heightWeightLoading, setHeightWeightLoading] = useState<boolean>(false);
@@ -49,12 +92,14 @@ export default function ProfilePage() {
       loadPreferredDepartment();
       loadHeightWeightData();
       loadAgeGroupData();
+      loadUserFitAttributes();
     }
   }, [user?.userId])
 
-  // Load all age groups on component mount (only once)
+  // Load all age groups and fit attributes on component mount (only once)
   useEffect(() => {
     loadAllAgeGroups();
+    loadAllFitAttributes();
   }, [])
 
   const loadPreferredDepartment = async () => {
@@ -252,6 +297,94 @@ export default function ProfilePage() {
     }
   };
 
+  const loadAllFitAttributes = async () => {
+    setFitAttributesLoading(true);
+    setFitAttributesError(null);
+    try {
+      const result = await fetchAllFitAttributes();
+      
+      if (result.fitAttributes) {
+        setAllFitAttributes(result.fitAttributes);
+      } else {
+        setFitAttributesError(result.error?.message || 'Failed to load fit attributes');
+      }
+    } catch (error) {
+      console.error('Failed to load fit attributes:', error);
+      setFitAttributesError('Failed to load fit attributes');
+    } finally {
+      setFitAttributesLoading(false);
+    }
+  };
+
+  const loadUserFitAttributes = async () => {
+    if (!user?.userId) return;
+    
+    try {
+      const result = await fetchUserFitAttributes(user.userId);
+      if (result.userFitAttributes) {
+        setUserFitAttributes(result.userFitAttributes);
+        setFitAttributesLastUpdated(result.lastUpdated || null);
+      } else {
+        setUserFitAttributes([]);
+        setFitAttributesLastUpdated(null);
+      }
+    } catch (error) {
+      console.error('Failed to load user fit attributes:', error);
+    }
+  };
+
+  const saveFitAttributesData = async (attributes: Array<{ fitAttributeId: string; value: string }>) => {
+    if (!user?.userId) {
+      console.error('User not authenticated');
+      return false;
+    }
+
+    try {
+      const result = await batchSaveFitAttributes(user.userId, attributes);
+      if (result.success) {
+        // Reload user fit attributes to get updated data
+        await loadUserFitAttributes();
+        
+        // Show success message
+        try {
+          const { openSuccessWithDuration } = useUIStore.getState();
+          openSuccessWithDuration(result.message || 'Fit attributes saved successfully', 4000);
+        } catch {}
+        
+        return true;
+      } else {
+        console.error('Failed to save fit attributes:', result.error?.message);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error saving fit attributes:', error);
+      return false;
+    }
+  };
+
+  const clearFitAttributesData = async (): Promise<boolean> => {
+    if (!user?.userId) {
+      console.error('User not authenticated');
+      return false;
+    }
+
+    try {
+      const { removeAllFitAttributes } = await import('../api/fitAttributes');
+      const result = await removeAllFitAttributes(user.userId);
+      if (result.success) {
+        setUserFitAttributes([]);
+        setFitAttributesLastUpdated(null);
+        return true;
+      } else {
+        console.error('Failed to clear fit attributes:', result.error?.message);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error clearing fit attributes:', error);
+      return false;
+    }
+  };
+
   return (
     <main className="app-main" id="profile-page" data-testid="profile-page">
       <section className="container p-6">
@@ -299,33 +432,17 @@ export default function ProfilePage() {
               <h2 id="dept-preferences-title" data-testid="dept-preferences-title" style={{fontSize:16, fontWeight:700}}>Department preferences</h2>
               <p id="dept-preferences-subtitle" data-testid="dept-preferences-subtitle" style={{marginTop:4, opacity:0.85}}>Share preferences for each department to get improved recommendations when you shop there.</p>
 
-              <nav aria-label="Department tabs" id="dept-tabs" data-testid="dept-tabs" style={{display:'flex', gap:16, borderBottom:'1px solid var(--color-border)', marginTop:12}}>
-                <button
-                  id="dept-tab-women"
-                  data-testid="dept-tab-women"
-                  className="btn btn-ghost"
-                  role="tab"
-                  aria-selected={activeDeptTab==='women'}
-                  onClick={() => setActiveDeptTab('women')}
-                  style={{borderBottom: activeDeptTab==='women' ? '2px solid currentColor' : '2px solid transparent'}}
-                >
-                  Women's
-                </button>
-                <button
-                  id="dept-tab-men"
-                  data-testid="dept-tab-men"
-                  className="btn btn-ghost"
-                  role="tab"
-                  aria-selected={activeDeptTab==='men'}
-                  onClick={() => setActiveDeptTab('men')}
-                  style={{borderBottom: activeDeptTab==='men' ? '2px solid currentColor' : '2px solid transparent'}}
-                >
-                  Men's
-                </button>
-              </nav>
-
-              <div role="tabpanel" style={{marginTop:8}}>
-                <PreferenceRow label="Fit attributes" />
+              <div style={{marginTop:12}}>
+                <FitAttributesRow 
+                  category="womens"
+                  fitAttributes={allFitAttributes}
+                  userFitAttributes={userFitAttributes}
+                  lastUpdated={fitAttributesLastUpdated}
+                  loading={fitAttributesLoading}
+                  onAdd={() => { setFitAttributesModalCategory('womens'); setFitAttributesModalOpen(true); }}
+                  onUpdate={() => { setFitAttributesModalCategory('womens'); setFitAttributesModalOpen(true); }}
+                  onClear={() => setFitAttributesClearOpen(true)}
+                />
                 <PreferenceRow label="Shoes" />
               </div>
             </section>
@@ -385,8 +502,206 @@ export default function ProfilePage() {
           }}
         />
       )}
+
+      {fitAttributesModalOpen && (
+        <FitAttributesModal
+          open={fitAttributesModalOpen}
+          onClose={() => setFitAttributesModalOpen(false)}
+          onSave={saveFitAttributesData}
+          category={fitAttributesModalCategory}
+          fitAttributes={allFitAttributes}
+          currentValues={userFitAttributes.filter(ua => {
+            const attr = allFitAttributes.find(a => a.id === ua.fitAttributeId);
+            return attr?.category === fitAttributesModalCategory;
+          })}
+          loading={fitAttributesLoading}
+          error={fitAttributesError}
+        />
+      )}
+
+      {fitAttributesClearOpen && (
+        <ConfirmClearFitAttributesModal
+          onCancel={() => setFitAttributesClearOpen(false)}
+          onConfirm={async () => {
+            const ok = await clearFitAttributesData();
+            if (ok) {
+              try {
+                const { openSuccessWithDuration } = useUIStore.getState();
+                openSuccessWithDuration('Fit attributes have been removed successfully', 4000);
+              } catch {}
+            }
+            setFitAttributesClearOpen(false);
+          }}
+        />
+      )}
     </main>
   )
+}
+
+type FitAttributesRowProps = {
+  category: 'mens' | 'womens';
+  fitAttributes: FitAttribute[];
+  userFitAttributes: UserFitAttribute[];
+  lastUpdated?: string | null;
+  loading?: boolean;
+  onAdd: () => void;
+  onUpdate: () => void;
+  onClear: () => void;
+}
+
+function FitAttributesRow({ 
+  category, 
+  fitAttributes, 
+  userFitAttributes,
+  lastUpdated = null,
+  loading = false, 
+  onAdd, 
+  onUpdate,
+  onClear 
+}: FitAttributesRowProps) {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  
+  // Filter user attributes for the current category
+  const userCategoryAttributes = userFitAttributes.filter(ua => {
+    const attr = fitAttributes.find(a => a.id === ua.fitAttributeId);
+    return attr?.category === category;
+  });
+
+  // Check if user has any fit attributes for this category
+  const hasAttributes = userCategoryAttributes.length > 0;
+
+  // Get display text for attributes
+  const getDisplayText = () => {
+    if (!hasAttributes) return '--';
+    
+    // Sort by display order
+    const sortedUserAttrs = [...userCategoryAttributes].sort((a, b) => {
+      const attrA = fitAttributes.find(fa => fa.id === a.fitAttributeId);
+      const attrB = fitAttributes.find(fa => fa.id === b.fitAttributeId);
+      return (attrA?.displayOrder || 0) - (attrB?.displayOrder || 0);
+    });
+
+    // Show all attributes in collapsed view with ellipsis if needed
+    const text = sortedUserAttrs.map(ua => {
+      const attr = fitAttributes.find(fa => fa.id === ua.fitAttributeId);
+      return `${attr?.name}: ${ua.value}`;
+    }).join(', ');
+    
+    // Truncate if too long
+    if (text.length > 80) {
+      return text.substring(0, 77) + '...';
+    }
+    return text;
+  };
+
+  // Format last updated date
+  const formatLastUpdated = () => {
+    if (!lastUpdated) return '';
+    
+    try {
+      const date = new Date(lastUpdated);
+      const month = date.toLocaleDateString('en-US', { month: 'short' });
+      const day = date.getDate();
+      const year = date.getFullYear();
+      return `Last updated on ${month} ${day}, ${year}`;
+    } catch (e) {
+      return '';
+    }
+  };
+
+  return (
+    <div id="fit-attributes-row" data-testid="fit-attributes-row" style={{borderBottom:'1px solid var(--color-border)'}}>
+      <div
+        style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
+      >
+        <div id="fit-attributes-label" data-testid="fit-attributes-label" style={{fontWeight:600, color: 'var(--color-text)'}}>Fit attributes</div>
+        <div id="fit-attributes-value" data-testid="fit-attributes-value" style={{opacity: hasAttributes ? 1 : 0.7, color: 'var(--color-text)', fontSize: '14px'}}>
+          {loading ? (
+            <LoadingSpinner size="small" text="Loading..." />
+          ) : getDisplayText()}
+        </div>
+        <button
+          id="fit-attributes-toggle"
+          data-testid="fit-attributes-toggle"
+          className="btn"
+          aria-expanded={expanded}
+          aria-controls="fit-attributes-panel"
+          onClick={() => setExpanded(v => !v)}
+          style={{ color: 'var(--color-text)' }}
+          disabled={loading}
+        >
+          {expanded ? '▴' : '▾'}
+        </button>
+      </div>
+
+      {expanded && (
+        <div id="fit-attributes-panel" data-testid="fit-attributes-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 8}}>
+          {!hasAttributes ? (
+            <button
+              id="fit-attributes-add"
+              data-testid="fit-attributes-add"
+              className="btn"
+              style={{borderRadius:'var(--radius-full)', alignSelf: 'flex-start'}}
+              onClick={onAdd}
+              aria-label="Add fit attributes"
+            >
+              + Add
+            </button>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Display all attributes */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {userCategoryAttributes
+                  .sort((a, b) => {
+                    const attrA = fitAttributes.find(fa => fa.id === a.fitAttributeId);
+                    const attrB = fitAttributes.find(fa => fa.id === b.fitAttributeId);
+                    return (attrA?.displayOrder || 0) - (attrB?.displayOrder || 0);
+                  })
+                  .map(ua => {
+                    const attr = fitAttributes.find(fa => fa.id === ua.fitAttributeId);
+                    return (
+                      <div key={ua.id} style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8, fontSize: 14 }}>
+                        <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>{attr?.name}:</span>
+                        <span style={{ color: 'var(--color-text)' }}>{ua.value}</span>
+                      </div>
+                    );
+                  })}
+              </div>
+              
+              {/* Edit and Clear buttons */}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button
+                  id="fit-attributes-edit"
+                  data-testid="fit-attributes-edit"
+                  className="btn btn-primary"
+                  style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 16px', fontSize: 14 }}
+                  onClick={onUpdate}
+                  aria-label="Edit fit attributes"
+                >
+                  Edit
+                </button>
+                <button
+                  id="fit-attributes-clear"
+                  data-testid="fit-attributes-clear"
+                  className="btn"
+                  style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 16px', fontSize: 14 }}
+                  onClick={onClear}
+                  aria-label="Clear fit attributes"
+                >
+                  Clear
+                </button>
+                {lastUpdated && (
+                  <span style={{ fontSize: 14, color: 'var(--color-text)', opacity: 0.7, marginLeft: 8 }}>
+                    {formatLastUpdated()}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function PreferenceRow({ label }: { label: string }) {
@@ -867,6 +1182,20 @@ function ConfirmClearAgeGroupModal({ onCancel, onConfirm }: { onCancel: () => vo
         <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
           <button id="confirm-clear-age-group-no" data-testid="confirm-clear-age-group-no" className="btn" onClick={onCancel} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>No</button>
           <button id="confirm-clear-age-group-yes" data-testid="confirm-clear-age-group-yes" className="btn btn-primary" onClick={onConfirm} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>Yes</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ConfirmClearFitAttributesModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Confirm clear fit attributes" id="confirm-clear-fit-attributes-modal" data-testid="confirm-clear-fit-attributes-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
+      <div className="card" data-testid="confirm-clear-fit-attributes-content" style={{background:'var(--color-card)', color:'var(--color-text)', padding:20, minWidth:420, position:'relative', borderRadius:16, boxShadow:'var(--elev-3)'}}>
+        <h3 id="confirm-clear-fit-attributes-title" data-testid="confirm-clear-fit-attributes-title" style={{margin:'0 0 8px 0', fontWeight:800, color:'var(--color-text)'}}>Are you sure want to clear?</h3>
+        <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
+          <button id="confirm-clear-fit-attributes-no" data-testid="confirm-clear-fit-attributes-no" className="btn" onClick={onCancel} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>No</button>
+          <button id="confirm-clear-fit-attributes-yes" data-testid="confirm-clear-fit-attributes-yes" className="btn btn-primary" onClick={onConfirm} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>Yes</button>
         </div>
       </div>
     </div>

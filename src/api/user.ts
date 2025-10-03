@@ -192,7 +192,8 @@ export async function fetchUserById(userId: string): Promise<{ user?: UserRespon
       }
     }
 
-    return { user: result }
+    // API returns { user: { ... } }, so we need to extract the user object
+    return { user: result.user || result }
   } catch (error) {
     return { 
       error: { 
