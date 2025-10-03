@@ -40,14 +40,15 @@ export function LoadingSpinner({ size = 'medium', text, className = '' }: Loadin
           }
         `}
       </style>
-      <div style={containerStyle} className={className}>
+      <div style={containerStyle} className={className} data-testid="loading-spinner">
         <div 
           style={spinnerStyle}
           role="status"
           aria-label="Loading"
+          data-testid="loading-spinner-icon"
         />
         {text && (
-          <span style={{ fontSize: 'var(--font-sm)', color: 'var(--color-muted)' }} aria-live="polite">
+          <span id="loading-spinner-text" data-testid="loading-spinner-text" style={{ fontSize: 'var(--font-sm)', color: 'var(--color-muted)' }} aria-live="polite">
             {text}
           </span>
         )}

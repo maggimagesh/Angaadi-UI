@@ -35,7 +35,6 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
       
       if (response.stats) {
         // The API response might be structured as { stats: {...} } or the stats object directly
-        // Based on your example, it's likely the stats object has the fields we need
         const statsData = response.stats;
         
         // Extract the values, handling the case where the API response structure might be nested
@@ -123,7 +122,7 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Height and Weight" style={{
+    <div role="dialog" aria-modal="true" aria-label="Height and Weight" id="height-weight-modal" data-testid="height-weight-modal" style={{
       position: 'fixed',
       inset: 0,
       background: 'rgba(0,0,0,0.5)',
@@ -133,7 +132,7 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
       zIndex: 60,
       padding: '20px'
     }}>
-      <div className="card" style={{
+      <div className="card" data-testid="height-weight-modal-content" style={{
         background: 'var(--color-card)',
         color: 'var(--color-text)',
         padding: 0,
@@ -154,8 +153,10 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
           borderTopRightRadius: 'var(--radius-lg)',
           borderBottom: '1px solid var(--color-border)'
         }}>
-          <h3 style={{ margin: 0, fontWeight: 800, color: 'var(--color-text)' }}>Height and weight</h3>
+          <h3 id="height-weight-modal-title" data-testid="height-weight-modal-title" style={{ margin: 0, fontWeight: 800, color: 'var(--color-text)' }}>Height and weight</h3>
           <button
+            id="height-weight-modal-close"
+            data-testid="height-weight-modal-close"
             aria-label="Close"
             onClick={onClose}
             style={{
@@ -178,15 +179,15 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
         
         <div style={{ padding: 24, background: 'var(--color-card)' }}>
           {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+            <div id="height-weight-loading" data-testid="height-weight-loading" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
               <LoadingSpinner size="medium" text="Loading your data..." />
             </div>
           ) : (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} id="height-weight-form" data-testid="height-weight-form">
               <p style={{ fontSize: 24, fontWeight: 800, margin: '0 0 20px 0', color: 'var(--color-text)' }}>What's your current height and weight?</p>
               
               {error && (
-                <div style={{ 
+                <div id="height-weight-error" data-testid="height-weight-error" style={{ 
                   backgroundColor: '#fee2e2', 
                   color: '#b91c1c', 
                   padding: '10px', 
@@ -211,6 +212,8 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                   </label>
                   <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                     <input
+                      id="height-input"
+                      data-testid="height-input"
                       type="number"
                       value={heightValue}
                       onChange={(e) => setHeightValue(e.target.value)}
@@ -228,6 +231,8 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                     />
                     <div style={{ display: 'flex', gap: 4 }}>
                       <button
+                        id="height-unit-cm"
+                        data-testid="height-unit-cm"
                         type="button"
                         onClick={() => setHeightUnit('cm')}
                         style={{
@@ -245,6 +250,8 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                         cm
                       </button>
                       <button
+                        id="height-unit-ft"
+                        data-testid="height-unit-ft"
                         type="button"
                         onClick={() => setHeightUnit('ft')}
                         style={{
@@ -278,6 +285,8 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                   </label>
                   <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                     <input
+                      id="weight-input"
+                      data-testid="weight-input"
                       type="number"
                       value={weightValue}
                       onChange={(e) => setWeightValue(e.target.value)}
@@ -295,6 +304,8 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                     />
                     <div style={{ display: 'flex', gap: 4 }}>
                       <button
+                        id="weight-unit-kg"
+                        data-testid="weight-unit-kg"
                         type="button"
                         onClick={() => setWeightUnit('kg')}
                         style={{
@@ -312,6 +323,8 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                         kg
                       </button>
                       <button
+                        id="weight-unit-lb"
+                        data-testid="weight-unit-lb"
                         type="button"
                         onClick={() => setWeightUnit('lb')}
                         style={{
@@ -335,6 +348,8 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
               
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 28, gap: 12 }}>
                 <button
+                  id="height-weight-cancel"
+                  data-testid="height-weight-cancel"
                   type="button"
                   onClick={onClose}
                   className="btn"
@@ -346,6 +361,8 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                   Cancel
                 </button>
                 <button
+                  id="height-weight-save"
+                  data-testid="height-weight-save"
                   type="submit"
                   className="btn btn-primary"
                   style={{

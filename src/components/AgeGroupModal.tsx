@@ -23,12 +23,12 @@ export default function AgeGroupModal({
 }: AgeGroupModalProps) {
   const [selectedAgeGroupId, setSelectedAgeGroupId] = useState<string | null>(currentAgeGroupId || null);
 
-  // Update selected age group when currentAgeGroupId changes
+  // Sync modal selection with the current value whenever it becomes visible or the source value changes
   useEffect(() => {
-    if (currentAgeGroupId) {
-      setSelectedAgeGroupId(currentAgeGroupId);
+    if (open) {
+      setSelectedAgeGroupId(currentAgeGroupId ?? null);
     }
-  }, [currentAgeGroupId]);
+  }, [open, currentAgeGroupId]);
 
   if (!open) return null;
 
@@ -44,7 +44,9 @@ export default function AgeGroupModal({
     <div 
       role="dialog" 
       aria-modal="true" 
-      aria-label="Age group" 
+      aria-label="Age group"
+      id="age-group-modal"
+      data-testid="age-group-modal"
       style={{
         position: 'fixed',
         inset: 0,
@@ -57,7 +59,8 @@ export default function AgeGroupModal({
       }}
     >
       <div 
-        className="card" 
+        className="card"
+        data-testid="age-group-modal-content"
         style={{
           background: 'var(--color-card)',
           color: 'var(--color-text)',
@@ -83,10 +86,12 @@ export default function AgeGroupModal({
             borderBottom: '1px solid var(--color-border)'
           }}
         >
-          <h3 style={{ margin: 0, fontWeight: 800, color: 'var(--color-text)' }}>
+          <h3 id="age-group-modal-title" data-testid="age-group-modal-title" style={{ margin: 0, fontWeight: 800, color: 'var(--color-text)' }}>
             Age group
           </h3>
           <button
+            id="age-group-modal-close"
+            data-testid="age-group-modal-close"
             aria-label="Close"
             onClick={onClose}
             style={{
@@ -119,11 +124,11 @@ export default function AgeGroupModal({
           </p>
           
           {loading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+            <div id="age-group-loading" data-testid="age-group-loading" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
               <LoadingSpinner size="medium" text="Loading age groups..." />
             </div>
           ) : error ? (
-            <div style={{ 
+            <div id="age-group-error" data-testid="age-group-error" style={{ 
               backgroundColor: '#fee2e2', 
               color: '#b91c1c', 
               padding: '10px', 
@@ -135,7 +140,7 @@ export default function AgeGroupModal({
           ) : (
             <>
               {/* Age group buttons grid */}
-              <div style={{ 
+              <div id="age-group-options" data-testid="age-group-options" style={{ 
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
                 gap: 12,
@@ -146,6 +151,8 @@ export default function AgeGroupModal({
                   return (
                     <button
                       key={ageGroup.id}
+                      id={`age-group-option-${ageGroup.id}`}
+                      data-testid={`age-group-option-${ageGroup.id}`}
                       onClick={() => setSelectedAgeGroupId(ageGroup.id)}
                       style={{
                         borderRadius: 'var(--radius-full)',
@@ -169,6 +176,8 @@ export default function AgeGroupModal({
               {/* Save button */}
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button
+                  id="age-group-save"
+                  data-testid="age-group-save"
                   onClick={handleSave}
                   disabled={!isDirty}
                   className="btn btn-primary"

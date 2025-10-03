@@ -64,8 +64,8 @@ export default function ProfilePage() {
     try {
       const result = await fetchPreferredDepartment(user.userId)
       if (result.preference) {
-        // The API response has a 'preference' object with 'gender' field
-        setPreferredDepartment(result.preference.gender)
+        const { department, gender } = result.preference
+        setPreferredDepartment(department ?? gender ?? null)
       }
     } catch (error) {
       console.error('Failed to load preferred department:', error)
@@ -253,22 +253,22 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className="app-main">
+    <main className="app-main" id="profile-page" data-testid="profile-page">
       <section className="container p-6">
-        <header style={{display:'flex', alignItems:'center', gap:16, marginBottom:16}}>
-          <div style={{width:64, height:64, borderRadius:'50%', background:'var(--color-border)'}} aria-hidden="true" />
+        <header id="profile-header" data-testid="profile-header" style={{display:'flex', alignItems:'center', gap:16, marginBottom:16}}>
+          <div id="profile-avatar" data-testid="profile-avatar" style={{width:64, height:64, borderRadius:'50%', background:'var(--color-border)'}} aria-hidden="true" />
           <div>
-            <h1 style={{margin:0}}>{profileName}</h1>
+            <h1 id="profile-name" data-testid="profile-name" style={{margin:0}}>{profileName}</h1>
             {profileEmail && (
-              <div style={{opacity:0.8, marginTop:4}}>{profileEmail}</div>
+              <div id="profile-email" data-testid="profile-email" style={{opacity:0.8, marginTop:4}}>{profileEmail}</div>
             )}
           </div>
         </header>
 
-        <div className="card p-0" role="region" aria-label="Profile preferences">
+        <div className="card p-0" role="region" aria-label="Profile preferences" id="profile-preferences" data-testid="profile-preferences">
           <div style={{borderBottom:'1px solid var(--color-border)', padding:16, display:'flex', alignItems:'center', gap:12}}>
-            <button className="btn btn-ghost" aria-current="page">Clothing and Shoes</button>
-            <div className="surface" style={{padding:'6px 12px', borderRadius:'var(--radius-sm)', border:'1px solid var(--color-border)'}}>Size, fit and price</div>
+            <button id="profile-tab-clothing" data-testid="profile-tab-clothing" className="btn btn-ghost" aria-current="page">Clothing and Shoes</button>
+            <div id="profile-tab-subtitle" data-testid="profile-tab-subtitle" className="surface" style={{padding:'6px 12px', borderRadius:'var(--radius-sm)', border:'1px solid var(--color-border)'}}>Size, fit and price</div>
           </div>
 
           <div style={{padding:16}}>
@@ -295,28 +295,32 @@ export default function ProfilePage() {
               />
             </section>
 
-            <section aria-label="Department preferences" style={{marginTop:12}}>
-              <h2 style={{fontSize:16, fontWeight:700}}>Department preferences</h2>
-              <p style={{marginTop:4, opacity:0.85}}>Share preferences for each department to get improved recommendations when you shop there.</p>
+            <section aria-label="Department preferences" id="dept-preferences-section" data-testid="dept-preferences-section" style={{marginTop:12}}>
+              <h2 id="dept-preferences-title" data-testid="dept-preferences-title" style={{fontSize:16, fontWeight:700}}>Department preferences</h2>
+              <p id="dept-preferences-subtitle" data-testid="dept-preferences-subtitle" style={{marginTop:4, opacity:0.85}}>Share preferences for each department to get improved recommendations when you shop there.</p>
 
-              <nav aria-label="Department tabs" style={{display:'flex', gap:16, borderBottom:'1px solid var(--color-border)', marginTop:12}}>
+              <nav aria-label="Department tabs" id="dept-tabs" data-testid="dept-tabs" style={{display:'flex', gap:16, borderBottom:'1px solid var(--color-border)', marginTop:12}}>
                 <button
+                  id="dept-tab-women"
+                  data-testid="dept-tab-women"
                   className="btn btn-ghost"
                   role="tab"
                   aria-selected={activeDeptTab==='women'}
                   onClick={() => setActiveDeptTab('women')}
                   style={{borderBottom: activeDeptTab==='women' ? '2px solid currentColor' : '2px solid transparent'}}
                 >
-                  Women’s
+                  Women's
                 </button>
                 <button
+                  id="dept-tab-men"
+                  data-testid="dept-tab-men"
                   className="btn btn-ghost"
                   role="tab"
                   aria-selected={activeDeptTab==='men'}
                   onClick={() => setActiveDeptTab('men')}
                   style={{borderBottom: activeDeptTab==='men' ? '2px solid currentColor' : '2px solid transparent'}}
                 >
-                  Men’s
+                  Men's
                 </button>
               </nav>
 
@@ -326,15 +330,15 @@ export default function ProfilePage() {
               </div>
             </section>
 
-            <section aria-label="Interests" style={{marginTop:12}}>
-              <h2 style={{fontSize:16, fontWeight:700}}>Interests</h2>
-              <div style={{display:'flex', flexWrap:'wrap', gap:8, marginTop:8}}>
+            <section aria-label="Interests" id="interests-section" data-testid="interests-section" style={{marginTop:12}}>
+              <h2 id="interests-title" data-testid="interests-title" style={{fontSize:16, fontWeight:700}}>Interests</h2>
+              <div id="interests-tags" data-testid="interests-tags" style={{display:'flex', flexWrap:'wrap', gap:8, marginTop:8}}>
                 {['Skin Care','Storage & Organization','Interior Design','Dorm Essentials','Hair Care and Styling','Babies and Toddlers','Baking','Women\'s Attire','Men\'s Attire','Party Planning'].map(tag => (
-                  <button key={tag} className="btn" aria-label={`Add interest ${tag}`}>+ {tag}</button>
+                  <button key={tag} id={`interest-${tag.toLowerCase().replace(/[\s&']/g, '-')}`} data-testid={`interest-${tag.toLowerCase().replace(/[\s&']/g, '-')}`} className="btn" aria-label={`Add interest ${tag}`}>+ {tag}</button>
                 ))}
               </div>
               <div style={{marginTop:16}}>
-                <button className="btn btn-primary">Save</button>
+                <button id="interests-save" data-testid="interests-save" className="btn btn-primary">Save</button>
               </div>
             </section>
           </div>
@@ -406,17 +410,19 @@ function HeightWeightRow({ value, onAdd, onUpdate, loading = false }: HeightWeig
   const [expanded, setExpanded] = useState<boolean>(false);
   
   return (
-    <div style={{borderBottom:'1px solid var(--color-border)'}}>
+    <div id="height-weight-row" data-testid="height-weight-row" style={{borderBottom:'1px solid var(--color-border)'}}>
       <div
         style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
       >
-        <div style={{fontWeight:600, color: 'var(--color-text)'}}>Height and weight</div>
-        <div style={{opacity: value ? 1 : 0.7, color: 'var(--color-text)'}}>
+        <div id="height-weight-label" data-testid="height-weight-label" style={{fontWeight:600, color: 'var(--color-text)'}}>Height and weight</div>
+        <div id="height-weight-value" data-testid="height-weight-value" style={{opacity: value ? 1 : 0.7, color: 'var(--color-text)'}}>
           {loading ? (
             <LoadingSpinner size="small" text="Loading..." />
           ) : value ? `${value.height} | ${value.weight}` : '--'}
         </div>
         <button
+          id="height-weight-toggle"
+          data-testid="height-weight-toggle"
           className="btn"
           aria-expanded={expanded}
           aria-controls="height-weight-panel"
@@ -429,9 +435,11 @@ function HeightWeightRow({ value, onAdd, onUpdate, loading = false }: HeightWeig
       </div>
 
       {expanded && (
-        <div id="height-weight-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 8}}>
+        <div id="height-weight-panel" data-testid="height-weight-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 8}}>
           {!value ? (
             <button
+              id="height-weight-add"
+              data-testid="height-weight-add"
               className="btn"
               style={{borderRadius:'var(--radius-full)', alignSelf: 'flex-start'}}
               onClick={onAdd}
@@ -442,12 +450,14 @@ function HeightWeightRow({ value, onAdd, onUpdate, loading = false }: HeightWeig
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-text)' }}>
+                <span id="height-weight-display" data-testid="height-weight-display" style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-text)' }}>
                   {value.height} | {value.weight}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button
+                  id="height-weight-update"
+                  data-testid="height-weight-update"
                   className="btn btn-primary"
                   style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 12px', fontSize: 14 }}
                   onClick={onUpdate}
@@ -476,17 +486,19 @@ function AgeGroupRow({ value, onAdd, onUpdate, onClear, loading = false }: AgeGr
   const [expanded, setExpanded] = useState<boolean>(false);
   
   return (
-    <div style={{borderBottom:'1px solid var(--color-border)'}}>
+    <div id="age-group-row" data-testid="age-group-row" style={{borderBottom:'1px solid var(--color-border)'}}>
       <div
         style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
       >
-        <div style={{fontWeight:600, color: 'var(--color-text)'}}>Age group</div>
-        <div style={{opacity: value ? 1 : 0.7, color: 'var(--color-text)'}}>
+        <div id="age-group-label" data-testid="age-group-label" style={{fontWeight:600, color: 'var(--color-text)'}}>Age group</div>
+        <div id="age-group-value" data-testid="age-group-value" style={{opacity: value ? 1 : 0.7, color: 'var(--color-text)'}}>
           {loading ? (
             <LoadingSpinner size="small" text="Loading..." />
           ) : value || '--'}
         </div>
         <button
+          id="age-group-toggle"
+          data-testid="age-group-toggle"
           className="btn"
           aria-expanded={expanded}
           aria-controls="age-group-panel"
@@ -499,9 +511,11 @@ function AgeGroupRow({ value, onAdd, onUpdate, onClear, loading = false }: AgeGr
       </div>
 
       {expanded && (
-        <div id="age-group-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 8}}>
+        <div id="age-group-panel" data-testid="age-group-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 8}}>
           {!value ? (
             <button
+              id="age-group-add"
+              data-testid="age-group-add"
               className="btn"
               style={{borderRadius:'var(--radius-full)', alignSelf: 'flex-start'}}
               onClick={onAdd}
@@ -512,12 +526,14 @@ function AgeGroupRow({ value, onAdd, onUpdate, onClear, loading = false }: AgeGr
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-text)' }}>
+                <span id="age-group-display" data-testid="age-group-display" style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-text)' }}>
                   {value}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button
+                  id="age-group-update"
+                  data-testid="age-group-update"
                   className="btn btn-primary"
                   style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 12px', fontSize: 14 }}
                   onClick={onUpdate}
@@ -526,6 +542,8 @@ function AgeGroupRow({ value, onAdd, onUpdate, onClear, loading = false }: AgeGr
                   Update
                 </button>
                 <button
+                  id="age-group-clear"
+                  data-testid="age-group-clear"
                   className="btn"
                   style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 12px', fontSize: 14 }}
                   onClick={onClear}
@@ -608,7 +626,7 @@ function PreferredDepartmentRow({ value, onChange, onClear, loading = false }: P
     try {
       const result = await setPreferredDepartment(authUser.userId, opt.id)
       if (result.department) {
-        onChange(opt.label)
+        onChange(result.department.department ?? opt.label)
         setPickerOpen(false)
         if (!expanded) setExpanded(true)
         return true
@@ -644,17 +662,19 @@ function PreferredDepartmentRow({ value, onChange, onClear, loading = false }: P
   }
 
   return (
-    <div style={{borderBottom:'1px solid var(--color-border)'}}>
+    <div id="pref-dept-row" data-testid="pref-dept-row" style={{borderBottom:'1px solid var(--color-border)'}}>
       <div
         style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
       >
-        <div style={{fontWeight:600}}>Preferred department</div>
-        <div style={{opacity: value ? 1 : 0.7}}>
+        <div id="pref-dept-label" data-testid="pref-dept-label" style={{fontWeight:600}}>Preferred department</div>
+        <div id="pref-dept-value" data-testid="pref-dept-value" style={{opacity: value ? 1 : 0.7}}>
           {loading ? (
             <LoadingSpinner size="small" text="Loading..." />
           ) : value ?? '--'}
         </div>
         <button
+          id="pref-dept-toggle"
+          data-testid="pref-dept-toggle"
           className="btn"
           aria-expanded={expanded}
           aria-controls="pref-dept-panel"
@@ -666,11 +686,13 @@ function PreferredDepartmentRow({ value, onChange, onClear, loading = false }: P
       </div>
 
       {expanded && (
-        <div id="pref-dept-panel" style={{padding:'0 0 12px 0'}}>
+        <div id="pref-dept-panel" data-testid="pref-dept-panel" style={{padding:'0 0 12px 0'}}>
           <div>
             {!value ? (
               <div style={{display:'flex', gap:8, alignItems:'center'}}>
                 <button
+                  id="pref-dept-add"
+                  data-testid="pref-dept-add"
                   className="btn"
                   style={{borderRadius:9999}}
                   onClick={openPickerAndLoad}
@@ -681,9 +703,11 @@ function PreferredDepartmentRow({ value, onChange, onClear, loading = false }: P
               </div>
             ) : (
               <div>
-                <div style={{fontSize:22, fontWeight:800, marginBottom:8}}>{value}</div>
+                <div id="pref-dept-display" data-testid="pref-dept-display" style={{fontSize:22, fontWeight:800, marginBottom:8}}>{value}</div>
                 <div style={{display:'flex', gap:8, alignItems:'center'}}>
                   <button
+                    id="pref-dept-update"
+                    data-testid="pref-dept-update"
                     className="btn btn-primary"
                     style={{borderRadius:9999, height:32, padding:'0 12px', fontSize:14}}
                     onClick={openPickerAndLoad}
@@ -692,6 +716,8 @@ function PreferredDepartmentRow({ value, onChange, onClear, loading = false }: P
                     Update
                   </button>
                   <button
+                    id="pref-dept-clear"
+                    data-testid="pref-dept-clear"
                     className="btn"
                     style={{borderRadius:9999, height:32, padding:'0 12px', fontSize:14}}
                     onClick={() => setClearOpen(true)}
@@ -714,12 +740,7 @@ function PreferredDepartmentRow({ value, onChange, onClear, loading = false }: P
           error={optionsError}
           onClose={() => setPickerOpen(false)}
           onSave={async (opt: GenderOption) => {
-            const ok = await savePreferred(opt)
-            if (ok) {
-              onChange(opt.label)
-              setPickerOpen(false)
-              if (!expanded) setExpanded(true)
-            }
+            await savePreferred(opt)
           }}
         />
       )}
@@ -756,11 +777,13 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
   }, [options, current, choice])
   const isDirty = choice !== null && (choice?.label !== current)
   return (
-    <div role="dialog" aria-modal="true" aria-label="Preferred Department" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:60}}>
-      <div className="card" style={{background:'#fff', color:'#000', padding:0, minWidth:520, position:'relative', borderRadius:16, boxShadow:'0 10px 24px rgba(0,0,0,0.45)'}}>
+    <div role="dialog" aria-modal="true" aria-label="Preferred Department" id="dept-picker-modal" data-testid="dept-picker-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:60}}>
+      <div className="card" data-testid="dept-picker-modal-content" style={{background:'#fff', color:'#000', padding:0, minWidth:520, position:'relative', borderRadius:16, boxShadow:'0 10px 24px rgba(0,0,0,0.45)'}}>
         <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 20px', background:'#f3f4f6', borderTopLeftRadius:16, borderTopRightRadius:16, borderBottom:'1px solid #e5e7eb'}}>
-          <h3 style={{margin:0, fontWeight:800, color:'#000'}}>Preferred department</h3>
+          <h3 id="dept-picker-title" data-testid="dept-picker-title" style={{margin:0, fontWeight:800, color:'#000'}}>Preferred department</h3>
           <button
+            id="dept-picker-close"
+            data-testid="dept-picker-close"
             aria-label="Close"
             onClick={onClose}
             style={{width:40, height:40, borderRadius:12, background:'#0b0c0f', color:'#fff', border:'1px solid #0b0c0f', cursor:'pointer'}}
@@ -771,16 +794,18 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
         <div style={{padding:24}}>
           <p style={{fontSize:24, fontWeight:800, margin:'0 0 16px 0'}}>Which department do you typically shop in?</p>
           {loading ? (
-            <div>Loading…</div>
+            <div id="dept-picker-loading" data-testid="dept-picker-loading">Loading…</div>
           ) : error ? (
-            <div style={{color:'#b91c1c'}}>Failed to load options</div>
+            <div id="dept-picker-error" data-testid="dept-picker-error" style={{color:'#b91c1c'}}>Failed to load options</div>
           ) : (
-            <div style={{display:'flex', gap:12, flexWrap:'wrap'}}>
+            <div id="dept-picker-options" data-testid="dept-picker-options" style={{display:'flex', gap:12, flexWrap:'wrap'}}>
               {(options ?? []).map((opt) => {
                 const isSelected = choice?.id === opt.id
                 return (
                   <button
                     key={opt.id}
+                    id={`dept-option-${opt.id}`}
+                    data-testid={`dept-option-${opt.id}`}
                     onClick={() => setChoice(opt)}
                     style={{
                       borderRadius:9999,
@@ -799,6 +824,8 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
           )}
           <div style={{display:'flex', justifyContent:'flex-end', marginTop:28}}>
             <button
+              id="dept-picker-save"
+              data-testid="dept-picker-save"
               onClick={() => { if (choice) { onSave(choice) } }}
               disabled={!isDirty}
               className="btn btn-primary"
@@ -820,12 +847,12 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
 
 function ConfirmClearModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
   return (
-    <div role="dialog" aria-modal="true" aria-label="Confirm clear" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
-      <div className="card" style={{background:'#fff', color:'#000', padding:20, minWidth:420, position:'relative', borderRadius:16}}>
-        <h3 style={{margin:'0 0 8px 0', fontWeight:800, color:'#000'}}>Are you sure want to clear?</h3>
+    <div role="dialog" aria-modal="true" aria-label="Confirm clear" id="confirm-clear-modal" data-testid="confirm-clear-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
+      <div className="card" data-testid="confirm-clear-modal-content" style={{background:'#fff', color:'#000', padding:20, minWidth:420, position:'relative', borderRadius:16}}>
+        <h3 id="confirm-clear-title" data-testid="confirm-clear-title" style={{margin:'0 0 8px 0', fontWeight:800, color:'#000'}}>Are you sure want to clear?</h3>
         <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
-          <button className="btn" onClick={onCancel} style={{borderRadius:9999, height:36, padding:'0 14px'}}>No</button>
-          <button className="btn btn-primary" onClick={onConfirm} style={{borderRadius:9999, height:36, padding:'0 14px'}}>Yes</button>
+          <button id="confirm-clear-no" data-testid="confirm-clear-no" className="btn" onClick={onCancel} style={{borderRadius:9999, height:36, padding:'0 14px'}}>No</button>
+          <button id="confirm-clear-yes" data-testid="confirm-clear-yes" className="btn btn-primary" onClick={onConfirm} style={{borderRadius:9999, height:36, padding:'0 14px'}}>Yes</button>
         </div>
       </div>
     </div>
@@ -834,12 +861,12 @@ function ConfirmClearModal({ onCancel, onConfirm }: { onCancel: () => void; onCo
 
 function ConfirmClearAgeGroupModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
   return (
-    <div role="dialog" aria-modal="true" aria-label="Confirm clear age group" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
-      <div className="card" style={{background:'var(--color-card)', color:'var(--color-text)', padding:20, minWidth:420, position:'relative', borderRadius:16, boxShadow:'var(--elev-3)'}}>
-        <h3 style={{margin:'0 0 8px 0', fontWeight:800, color:'var(--color-text)'}}>Are you sure want to clear?</h3>
+    <div role="dialog" aria-modal="true" aria-label="Confirm clear age group" id="confirm-clear-age-group-modal" data-testid="confirm-clear-age-group-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
+      <div className="card" data-testid="confirm-clear-age-group-content" style={{background:'var(--color-card)', color:'var(--color-text)', padding:20, minWidth:420, position:'relative', borderRadius:16, boxShadow:'var(--elev-3)'}}>
+        <h3 id="confirm-clear-age-group-title" data-testid="confirm-clear-age-group-title" style={{margin:'0 0 8px 0', fontWeight:800, color:'var(--color-text)'}}>Are you sure want to clear?</h3>
         <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
-          <button className="btn" onClick={onCancel} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>No</button>
-          <button className="btn btn-primary" onClick={onConfirm} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>Yes</button>
+          <button id="confirm-clear-age-group-no" data-testid="confirm-clear-age-group-no" className="btn" onClick={onCancel} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>No</button>
+          <button id="confirm-clear-age-group-yes" data-testid="confirm-clear-age-group-yes" className="btn btn-primary" onClick={onConfirm} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>Yes</button>
         </div>
       </div>
     </div>

@@ -29,22 +29,24 @@ export default function HealthPage() {
   }
 
   return (
-    <main className="app-main">
+    <main className="app-main" id="health-page" data-testid="health-page">
       <section className="container p-6">
-        <div className="card p-6">
-          <h1>System Health Status</h1>
+        <div className="card p-6" id="health-card" data-testid="health-card">
+          <h1 id="health-title" data-testid="health-title">System Health Status</h1>
           {loading ? (
-            <LoadingSpinner size="medium" text="Checking system health..." />
+            <div id="health-loading" data-testid="health-loading">
+              <LoadingSpinner size="medium" text="Checking system health..." />
+            </div>
           ) : healthStatus?.error ? (
-            <div style={{ color: 'var(--color-danger)' }}>
-              <p>Error: {healthStatus.error}</p>
-              <button className="btn btn-primary" onClick={loadHealthStatus}>Retry</button>
+            <div id="health-error" data-testid="health-error" style={{ color: 'var(--color-danger)' }}>
+              <p id="health-error-message" data-testid="health-error-message">Error: {healthStatus.error}</p>
+              <button id="health-retry" data-testid="health-retry" className="btn btn-primary" onClick={loadHealthStatus}>Retry</button>
             </div>
           ) : (
-            <div>
-              <p><strong>Status:</strong> {healthStatus?.status || 'Unknown'}</p>
-              <p><strong>Message:</strong> {healthStatus?.message || 'No message'}</p>
-              <button className="btn btn-primary" onClick={loadHealthStatus}>Refresh</button>
+            <div id="health-success" data-testid="health-success">
+              <p id="health-status" data-testid="health-status"><strong>Status:</strong> {healthStatus?.status || 'Unknown'}</p>
+              <p id="health-message" data-testid="health-message"><strong>Message:</strong> {healthStatus?.message || 'No message'}</p>
+              <button id="health-refresh" data-testid="health-refresh" className="btn btn-primary" onClick={loadHealthStatus}>Refresh</button>
             </div>
           )}
         </div>
