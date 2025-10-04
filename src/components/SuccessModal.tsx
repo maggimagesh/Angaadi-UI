@@ -13,47 +13,50 @@ export function SuccessModal() {
   if (!successOpen) return null
   return (
     <div
+      className="toast-surface"
       role="status"
       aria-live="polite"
       id="success-toast"
       data-testid="success-toast"
       style={{
         position:'fixed',
-        top:12,
-        right:12,
+        top:16,
+        right:16,
         zIndex:60,
         display:'inline-flex',
         alignItems:'center',
-        gap:8,
-        padding:'6px 10px',
+        gap:12,
+        padding:'10px 16px',
         whiteSpace:'nowrap',
-        lineHeight:1.2,
+        lineHeight:1.3,
         maxWidth:'60vw',
-        borderRadius:8,
-        background:'#0f1219',
-        border:'1px solid var(--color-border)',
+        borderRadius:'var(--radius-md)',
+        background:'var(--color-primary)',
+        color:'var(--color-on-primary)',
+        border:'1px solid transparent',
         boxShadow:'var(--elev-2)'
       }}
     >
-      <span id="success-title" data-testid="success-title" style={{fontSize:14}}>{successMessage}</span>
+      <span id="success-title" data-testid="success-title" style={{fontSize:14, fontWeight:600}}>{successMessage}</span>
       <button
         aria-label="Close"
         id="success-close"
         data-testid="success-close"
         onClick={closeSuccess}
         style={{
-          height:20,
-          width:20,
+          height:24,
+          width:24,
           padding:0,
-          lineHeight:'20px',
+          lineHeight:'24px',
           display:'inline-flex',
           alignItems:'center',
           justifyContent:'center',
-          background:'transparent',
-          border:'1px solid var(--color-border)',
-          borderRadius:6,
-          color:'var(--color-text)',
+          background:'var(--color-primary-container)',
+          border:'1px solid transparent',
+          borderRadius:'var(--radius-sm)',
+          color:'var(--color-primary)',
           cursor:'pointer',
+          fontWeight:700
         }}
       >
         ×

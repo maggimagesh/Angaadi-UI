@@ -118,6 +118,7 @@ export default function FitAttributesModal({
 
   return (
     <div 
+      className="modal-overlay"
       role="dialog" 
       aria-modal="true" 
       aria-label="Fit attributes"
@@ -135,7 +136,7 @@ export default function FitAttributesModal({
       }}
     >
       <div 
-        className="card"
+        className="card modal-surface"
         data-testid="fit-attributes-modal-content"
         style={{
           background: 'var(--color-card)',
@@ -205,8 +206,8 @@ export default function FitAttributesModal({
             </div>
           ) : error ? (
             <div id="fit-attributes-error" data-testid="fit-attributes-error" style={{ 
-              backgroundColor: '#fee2e2', 
-              color: '#b91c1c', 
+              backgroundColor: 'var(--color-danger-container)', 
+              color: 'var(--color-danger)', 
               padding: '10px', 
               borderRadius: 'var(--radius-md)', 
               marginBottom: '16px' 
@@ -266,9 +267,9 @@ export default function FitAttributesModal({
                               style={{
                                 padding: '10px 16px',
                                 background: isSelected ? 'var(--color-primary)' : 'transparent',
-                                color: isSelected ? '#ffffff' : 'var(--color-text)',
+                                color: isSelected ? 'var(--color-on-primary)' : 'var(--color-text)',
                                 border: 'none',
-                                borderLeft: isFirst ? 'none' : '1px solid var(--color-border)',
+                                borderLeft: isFirst ? 'none' : '1px solid var(--color-outline)',
                                 fontWeight: 600,
                                 fontSize: '14px',
                                 cursor: 'pointer',
@@ -301,7 +302,7 @@ export default function FitAttributesModal({
                     cursor: (isDirty && !isSaving) ? 'pointer' : 'not-allowed',
                     opacity: (isDirty && !isSaving) ? 1 : 0.6,
                     background: 'var(--color-primary)',
-                    color: '#ffffff',
+                    color: 'var(--color-on-primary)',
                     fontWeight: 700,
                     fontSize: '16px',
                     minWidth: '120px'

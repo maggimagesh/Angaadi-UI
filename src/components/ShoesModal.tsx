@@ -70,6 +70,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
 
   return (
     <div
+      className="modal-overlay"
       role="dialog"
       aria-modal="true"
       aria-label="Shoes"
@@ -87,7 +88,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
       }}
     >
       <div
-        className="card"
+        className="card modal-surface"
         data-testid="shoes-modal-content"
         style={{
           background: 'var(--color-card)',
@@ -147,8 +148,8 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
             </div>
           ) : error ? (
             <div id="shoe-size-error" data-testid="shoe-size-error" style={{ 
-              backgroundColor: '#fee2e2', 
-              color: '#b91c1c', 
+              backgroundColor: 'var(--color-danger-container)', 
+              color: 'var(--color-danger)', 
               padding: '10px', 
               borderRadius: 'var(--radius-md)', 
               marginBottom: '16px' 
@@ -198,9 +199,9 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
                               style={{
                                 borderRadius: 'var(--radius-md)',
                                 padding: '12px 0',
-                                border: `1px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                                background: isSelected ? 'var(--color-primary)' : 'var(--color-surface)',
-                                color: isSelected ? '#ffffff' : 'var(--color-text)',
+                                border: `1px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-outline)'}`,
+                                background: isSelected ? 'var(--color-primary)' : 'var(--color-primary-container)',
+                                color: isSelected ? 'var(--color-on-primary)' : 'var(--color-muted)',
                                 fontWeight: 700,
                                 fontSize: 16,
                                 cursor: 'pointer',
@@ -247,9 +248,9 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
                               style={{
                                 borderRadius: 'var(--radius-full)',
                                 padding: '10px 20px',
-                                border: `1px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                                background: isSelected ? 'var(--color-primary)' : 'var(--color-surface)',
-                                color: isSelected ? '#ffffff' : 'var(--color-text)',
+                                border: `1px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-outline)'}`,
+                                background: isSelected ? 'var(--color-primary)' : 'var(--color-primary-container)',
+                                color: isSelected ? 'var(--color-on-primary)' : 'var(--color-muted)',
                                 fontWeight: 700,
                                 fontSize: 14,
                                 cursor: 'pointer',

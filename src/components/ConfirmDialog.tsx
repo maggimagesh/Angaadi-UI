@@ -31,6 +31,7 @@ export default function ConfirmDialog({
 
   return (
     <div
+      className="modal-overlay"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
@@ -47,7 +48,7 @@ export default function ConfirmDialog({
       }}
     >
       <div
-        className="card"
+        className="card modal-surface"
         data-testid={contentId}
         style={{
           background: 'var(--color-card)',

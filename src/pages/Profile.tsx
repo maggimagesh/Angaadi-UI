@@ -562,7 +562,7 @@ export default function ProfilePage() {
           </div>
 
           <div style={{padding:16}}>
-            <section aria-label="About you" style={{borderTop:'1px solid var(--color-border)'}}>
+            <section aria-label="About you">
               <h2 className="sr-only">About you</h2>
               <PreferredDepartmentRow
                 value={preferredDepartment}
@@ -1384,7 +1384,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
           {loading ? (
             <div id="dept-picker-loading" data-testid="dept-picker-loading">Loading…</div>
           ) : error ? (
-            <div id="dept-picker-error" data-testid="dept-picker-error" style={{color:'#b91c1c'}}>Failed to load options</div>
+            <div id="dept-picker-error" data-testid="dept-picker-error" style={{color:'var(--color-danger)'}}>Failed to load options</div>
           ) : (
             <div id="dept-picker-options" data-testid="dept-picker-options" style={{display:'flex', gap:12, flexWrap:'wrap'}}>
               {(options ?? []).map((opt) => {
@@ -1399,7 +1399,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
                       borderRadius:'var(--radius-full)',
                       padding:'12px 20px',
                       background: isSelected ? 'var(--color-primary)' : 'var(--color-surface)',
-                      color: isSelected ? '#ffffff' : 'var(--color-text)',
+                      color: isSelected ? 'var(--color-on-primary)' : 'var(--color-text)',
                       border: `1px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-border)'}`,
                       fontWeight:700,
                       transition:'all 0.2s ease',

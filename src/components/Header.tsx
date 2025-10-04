@@ -1,4 +1,4 @@
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import { useUIStore } from '../store/ui'
 import { signOut } from '../api/user'
@@ -8,12 +8,16 @@ export function Header() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated)
   const logout = useAuthStore(s => s.logout)
   const openSuccessWithDuration = useUIStore(s => s.openSuccessWithDuration)
+  const navigate = useNavigate()
   return (
     <header className="surface" style={{borderBottom: '1px solid var(--color-border)'}}>
       <nav className="container py-4" aria-label="Top Navigation">
         <div style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center'}}>
           <div style={{display:'flex', alignItems:'center', gap:12}}>
-            <Link to="/" aria-label="Logo" id="logo" data-testid="logo" className="btn btn-ghost" style={{padding:'6px 10px'}}>Angaadi.com</Link>
+            <Link to="/" aria-label="Angaadi Home" id="logo" data-testid="logo" style={{display:'flex', alignItems:'center', gap:8, textDecoration:'none'}}>
+              <img src="/logo/Angaadi.png" alt="Angaadi" style={{height:48, width:'auto'}} />
+              <span style={{fontSize:'1.5rem', fontWeight:700, color:'var(--color-heading)'}}>Angaadi</span>
+            </Link>
           </div>
 
           <div style={{minWidth:0}}>
@@ -44,6 +48,7 @@ export function Header() {
                 className="btn btn-primary"
                 style={{whiteSpace:'nowrap', padding:'6px 16px'}}
                 onClick={async () => {
+                  const redirectToLogin = () => navigate('/login', { replace: true })
                   try {
                     const result = await signOut()
                     if (result.success) {
@@ -52,12 +57,14 @@ export function Header() {
                       logout()
                       try { clearAuthTokenCookie() } catch {}
                       openSuccessWithDuration(result.message || 'Signed out successfully', 5000)
+                      redirectToLogin()
                     } else {
                       // Even if API call fails, still perform local logout
                       try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch {}
                       logout()
                       try { clearAuthTokenCookie() } catch {}
                       openSuccessWithDuration(result.error?.message || 'Signed out successfully', 5000)
+                      redirectToLogin()
                     }
                   } catch (error) {
                     // In case of network error, still perform local logout
@@ -65,6 +72,7 @@ export function Header() {
                     logout()
                     try { clearAuthTokenCookie() } catch {}
                     openSuccessWithDuration('Signed out successfully', 5000)
+                    redirectToLogin()
                   }
                 }}
               >

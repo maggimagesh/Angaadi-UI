@@ -42,6 +42,7 @@ export default function AgeGroupModal({
 
   return (
     <div 
+      className="modal-overlay"
       role="dialog" 
       aria-modal="true" 
       aria-label="Age group"
@@ -59,7 +60,7 @@ export default function AgeGroupModal({
       }}
     >
       <div 
-        className="card"
+        className="card modal-surface"
         data-testid="age-group-modal-content"
         style={{
           background: 'var(--color-card)',
@@ -129,8 +130,8 @@ export default function AgeGroupModal({
             </div>
           ) : error ? (
             <div id="age-group-error" data-testid="age-group-error" style={{ 
-              backgroundColor: '#fee2e2', 
-              color: '#b91c1c', 
+              backgroundColor: 'var(--color-danger-container)', 
+              color: 'var(--color-danger)', 
               padding: '10px', 
               borderRadius: 'var(--radius-md)', 
               marginBottom: '16px' 
@@ -157,9 +158,9 @@ export default function AgeGroupModal({
                       style={{
                         borderRadius: 'var(--radius-full)',
                         padding: '12px 20px',
-                        background: isSelected ? 'var(--color-primary)' : 'var(--color-surface)',
-                        color: isSelected ? '#ffffff' : 'var(--color-text)',
-                        border: `1px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                        background: isSelected ? 'var(--color-primary)' : 'var(--color-primary-container)',
+                        color: isSelected ? 'var(--color-on-primary)' : 'var(--color-text)',
+                        border: `1px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-outline)'}`,
                         fontWeight: 700,
                         fontSize: 'var(--font-md)',
                         cursor: 'pointer',
@@ -187,7 +188,7 @@ export default function AgeGroupModal({
                     cursor: isDirty ? 'pointer' : 'not-allowed',
                     opacity: isDirty ? 1 : 0.6,
                     background: 'var(--color-primary)',
-                    color: '#ffffff',
+                    color: 'var(--color-on-primary)',
                     fontWeight: 700
                   }}
                 >

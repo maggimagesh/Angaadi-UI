@@ -443,7 +443,7 @@ function SignUpPanel() {
 }
 
 const TERMS_BODY = `
-<p>Welcome to Angaadi.com. By creating an account you agree to the following sample terms intended for automation testing:</p>
+<p>Welcome to Angaadi. By creating an account you agree to the following sample terms intended for automation testing:</p>
 <ol>
   <li><strong>Account Responsibility</strong>: You are responsible for maintaining the confidentiality of your credentials.</li>
   <li><strong>Acceptable Use</strong>: Do not attempt to disrupt services; automated tests are permitted in this demo.</li>
@@ -451,7 +451,7 @@ const TERMS_BODY = `
   <li><strong>Content</strong>: Product information is sample data and may be inaccurate.</li>
   <li><strong>Termination</strong>: We may revoke access at any time for abuse.</li>
   <li><strong>Governing Law</strong>: Sample clause for testing only.</li>
-  <li><strong>Contact</strong>: demo@angaadi.com.</li>
+  <li><strong>Contact</strong>: support@angaadi.com.</li>
   <li><strong>Updates</strong>: Terms may change; continued use indicates acceptance.</li>
 </ol>
 `

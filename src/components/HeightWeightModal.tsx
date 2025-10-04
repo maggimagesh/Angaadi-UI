@@ -122,7 +122,7 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Height and Weight" id="height-weight-modal" data-testid="height-weight-modal" style={{
+    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Height and Weight" id="height-weight-modal" data-testid="height-weight-modal" style={{
       position: 'fixed',
       inset: 0,
       background: 'rgba(0,0,0,0.5)',
@@ -132,7 +132,7 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
       zIndex: 60,
       padding: '20px'
     }}>
-      <div className="card" data-testid="height-weight-modal-content" style={{
+      <div className="card modal-surface" data-testid="height-weight-modal-content" style={{
         background: 'var(--color-card)',
         color: 'var(--color-text)',
         padding: 0,
@@ -188,8 +188,8 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
               
               {error && (
                 <div id="height-weight-error" data-testid="height-weight-error" style={{ 
-                  backgroundColor: '#fee2e2', 
-                  color: '#b91c1c', 
+                  backgroundColor: 'var(--color-danger-container)', 
+                  color: 'var(--color-danger)', 
                   padding: '10px', 
                   borderRadius: 'var(--radius-md)', 
                   marginBottom: '16px' 
@@ -238,9 +238,9 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                         style={{
                           borderRadius: 'var(--radius-full)',
                           padding: '8px 16px',
-                          background: heightUnit === 'cm' ? 'var(--color-primary)' : 'var(--color-surface)',
-                          color: heightUnit === 'cm' ? 'white' : 'var(--color-text)',
-                          border: `1px solid ${heightUnit === 'cm' ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                          background: heightUnit === 'cm' ? 'var(--color-primary)' : 'var(--color-primary-container)',
+                          color: heightUnit === 'cm' ? 'var(--color-on-primary)' : 'var(--color-muted)',
+                          border: `1px solid ${heightUnit === 'cm' ? 'var(--color-primary)' : 'var(--color-outline)'}`,
                           fontWeight: 700,
                           fontSize: 'var(--font-sm)',
                           cursor: 'pointer'
@@ -257,9 +257,9 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                         style={{
                           borderRadius: 'var(--radius-full)',
                           padding: '8px 16px',
-                          background: heightUnit === 'ft' ? 'var(--color-primary)' : 'var(--color-surface)',
-                          color: heightUnit === 'ft' ? 'white' : 'var(--color-text)',
-                          border: `1px solid ${heightUnit === 'ft' ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                          background: heightUnit === 'ft' ? 'var(--color-primary)' : 'var(--color-primary-container)',
+                          color: heightUnit === 'ft' ? 'var(--color-on-primary)' : 'var(--color-muted)',
+                          border: `1px solid ${heightUnit === 'ft' ? 'var(--color-primary)' : 'var(--color-outline)'}`,
                           fontWeight: 700,
                           fontSize: 'var(--font-sm)',
                           cursor: 'pointer'
@@ -311,9 +311,9 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                         style={{
                           borderRadius: 'var(--radius-full)',
                           padding: '8px 16px',
-                          background: weightUnit === 'kg' ? 'var(--color-primary)' : 'var(--color-surface)',
-                          color: weightUnit === 'kg' ? 'white' : 'var(--color-text)',
-                          border: `1px solid ${weightUnit === 'kg' ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                          background: weightUnit === 'kg' ? 'var(--color-primary)' : 'var(--color-primary-container)',
+                          color: weightUnit === 'kg' ? 'var(--color-on-primary)' : 'var(--color-muted)',
+                          border: `1px solid ${weightUnit === 'kg' ? 'var(--color-primary)' : 'var(--color-outline)'}`,
                           fontWeight: 700,
                           fontSize: 'var(--font-sm)',
                           cursor: 'pointer'
@@ -330,9 +330,9 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                         style={{
                           borderRadius: 'var(--radius-full)',
                           padding: '8px 16px',
-                          background: weightUnit === 'lb' ? 'var(--color-primary)' : 'var(--color-surface)',
-                          color: weightUnit === 'lb' ? 'white' : 'var(--color-text)',
-                          border: `1px solid ${weightUnit === 'lb' ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                          background: weightUnit === 'lb' ? 'var(--color-primary)' : 'var(--color-primary-container)',
+                          color: weightUnit === 'lb' ? 'var(--color-on-primary)' : 'var(--color-muted)',
+                          border: `1px solid ${weightUnit === 'lb' ? 'var(--color-primary)' : 'var(--color-outline)'}`,
                           fontWeight: 700,
                           fontSize: 'var(--font-sm)',
                           cursor: 'pointer'

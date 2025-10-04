@@ -15,8 +15,21 @@
 html, body, #root { height: 100%; }
 body { margin: 0; }
 
-a { color: var(--color-primary); text-decoration: none; }
-a:hover { text-decoration: underline; }
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: color var(--motion-duration-short) var(--motion-easing-standard),
+    background var(--motion-duration-short) var(--motion-easing-standard);
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+a:not(.btn):hover {
+  background: rgba(103, 80, 164, 0.12);
+}
 
 h1, h2, h3 { color: var(--color-heading); margin: 0 0 var(--space-3) 0; }
 h1 { font-size: var(--font-2xl); }
