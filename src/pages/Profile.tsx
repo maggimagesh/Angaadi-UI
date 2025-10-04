@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuthStore } from '../store/auth'
 import { useUIStore } from '../store/ui'
 import { fetchPreferredDepartment, setPreferredDepartment, deactivatePreferredDepartment, fetchGenderOptions } from '../api/gender'
-import { savePhysicalStats, fetchPhysicalStats, fetchUserById } from '../api/user'
+import { savePhysicalStats, fetchPhysicalStats, fetchUserById, removePhysicalStats } from '../api/user'
 import { fetchAllAgeGroups, fetchUserAgeGroup, saveUserAgeGroup, removeUserAgeGroup } from '../api/ageGroup'
 import { fetchAllFitAttributes, fetchUserFitAttributes, batchSaveFitAttributes } from '../api/fitAttributes'
 import { fetchAllShoeSizes, fetchUserShoeSize, saveUserShoeSize, removeUserShoeSize, type ShoeSizeValue, type ShoeWidth } from '../api/shoeSize'
@@ -12,6 +12,8 @@ import HeightWeightModal from '../components/HeightWeightModal'
 import AgeGroupModal from '../components/AgeGroupModal'
 import FitAttributesModal from '../components/FitAttributesModal'
 import ShoesModal, { type ShoeSelection } from '../components/ShoesModal'
+import ConfirmDialog from '../components/ConfirmDialog'
+import ProfileActionButtons from '../components/ProfileActionButtons'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 export default function ProfilePage() {
@@ -63,6 +65,7 @@ export default function ProfilePage() {
   // Height and weight state
   const [heightWeight, setHeightWeight] = useState<{ height: string; weight: string } | null>(null);
   const [heightWeightModalOpen, setHeightWeightModalOpen] = useState<boolean>(false);
+  const [heightWeightClearOpen, setHeightWeightClearOpen] = useState<boolean>(false);
 
   // Age group state
   const [ageGroup, setAgeGroup] = useState<string | null>(null);
@@ -80,6 +83,7 @@ export default function ProfilePage() {
   const [fitAttributesModalCategory, setFitAttributesModalCategory] = useState<'womens' | 'mens'>('womens');
   const [fitAttributesClearOpen, setFitAttributesClearOpen] = useState<boolean>(false);
   const [fitAttributesLoading, setFitAttributesLoading] = useState<boolean>(false);
+  const [userFitAttributesLoading, setUserFitAttributesLoading] = useState<boolean>(false);
   const [fitAttributesError, setFitAttributesError] = useState<string | null>(null);
 
   // Shoes state
@@ -89,6 +93,7 @@ export default function ProfilePage() {
   const [shoesModalOpen, setShoesModalOpen] = useState<boolean>(false);
   const [shoeSizesLoading, setShoeSizesLoading] = useState<boolean>(false);
   const [shoeSizesError, setShoeSizesError] = useState<string | null>(null);
+  const [shoesPreferenceLoading, setShoesPreferenceLoading] = useState<boolean>(false);
   const [shoesClearOpen, setShoesClearOpen] = useState<boolean>(false);
 
   // Loading states
@@ -190,6 +195,7 @@ export default function ProfilePage() {
       return;
     }
 
+    setHeightWeightLoading(true);
     try {
       const result = await savePhysicalStats(user.userId, data);
       if (result.success) {
@@ -214,6 +220,32 @@ export default function ProfilePage() {
     } catch (error) {
       console.error('Error saving physical stats:', error);
       return false;
+    } finally {
+      setHeightWeightLoading(false);
+    }
+  };
+
+  const clearHeightWeightData = async (): Promise<boolean> => {
+    if (!user?.userId) {
+      console.error('User not authenticated');
+      return false;
+    }
+
+    setHeightWeightLoading(true);
+    try {
+      const result = await removePhysicalStats(user.userId);
+      if (result.success) {
+        setHeightWeight(null);
+        return true;
+      }
+
+      console.error('Failed to clear height and weight:', result.error?.message);
+      return false;
+    } catch (error) {
+      console.error('Error clearing height and weight:', error);
+      return false;
+    } finally {
+      setHeightWeightLoading(false);
     }
   };
 
@@ -332,6 +364,7 @@ export default function ProfilePage() {
   const loadUserFitAttributes = async () => {
     if (!user?.userId) return;
     
+    setUserFitAttributesLoading(true);
     try {
       const result = await fetchUserFitAttributes(user.userId);
       if (result.userFitAttributes) {
@@ -343,6 +376,8 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error('Failed to load user fit attributes:', error);
+    } finally {
+      setUserFitAttributesLoading(false);
     }
   };
 
@@ -425,6 +460,7 @@ export default function ProfilePage() {
   const loadShoeSizesData = async () => {
     if (!user?.userId) return;
     
+    setShoesPreferenceLoading(true);
     try {
       const result = await fetchUserShoeSize(user.userId);
       if (result.userShoeSize) {
@@ -438,6 +474,8 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error('Failed to load shoe size:', error);
+    } finally {
+      setShoesPreferenceLoading(false);
     }
   };
 
@@ -447,6 +485,7 @@ export default function ProfilePage() {
       return;
     }
 
+    setShoesPreferenceLoading(true);
     try {
       const result = await saveUserShoeSize(user.userId, selection.size, selection.width);
       if (result.userShoeSize) {
@@ -467,6 +506,8 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error('Error saving shoe size:', error);
+    } finally {
+      setShoesPreferenceLoading(false);
     }
   };
 
@@ -476,6 +517,7 @@ export default function ProfilePage() {
       return false;
     }
 
+    setShoesPreferenceLoading(true);
     try {
       const result = await removeUserShoeSize(user.userId);
       if (result.success) {
@@ -494,6 +536,8 @@ export default function ProfilePage() {
     } catch (error) {
       console.error('Error removing shoe size:', error);
       return false;
+    } finally {
+      setShoesPreferenceLoading(false);
     }
     return false;
   };
@@ -530,6 +574,7 @@ export default function ProfilePage() {
                 value={heightWeight}
                 onAdd={() => setHeightWeightModalOpen(true)}
                 onUpdate={() => setHeightWeightModalOpen(true)}
+                onClear={() => setHeightWeightClearOpen(true)}
                 loading={heightWeightLoading}
               />
               <AgeGroupRow
@@ -551,13 +596,14 @@ export default function ProfilePage() {
                   fitAttributes={allFitAttributes}
                   userFitAttributes={userFitAttributes}
                   lastUpdated={fitAttributesLastUpdated}
-                  loading={fitAttributesLoading}
+                  loading={fitAttributesLoading || userFitAttributesLoading}
                   onAdd={() => { setFitAttributesModalCategory('womens'); setFitAttributesModalOpen(true); }}
                   onUpdate={() => { setFitAttributesModalCategory('womens'); setFitAttributesModalOpen(true); }}
                   onClear={() => setFitAttributesClearOpen(true)}
                 />
                 <ShoesRow
                   value={shoesPreference}
+                  loading={shoesPreferenceLoading}
                   onAdd={() => {
                     console.log('Opening shoes modal, allShoeSizes:', allShoeSizes);
                     setShoesModalOpen(true);
@@ -594,6 +640,22 @@ export default function ProfilePage() {
         />
       )}
 
+      <ConfirmDialog
+        open={heightWeightClearOpen}
+        testIdPrefix="confirm-clear-height-weight"
+        onCancel={() => setHeightWeightClearOpen(false)}
+        onConfirm={async () => {
+          const ok = await clearHeightWeightData();
+          if (ok) {
+            try {
+              const { openSuccessWithDuration } = useUIStore.getState();
+              openSuccessWithDuration('Height and weight removed successfully', 4000);
+            } catch {}
+          }
+          setHeightWeightClearOpen(false);
+        }}
+      />
+
       {ageGroupModalOpen && (
         <AgeGroupModal
           open={ageGroupModalOpen}
@@ -611,21 +673,21 @@ export default function ProfilePage() {
         />
       )}
 
-      {ageGroupClearOpen && (
-        <ConfirmClearAgeGroupModal
-          onCancel={() => setAgeGroupClearOpen(false)}
-          onConfirm={async () => {
-            const ok = await clearAgeGroupData();
-            if (ok) {
-              try {
-                const { openSuccessWithDuration } = useUIStore.getState();
-                openSuccessWithDuration('Age group has been removed successfully', 4000);
-              } catch {}
-            }
-            setAgeGroupClearOpen(false);
-          }}
-        />
-      )}
+      <ConfirmDialog
+        open={ageGroupClearOpen}
+        testIdPrefix="confirm-clear-age-group"
+        onCancel={() => setAgeGroupClearOpen(false)}
+        onConfirm={async () => {
+          const ok = await clearAgeGroupData();
+          if (ok) {
+            try {
+              const { openSuccessWithDuration } = useUIStore.getState();
+              openSuccessWithDuration('Age group has been removed successfully', 4000);
+            } catch {}
+          }
+          setAgeGroupClearOpen(false);
+        }}
+      />
 
       {fitAttributesModalOpen && (
         <FitAttributesModal
@@ -643,21 +705,21 @@ export default function ProfilePage() {
         />
       )}
 
-      {fitAttributesClearOpen && (
-        <ConfirmClearFitAttributesModal
-          onCancel={() => setFitAttributesClearOpen(false)}
-          onConfirm={async () => {
-            const ok = await clearFitAttributesData();
-            if (ok) {
-              try {
-                const { openSuccessWithDuration } = useUIStore.getState();
-                openSuccessWithDuration('Fit attributes have been removed successfully', 4000);
-              } catch {}
-            }
-            setFitAttributesClearOpen(false);
-          }}
-        />
-      )}
+      <ConfirmDialog
+        open={fitAttributesClearOpen}
+        testIdPrefix="confirm-clear-fit-attributes"
+        onCancel={() => setFitAttributesClearOpen(false)}
+        onConfirm={async () => {
+          const ok = await clearFitAttributesData();
+          if (ok) {
+            try {
+              const { openSuccessWithDuration } = useUIStore.getState();
+              openSuccessWithDuration('Fit attributes have been removed successfully', 4000);
+            } catch {}
+          }
+          setFitAttributesClearOpen(false);
+        }}
+      />
 
       {shoesModalOpen && (
         <ShoesModal
@@ -678,23 +740,23 @@ export default function ProfilePage() {
         />
       )}
 
-      {shoesClearOpen && (
-        <ConfirmClearShoesModal
-          onCancel={() => setShoesClearOpen(false)}
-          onConfirm={async () => {
-            try {
-              const ok = await clearShoeSize();
-              if (!ok) {
-                console.warn('Failed to clear shoe size preference');
-              }
-            } catch (error) {
-              console.error('Unexpected error clearing shoe size:', error);
-            } finally {
-              setShoesClearOpen(false);
+      <ConfirmDialog
+        open={shoesClearOpen}
+        testIdPrefix="confirm-clear-shoes"
+        onCancel={() => setShoesClearOpen(false)}
+        onConfirm={async () => {
+          try {
+            const ok = await clearShoeSize();
+            if (!ok) {
+              console.warn('Failed to clear shoe size preference');
             }
-          }}
-        />
-      )}
+          } catch (error) {
+            console.error('Unexpected error clearing shoe size:', error);
+          } finally {
+            setShoesClearOpen(false);
+          }
+        }}
+      />
     </main>
   )
 }
@@ -730,6 +792,14 @@ function FitAttributesRow({
 
   // Check if user has any fit attributes for this category
   const hasAttributes = userCategoryAttributes.length > 0;
+
+  const handleUpdate = () => {
+    if (hasAttributes) {
+      onUpdate();
+    } else {
+      onAdd();
+    }
+  };
 
   // Get display text for attributes
   const getDisplayText = () => {
@@ -796,21 +866,23 @@ function FitAttributesRow({
       </div>
 
       {expanded && (
-        <div id="fit-attributes-panel" data-testid="fit-attributes-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 8}}>
-          {!hasAttributes ? (
-            <button
-              id="fit-attributes-add"
-              data-testid="fit-attributes-add"
-              className="btn"
-              style={{borderRadius:'var(--radius-full)', alignSelf: 'flex-start'}}
-              onClick={onAdd}
-              aria-label="Add fit attributes"
-            >
-              + Add
-            </button>
+        <div id="fit-attributes-panel" data-testid="fit-attributes-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 12}}>
+          {loading ? (
+            <LoadingSpinner size="small" text="Loading..." />
+          ) : !hasAttributes ? (
+            <>
+              <div style={{ color: 'var(--color-text)', opacity: 0.8 }}>No fit attributes saved yet.</div>
+              <ProfileActionButtons
+                onUpdate={handleUpdate}
+                onClear={onClear}
+                updateLabel="Add"
+                disableUpdate={loading}
+                disableClear
+                testIdPrefix="fit-attributes"
+              />
+            </>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {/* Display all attributes */}
+            <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {userCategoryAttributes
                   .sort((a, b) => {
@@ -828,36 +900,21 @@ function FitAttributesRow({
                     );
                   })}
               </div>
-              
-              {/* Edit and Clear buttons */}
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <button
-                  id="fit-attributes-edit"
-                  data-testid="fit-attributes-edit"
-                  className="btn btn-primary"
-                  style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 16px', fontSize: 14 }}
-                  onClick={onUpdate}
-                  aria-label="Edit fit attributes"
-                >
-                  Edit
-                </button>
-                <button
-                  id="fit-attributes-clear"
-                  data-testid="fit-attributes-clear"
-                  className="btn"
-                  style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 16px', fontSize: 14 }}
-                  onClick={onClear}
-                  aria-label="Clear fit attributes"
-                >
-                  Clear
-                </button>
+              <ProfileActionButtons
+                onUpdate={handleUpdate}
+                onClear={onClear}
+                updateLabel="Update"
+                disableUpdate={loading}
+                disableClear={loading}
+                testIdPrefix="fit-attributes"
+              >
                 {lastUpdated && (
                   <span style={{ fontSize: 14, color: 'var(--color-text)', opacity: 0.7, marginLeft: 8 }}>
                     {formatLastUpdated()}
                   </span>
                 )}
-              </div>
-            </div>
+              </ProfileActionButtons>
+            </>
           )}
         </div>
       )}
@@ -867,13 +924,21 @@ function FitAttributesRow({
 
 type ShoesRowProps = {
   value: (ShoeSelection & { updatedAt: string | null }) | null;
+  loading?: boolean;
   onAdd: () => void;
   onUpdate: () => void;
   onClear: () => void;
 }
 
-function ShoesRow({ value, onAdd, onUpdate, onClear }: ShoesRowProps) {
+function ShoesRow({ value, loading = false, onAdd, onUpdate, onClear }: ShoesRowProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
+  const handleUpdate = () => {
+    if (value) {
+      onUpdate();
+    } else {
+      onAdd();
+    }
+  };
 
   const formatLastUpdated = (dateString: string | null | undefined) => {
     if (!dateString) return '';
@@ -892,7 +957,9 @@ function ShoesRow({ value, onAdd, onUpdate, onClear }: ShoesRowProps) {
       >
         <div id="shoes-label" data-testid="shoes-label" style={{fontWeight:600, color:'var(--color-text)'}}>Shoes</div>
         <div id="shoes-value" data-testid="shoes-value" style={{opacity: value ? 1 : 0.7, color:'var(--color-text)'}}>
-          {value ? `${value.size} / ${value.width}` : '--'}
+          {loading ? (
+            <LoadingSpinner size="small" text="Loading..." />
+          ) : value ? `${value.size} / ${value.width}` : '--'}
         </div>
         <button
           id="shoes-toggle"
@@ -902,60 +969,45 @@ function ShoesRow({ value, onAdd, onUpdate, onClear }: ShoesRowProps) {
           aria-controls="shoes-panel"
           onClick={() => setExpanded(v => !v)}
           style={{ color: 'var(--color-text)' }}
+          disabled={loading}
         >
           {expanded ? '▴' : '▾'}
         </button>
       </div>
 
       {expanded && (
-        <div id="shoes-panel" data-testid="shoes-panel" style={{padding:'0 0 12px 0'}}>
-          {!value ? (
-            <button
-              id="shoes-add"
-              data-testid="shoes-add"
-              className="btn"
-              style={{borderRadius:'var(--radius-full)', alignSelf:'flex-start'}}
-              onClick={onAdd}
-              aria-label="Add shoe preference"
-            >
-              + Add
-            </button>
+        <div id="shoes-panel" data-testid="shoes-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 12}}>
+          {loading ? (
+            <LoadingSpinner size="small" text="Loading shoe preference..." />
           ) : (
-            <div style={{display:'flex', flexDirection:'column', gap:12}}>
-              <div style={{display:'grid', gridTemplateColumns:'auto 1fr', gap:8, alignItems:'center'}}>
-                <span style={{fontWeight:600, color:'var(--color-text)'}}>Shoes:</span>
-                <span id="shoes-display" data-testid="shoes-display" style={{fontSize:18, fontWeight:700, color:'var(--color-text)'}}>
-                  {value.size} / {value.width}
-                </span>
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: value ? 'auto 1fr' : '1fr', gap: 8, alignItems: 'center' }}>
+                {value ? (
+                  <>
+                    <span style={{fontWeight:600, color:'var(--color-text)'}}>Shoes:</span>
+                    <span id="shoes-display" data-testid="shoes-display" style={{fontSize:18, fontWeight:700, color:'var(--color-text)'}}>
+                      {value.size} / {value.width}
+                    </span>
+                  </>
+                ) : (
+                  <span style={{ color: 'var(--color-text)', opacity: 0.8 }}>No shoe preference saved yet.</span>
+                )}
               </div>
-              <div style={{display:'flex', gap:8, alignItems:'center', flexWrap:'wrap'}}>
-                <button
-                  id="shoes-update"
-                  data-testid="shoes-update"
-                  className="btn btn-primary"
-                  style={{borderRadius:'var(--radius-full)', height:32, padding:'0 12px', fontSize:14}}
-                  onClick={onUpdate}
-                  aria-label="Update shoe preference"
-                >
-                  Update
-                </button>
-                <button
-                  id="shoes-clear"
-                  data-testid="shoes-clear"
-                  className="btn"
-                  style={{borderRadius:'var(--radius-full)', height:32, padding:'0 12px', fontSize:14}}
-                  onClick={onClear}
-                  aria-label="Clear shoe preference"
-                >
-                  Clear
-                </button>
-                {value.updatedAt && (
-                  <span style={{fontSize:14, color:'var(--color-text)', opacity:0.7}}>
+              <ProfileActionButtons
+                onUpdate={handleUpdate}
+                onClear={onClear}
+                updateLabel={value ? 'Update' : 'Add'}
+                disableUpdate={loading}
+                disableClear={!value || loading}
+                testIdPrefix="shoes"
+              >
+                {value?.updatedAt && (
+                  <span style={{fontSize:14, color:'var(--color-text)', opacity:0.7, marginLeft:8}}>
                     Last updated on {formatLastUpdated(value.updatedAt)}
                   </span>
                 )}
-              </div>
-            </div>
+              </ProfileActionButtons>
+            </>
           )}
         </div>
       )}
@@ -967,11 +1019,20 @@ type HeightWeightRowProps = {
   value: { height: string; weight: string } | null;
   onAdd: () => void;
   onUpdate: () => void;
+  onClear: () => void;
   loading?: boolean;
 }
 
-function HeightWeightRow({ value, onAdd, onUpdate, loading = false }: HeightWeightRowProps) {
+function HeightWeightRow({ value, onAdd, onUpdate, onClear, loading = false }: HeightWeightRowProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
+
+  const handleUpdate = () => {
+    if (value) {
+      onUpdate();
+    } else {
+      onAdd();
+    }
+  };
   
   return (
     <div id="height-weight-row" data-testid="height-weight-row" style={{borderBottom:'1px solid var(--color-border)'}}>
@@ -999,39 +1060,24 @@ function HeightWeightRow({ value, onAdd, onUpdate, loading = false }: HeightWeig
       </div>
 
       {expanded && (
-        <div id="height-weight-panel" data-testid="height-weight-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 8}}>
-          {!value ? (
-            <button
-              id="height-weight-add"
-              data-testid="height-weight-add"
-              className="btn"
-              style={{borderRadius:'var(--radius-full)', alignSelf: 'flex-start'}}
-              onClick={onAdd}
-              aria-label="Add height and weight"
+        <div id="height-weight-panel" data-testid="height-weight-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 12}}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span
+              id="height-weight-display"
+              data-testid="height-weight-display"
+              style={{ fontSize: value ? 22 : 16, fontWeight: value ? 800 : 500, color: 'var(--color-text)' }}
             >
-              + Add
-            </button>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span id="height-weight-display" data-testid="height-weight-display" style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-text)' }}>
-                  {value.height} | {value.weight}
-                </span>
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  id="height-weight-update"
-                  data-testid="height-weight-update"
-                  className="btn btn-primary"
-                  style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 12px', fontSize: 14 }}
-                  onClick={onUpdate}
-                  aria-label="Update height and weight"
-                >
-                  Update
-                </button>
-              </div>
-            </div>
-          )}
+              {value ? `${value.height} | ${value.weight}` : 'No height and weight saved yet'}
+            </span>
+          </div>
+          <ProfileActionButtons
+            onUpdate={handleUpdate}
+            onClear={onClear}
+            updateLabel={value ? 'Update' : 'Add'}
+            disableUpdate={loading}
+            disableClear={!value || loading}
+            testIdPrefix="height-weight"
+          />
         </div>
       )}
     </div>
@@ -1048,6 +1094,14 @@ type AgeGroupRowProps = {
 
 function AgeGroupRow({ value, onAdd, onUpdate, onClear, loading = false }: AgeGroupRowProps) {
   const [expanded, setExpanded] = useState<boolean>(false);
+
+  const handleUpdate = () => {
+    if (value) {
+      onUpdate();
+    } else {
+      onAdd();
+    }
+  };
   
   return (
     <div id="age-group-row" data-testid="age-group-row" style={{borderBottom:'1px solid var(--color-border)'}}>
@@ -1075,49 +1129,24 @@ function AgeGroupRow({ value, onAdd, onUpdate, onClear, loading = false }: AgeGr
       </div>
 
       {expanded && (
-        <div id="age-group-panel" data-testid="age-group-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 8}}>
-          {!value ? (
-            <button
-              id="age-group-add"
-              data-testid="age-group-add"
-              className="btn"
-              style={{borderRadius:'var(--radius-full)', alignSelf: 'flex-start'}}
-              onClick={onAdd}
-              aria-label="Add age group"
+        <div id="age-group-panel" data-testid="age-group-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 12}}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span
+              id="age-group-display"
+              data-testid="age-group-display"
+              style={{ fontSize: value ? 22 : 16, fontWeight: value ? 800 : 500, color: 'var(--color-text)' }}
             >
-              + Add
-            </button>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span id="age-group-display" data-testid="age-group-display" style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-text)' }}>
-                  {value}
-                </span>
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  id="age-group-update"
-                  data-testid="age-group-update"
-                  className="btn btn-primary"
-                  style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 12px', fontSize: 14 }}
-                  onClick={onUpdate}
-                  aria-label="Update age group"
-                >
-                  Update
-                </button>
-                <button
-                  id="age-group-clear"
-                  data-testid="age-group-clear"
-                  className="btn"
-                  style={{ borderRadius: 'var(--radius-full)', height: 32, padding: '0 12px', fontSize: 14 }}
-                  onClick={onClear}
-                  aria-label="Clear age group"
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-          )}
+              {value ?? 'No age group selected yet'}
+            </span>
+          </div>
+          <ProfileActionButtons
+            onUpdate={handleUpdate}
+            onClear={onClear}
+            updateLabel={value ? 'Update' : 'Add'}
+            disableUpdate={loading}
+            disableClear={!value || loading}
+            testIdPrefix="age-group"
+          />
         </div>
       )}
     </div>
@@ -1250,49 +1279,18 @@ function PreferredDepartmentRow({ value, onChange, onClear, loading = false }: P
       </div>
 
       {expanded && (
-        <div id="pref-dept-panel" data-testid="pref-dept-panel" style={{padding:'0 0 12px 0'}}>
-          <div>
-            {!value ? (
-              <div style={{display:'flex', gap:8, alignItems:'center'}}>
-                <button
-                  id="pref-dept-add"
-                  data-testid="pref-dept-add"
-                  className="btn"
-                  style={{borderRadius:9999}}
-                  onClick={openPickerAndLoad}
-                  aria-label="Add preferred department"
-                >
-                  + Add
-                </button>
-              </div>
-            ) : (
-              <div>
-                <div id="pref-dept-display" data-testid="pref-dept-display" style={{fontSize:22, fontWeight:800, marginBottom:8}}>{value}</div>
-                <div style={{display:'flex', gap:8, alignItems:'center'}}>
-                  <button
-                    id="pref-dept-update"
-                    data-testid="pref-dept-update"
-                    className="btn btn-primary"
-                    style={{borderRadius:9999, height:32, padding:'0 12px', fontSize:14}}
-                    onClick={openPickerAndLoad}
-                    aria-label="Update preferred department"
-                  >
-                    Update
-                  </button>
-                  <button
-                    id="pref-dept-clear"
-                    data-testid="pref-dept-clear"
-                    className="btn"
-                    style={{borderRadius:9999, height:32, padding:'0 12px', fontSize:14}}
-                    onClick={() => setClearOpen(true)}
-                    aria-label="Clear preferred department"
-                  >
-                    Clear
-                  </button>
-                </div>
-              </div>
-            )}
+        <div id="pref-dept-panel" data-testid="pref-dept-panel" style={{padding:'0 0 12px 0', display: 'flex', flexDirection: 'column', gap: 12}}>
+          <div id="pref-dept-display" data-testid="pref-dept-display" style={{fontSize: value ? 22 : 16, fontWeight: value ? 800 : 500}}>
+            {value ?? 'No preferred department selected yet'}
           </div>
+          <ProfileActionButtons
+            onUpdate={openPickerAndLoad}
+            onClear={() => setClearOpen(true)}
+            updateLabel={value ? 'Update' : 'Add'}
+            disableUpdate={loading}
+            disableClear={!value || loading}
+            testIdPrefix="pref-dept"
+          />
         </div>
       )}
 
@@ -1309,23 +1307,23 @@ function PreferredDepartmentRow({ value, onChange, onClear, loading = false }: P
         />
       )}
 
-      {clearOpen && (
-        <ConfirmClearModal
-          onCancel={() => setClearOpen(false)}
-          onConfirm={async () => {
-            const ok = await clearPreferred()
-            if (ok) {
-              onClear()
-              try {
-                const resJson = { message: 'The gender has been removed successfully' }
-                const { openSuccessWithDuration } = await import('../store/ui').then(m => ({ openSuccessWithDuration: m.useUIStore.getState().openSuccessWithDuration }))
-                openSuccessWithDuration(resJson.message, 4000)
-              } catch {}
-            }
-            setClearOpen(false)
-          }}
-        />
-      )}
+      <ConfirmDialog
+        open={clearOpen}
+        testIdPrefix="confirm-clear"
+        onCancel={() => setClearOpen(false)}
+        onConfirm={async () => {
+          const ok = await clearPreferred()
+          if (ok) {
+            onClear()
+            try {
+              const resJson = { message: 'The gender has been removed successfully' }
+              const { openSuccessWithDuration } = await import('../store/ui').then(m => ({ openSuccessWithDuration: m.useUIStore.getState().openSuccessWithDuration }))
+              openSuccessWithDuration(resJson.message, 4000)
+            } catch {}
+          }
+          setClearOpen(false)
+        }}
+      />
     </div>
   )
 }
@@ -1341,22 +1339,48 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
   }, [options, current, choice])
   const isDirty = choice !== null && (choice?.label !== current)
   return (
-    <div role="dialog" aria-modal="true" aria-label="Preferred Department" id="dept-picker-modal" data-testid="dept-picker-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:60}}>
-      <div className="card" data-testid="dept-picker-modal-content" style={{background:'#fff', color:'#000', padding:0, minWidth:520, position:'relative', borderRadius:16, boxShadow:'0 10px 24px rgba(0,0,0,0.45)'}}>
-        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 20px', background:'#f3f4f6', borderTopLeftRadius:16, borderTopRightRadius:16, borderBottom:'1px solid #e5e7eb'}}>
-          <h3 id="dept-picker-title" data-testid="dept-picker-title" style={{margin:0, fontWeight:800, color:'#000'}}>Preferred department</h3>
+    <div role="dialog" aria-modal="true" aria-label="Preferred Department" id="dept-picker-modal" data-testid="dept-picker-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:60, padding:20}}>
+      <div
+        className="card"
+        data-testid="dept-picker-modal-content"
+        style={{
+          background:'var(--color-card)',
+          color:'var(--color-text)',
+          padding:0,
+          minWidth:520,
+          maxWidth:'90vw',
+          position:'relative',
+          borderRadius:'var(--radius-lg)',
+          boxShadow:'var(--elev-3)',
+          overflow:'hidden'
+        }}
+      >
+        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 20px', background:'var(--color-surface)', borderTopLeftRadius:'var(--radius-lg)', borderTopRightRadius:'var(--radius-lg)', borderBottom:'1px solid var(--color-border)'}}>
+          <h3 id="dept-picker-title" data-testid="dept-picker-title" style={{margin:0, fontWeight:800, color:'var(--color-text)'}}>Preferred department</h3>
           <button
             id="dept-picker-close"
             data-testid="dept-picker-close"
             aria-label="Close"
             onClick={onClose}
-            style={{width:40, height:40, borderRadius:12, background:'#0b0c0f', color:'#fff', border:'1px solid #0b0c0f', cursor:'pointer'}}
+            style={{
+              width:40,
+              height:40,
+              borderRadius:12,
+              background:'var(--color-card)',
+              color:'var(--color-text)',
+              border:'1px solid var(--color-border)',
+              cursor:'pointer',
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'center',
+              fontSize:18
+            }}
           >
             ×
           </button>
         </div>
-        <div style={{padding:24}}>
-          <p style={{fontSize:24, fontWeight:800, margin:'0 0 16px 0'}}>Which department do you typically shop in?</p>
+        <div style={{padding:24, background:'var(--color-card)'}}>
+          <p style={{fontSize:24, fontWeight:800, margin:'0 0 16px 0', color:'var(--color-text)'}}>Which department do you typically shop in?</p>
           {loading ? (
             <div id="dept-picker-loading" data-testid="dept-picker-loading">Loading…</div>
           ) : error ? (
@@ -1372,12 +1396,13 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
                     data-testid={`dept-option-${opt.id}`}
                     onClick={() => setChoice(opt)}
                     style={{
-                      borderRadius:9999,
+                      borderRadius:'var(--radius-full)',
                       padding:'12px 20px',
-                      background: isSelected ? '#3e6ae1' : '#ffffff',
-                      color: isSelected ? '#ffffff' : '#111827',
-                      border: `1px solid ${isSelected ? '#3e6ae1' : '#d1d5db'}`,
+                      background: isSelected ? 'var(--color-primary)' : 'var(--color-surface)',
+                      color: isSelected ? '#ffffff' : 'var(--color-text)',
+                      border: `1px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-border)'}`,
                       fontWeight:700,
+                      transition:'all 0.2s ease',
                     }}
                   >
                     {opt.label}
@@ -1394,7 +1419,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
               disabled={!isDirty}
               className="btn btn-primary"
               style={{
-                borderRadius:9999,
+                borderRadius:'var(--radius-full)',
                 padding:'10px 28px',
                 cursor: isDirty ? 'pointer' : 'not-allowed',
                 opacity: isDirty ? 1 : 0.6,
@@ -1409,60 +1434,5 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
   )
 }
 
-function ConfirmClearModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
-  return (
-    <div role="dialog" aria-modal="true" aria-label="Confirm clear" id="confirm-clear-modal" data-testid="confirm-clear-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
-      <div className="card" data-testid="confirm-clear-modal-content" style={{background:'#fff', color:'#000', padding:20, minWidth:420, position:'relative', borderRadius:16}}>
-        <h3 id="confirm-clear-title" data-testid="confirm-clear-title" style={{margin:'0 0 8px 0', fontWeight:800, color:'#000'}}>Are you sure want to clear?</h3>
-        <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
-          <button id="confirm-clear-no" data-testid="confirm-clear-no" className="btn" onClick={onCancel} style={{borderRadius:9999, height:36, padding:'0 14px'}}>No</button>
-          <button id="confirm-clear-yes" data-testid="confirm-clear-yes" className="btn btn-primary" onClick={onConfirm} style={{borderRadius:9999, height:36, padding:'0 14px'}}>Yes</button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ConfirmClearAgeGroupModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
-  return (
-    <div role="dialog" aria-modal="true" aria-label="Confirm clear age group" id="confirm-clear-age-group-modal" data-testid="confirm-clear-age-group-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
-      <div className="card" data-testid="confirm-clear-age-group-content" style={{background:'var(--color-card)', color:'var(--color-text)', padding:20, minWidth:420, position:'relative', borderRadius:16, boxShadow:'var(--elev-3)'}}>
-        <h3 id="confirm-clear-age-group-title" data-testid="confirm-clear-age-group-title" style={{margin:'0 0 8px 0', fontWeight:800, color:'var(--color-text)'}}>Are you sure want to clear?</h3>
-        <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
-          <button id="confirm-clear-age-group-no" data-testid="confirm-clear-age-group-no" className="btn" onClick={onCancel} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>No</button>
-          <button id="confirm-clear-age-group-yes" data-testid="confirm-clear-age-group-yes" className="btn btn-primary" onClick={onConfirm} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>Yes</button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ConfirmClearFitAttributesModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
-  return (
-    <div role="dialog" aria-modal="true" aria-label="Confirm clear fit attributes" id="confirm-clear-fit-attributes-modal" data-testid="confirm-clear-fit-attributes-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
-      <div className="card" data-testid="confirm-clear-fit-attributes-content" style={{background:'var(--color-card)', color:'var(--color-text)', padding:20, minWidth:420, position:'relative', borderRadius:16, boxShadow:'var(--elev-3)'}}>
-        <h3 id="confirm-clear-fit-attributes-title" data-testid="confirm-clear-fit-attributes-title" style={{margin:'0 0 8px 0', fontWeight:800, color:'var(--color-text)'}}>Are you sure want to clear?</h3>
-        <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
-          <button id="confirm-clear-fit-attributes-no" data-testid="confirm-clear-fit-attributes-no" className="btn" onClick={onCancel} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>No</button>
-          <button id="confirm-clear-fit-attributes-yes" data-testid="confirm-clear-fit-attributes-yes" className="btn btn-primary" onClick={onConfirm} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>Yes</button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ConfirmClearShoesModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
-  return (
-    <div role="dialog" aria-modal="true" aria-label="Confirm clear shoes" id="confirm-clear-shoes-modal" data-testid="confirm-clear-shoes-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
-      <div className="card" data-testid="confirm-clear-shoes-content" style={{background:'var(--color-card)', color:'var(--color-text)', padding:20, minWidth:420, position:'relative', borderRadius:16, boxShadow:'var(--elev-3)'}}>
-        <h3 id="confirm-clear-shoes-title" data-testid="confirm-clear-shoes-title" style={{margin:'0 0 8px 0', fontWeight:800, color:'var(--color-text)'}}>Are you sure want to clear?</h3>
-        <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
-          <button id="confirm-clear-shoes-no" data-testid="confirm-clear-shoes-no" className="btn" onClick={onCancel} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>No</button>
-          <button id="confirm-clear-shoes-yes" data-testid="confirm-clear-shoes-yes" className="btn btn-primary" onClick={onConfirm} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>Yes</button>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 

@@ -243,6 +243,45 @@ export async function savePhysicalStats(userId: string, data: { heightUnit: stri
   }
 }
 
+export async function removePhysicalStats(userId: string): Promise<{ success?: boolean; error?: { message: string } }> {
+  try {
+    const token = getAuthTokenCookie()
+    if (!token) {
+      return { error: { message: 'Authentication required' } }
+    }
+
+    const response = await fetch(buildApiUrl(`/users/physical-stats?userId=${encodeURIComponent(userId)}`), {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (response.status === 204) {
+      return { success: true }
+    }
+
+    const result = await response.json().catch(() => ({}))
+
+    if (!response.ok) {
+      return {
+        error: {
+          message: (result as { message?: string })?.message || 'Failed to clear physical stats'
+        }
+      }
+    }
+
+    return { success: true }
+  } catch (error) {
+    return {
+      error: {
+        message: error instanceof Error ? error.message : 'Network error occurred'
+      }
+    }
+  }
+}
+
 // Protected endpoint: Fetch physical stats for the authenticated user
 export async function fetchPhysicalStats(): Promise<{ stats?: { 
   id?: string; 
