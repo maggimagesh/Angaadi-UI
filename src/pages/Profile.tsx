@@ -5,11 +5,13 @@ import { fetchPreferredDepartment, setPreferredDepartment, deactivatePreferredDe
 import { savePhysicalStats, fetchPhysicalStats, fetchUserById } from '../api/user'
 import { fetchAllAgeGroups, fetchUserAgeGroup, saveUserAgeGroup, removeUserAgeGroup } from '../api/ageGroup'
 import { fetchAllFitAttributes, fetchUserFitAttributes, batchSaveFitAttributes } from '../api/fitAttributes'
+import { fetchAllShoeSizes, fetchUserShoeSize, saveUserShoeSize, removeUserShoeSize, type ShoeSizeValue, type ShoeWidth } from '../api/shoeSize'
 import type { AgeGroup } from '../api/ageGroup'
 import type { FitAttribute, UserFitAttribute } from '../api/fitAttributes'
 import HeightWeightModal from '../components/HeightWeightModal'
 import AgeGroupModal from '../components/AgeGroupModal'
 import FitAttributesModal from '../components/FitAttributesModal'
+import ShoesModal, { type ShoeSelection } from '../components/ShoesModal'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 export default function ProfilePage() {
@@ -80,6 +82,15 @@ export default function ProfilePage() {
   const [fitAttributesLoading, setFitAttributesLoading] = useState<boolean>(false);
   const [fitAttributesError, setFitAttributesError] = useState<string | null>(null);
 
+  // Shoes state
+  const [allShoeSizes, setAllShoeSizes] = useState<ShoeSizeValue[]>([]);
+  const [shoeWidths, setShoeWidths] = useState<ShoeWidth[]>([]);
+  const [shoesPreference, setShoesPreference] = useState<(ShoeSelection & { updatedAt: string | null }) | null>(null);
+  const [shoesModalOpen, setShoesModalOpen] = useState<boolean>(false);
+  const [shoeSizesLoading, setShoeSizesLoading] = useState<boolean>(false);
+  const [shoeSizesError, setShoeSizesError] = useState<string | null>(null);
+  const [shoesClearOpen, setShoesClearOpen] = useState<boolean>(false);
+
   // Loading states
   const [preferredDeptLoading, setPreferredDeptLoading] = useState<boolean>(false);
   const [heightWeightLoading, setHeightWeightLoading] = useState<boolean>(false);
@@ -93,13 +104,15 @@ export default function ProfilePage() {
       loadHeightWeightData();
       loadAgeGroupData();
       loadUserFitAttributes();
+      loadShoeSizesData();
     }
   }, [user?.userId])
 
-  // Load all age groups and fit attributes on component mount (only once)
+  // Load all age groups, fit attributes, and shoe sizes on component mount (only once)
   useEffect(() => {
     loadAllAgeGroups();
     loadAllFitAttributes();
+    loadAllShoeSizes();
   }, [])
 
   const loadPreferredDepartment = async () => {
@@ -385,6 +398,106 @@ export default function ProfilePage() {
     }
   };
 
+  // Shoe size functions
+  const loadAllShoeSizes = async () => {
+    setShoeSizesLoading(true);
+    setShoeSizesError(null);
+    try {
+      const result = await fetchAllShoeSizes();
+      if (result.error) {
+        setAllShoeSizes([]);
+        setShoeWidths([]);
+        setShoeSizesError(result.error.message || 'Failed to load shoe sizes');
+        return;
+      }
+      setAllShoeSizes(result.shoeSizes ?? []);
+      setShoeWidths(result.widths ?? []);
+    } catch (error) {
+      console.error('Failed to load shoe sizes:', error);
+      setAllShoeSizes([]);
+      setShoeWidths([]);
+      setShoeSizesError('Failed to load shoe sizes');
+    } finally {
+      setShoeSizesLoading(false);
+    }
+  };
+
+  const loadShoeSizesData = async () => {
+    if (!user?.userId) return;
+    
+    try {
+      const result = await fetchUserShoeSize(user.userId);
+      if (result.userShoeSize) {
+        setShoesPreference({
+          size: result.userShoeSize.size,
+          width: result.userShoeSize.width,
+          updatedAt: result.userShoeSize.updated_at || result.userShoeSize.created_at || null
+        });
+      } else {
+        setShoesPreference(null);
+      }
+    } catch (error) {
+      console.error('Failed to load shoe size:', error);
+    }
+  };
+
+  const saveShoeSize = async (selection: ShoeSelection) => {
+    if (!user?.userId) {
+      console.error('User not authenticated');
+      return;
+    }
+
+    try {
+      const result = await saveUserShoeSize(user.userId, selection.size, selection.width);
+      if (result.userShoeSize) {
+        setShoesPreference({
+          size: result.userShoeSize.size,
+          width: result.userShoeSize.width,
+          updatedAt: result.userShoeSize.updated_at || result.userShoeSize.created_at || null
+        });
+        setShoesModalOpen(false);
+        
+        // Show success message
+        try {
+          const { openSuccessWithDuration } = useUIStore.getState();
+          openSuccessWithDuration(result.message || 'Shoe size saved successfully', 4000);
+        } catch {}
+      } else {
+        console.error('Failed to save shoe size:', result.error?.message);
+      }
+    } catch (error) {
+      console.error('Error saving shoe size:', error);
+    }
+  };
+
+  const clearShoeSize = async (): Promise<boolean> => {
+    if (!user?.userId) {
+      console.error('User not authenticated');
+      return false;
+    }
+
+    try {
+      const result = await removeUserShoeSize(user.userId);
+      if (result.success) {
+        setShoesPreference(null);
+        
+        // Show success message
+        try {
+          const { openSuccessWithDuration } = useUIStore.getState();
+          openSuccessWithDuration(result.message || 'Shoe size removed successfully', 4000);
+        } catch {}
+        return true;
+      } else {
+        console.error('Failed to remove shoe size:', result.error?.message);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error removing shoe size:', error);
+      return false;
+    }
+    return false;
+  };
+
   return (
     <main className="app-main" id="profile-page" data-testid="profile-page">
       <section className="container p-6">
@@ -443,7 +556,18 @@ export default function ProfilePage() {
                   onUpdate={() => { setFitAttributesModalCategory('womens'); setFitAttributesModalOpen(true); }}
                   onClear={() => setFitAttributesClearOpen(true)}
                 />
-                <PreferenceRow label="Shoes" />
+                <ShoesRow
+                  value={shoesPreference}
+                  onAdd={() => {
+                    console.log('Opening shoes modal, allShoeSizes:', allShoeSizes);
+                    setShoesModalOpen(true);
+                  }}
+                  onUpdate={() => {
+                    console.log('Updating shoes modal');
+                    setShoesModalOpen(true);
+                  }}
+                  onClear={() => setShoesClearOpen(true)}
+                />
               </div>
             </section>
 
@@ -531,6 +655,43 @@ export default function ProfilePage() {
               } catch {}
             }
             setFitAttributesClearOpen(false);
+          }}
+        />
+      )}
+
+      {shoesModalOpen && (
+        <ShoesModal
+          open={shoesModalOpen}
+          onClose={() => {
+            console.log('Closing shoes modal');
+            setShoesModalOpen(false);
+          }}
+          onSave={(selection) => {
+            console.log('Saving shoe size:', selection);
+            saveShoeSize(selection);
+          }}
+          initialValue={shoesPreference || undefined}
+          shoeSizes={allShoeSizes || []}
+          widths={shoeWidths || []}
+          loading={shoeSizesLoading}
+          error={shoeSizesError || undefined}
+        />
+      )}
+
+      {shoesClearOpen && (
+        <ConfirmClearShoesModal
+          onCancel={() => setShoesClearOpen(false)}
+          onConfirm={async () => {
+            try {
+              const ok = await clearShoeSize();
+              if (!ok) {
+                console.warn('Failed to clear shoe size preference');
+              }
+            } catch (error) {
+              console.error('Unexpected error clearing shoe size:', error);
+            } finally {
+              setShoesClearOpen(false);
+            }
           }}
         />
       )}
@@ -704,14 +865,102 @@ function FitAttributesRow({
   );
 }
 
-function PreferenceRow({ label }: { label: string }) {
+type ShoesRowProps = {
+  value: (ShoeSelection & { updatedAt: string | null }) | null;
+  onAdd: () => void;
+  onUpdate: () => void;
+  onClear: () => void;
+}
+
+function ShoesRow({ value, onAdd, onUpdate, onClear }: ShoesRowProps) {
+  const [expanded, setExpanded] = useState<boolean>(false);
+
+  const formatLastUpdated = (dateString: string | null | undefined) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+      return '';
+    }
+  };
+
   return (
-    <div style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0', borderBottom:'1px solid var(--color-border)'}}>
-      <div style={{fontWeight:600}}>{label}</div>
-      <div style={{opacity:0.7}}>--</div>
-      <button className="btn" aria-label={`Edit ${label}`}>▾</button>
+    <div id="shoes-row" data-testid="shoes-row" style={{borderBottom:'1px solid var(--color-border)'}}>
+      <div
+        style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
+      >
+        <div id="shoes-label" data-testid="shoes-label" style={{fontWeight:600, color:'var(--color-text)'}}>Shoes</div>
+        <div id="shoes-value" data-testid="shoes-value" style={{opacity: value ? 1 : 0.7, color:'var(--color-text)'}}>
+          {value ? `${value.size} / ${value.width}` : '--'}
+        </div>
+        <button
+          id="shoes-toggle"
+          data-testid="shoes-toggle"
+          className="btn"
+          aria-expanded={expanded}
+          aria-controls="shoes-panel"
+          onClick={() => setExpanded(v => !v)}
+          style={{ color: 'var(--color-text)' }}
+        >
+          {expanded ? '▴' : '▾'}
+        </button>
+      </div>
+
+      {expanded && (
+        <div id="shoes-panel" data-testid="shoes-panel" style={{padding:'0 0 12px 0'}}>
+          {!value ? (
+            <button
+              id="shoes-add"
+              data-testid="shoes-add"
+              className="btn"
+              style={{borderRadius:'var(--radius-full)', alignSelf:'flex-start'}}
+              onClick={onAdd}
+              aria-label="Add shoe preference"
+            >
+              + Add
+            </button>
+          ) : (
+            <div style={{display:'flex', flexDirection:'column', gap:12}}>
+              <div style={{display:'grid', gridTemplateColumns:'auto 1fr', gap:8, alignItems:'center'}}>
+                <span style={{fontWeight:600, color:'var(--color-text)'}}>Shoes:</span>
+                <span id="shoes-display" data-testid="shoes-display" style={{fontSize:18, fontWeight:700, color:'var(--color-text)'}}>
+                  {value.size} / {value.width}
+                </span>
+              </div>
+              <div style={{display:'flex', gap:8, alignItems:'center', flexWrap:'wrap'}}>
+                <button
+                  id="shoes-update"
+                  data-testid="shoes-update"
+                  className="btn btn-primary"
+                  style={{borderRadius:'var(--radius-full)', height:32, padding:'0 12px', fontSize:14}}
+                  onClick={onUpdate}
+                  aria-label="Update shoe preference"
+                >
+                  Update
+                </button>
+                <button
+                  id="shoes-clear"
+                  data-testid="shoes-clear"
+                  className="btn"
+                  style={{borderRadius:'var(--radius-full)', height:32, padding:'0 12px', fontSize:14}}
+                  onClick={onClear}
+                  aria-label="Clear shoe preference"
+                >
+                  Clear
+                </button>
+                {value.updatedAt && (
+                  <span style={{fontSize:14, color:'var(--color-text)', opacity:0.7}}>
+                    Last updated on {formatLastUpdated(value.updatedAt)}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
-  )
+  );
 }
 
 type HeightWeightRowProps = {
@@ -1196,6 +1445,20 @@ function ConfirmClearFitAttributesModal({ onCancel, onConfirm }: { onCancel: () 
         <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
           <button id="confirm-clear-fit-attributes-no" data-testid="confirm-clear-fit-attributes-no" className="btn" onClick={onCancel} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>No</button>
           <button id="confirm-clear-fit-attributes-yes" data-testid="confirm-clear-fit-attributes-yes" className="btn btn-primary" onClick={onConfirm} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>Yes</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ConfirmClearShoesModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Confirm clear shoes" id="confirm-clear-shoes-modal" data-testid="confirm-clear-shoes-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:70}}>
+      <div className="card" data-testid="confirm-clear-shoes-content" style={{background:'var(--color-card)', color:'var(--color-text)', padding:20, minWidth:420, position:'relative', borderRadius:16, boxShadow:'var(--elev-3)'}}>
+        <h3 id="confirm-clear-shoes-title" data-testid="confirm-clear-shoes-title" style={{margin:'0 0 8px 0', fontWeight:800, color:'var(--color-text)'}}>Are you sure want to clear?</h3>
+        <div style={{display:'flex', justifyContent:'flex-end', gap:8, marginTop:16}}>
+          <button id="confirm-clear-shoes-no" data-testid="confirm-clear-shoes-no" className="btn" onClick={onCancel} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>No</button>
+          <button id="confirm-clear-shoes-yes" data-testid="confirm-clear-shoes-yes" className="btn btn-primary" onClick={onConfirm} style={{borderRadius:'var(--radius-full)', height:36, padding:'0 14px'}}>Yes</button>
         </div>
       </div>
     </div>
