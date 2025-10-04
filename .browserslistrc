@@ -1,0 +1,32 @@
+# Browsers that we support
+
+# Production browsers
+[production]
+# Last 2 versions of major browsers
+last 2 Chrome versions
+last 2 Firefox versions
+last 2 Safari versions
+last 2 Edge versions
+
+# Internet Explorer 11 (with fallbacks)
+IE 11
+
+# Mobile browsers
+last 2 iOS versions
+last 2 Android versions
+last 2 ChromeAndroid versions
+last 2 FirefoxAndroid versions
+
+# Samsung Internet
+last 2 Samsung versions
+
+# Additional coverage
+> 0.5%
+not dead
+
+# Development browsers (for local development)
+[development]
+last 1 Chrome version
+last 1 Firefox version
+last 1 Safari version
+

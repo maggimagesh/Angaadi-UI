@@ -1,73 +1,72 @@
-# React + TypeScript + Vite
+# Angaadi UI - E-Commerce Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, accessible, and cross-browser compatible e-commerce web application for shopping in India.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🌐 Cross-browser compatible (Chrome, Firefox, Safari, Edge, IE11)
+- 📱 Fully responsive (320px to desktop)
+- ♿ WCAG 2.1 AA accessible
+- ⚡ Optimized performance with code splitting
+- 🎨 Material Design 3 inspired UI
+- 🔒 Type-safe with TypeScript
 
-## React Compiler
+## Quick Start
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# Install dependencies
+npm install
 
-## Expanding the ESLint configuration
+# Start development server
+npm run dev
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Build for production
+npm run build
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Preview production build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The development server runs at `http://localhost:3000`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Technology Stack
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **React Router** - Client-side routing
+- **Zustand** - State management
+- **PostCSS + Autoprefixer** - CSS processing
+
+## Browser Support
+
+- Chrome/Firefox/Safari/Edge (latest 2 versions)
+- Internet Explorer 11 (with polyfills)
+- iOS Safari & Android Chrome (latest 2 versions)
+- Mobile-optimized for 320px+ screens
+
+## Project Structure
+
 ```
+src/
+├── api/           # API integration
+├── components/    # Reusable components
+├── pages/         # Page components
+├── store/         # State management
+├── styles/        # Global styles and tokens
+├── types/         # TypeScript definitions
+└── utils/         # Utility functions
+```
+
+## Documentation
+
+- **Architecture**: Mobile-first responsive design
+- **Accessibility**: Keyboard navigation, screen reader support, ARIA labels
+
+## Author
+
+**Magesh Kumar A T**
+
+---
+
+Built with React + TypeScript + Vite

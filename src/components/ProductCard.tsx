@@ -10,7 +10,7 @@ type Props = {
 
 export function ProductCard({ id, title, price, image }: Props) {
   return (
-    <article className="card p-4" id={`product-card-${id}`} data-testid={`product-card-${id}`} role="article" aria-labelledby={`product-card-${id}-title`}>
+    <article className="card product-card" id={`product-card-${id}`} data-testid={`product-card-${id}`} role="article" aria-labelledby={`product-card-${id}-title`}>
       <img
         src={image || buildPlaceholderDataUri(title, 600, 160)}
         alt={title}
@@ -22,16 +22,19 @@ export function ProductCard({ id, title, price, image }: Props) {
           img.src = buildPlaceholderDataUri(title, 600, 160)
         }}
       />
-      <h3 id={`product-card-${id}-title`} className="mt-4">{title}</h3>
-      <div style={{display:'flex', justifyContent:'space-between', marginTop:8, alignItems:'center'}}>
-        <span id={`result-price-${id}`} data-testid={`result-price-${id}`}>{formatINR(price)}</span>
-        <div style={{display:'flex', gap:8}}>
-          <button className="btn" data-testid={`result-quickview-${id}`} id={`result-quickview-${id}`} aria-label="Quick view">Quick view</button>
-          <label style={{display:'inline-flex', alignItems:'center', gap:6}}>
+      <h3 id={`product-card-${id}-title`} className="mt-4" style={{fontSize:'var(--font-md)', marginBottom:'8px'}}>{title}</h3>
+      <div className="product-card-footer">
+        <span id={`result-price-${id}`} data-testid={`result-price-${id}`} style={{fontWeight:600, fontSize:'var(--font-lg)', color:'var(--color-primary)'}}>{formatINR(price)}</span>
+        <div className="product-card-actions">
+          <button className="btn hide-on-mobile" data-testid={`result-quickview-${id}`} id={`result-quickview-${id}`} aria-label="Quick view">Quick view</button>
+          <label className="hide-on-mobile" style={{display:'inline-flex', alignItems:'center', gap:6, whiteSpace:'nowrap'}}>
             <input type="checkbox" id={`compare-checkbox-${id}`} data-testid={`compare-checkbox-${id}`} aria-label="Compare this product" />
             <span className="label">Compare</span>
           </label>
-          <button className="btn btn-primary" data-testid={`result-addtocart-${id}`} id={`result-addtocart-${id}`} aria-label="Add to cart">Add to cart</button>
+          <button className="btn btn-primary" data-testid={`result-addtocart-${id}`} id={`result-addtocart-${id}`} aria-label="Add to cart" style={{flex:1}}>
+            <span className="hide-on-mobile">Add to cart</span>
+            <span className="show-on-mobile">Add</span>
+          </button>
         </div>
       </div>
     </article>

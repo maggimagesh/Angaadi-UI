@@ -1,6 +1,7 @@
 /* Design tokens and CSS utilities for the demo app */
 :root {
   /* Colors - Material 3 inspired palette */
+  /* Fallback colors for browsers without CSS custom properties */
   --color-bg: #f7f2f9;
   --color-surface: #fdf8ff;
   --color-surface-variant: #e7e0ec;
@@ -74,12 +75,62 @@
   --focus-ring: 0 0 0 3px rgba(103,80,164,0.32);
 }
 
+/* High Contrast Mode Support - Enhance contrast without changing the entire theme */
+@media (prefers-contrast: high) {
+  :root {
+    --color-border: #000000;
+    --focus-ring: 0 0 0 3px #000000;
+  }
+}
+
+/* Reduced Motion Support - Respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Dark mode support - Optional, currently disabled to preserve light theme */
+/* Uncomment this block to enable automatic dark mode based on system preferences
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1c1b1f;
+    --color-surface: #1c1b1f;
+    --color-surface-variant: #49454f;
+    --color-card: #2b2930;
+    --color-border: #49454f;
+    --color-outline: #938f99;
+    --color-muted: #cac4d0;
+    --color-text: #e6e1e5;
+    --color-heading: #e6e1e5;
+    --color-primary: #d0bcff;
+    --color-primary-container: #4f378b;
+    --color-on-primary: #371e73;
+    --color-secondary: #ccc2dc;
+    --color-secondary-container: #4a4458;
+    --color-on-secondary: #332d41;
+    --color-success: #aed581;
+    --color-success-container: #1b5e20;
+    --color-warning: #ffd54f;
+    --color-warning-container: #ff6f00;
+    --color-danger: #f48fb1;
+    --color-danger-container: #c62828;
+  }
+}
+*/
+
 /* Layout helpers */
 .container {
-  max-width: var(--bp-desktop);
+  max-width: var(--bp-desktop, 1440px);
+  max-width: 1440px;
   margin: 0 auto;
-  padding-left: var(--space-4);
-  padding-right: var(--space-4);
+  width: 100%;
+  /* Padding defined in index.css for responsive behavior */
 }
 
 .card {
