@@ -202,7 +202,15 @@ h3 {
   align-items: center;
   gap: 4px;
   justify-content: flex-end;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.header-actions .btn {
+  height: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Desktop header layout */

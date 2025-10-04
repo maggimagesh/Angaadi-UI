@@ -1,4 +1,5 @@
 import { useEffect, useState, type SyntheticEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import '../styles/home.css'
 
@@ -190,6 +191,7 @@ const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
 }
 
 export default function HomePage() {
+  const navigate = useNavigate()
   const [activeHeroIndex, setActiveHeroIndex] = useState(0)
 
   useEffect(() => {
@@ -412,7 +414,7 @@ export default function HomePage() {
             <h3 id="home-cta-title">Your premium shopping experience starts here</h3>
             <p>Discover the best deals on electronics, fashion, home essentials, and more. Shop from trusted sellers with secure payments and easy returns.</p>
             <div className="home-footer-actions">
-              <button className="btn btn-primary" aria-label="Sign in to Angaadi">Sign in</button>
+              <button className="btn btn-primary" aria-label="Sign In to Angaadi" onClick={() => navigate('/login')}>Sign In</button>
               <button className="btn btn-secondary" aria-label="Start exploring">Start exploring</button>
             </div>
           </section>

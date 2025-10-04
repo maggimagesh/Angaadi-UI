@@ -64,7 +64,7 @@ export async function createUserRecord(data: CreateUserRequest): Promise<ApiResp
   }
 }
 
-// Public endpoint: Sign in with email and password
+// Public endpoint: Sign In with email and password
 export async function signIn(data: SignInRequest): Promise<ApiResponse<UserResponse>> {
   try {
     const response = await fetch(buildApiUrl('/users/signIn'), {

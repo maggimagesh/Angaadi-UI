@@ -128,8 +128,8 @@ export function Header() {
       </header>
       <ConfirmDialog
         open={signInPromptOpen}
-        title="Sign in required"
-        description="Please sign in to access your profile."
+        title="Sign In required"
+        description="Please Sign In to access your profile."
         confirmLabel="Sign In"
         cancelLabel="Cancel"
         onConfirm={() => {

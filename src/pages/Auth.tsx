@@ -28,7 +28,7 @@ export default function AuthPage() {
                 aria-controls="panel-signin"
                 onClick={() => setTab('signin')}
               >
-                Sign in
+                Sign In
               </button>
               <button
                 id="tab-signup"
@@ -145,7 +145,7 @@ function SignInPanel() {
           id="login-submit"
           data-testid="login-submit"
           data-test-name="login-submit"
-          aria-label="Sign in"
+          aria-label="Sign In"
           disabled={isLoading}
           onClick={() => {
             setError(null)
@@ -204,14 +204,14 @@ function SignInPanel() {
             })()
           }}
         >
-          {isLoading ? <LoadingSpinner size="small" text="Signing in..." /> : 'Sign in'}
+          {isLoading ? <LoadingSpinner size="small" text="Signing in..." /> : 'Sign In'}
         </button>
 
         <div className="mt-6" role="separator" style={{height:1, background:'var(--color-border)'}} />
 
         <div className="mt-4" style={{display:'grid', gap:8}}>
-          <button className="btn" id="oauth-google" data-testid="oauth-google" data-test-name="oauth-google" aria-label="Sign in with Google">Continue with Google</button>
-          <button className="btn" id="oauth-apple" data-testid="oauth-apple" data-test-name="oauth-apple" aria-label="Sign in with Apple">Continue with Apple</button>
+          <button className="btn" id="oauth-google" data-testid="oauth-google" data-test-name="oauth-google" aria-label="Sign In with Google">Continue with Google</button>
+          <button className="btn" id="oauth-apple" data-testid="oauth-apple" data-test-name="oauth-apple" aria-label="Sign In with Apple">Continue with Apple</button>
         </div>
 
         <div className="mt-6 card p-4" id="demo-credentials" data-testid="demo-credentials" aria-label="Demo login credentials">
