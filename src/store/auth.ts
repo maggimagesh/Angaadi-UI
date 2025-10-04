@@ -31,7 +31,7 @@ const writeUserToStorage = (user: AuthUser | null) => {
     if (user) localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
     else localStorage.removeItem(STORAGE_KEY)
   } catch {
-    /* ignore storage errors in demo */
+    /* ignore storage errors */
   }
 }
 

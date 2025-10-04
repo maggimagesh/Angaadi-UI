@@ -8,7 +8,7 @@ A modern, accessible, and cross-browser compatible e-commerce web application fo
 - 📱 Fully responsive (320px to desktop)
 - ♿ WCAG 2.1 AA accessible
 - ⚡ Optimized performance with code splitting
-- 🎨 Material Design 3 inspired UI
+- 🎨 Modern and intuitive user interface
 - 🔒 Type-safe with TypeScript
 
 ## Quick Start

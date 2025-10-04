@@ -443,29 +443,29 @@ function SignUpPanel() {
 }
 
 const TERMS_BODY = `
-<p>Welcome to Angaadi. By creating an account you agree to the following sample terms intended for automation testing:</p>
+<p>Welcome to Angaadi. By creating an account you agree to the following terms and conditions:</p>
 <ol>
-  <li><strong>Account Responsibility</strong>: You are responsible for maintaining the confidentiality of your credentials.</li>
-  <li><strong>Acceptable Use</strong>: Do not attempt to disrupt services; automated tests are permitted in this demo.</li>
-  <li><strong>Orders</strong>: All orders in this demo are mock and non-binding.</li>
-  <li><strong>Content</strong>: Product information is sample data and may be inaccurate.</li>
-  <li><strong>Termination</strong>: We may revoke access at any time for abuse.</li>
-  <li><strong>Governing Law</strong>: Sample clause for testing only.</li>
-  <li><strong>Contact</strong>: support@angaadi.com.</li>
-  <li><strong>Updates</strong>: Terms may change; continued use indicates acceptance.</li>
+  <li><strong>Account Responsibility</strong>: You are responsible for maintaining the confidentiality of your credentials and all activities under your account.</li>
+  <li><strong>Acceptable Use</strong>: You agree to use our services only for lawful purposes and in accordance with these terms.</li>
+  <li><strong>Orders</strong>: All orders are subject to availability and confirmation of the order price. Once placed, orders cannot be cancelled.</li>
+  <li><strong>Content</strong>: Product descriptions, images, and specifications are provided by sellers and manufacturers. We strive for accuracy but cannot guarantee complete precision.</li>
+  <li><strong>Termination</strong>: We reserve the right to suspend or terminate accounts that violate our terms of service.</li>
+  <li><strong>Governing Law</strong>: These terms are governed by the laws of India and subject to the jurisdiction of Indian courts.</li>
+  <li><strong>Contact</strong>: For support or queries, reach us at support@angaadi.com.</li>
+  <li><strong>Updates</strong>: Terms may be updated periodically; continued use of our services indicates acceptance of any changes.</li>
 </ol>
 `
 
 const PRIVACY_BODY = `
-<p>This demo collects mock information to showcase testing flows.</p>
+<p>At Angaadi, we value your privacy and are committed to protecting your personal information.</p>
 <ul>
-  <li><strong>Data Collected</strong>: Name, email (entered by you). No real payments are processed.</li>
-  <li><strong>Usage</strong>: Data is used to simulate checkout and order history.</li>
-  <li><strong>Cookies</strong>: We use local storage/cookies for session simulation.</li>
-  <li><strong>Sharing</strong>: No third-party sharing in this demo.</li>
-  <li><strong>Security</strong>: Basic safeguards; do not enter real sensitive data.</li>
-  <li><strong>Retention</strong>: Data may be reset by the Admin Seed page.</li>
-  <li><strong>Your Rights</strong>: You may delete your mock profile at any time (not implemented here).</li>
+  <li><strong>Data Collected</strong>: We collect your name, email address, shipping address, and payment information to process orders and provide customer support.</li>
+  <li><strong>Usage</strong>: Your data is used to process orders, manage your account, send order updates, and improve our services.</li>
+  <li><strong>Cookies</strong>: We use cookies and local storage to maintain your session, remember preferences, and enhance your shopping experience.</li>
+  <li><strong>Sharing</strong>: We do not sell your personal information. Data may be shared with payment processors and delivery partners solely to fulfill orders.</li>
+  <li><strong>Security</strong>: We implement industry-standard security measures to protect your data, including encryption and secure servers.</li>
+  <li><strong>Retention</strong>: Your data is retained as long as your account is active or as needed to provide services and comply with legal obligations.</li>
+  <li><strong>Your Rights</strong>: You can access, update, or delete your personal information by contacting our support team or through your account settings.</li>
 </ul>
 `
 
