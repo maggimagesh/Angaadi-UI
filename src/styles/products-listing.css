@@ -240,15 +240,44 @@
   color: var(--color-text-tertiary, #999);
 }
 
-/* Price Slider */
-.price-slider {
+/* Dual Range Slider */
+.dual-range-slider {
+  position: relative;
+  height: 20px;
   width: 100%;
-  height: 6px;
-  border-radius: 3px;
+  display: flex;
+  align-items: center;
+}
+
+.slider-track {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 5px;
   background: var(--color-border, #e0e0e0);
+  border-radius: 3px;
+}
+
+.slider-range {
+  position: absolute;
+  height: 100%;
+  background: var(--color-primary, #6750a4);
+  border-radius: 3px;
+}
+
+.price-slider {
+  position: absolute;
+  width: 100%;
+  height: 20px;
+  top: 0;
+  background: transparent;
   outline: none;
   appearance: none;
   cursor: pointer;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
 }
 
 .price-slider::-webkit-slider-thumb {
@@ -258,6 +287,20 @@
   border-radius: 50%;
   background: var(--color-primary, #6750a4);
   cursor: pointer;
+  pointer-events: auto;
+  border: 3px solid white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  margin-top: -6px;
+}
+
+.price-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(103, 80, 164, 0.4);
+}
+
+.price-slider::-webkit-slider-thumb:active {
+  transform: scale(1.05);
 }
 
 .price-slider::-moz-range-thumb {
@@ -266,15 +309,50 @@
   border-radius: 50%;
   background: var(--color-primary, #6750a4);
   cursor: pointer;
+  pointer-events: auto;
+  border: 3px solid white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  margin-top: -6px;
+}
+
+.price-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(103, 80, 164, 0.4);
+}
+
+.price-slider::-moz-range-thumb:active {
+  transform: scale(1.05);
+}
+
+.price-slider::-webkit-slider-runnable-track {
+  height: 5px;
+  background: transparent;
   border: none;
+}
+
+.price-slider::-moz-range-track {
+  height: 5px;
+  background: transparent;
+  border: none;
+}
+
+.price-slider-max {
+  z-index: 2;
+}
+
+.price-slider-min {
+  z-index: 3;
 }
 
 .price-range-display {
   display: flex;
   justify-content: space-between;
   margin-top: var(--space-2);
+  padding-top: var(--space-1);
   font-size: 0.8125rem;
   color: var(--color-text-secondary, #666);
+  font-weight: 500;
 }
 
 /* Checkboxes */

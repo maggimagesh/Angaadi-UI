@@ -270,15 +270,45 @@ export default function ProductsListing() {
               {/* Price Range Filter */}
               <div className="filter-group">
                 <h3 className="filter-title">Price Range</h3>
-                <input
-                  type="range"
-                  min="0"
-                  max="200000"
-                  step="1000"
-                  value={priceRange[1]}
-                  onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                  className="price-slider"
-                />
+                <div className="dual-range-slider">
+                  <div className="slider-track">
+                    <div 
+                      className="slider-range"
+                      style={{
+                        left: `${(priceRange[0] / 200000) * 100}%`,
+                        right: `${100 - (priceRange[1] / 200000) * 100}%`
+                      }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="200000"
+                    step="1000"
+                    value={priceRange[0]}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value)
+                      if (value < priceRange[1]) {
+                        setPriceRange([value, priceRange[1]])
+                      }
+                    }}
+                    className="price-slider price-slider-min"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="200000"
+                    step="1000"
+                    value={priceRange[1]}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value)
+                      if (value > priceRange[0]) {
+                        setPriceRange([priceRange[0], value])
+                      }
+                    }}
+                    className="price-slider price-slider-max"
+                  />
+                </div>
                 <div className="price-range-display">
                   <span>₹{priceRange[0].toLocaleString('en-IN')}</span>
                   <span>₹{priceRange[1].toLocaleString('en-IN')}</span>
