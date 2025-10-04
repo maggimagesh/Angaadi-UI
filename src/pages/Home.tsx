@@ -30,60 +30,70 @@ const heroSlides = [
 const categories = [
   {
     name: 'Mobiles & Tablets',
+    slug: 'mobiles-tablets',
     badge: 'Up to 40% Off',
     image: '/images/categories/category-mobiles.jpg',
     fallback: 'https://images.unsplash.com/photo-1675953935267-e039f13ddd79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     name: 'Laptops & Computers',
+    slug: 'laptops-computers',
     badge: 'Starting ₹25,990',
     image: '/images/categories/category-laptops.jpg',
     fallback: 'https://images.unsplash.com/photo-1737868131581-6379cdee4ec3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     name: 'Fashion & Lifestyle',
+    slug: 'fashion-lifestyle',
     badge: 'Min 50% Off',
     image: '/images/categories/category-fashion.jpg',
     fallback: 'https://images.unsplash.com/photo-1599386642518-d1e8aa2875c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     name: 'Home & Kitchen',
+    slug: 'home-kitchen',
     badge: 'Up to 60% Off',
     image: '/images/categories/category-home-kitchen.jpg',
     fallback: 'https://images.unsplash.com/photo-1754732693535-7ffb5e1a51d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     name: 'Beauty & Personal Care',
+    slug: 'beauty-personal-care',
     badge: 'Starting ₹99',
     image: '/images/categories/category-beauty.jpg',
     fallback: 'https://images.unsplash.com/photo-1688955665338-fb430ff8436d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     name: 'Books & Media',
+    slug: 'books-media',
     badge: 'Up to 80% Off',
     image: '/images/categories/category-books.jpg',
     fallback: 'https://images.unsplash.com/photo-1747210044397-9f2d19ccf096?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     name: 'Sports & Fitness',
+    slug: 'sports-fitness',
     badge: 'Min 30% Off',
     image: '/images/categories/category-sports.jpg',
     fallback: 'https://images.unsplash.com/photo-1710814824560-943273e8577e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     name: 'Grocery & Gourmet',
+    slug: 'grocery-gourmet',
     badge: 'Free Delivery',
     image: '/images/categories/category-grocery.jpg',
     fallback: 'https://images.unsplash.com/photo-1705929192183-847aef14ba29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     name: 'TVs & Appliances',
+    slug: 'tvs-appliances',
     badge: 'Up to ₹60,000 Off',
     image: '/images/categories/category-tvs.jpg',
     fallback: 'https://images.unsplash.com/photo-1601944177325-f8867652837f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
   },
   {
     name: 'Audio & Headphones',
+    slug: 'audio-headphones',
     badge: 'Starting ₹199',
     image: '/images/categories/category-audio.jpg',
     fallback: 'https://images.unsplash.com/photo-1649956736509-f359d191bbcb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
@@ -276,8 +286,21 @@ export default function HomePage() {
               <h2 id="home-categories-title" className="home-section-title">Shop by Category</h2>
             </header>
             <div className="home-category-grid">
-              {categories.map(({ name, badge, image, fallback }) => (
-                <article key={name} className="home-category-card">
+              {categories.map(({ name, slug, badge, image, fallback }) => (
+                <article 
+                  key={name} 
+                  className="home-category-card"
+                  onClick={() => navigate(`/products?category=${slug}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      navigate(`/products?category=${slug}`)
+                    }
+                  }}
+                  aria-label={`Shop ${name}`}
+                >
                   <figure className="home-category-image">
                     <img
                       src={image}

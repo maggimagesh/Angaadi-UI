@@ -240,7 +240,13 @@ h3 {
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Firefox */
-  padding: 16px 0;
+  padding: 16px 12px;
+}
+
+@media (min-width: 641px) {
+  .category-chips {
+    padding: 16px;
+  }
 }
 
 .category-chips::-webkit-scrollbar {
