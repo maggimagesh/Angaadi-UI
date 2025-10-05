@@ -47,6 +47,80 @@ const categorySlugMap: Record<string, string> = {
 // Default fallback image for categories without API image
 const DEFAULT_CATEGORY_IMAGE = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'
 
+// Fallback categories when API fails
+const FALLBACK_CATEGORIES = [
+  {
+    name: 'Mobiles & Tablets',
+    slug: 'mobiles-tablets',
+    badge: 'Up to 40% Off',
+    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    fallback: DEFAULT_CATEGORY_IMAGE,
+  },
+  {
+    name: 'Laptops & Computers',
+    slug: 'laptops-computers',
+    badge: 'Starting ₹25,990',
+    image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    fallback: DEFAULT_CATEGORY_IMAGE,
+  },
+  {
+    name: 'TVs & Appliances',
+    slug: 'tvs-appliances',
+    badge: 'Up to ₹60,000 Off',
+    image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    fallback: DEFAULT_CATEGORY_IMAGE,
+  },
+  {
+    name: 'Audio & Headphones',
+    slug: 'audio-headphones',
+    badge: 'Starting ₹199',
+    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    fallback: DEFAULT_CATEGORY_IMAGE,
+  },
+  {
+    name: 'Fashion & Lifestyle',
+    slug: 'fashion-lifestyle',
+    badge: 'Min 50% Off',
+    image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    fallback: DEFAULT_CATEGORY_IMAGE,
+  },
+  {
+    name: 'Home & Kitchen',
+    slug: 'home-kitchen',
+    badge: 'Up to 60% Off',
+    image: 'https://images.unsplash.com/photo-1570222094114-d054a817e56b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    fallback: DEFAULT_CATEGORY_IMAGE,
+  },
+  {
+    name: 'Beauty & Personal Care',
+    slug: 'beauty-personal-care',
+    badge: 'Starting ₹99',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    fallback: DEFAULT_CATEGORY_IMAGE,
+  },
+  {
+    name: 'Books & Media',
+    slug: 'books-media',
+    badge: 'Up to 80% Off',
+    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    fallback: DEFAULT_CATEGORY_IMAGE,
+  },
+  {
+    name: 'Sports & Fitness',
+    slug: 'sports-fitness',
+    badge: 'Min 30% Off',
+    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    fallback: DEFAULT_CATEGORY_IMAGE,
+  },
+  {
+    name: 'Smartwatches',
+    slug: 'smartwatches',
+    badge: 'Starting ₹1,999',
+    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    fallback: DEFAULT_CATEGORY_IMAGE,
+  },
+]
+
 // Helper function to generate badge text for categories (will be replaced by API data later)
 const categoryBadgeMap: Record<string, string> = {
   mobileAndTablets: 'Up to 40% Off',
@@ -178,6 +252,8 @@ export default function HomePage() {
         
         if (response.error) {
           setCategoriesError(response.error.message)
+          // Use fallback categories when API fails
+          setCategories(FALLBACK_CATEGORIES)
         } else if (response.data) {
           // Filter only active categories and transform API data to match component structure
           const transformedCategories = response.data
@@ -195,6 +271,8 @@ export default function HomePage() {
         }
       } catch (error) {
         setCategoriesError('Failed to load categories')
+        // Use fallback categories when API fails
+        setCategories(FALLBACK_CATEGORIES)
       } finally {
         setCategoriesLoading(false)
         setIsPageLoading(false)
@@ -291,26 +369,35 @@ export default function HomePage() {
 
           {categoriesLoading ? (
             <CategorySkeletonLoader />
-          ) : categoriesError ? (
-            <section className="home-section home-categories-section" aria-labelledby="home-categories-title" data-testid="home-categories">
-              <header className="home-section-header">
-                <h2 id="home-categories-title" className="home-section-title">Shop by Category</h2>
-              </header>
-              <div className="home-category-error" style={{ textAlign: 'center', padding: '2rem', color: '#d32f2f' }}>
-                <p>Failed to load categories: {categoriesError}</p>
-                <button 
-                  className="btn btn-secondary" 
-                  onClick={() => window.location.reload()}
-                  style={{ marginTop: '1rem' }}
-                >
-                  Retry
-                </button>
-              </div>
-            </section>
           ) : (
             <section className="home-section home-categories-section" aria-labelledby="home-categories-title" data-testid="home-categories">
               <header className="home-section-header">
                 <h2 id="home-categories-title" className="home-section-title">Shop by Category</h2>
+                {categoriesError && (
+                  <div 
+                    style={{ 
+                      marginTop: '8px',
+                      padding: '8px 12px',
+                      background: 'var(--color-warning-container, #fff3cd)',
+                      color: 'var(--color-warning, #856404)',
+                      borderRadius: 'var(--radius-md)',
+                      fontSize: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <span>⚠️</span>
+                    <span>Unable to load latest categories. Showing default categories.</span>
+                    <button 
+                      className="btn btn-ghost" 
+                      onClick={() => window.location.reload()}
+                      style={{ marginLeft: 'auto', padding: '4px 12px', fontSize: '13px' }}
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
               </header>
               <div className="home-category-grid">
                 {categories.map(({ name, slug, badge, image, fallback }) => (
