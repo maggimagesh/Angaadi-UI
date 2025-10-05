@@ -1,7 +1,8 @@
-import { useEffect, useState, type SyntheticEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { products, type Product } from '../data/products'
 import { Pagination } from '../components/Pagination'
+import { useImageFallback } from '../hooks/useImageFallback'
 import '../styles/products-listing.css'
 
 const categoryMap: Record<string, Product['category'][]> = {
@@ -59,6 +60,7 @@ const getReviewCount = (productId: string): number => {
 const ITEMS_PER_PAGE = 12
 
 export default function ProductsListing() {
+  const { handleImageError } = useImageFallback()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const categoryParam = searchParams.get('category') || 'all'
@@ -100,13 +102,6 @@ export default function ProductsListing() {
     books: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&q=80',
     sports: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&q=80',
     grocery: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&q=80'
-  }
-
-  const handleImageError = (event: SyntheticEvent<HTMLImageElement>, category: Product['category']) => {
-    const img = event.currentTarget
-    if (img.src !== fallbackImages[category]) {
-      img.src = fallbackImages[category]
-    }
   }
 
   const toggleWishlist = (productId: string) => {
@@ -168,6 +163,11 @@ export default function ProductsListing() {
     // Apply stock filter
     if (inStockOnly) {
       filtered = filtered.filter(product => product.stock === 'In Stock')
+    }
+
+    // Apply free delivery filter
+    if (freeDeliveryOnly) {
+      filtered = filtered.filter(product => product.freeDelivery === true)
     }
 
     // Sort products
@@ -422,9 +422,10 @@ export default function ProductsListing() {
                         <figure className="product-image">
                           <img
                             src={product.image}
+                            data-fallback={fallbackImages[product.category]}
                             alt={product.title}
                             loading="lazy"
-                            onError={(e) => handleImageError(e, product.category)}
+                            onError={handleImageError}
                           />
                           {product.stock === 'Out of Stock' && (
                             <div className="out-of-stock-overlay">

@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { fetchPhysicalStats } from '../api/user';
 import LoadingSpinner from './LoadingSpinner';
+import { BaseModal } from './BaseModal';
+import { ToggleButtonGroup } from './ToggleButtonGroup';
+import { ErrorMessage } from './ErrorMessage';
 
 interface HeightWeightModalProps {
   open: boolean;
@@ -79,8 +82,6 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
     }
   };
 
-  if (!open) return null;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -122,81 +123,22 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
   };
 
   return (
-    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Height and Weight" id="height-weight-modal" data-testid="height-weight-modal" style={{
-      position: 'fixed',
-      inset: 0,
-      background: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 60,
-      padding: '20px'
-    }}>
-      <div className="card modal-surface" data-testid="height-weight-modal-content" style={{
-        background: 'var(--color-card)',
-        color: 'var(--color-text)',
-        padding: 0,
-        minWidth: 520,
-        maxWidth: '90vw',
-        position: 'relative',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--elev-3)',
-        overflow: 'hidden'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px 20px',
-          background: 'var(--color-surface)',
-          borderTopLeftRadius: 'var(--radius-lg)',
-          borderTopRightRadius: 'var(--radius-lg)',
-          borderBottom: '1px solid var(--color-border)'
-        }}>
-          <h3 id="height-weight-modal-title" data-testid="height-weight-modal-title" style={{ margin: 0, fontWeight: 800, color: 'var(--color-text)' }}>Height and weight</h3>
-          <button
-            id="height-weight-modal-close"
-            data-testid="height-weight-modal-close"
-            aria-label="Close"
-            onClick={onClose}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-              background: 'var(--color-card)',
-              color: 'var(--color-text)',
-              border: '1px solid var(--color-border)',
-              cursor: 'pointer',
-              fontSize: '18px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            ×
-          </button>
+    <BaseModal
+      open={open}
+      onClose={onClose}
+      title="Height and weight"
+      testIdPrefix="height-weight-modal"
+      size="medium"
+    >
+      {isLoading ? (
+        <div id="height-weight-loading" data-testid="height-weight-loading" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+          <LoadingSpinner size="medium" text="Loading your data..." />
         </div>
-        
-        <div style={{ padding: 24, background: 'var(--color-card)' }}>
-          {isLoading ? (
-            <div id="height-weight-loading" data-testid="height-weight-loading" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
-              <LoadingSpinner size="medium" text="Loading your data..." />
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} id="height-weight-form" data-testid="height-weight-form">
-              <p style={{ fontSize: 24, fontWeight: 800, margin: '0 0 20px 0', color: 'var(--color-text)' }}>What's your current height and weight?</p>
-              
-              {error && (
-                <div id="height-weight-error" data-testid="height-weight-error" style={{ 
-                  backgroundColor: 'var(--color-danger-container)', 
-                  color: 'var(--color-danger)', 
-                  padding: '10px', 
-                  borderRadius: 'var(--radius-md)', 
-                  marginBottom: '16px' 
-                }}>
-                  {error}
-                </div>
-              )}
+      ) : (
+        <form onSubmit={handleSubmit} id="height-weight-form" data-testid="height-weight-form">
+          <p style={{ fontSize: 24, fontWeight: 800, margin: '0 0 20px 0', color: 'var(--color-text)' }}>What's your current height and weight?</p>
+          
+          <ErrorMessage message={error || ''} testId="height-weight-error" />
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {/* Height input */}
@@ -229,46 +171,12 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                       }}
                       step="0.1"
                     />
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      <button
-                        id="height-unit-cm"
-                        data-testid="height-unit-cm"
-                        type="button"
-                        onClick={() => setHeightUnit('cm')}
-                        style={{
-                          borderRadius: 'var(--radius-full)',
-                          padding: '8px 16px',
-                          background: heightUnit === 'cm' ? 'var(--color-primary)' : 'var(--color-primary-container)',
-                          color: heightUnit === 'cm' ? 'var(--color-on-primary)' : 'var(--color-muted)',
-                          border: `1px solid ${heightUnit === 'cm' ? 'var(--color-primary)' : 'var(--color-outline)'}`,
-                          fontWeight: 700,
-                          fontSize: 'var(--font-sm)',
-                          cursor: 'pointer'
-                        }}
-                        aria-pressed={heightUnit === 'cm'}
-                      >
-                        cm
-                      </button>
-                      <button
-                        id="height-unit-ft"
-                        data-testid="height-unit-ft"
-                        type="button"
-                        onClick={() => setHeightUnit('ft')}
-                        style={{
-                          borderRadius: 'var(--radius-full)',
-                          padding: '8px 16px',
-                          background: heightUnit === 'ft' ? 'var(--color-primary)' : 'var(--color-primary-container)',
-                          color: heightUnit === 'ft' ? 'var(--color-on-primary)' : 'var(--color-muted)',
-                          border: `1px solid ${heightUnit === 'ft' ? 'var(--color-primary)' : 'var(--color-outline)'}`,
-                          fontWeight: 700,
-                          fontSize: 'var(--font-sm)',
-                          cursor: 'pointer'
-                        }}
-                        aria-pressed={heightUnit === 'ft'}
-                      >
-                        ft
-                      </button>
-                    </div>
+                    <ToggleButtonGroup
+                      options={['cm', 'ft'] as const}
+                      value={heightUnit}
+                      onChange={setHeightUnit}
+                      testIdPrefix="height-unit"
+                    />
                   </div>
                 </div>
                 
@@ -302,46 +210,12 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                       }}
                       step="0.1"
                     />
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      <button
-                        id="weight-unit-kg"
-                        data-testid="weight-unit-kg"
-                        type="button"
-                        onClick={() => setWeightUnit('kg')}
-                        style={{
-                          borderRadius: 'var(--radius-full)',
-                          padding: '8px 16px',
-                          background: weightUnit === 'kg' ? 'var(--color-primary)' : 'var(--color-primary-container)',
-                          color: weightUnit === 'kg' ? 'var(--color-on-primary)' : 'var(--color-muted)',
-                          border: `1px solid ${weightUnit === 'kg' ? 'var(--color-primary)' : 'var(--color-outline)'}`,
-                          fontWeight: 700,
-                          fontSize: 'var(--font-sm)',
-                          cursor: 'pointer'
-                        }}
-                        aria-pressed={weightUnit === 'kg'}
-                      >
-                        kg
-                      </button>
-                      <button
-                        id="weight-unit-lb"
-                        data-testid="weight-unit-lb"
-                        type="button"
-                        onClick={() => setWeightUnit('lb')}
-                        style={{
-                          borderRadius: 'var(--radius-full)',
-                          padding: '8px 16px',
-                          background: weightUnit === 'lb' ? 'var(--color-primary)' : 'var(--color-primary-container)',
-                          color: weightUnit === 'lb' ? 'var(--color-on-primary)' : 'var(--color-muted)',
-                          border: `1px solid ${weightUnit === 'lb' ? 'var(--color-primary)' : 'var(--color-outline)'}`,
-                          fontWeight: 700,
-                          fontSize: 'var(--font-sm)',
-                          cursor: 'pointer'
-                        }}
-                        aria-pressed={weightUnit === 'lb'}
-                      >
-                        lb
-                      </button>
-                    </div>
+                    <ToggleButtonGroup
+                      options={['kg', 'lb'] as const}
+                      value={weightUnit}
+                      onChange={setWeightUnit}
+                      testIdPrefix="weight-unit"
+                    />
                   </div>
                 </div>
               </div>
@@ -374,10 +248,8 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                   {isLoading ? <LoadingSpinner size="small" text="Saving..." /> : 'Save'}
                 </button>
               </div>
-            </form>
-          )}
-        </div>
-      </div>
-    </div>
+        </form>
+      )}
+    </BaseModal>
   );
 }

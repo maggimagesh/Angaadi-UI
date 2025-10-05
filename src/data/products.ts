@@ -7,6 +7,7 @@ export type Product = {
   stock: 'In Stock' | 'Out of Stock'
   image: string
   category: 'smartphone' | 'laptop' | 'tablet' | 'earphones' | 'tv' | 'smartwatch' | 'fashion' | 'home-kitchen' | 'beauty' | 'books' | 'sports' | 'grocery'
+  freeDelivery: boolean
 }
 
 function categoryForIndex(idx: number): Product['category'] {
@@ -341,6 +342,7 @@ export const products: Product[] = Array.from({ length: 90 }).map((_, idx) => {
     stock: idx % 13 === 0 ? 'Out of Stock' : 'In Stock',
     image: categoryImages[titleIndex],
     category,
+    freeDelivery: idx % 3 !== 0,
   }
 })
 

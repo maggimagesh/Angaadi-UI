@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef, type SyntheticEvent } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { fetchCategories } from '../api/products'
 import { CategorySkeletonLoader } from '../components/CategorySkeleton'
+import { useImageFallback } from '../hooks/useImageFallback'
 import '../styles/home.css'
 
 const heroSlides = [
@@ -150,17 +151,8 @@ const recommendedHighlights = [
   },
 ]
 
-const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
-  const image = event.currentTarget
-  const fallback = image.dataset.fallback
-
-  if (fallback && image.src !== fallback) {
-    image.onerror = null
-    image.src = fallback
-  }
-}
-
 export default function HomePage() {
+  const { handleImageError } = useImageFallback()
   const navigate = useNavigate()
   const [activeHeroIndex, setActiveHeroIndex] = useState(0)
   const [categories, setCategories] = useState<Array<{ name: string; slug: string; badge: string; image: string; fallback: string }>>([])
