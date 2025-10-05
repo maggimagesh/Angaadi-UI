@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { products, type Product } from '../data/products'
+import { fetchProductsByCategory, type ProductItem } from '../api/products'
 import { Pagination } from '../components/Pagination'
 import { useImageFallback } from '../hooks/useImageFallback'
+import LoadingSpinner from '../components/LoadingSpinner'
 import '../styles/products-listing.css'
 
 const categoryMap: Record<string, Product['category'][]> = {
@@ -35,6 +37,50 @@ const categoryDisplayNames: Record<string, string> = {
   'all': 'All Products',
 }
 
+// Map category slugs to API category IDs (numbers)
+const categoryIdMap: Record<string, number> = {
+  'mobiles-tablets': 1,
+  'laptops-computers': 2,
+  'tvs-appliances': 3,
+  'audio-headphones': 4,
+  'fashion-lifestyle': 5,
+  'home-kitchen': 6,
+  'beauty-personal-care': 7,
+  'books-media': 8,
+  'sports-fitness': 9,
+  'grocery-gourmet': 10,
+  'smartwatches': 11,
+  'all': 0, // 0 or special value for "all" - adjust based on your API
+}
+
+// Helper function to convert API ProductItem to local Product type (extended with API fields)
+function mapApiProductToLocal(apiProduct: ProductItem): Product & { discount?: number; reviewCount?: number; originalPrice?: number; description?: string } {
+  // Convert string price to number
+  const numericPrice = parseFloat(apiProduct.price) || 0
+  const numericOldPrice = parseFloat(apiProduct.oldprice) || numericPrice
+  const numericRating = parseFloat(apiProduct.starrating) || 0
+  
+  // Determine stock status from quantity
+  const stockStatus: 'In Stock' | 'Out of Stock' = apiProduct.stock > 0 ? 'In Stock' : 'Out of Stock'
+  
+  return {
+    id: apiProduct.id.toString(),
+    title: apiProduct.productname,
+    brand: apiProduct.brand,
+    price: numericPrice,
+    rating: numericRating,
+    stock: stockStatus,
+    image: apiProduct.imageurl,
+    category: 'smartphone', // This will be inferred from category
+    freeDelivery: apiProduct.freedelivery,
+    // Include API-specific fields if available
+    discount: apiProduct.discountpercent,
+    reviewCount: apiProduct.ratingscount,
+    originalPrice: numericOldPrice,
+    description: apiProduct.description, // Include product description from API
+  }
+}
+
 // Mock discount data for products
 const getDiscountForProduct = (productId: string): number => {
   const discounts: Record<string, number> = {
@@ -64,8 +110,13 @@ export default function ProductsListing() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const categoryParam = searchParams.get('category') || 'all'
+  const categoryIdParam = searchParams.get('categoryId')
   
+  const [allProducts, setAllProducts] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true)
+  const [productsError, setProductsError] = useState<string | null>(null)
+  const [totalProductsFromApi, setTotalProductsFromApi] = useState(0)
   const [sortBy, setSortBy] = useState<'relevance' | 'price-low' | 'price-high' | 'rating'>('relevance')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchQuery, setSearchQuery] = useState('')
@@ -77,12 +128,52 @@ export default function ProductsListing() {
   const [wishlistedItems, setWishlistedItems] = useState<Set<string>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
 
+  // Fetch products from API when category changes
+  useEffect(() => {
+    const loadProducts = async () => {
+      setIsLoadingProducts(true)
+      setProductsError(null)
+      
+      // Use categoryId from URL if available, otherwise fallback to mapping or parsing
+      const categoryId = categoryIdParam 
+        ? parseInt(categoryIdParam, 10) 
+        : categoryIdMap[categoryParam] !== undefined 
+          ? categoryIdMap[categoryParam] 
+          : parseInt(categoryParam, 10) || 1
+      
+      try {
+        const response = await fetchProductsByCategory(categoryId, 1, 100) // Fetch more products for filtering
+        
+        if (response.error) {
+          setProductsError(response.error.message)
+          // Fallback to mock data
+          const allowedCategories = categoryMap[categoryParam] || categoryMap['all']
+          const mockProducts = products.filter(product => allowedCategories.includes(product.category))
+          setAllProducts(mockProducts)
+          setTotalProductsFromApi(mockProducts.length)
+        } else if (response.data) {
+          const apiProducts = response.data.products.map(mapApiProductToLocal)
+          setAllProducts(apiProducts)
+          setTotalProductsFromApi(response.data.total)
+        }
+      } catch (error) {
+        setProductsError('Failed to load products')
+        // Fallback to mock data
+        const allowedCategories = categoryMap[categoryParam] || categoryMap['all']
+        const mockProducts = products.filter(product => allowedCategories.includes(product.category))
+        setAllProducts(mockProducts)
+        setTotalProductsFromApi(mockProducts.length)
+      } finally {
+        setIsLoadingProducts(false)
+      }
+    }
+    
+    loadProducts()
+  }, [categoryParam, categoryIdParam])
+
   const getAllBrands = () => {
     const allBrands = new Set<string>()
-    const allowedCategories = categoryMap[categoryParam] || categoryMap['all']
-    products
-      .filter(product => allowedCategories.includes(product.category))
-      .forEach(product => allBrands.add(product.brand))
+    allProducts.forEach(product => allBrands.add(product.brand))
     return Array.from(allBrands).sort()
   }
 
@@ -132,8 +223,7 @@ export default function ProductsListing() {
   }
 
   useEffect(() => {
-    const allowedCategories = categoryMap[categoryParam] || categoryMap['all']
-    let filtered = products.filter(product => allowedCategories.includes(product.category))
+    let filtered = [...allProducts]
     
     // Apply search filter
     if (searchQuery) {
@@ -180,7 +270,7 @@ export default function ProductsListing() {
     
     setFilteredProducts(sorted)
     setCurrentPage(1)
-  }, [categoryParam, sortBy, searchQuery, priceRange, selectedBrands, minRating, inStockOnly, freeDeliveryOnly])
+  }, [allProducts, sortBy, searchQuery, priceRange, selectedBrands, minRating, inStockOnly, freeDeliveryOnly])
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
@@ -215,8 +305,37 @@ export default function ProductsListing() {
             <div className="header-left">
               <h1 className="products-listing-title">{categoryName}</h1>
               <p className="products-listing-subtitle">
-                {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
+                {isLoadingProducts ? (
+                  'Loading products...'
+                ) : (
+                  <>
+                    {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found
+                    {totalProductsFromApi > 0 && filteredProducts.length < totalProductsFromApi && (
+                      <span style={{ marginLeft: '8px', opacity: 0.7 }}>
+                        (filtered from {totalProductsFromApi} total)
+                      </span>
+                    )}
+                  </>
+                )}
               </p>
+              {productsError && !isLoadingProducts && (
+                <div 
+                  style={{ 
+                    marginTop: '8px',
+                    padding: '8px 12px',
+                    background: 'var(--color-warning-container, #fff3cd)',
+                    color: 'var(--color-warning, #856404)',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '13px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <span>⚠️</span>
+                  <span>Unable to load latest products. Showing sample products.</span>
+                </div>
+              )}
             </div>
             <div className="header-right">
               <div className="view-toggle">
@@ -395,17 +514,35 @@ export default function ProductsListing() {
 
             {/* Products Grid */}
             <div className="products-content">
-              {filteredProducts.length > 0 ? (
+              {isLoadingProducts ? (
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  minHeight: '400px',
+                  flexDirection: 'column',
+                  gap: '16px'
+                }}>
+                  <LoadingSpinner size="large" text="Loading products..." />
+                </div>
+              ) : filteredProducts.length > 0 ? (
                 <>
                   <div className={`products-grid ${viewMode}`}>
-                    {currentProducts.map((product) => {
-                    const discount = getDiscountForProduct(product.id)
-                    const originalPrice = getOriginalPrice(product.price, discount)
-                    const reviewCount = getReviewCount(product.id)
+                    {currentProducts.map((product, index) => {
+                    // For API products, check if they have discount/reviewCount, otherwise use mock data
+                    const discount = (product as any).discount !== undefined 
+                      ? (product as any).discount 
+                      : getDiscountForProduct(product.id) || 0
+                    const originalPrice = (product as any).originalPrice !== undefined
+                      ? (product as any).originalPrice
+                      : getOriginalPrice(product.price, discount)
+                    const reviewCount = (product as any).reviewCount !== undefined
+                      ? (product as any).reviewCount
+                      : getReviewCount(product.id) || Math.floor(Math.random() * 3000) + 500
                     const isWishlisted = wishlistedItems.has(product.id)
 
                     return (
-                      <article key={product.id} className="product-card">
+                      <article key={`${product.id}-${index}`} className="product-card">
                         {discount > 0 && (
                           <span className="discount-badge">{discount}% OFF</span>
                         )}
@@ -437,18 +574,21 @@ export default function ProductsListing() {
                         <div className="product-info">
                           <h3 className="product-name">{product.title}</h3>
                           <p className="product-specs">
-                            {product.category === 'smartphone' && `${product.brand === 'Apple' ? '256GB, Natural Titanium' : product.brand === 'Samsung' ? '512GB, S Pen Included' : 'Premium smartphone features'}`}
-                            {product.category === 'laptop' && `${product.brand === 'Apple' ? '13-inch, M3 chip' : 'Intel Core i7, 16GB RAM'}`}
-                            {product.category === 'tablet' && `${product.brand === 'Apple' ? '12.9-inch, M2 chip' : '12-inch display, S Pen'}`}
-                            {product.category === 'earphones' && 'Noise cancellation, 30hr battery'}
-                            {product.category === 'tv' && '4K UHD, HDR10+, Smart TV'}
-                            {product.category === 'smartwatch' && 'GPS, Heart Rate, Water Resistant'}
-                            {product.category === 'fashion' && 'Premium quality, Latest fashion trends'}
-                            {product.category === 'home-kitchen' && 'Premium quality, Energy efficient'}
-                            {product.category === 'beauty' && 'Dermatologically tested, All skin types'}
-                            {product.category === 'books' && 'Bestseller, Paperback edition'}
-                            {product.category === 'sports' && 'Professional grade, Durable material'}
-                            {product.category === 'grocery' && 'Organic certified, Premium quality'}
+                            {(product as any).description || 
+                              (product.category === 'smartphone' && `${product.brand === 'Apple' ? '256GB, Natural Titanium' : product.brand === 'Samsung' ? '512GB, S Pen Included' : 'Premium smartphone features'}`) ||
+                              (product.category === 'laptop' && `${product.brand === 'Apple' ? '13-inch, M3 chip' : 'Intel Core i7, 16GB RAM'}`) ||
+                              (product.category === 'tablet' && `${product.brand === 'Apple' ? '12.9-inch, M2 chip' : '12-inch display, S Pen'}`) ||
+                              (product.category === 'earphones' && 'Noise cancellation, 30hr battery') ||
+                              (product.category === 'tv' && '4K UHD, HDR10+, Smart TV') ||
+                              (product.category === 'smartwatch' && 'GPS, Heart Rate, Water Resistant') ||
+                              (product.category === 'fashion' && 'Premium quality, Latest fashion trends') ||
+                              (product.category === 'home-kitchen' && 'Premium quality, Energy efficient') ||
+                              (product.category === 'beauty' && 'Dermatologically tested, All skin types') ||
+                              (product.category === 'books' && 'Bestseller, Paperback edition') ||
+                              (product.category === 'sports' && 'Professional grade, Durable material') ||
+                              (product.category === 'grocery' && 'Organic certified, Premium quality') ||
+                              'Premium product'
+                            }
                           </p>
                           
                           <div className="product-rating">
@@ -486,10 +626,36 @@ export default function ProductsListing() {
                 </>
               ) : (
                 <div className="products-empty">
-                  <p>No products found matching your filters.</p>
-                  <button className="btn btn-primary" onClick={clearAllFilters}>
-                    Clear All Filters
-                  </button>
+                  {allProducts.length === 0 ? (
+                    <>
+                      <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ margin: '0 auto 1.5rem', opacity: 0.3 }}>
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                      </svg>
+                      <h3 style={{ marginBottom: '0.5rem', fontSize: '1.25rem', fontWeight: '600' }}>No Products Available</h3>
+                      <p style={{ color: '#666', marginBottom: '1.5rem' }}>There are currently no products in this category.</p>
+                      <button 
+                        className="btn btn-primary" 
+                        onClick={() => navigate('/')}
+                        style={{ padding: '0.75rem 2rem' }}
+                      >
+                        Browse Other Categories
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ margin: '0 auto 1.5rem', opacity: 0.3 }}>
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                      </svg>
+                      <h3 style={{ marginBottom: '0.5rem', fontSize: '1.25rem', fontWeight: '600' }}>No Products Match Your Filters</h3>
+                      <p style={{ color: '#666', marginBottom: '1.5rem' }}>Try adjusting your filters to see more results.</p>
+                      <button className="btn btn-primary" onClick={clearAllFilters}>
+                        Clear All Filters
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>

@@ -50,6 +50,7 @@ const DEFAULT_CATEGORY_IMAGE = 'https://images.unsplash.com/photo-1523275335684-
 // Fallback categories when API fails
 const FALLBACK_CATEGORIES = [
   {
+    id: 1,
     name: 'Mobiles & Tablets',
     slug: 'mobiles-tablets',
     badge: 'Up to 40% Off',
@@ -57,6 +58,7 @@ const FALLBACK_CATEGORIES = [
     fallback: DEFAULT_CATEGORY_IMAGE,
   },
   {
+    id: 2,
     name: 'Laptops & Computers',
     slug: 'laptops-computers',
     badge: 'Starting ₹25,990',
@@ -64,6 +66,7 @@ const FALLBACK_CATEGORIES = [
     fallback: DEFAULT_CATEGORY_IMAGE,
   },
   {
+    id: 3,
     name: 'TVs & Appliances',
     slug: 'tvs-appliances',
     badge: 'Up to ₹60,000 Off',
@@ -71,6 +74,7 @@ const FALLBACK_CATEGORIES = [
     fallback: DEFAULT_CATEGORY_IMAGE,
   },
   {
+    id: 4,
     name: 'Audio & Headphones',
     slug: 'audio-headphones',
     badge: 'Starting ₹199',
@@ -78,6 +82,7 @@ const FALLBACK_CATEGORIES = [
     fallback: DEFAULT_CATEGORY_IMAGE,
   },
   {
+    id: 5,
     name: 'Fashion & Lifestyle',
     slug: 'fashion-lifestyle',
     badge: 'Min 50% Off',
@@ -85,6 +90,7 @@ const FALLBACK_CATEGORIES = [
     fallback: DEFAULT_CATEGORY_IMAGE,
   },
   {
+    id: 6,
     name: 'Home & Kitchen',
     slug: 'home-kitchen',
     badge: 'Up to 60% Off',
@@ -92,6 +98,7 @@ const FALLBACK_CATEGORIES = [
     fallback: DEFAULT_CATEGORY_IMAGE,
   },
   {
+    id: 7,
     name: 'Beauty & Personal Care',
     slug: 'beauty-personal-care',
     badge: 'Starting ₹99',
@@ -99,6 +106,7 @@ const FALLBACK_CATEGORIES = [
     fallback: DEFAULT_CATEGORY_IMAGE,
   },
   {
+    id: 8,
     name: 'Books & Media',
     slug: 'books-media',
     badge: 'Up to 80% Off',
@@ -106,6 +114,7 @@ const FALLBACK_CATEGORIES = [
     fallback: DEFAULT_CATEGORY_IMAGE,
   },
   {
+    id: 9,
     name: 'Sports & Fitness',
     slug: 'sports-fitness',
     badge: 'Min 30% Off',
@@ -113,6 +122,7 @@ const FALLBACK_CATEGORIES = [
     fallback: DEFAULT_CATEGORY_IMAGE,
   },
   {
+    id: 11,
     name: 'Smartwatches',
     slug: 'smartwatches',
     badge: 'Starting ₹1,999',
@@ -229,7 +239,7 @@ export default function HomePage() {
   const { handleImageError } = useImageFallback()
   const navigate = useNavigate()
   const [activeHeroIndex, setActiveHeroIndex] = useState(0)
-  const [categories, setCategories] = useState<Array<{ name: string; slug: string; badge: string; image: string; fallback: string }>>([])
+  const [categories, setCategories] = useState<Array<{ id: number; name: string; slug: string; badge: string; image: string; fallback: string }>>([])
   const [categoriesLoading, setCategoriesLoading] = useState(true)
   const [categoriesError, setCategoriesError] = useState<string | null>(null)
   const [isPageLoading, setIsPageLoading] = useState(true)
@@ -260,6 +270,7 @@ export default function HomePage() {
             .filter((cat) => cat.isactive)
             .sort((a, b) => a.displayorder - b.displayorder)
             .map((cat) => ({
+              id: cat.id, // Store the category ID from API
               name: cat.description,
               slug: cat.slug || categorySlugMap[cat.productname] || cat.productname,
               badge: cat.badge || categoryBadgeMap[cat.productname] || 'Shop Now',
@@ -400,17 +411,17 @@ export default function HomePage() {
                 )}
               </header>
               <div className="home-category-grid">
-                {categories.map(({ name, slug, badge, image, fallback }) => (
+                {categories.map(({ id, name, slug, badge, image, fallback }, index) => (
                   <article 
-                    key={name} 
+                    key={`${slug}-${index}`} 
                     className="home-category-card"
-                    onClick={() => navigate(`/products?category=${slug}`)}
+                    onClick={() => navigate(`/products?categoryId=${id}&category=${slug}`)}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
-                        navigate(`/products?category=${slug}`)
+                        navigate(`/products?categoryId=${id}&category=${slug}`)
                       }
                     }}
                     aria-label={`Shop ${name}`}
