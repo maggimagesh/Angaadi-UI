@@ -10,14 +10,17 @@ export type Product = {
 }
 
 function categoryForIndex(idx: number): Product['category'] {
+  if (idx < 35) return 'smartphone'
+  if (idx < 60) return 'tablet'
+  
   const order: Product['category'][] = [
-    'smartphone', 'laptop', 'tablet', 'earphones', 'tv', 'smartwatch',
+    'laptop', 'earphones', 'tv', 'smartwatch',
     'fashion', 'home-kitchen', 'beauty', 'books', 'sports', 'grocery'
   ]
-  return order[idx % order.length]
+  return order[(idx - 60) % order.length]
 }
 
-export const products: Product[] = Array.from({ length: 60 }).map((_, idx) => {
+export const products: Product[] = Array.from({ length: 90 }).map((_, idx) => {
   const idNum = 1001 + idx
   const category = categoryForIndex(idx)
   
@@ -28,7 +31,37 @@ export const products: Product[] = Array.from({ length: 60 }).map((_, idx) => {
       'Samsung Galaxy S24 Ultra',
       'OnePlus 12',
       'Google Pixel 8 Pro',
-      'Xiaomi 14 Ultra'
+      'Xiaomi 14 Ultra',
+      'iPhone 15 Pro',
+      'Samsung Galaxy S24+',
+      'OnePlus 12R',
+      'Google Pixel 8',
+      'Xiaomi 14 Pro',
+      'iPhone 15',
+      'Samsung Galaxy S24',
+      'OnePlus 11',
+      'Google Pixel 7 Pro',
+      'Xiaomi 13T Pro',
+      'iPhone 14 Pro Max',
+      'Samsung Galaxy S23 Ultra',
+      'OnePlus Nord 3',
+      'Google Pixel 7a',
+      'Xiaomi 13 Pro',
+      'iPhone 14 Pro',
+      'Samsung Galaxy Z Fold 5',
+      'OnePlus Open',
+      'Google Pixel Fold',
+      'Xiaomi Mix Fold 3',
+      'iPhone 14',
+      'Samsung Galaxy Z Flip 5',
+      'OnePlus Nord CE 3',
+      'Google Pixel 6 Pro',
+      'Xiaomi 12T Pro',
+      'Motorola Edge 40 Pro',
+      'Vivo X90 Pro',
+      'Oppo Find X6 Pro',
+      'Realme GT 3',
+      'Nothing Phone (2)'
     ],
     laptop: [
       'MacBook Air M3',
@@ -42,7 +75,27 @@ export const products: Product[] = Array.from({ length: 60 }).map((_, idx) => {
       'Samsung Galaxy Tab S9',
       'Microsoft Surface Pro 9',
       'iPad Air',
-      'OnePlus Pad'
+      'OnePlus Pad',
+      'iPad Pro 11"',
+      'Samsung Galaxy Tab S9+',
+      'Microsoft Surface Go 3',
+      'iPad 10th Gen',
+      'Samsung Galaxy Tab S9 Ultra',
+      'iPad Mini 6th Gen',
+      'Samsung Galaxy Tab A9+',
+      'Microsoft Surface Pro 8',
+      'Lenovo Tab P12 Pro',
+      'Xiaomi Pad 6 Pro',
+      'Samsung Galaxy Tab S8',
+      'Realme Pad 2',
+      'Oppo Pad 2',
+      'Xiaomi Pad 5 Pro',
+      'Lenovo Tab M11',
+      'Samsung Galaxy Tab A8',
+      'Huawei MatePad Pro',
+      'Amazon Fire HD 10',
+      'Nokia T20',
+      'Lenovo Yoga Tab 13'
     ],
     earphones: [
       'Sony WH-1000XM5',
@@ -110,9 +163,9 @@ export const products: Product[] = Array.from({ length: 60 }).map((_, idx) => {
   }
   
   const brands: Record<Product['category'], string[]> = {
-    smartphone: ['Apple', 'Samsung', 'OnePlus', 'Google', 'Xiaomi'],
+    smartphone: ['Apple', 'Samsung', 'OnePlus', 'Google', 'Xiaomi', 'Apple', 'Samsung', 'OnePlus', 'Google', 'Xiaomi', 'Apple', 'Samsung', 'OnePlus', 'Google', 'Xiaomi', 'Apple', 'Samsung', 'OnePlus', 'Google', 'Xiaomi', 'Apple', 'Samsung', 'OnePlus', 'Google', 'Xiaomi', 'Apple', 'Samsung', 'OnePlus', 'Google', 'Xiaomi', 'Motorola', 'Vivo', 'Oppo', 'Realme', 'Nothing'],
     laptop: ['Apple', 'Dell', 'HP', 'Lenovo', 'ASUS'],
-    tablet: ['Apple', 'Samsung', 'Microsoft', 'Apple', 'OnePlus'],
+    tablet: ['Apple', 'Samsung', 'Microsoft', 'Apple', 'OnePlus', 'Apple', 'Samsung', 'Microsoft', 'Apple', 'Samsung', 'Apple', 'Samsung', 'Microsoft', 'Lenovo', 'Xiaomi', 'Samsung', 'Realme', 'Oppo', 'Xiaomi', 'Lenovo', 'Samsung', 'Huawei', 'Amazon', 'Nokia', 'Lenovo'],
     earphones: ['Sony', 'Apple', 'Bose', 'Sennheiser', 'JBL'],
     tv: ['Samsung', 'LG', 'Sony', 'TCL', 'Xiaomi'],
     smartwatch: ['Apple', 'Samsung', 'Garmin', 'Fitbit', 'Amazfit'],
@@ -131,11 +184,41 @@ export const products: Product[] = Array.from({ length: 60 }).map((_, idx) => {
   // High-quality Unsplash image URLs for each category
   const unsplashImages: Record<Product['category'], string[]> = {
     smartphone: [
-      'https://images.unsplash.com/photo-1592286927505-683ed6f8b552?w=500&q=80', // iPhone
-      'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=500&q=80', // Samsung
-      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&q=80', // Phone
-      'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&q=80', // Google Pixel
-      'https://images.unsplash.com/photo-1598965675045-f28e1e5e4b15?w=500&q=80', // Xiaomi
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1603184017968-953f59cd2e37?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1523206489230-c012c4b1ca51?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1592286927505-683ed6f8b552?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1583573607873-4f4bb1070e9a?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1567581935884-3349723552ca?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1565849904461-04e98fea2f4b?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1605236453806-6ff36851218e?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1512499617640-c74ae3a79d37?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1603891128711-11b4b03e0bbe?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1622782914767-404fb9ab3f57?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1581789164394-810293cd79ce?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1585170129815-5cdafc13ffc5?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1599950755346-a3e58f84ca63?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1568464055890-15b6f196a740?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1573381619963-5f67b7e3a68e?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1530319067432-f2a729c03db5?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1549813069-f95e44ee8d8c?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1533228876829-65c94e7b5025?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1586953208270-1052438e8fbb?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1611395747107-99d3a6dcf028?w=500&h=500&fit=crop',
     ],
     laptop: [
       'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&q=80', // MacBook
@@ -145,11 +228,31 @@ export const products: Product[] = Array.from({ length: 60 }).map((_, idx) => {
       'https://images.unsplash.com/photo-1484788984921-03950022c9ef?w=500&q=80', // Laptop
     ],
     tablet: [
-      'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&q=80', // iPad
-      'https://images.unsplash.com/photo-1585790050230-5dd28404f1e9?w=500&q=80', // Tablet
-      'https://images.unsplash.com/photo-1561154464-82e9adf32764?w=500&q=80', // iPad
-      'https://images.unsplash.com/photo-1585241936939-be4099591252?w=500&q=80', // Tablet
-      'https://images.unsplash.com/photo-1611532736570-0bfb8a6a82c6?w=500&q=80', // Tablet
+      'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1561154464-82e9adf32764?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1585790050230-5dd28404f1e9?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1585241936939-be4099591252?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1611532736570-0bfb8a6a82c6?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1585241936957-4e38eb9c1f07?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1605236453806-6ff36851218e?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1585789575922-e0cb6c9b65c6?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1611532737082-4e46d2ba4c82?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1590767950092-42b8362368da?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1594834916242-5a06c49ff004?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1609803384069-19f3e93f0ee0?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1595837922681-5dbdaa2e17a8?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1527698266440-12104e498b76?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1623808240932-e3bbb7eabf2e?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1585789575922-e0cb6c9b65c6?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1611532736570-0bfb8a6a82c6?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1561154464-82e9adf32764?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1585790050230-5dd28404f1e9?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1585241936939-be4099591252?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1611532736570-0bfb8a6a82c6?w=500&h=500&fit=crop',
+      'https://images.unsplash.com/photo-1585241936957-4e38eb9c1f07?w=500&h=500&fit=crop',
     ],
     earphones: [
       'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80', // Headphones
@@ -218,13 +321,24 @@ export const products: Product[] = Array.from({ length: 60 }).map((_, idx) => {
   
   const categoryImages = unsplashImages[category]
   
+  const priceRanges = {
+    smartphone: [34999, 52999, 42999, 64999, 99999, 29999, 44999, 37999, 49999, 89999, 32999, 59999, 39999, 69999, 79999, 119999, 109999, 24999, 22999, 54999],
+    tablet: [34999, 52999, 42999, 64999, 19999, 29999, 39999, 24999, 79999, 89999, 14999, 44999, 49999, 32999, 37999, 59999, 16999, 18999, 27999, 54999]
+  }
+  
+  const getPriceForCategory = (cat: Product['category'], index: number): number => {
+    if (cat === 'smartphone') return priceRanges.smartphone[index % priceRanges.smartphone.length]
+    if (cat === 'tablet') return priceRanges.tablet[index % priceRanges.tablet.length]
+    return [34999, 52999, 5999, 42999, 7999, 1999, 64999, 99999, 19999, 29999][index % 10]
+  }
+
   return {
     id: `prod-${idNum}`,
     title: categoryTitles[titleIndex],
     brand: categoryBrands[titleIndex],
-    price: [34999, 52999, 5999, 42999, 7999, 1999, 64999, 99999, 19999, 29999][idx % 10],
-    rating: [4.3, 4.5, 3.9, 4.1, 4.8, 4.6, 4.2, 4.7, 4.4, 3.8][idx % 10],
-    stock: idx % 11 === 0 ? 'Out of Stock' : 'In Stock',
+    price: getPriceForCategory(category, idx),
+    rating: [4.3, 4.5, 3.9, 4.1, 4.8, 4.6, 4.2, 4.7, 4.4, 3.8, 4.0, 4.9, 3.7, 4.4, 4.6][idx % 15],
+    stock: idx % 13 === 0 ? 'Out of Stock' : 'In Stock',
     image: categoryImages[titleIndex],
     category,
   }

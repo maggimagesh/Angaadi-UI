@@ -1,6 +1,8 @@
-import { useEffect, useState, type SyntheticEvent } from 'react'
+import { useEffect, useState, useRef, type SyntheticEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { fetchCategories } from '../api/products'
+import { CategorySkeletonLoader } from '../components/CategorySkeleton'
 import '../styles/home.css'
 
 const heroSlides = [
@@ -27,78 +29,36 @@ const heroSlides = [
   },
 ]
 
-const categories = [
-  {
-    name: 'Mobiles & Tablets',
-    slug: 'mobiles-tablets',
-    badge: 'Up to 40% Off',
-    image: '/images/categories/category-mobiles.jpg',
-    fallback: 'https://images.unsplash.com/photo-1675953935267-e039f13ddd79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    name: 'Laptops & Computers',
-    slug: 'laptops-computers',
-    badge: 'Starting ₹25,990',
-    image: '/images/categories/category-laptops.jpg',
-    fallback: 'https://images.unsplash.com/photo-1737868131581-6379cdee4ec3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    name: 'Fashion & Lifestyle',
-    slug: 'fashion-lifestyle',
-    badge: 'Min 50% Off',
-    image: '/images/categories/category-fashion.jpg',
-    fallback: 'https://images.unsplash.com/photo-1599386642518-d1e8aa2875c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    name: 'Home & Kitchen',
-    slug: 'home-kitchen',
-    badge: 'Up to 60% Off',
-    image: '/images/categories/category-home-kitchen.jpg',
-    fallback: 'https://images.unsplash.com/photo-1754732693535-7ffb5e1a51d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    name: 'Beauty & Personal Care',
-    slug: 'beauty-personal-care',
-    badge: 'Starting ₹99',
-    image: '/images/categories/category-beauty.jpg',
-    fallback: 'https://images.unsplash.com/photo-1688955665338-fb430ff8436d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    name: 'Books & Media',
-    slug: 'books-media',
-    badge: 'Up to 80% Off',
-    image: '/images/categories/category-books.jpg',
-    fallback: 'https://images.unsplash.com/photo-1747210044397-9f2d19ccf096?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    name: 'Sports & Fitness',
-    slug: 'sports-fitness',
-    badge: 'Min 30% Off',
-    image: '/images/categories/category-sports.jpg',
-    fallback: 'https://images.unsplash.com/photo-1710814824560-943273e8577e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    name: 'Grocery & Gourmet',
-    slug: 'grocery-gourmet',
-    badge: 'Free Delivery',
-    image: '/images/categories/category-grocery.jpg',
-    fallback: 'https://images.unsplash.com/photo-1705929192183-847aef14ba29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    name: 'TVs & Appliances',
-    slug: 'tvs-appliances',
-    badge: 'Up to ₹60,000 Off',
-    image: '/images/categories/category-tvs.jpg',
-    fallback: 'https://images.unsplash.com/photo-1601944177325-f8867652837f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    name: 'Audio & Headphones',
-    slug: 'audio-headphones',
-    badge: 'Starting ₹199',
-    image: '/images/categories/category-audio.jpg',
-    fallback: 'https://images.unsplash.com/photo-1649956736509-f359d191bbcb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-]
+// Helper function to map API category names to slugs
+const categorySlugMap: Record<string, string> = {
+  mobileAndTablets: 'mobiles-tablets',
+  laptopsAndComputers: 'laptops-computers',
+  fashionAndLifestyle: 'fashion-lifestyle',
+  homeAndKitchen: 'home-kitchen',
+  beautyAndPersonalCare: 'beauty-personal-care',
+  booksAndMedia: 'books-media',
+  sportsAndFitness: 'sports-fitness',
+  groceryAndGourmet: 'grocery-gourmet',
+  tvsAndAppliances: 'tvs-appliances',
+  audioAndHeadphones: 'audio-headphones',
+}
+
+// Default fallback image for categories without API image
+const DEFAULT_CATEGORY_IMAGE = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'
+
+// Helper function to generate badge text for categories (will be replaced by API data later)
+const categoryBadgeMap: Record<string, string> = {
+  mobileAndTablets: 'Up to 40% Off',
+  laptopsAndComputers: 'Starting ₹25,990',
+  fashionAndLifestyle: 'Min 50% Off',
+  homeAndKitchen: 'Up to 60% Off',
+  beautyAndPersonalCare: 'Starting ₹99',
+  booksAndMedia: 'Up to 80% Off',
+  sportsAndFitness: 'Min 30% Off',
+  groceryAndGourmet: 'Free Delivery',
+  tvsAndAppliances: 'Up to ₹60,000 Off',
+  audioAndHeadphones: 'Starting ₹199',
+}
 
 const spotlights = [
   { title: 'End of season refresh', description: 'Switch to eco-efficient appliances with special bank offers.', meta: 'Valid till 10 Oct' },
@@ -203,6 +163,54 @@ const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
 export default function HomePage() {
   const navigate = useNavigate()
   const [activeHeroIndex, setActiveHeroIndex] = useState(0)
+  const [categories, setCategories] = useState<Array<{ name: string; slug: string; badge: string; image: string; fallback: string }>>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+  const [categoriesError, setCategoriesError] = useState<string | null>(null)
+  const [isPageLoading, setIsPageLoading] = useState(true)
+  const hasLoadedCategories = useRef(false)
+
+  // Fetch categories from API
+  useEffect(() => {
+    // Prevent duplicate API calls in React StrictMode
+    if (hasLoadedCategories.current) {
+      return
+    }
+    
+    const loadCategories = async () => {
+      hasLoadedCategories.current = true
+      setCategoriesLoading(true)
+      setCategoriesError(null)
+      
+      try {
+        const response = await fetchCategories()
+        
+        if (response.error) {
+          setCategoriesError(response.error.message)
+        } else if (response.data) {
+          // Filter only active categories and transform API data to match component structure
+          const transformedCategories = response.data
+            .filter((cat) => cat.isactive)
+            .sort((a, b) => a.displayorder - b.displayorder)
+            .map((cat) => ({
+              name: cat.description,
+              slug: cat.slug || categorySlugMap[cat.productname] || cat.productname,
+              badge: cat.badge || categoryBadgeMap[cat.productname] || 'Shop Now',
+              image: cat.imageurl || DEFAULT_CATEGORY_IMAGE,
+              fallback: DEFAULT_CATEGORY_IMAGE,
+            }))
+          
+          setCategories(transformedCategories)
+        }
+      } catch (error) {
+        setCategoriesError('Failed to load categories')
+      } finally {
+        setCategoriesLoading(false)
+        setIsPageLoading(false)
+      }
+    }
+    
+    loadCategories()
+  }, [])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -222,6 +230,14 @@ export default function HomePage() {
 
   return (
     <main className="app-main home-main" id="home-page" data-testid="home-page">
+      {isPageLoading && (
+        <div className="page-loading-overlay">
+          <div className="page-loading-spinner">
+            <div className="spinner"></div>
+            <p>Loading...</p>
+          </div>
+        </div>
+      )}
       <div className="surface">
         <div className="container home-stack">
           <section className="home-hero-slider" role="region" aria-label="Featured promotions" id="hero-banner" data-testid="hero-banner">
@@ -281,43 +297,63 @@ export default function HomePage() {
             </div>
           </section>
 
-          <section className="home-section home-categories-section" aria-labelledby="home-categories-title" data-testid="home-categories">
-            <header className="home-section-header">
-              <h2 id="home-categories-title" className="home-section-title">Shop by Category</h2>
-            </header>
-            <div className="home-category-grid">
-              {categories.map(({ name, slug, badge, image, fallback }) => (
-                <article 
-                  key={name} 
-                  className="home-category-card"
-                  onClick={() => navigate(`/products?category=${slug}`)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      navigate(`/products?category=${slug}`)
-                    }
-                  }}
-                  aria-label={`Shop ${name}`}
+          {categoriesLoading ? (
+            <CategorySkeletonLoader />
+          ) : categoriesError ? (
+            <section className="home-section home-categories-section" aria-labelledby="home-categories-title" data-testid="home-categories">
+              <header className="home-section-header">
+                <h2 id="home-categories-title" className="home-section-title">Shop by Category</h2>
+              </header>
+              <div className="home-category-error" style={{ textAlign: 'center', padding: '2rem', color: '#d32f2f' }}>
+                <p>Failed to load categories: {categoriesError}</p>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => window.location.reload()}
+                  style={{ marginTop: '1rem' }}
                 >
-                  <figure className="home-category-image">
-                    <img
-                      src={image}
-                      data-fallback={fallback}
-                      alt={`${name} category`}
-                      loading="lazy"
-                      onError={handleImageError}
-                    />
-                    <span className="category-badge">{badge}</span>
-                  </figure>
-                  <div className="home-category-content">
-                    <h3 className="home-category-title">{name}</h3>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
+                  Retry
+                </button>
+              </div>
+            </section>
+          ) : (
+            <section className="home-section home-categories-section" aria-labelledby="home-categories-title" data-testid="home-categories">
+              <header className="home-section-header">
+                <h2 id="home-categories-title" className="home-section-title">Shop by Category</h2>
+              </header>
+              <div className="home-category-grid">
+                {categories.map(({ name, slug, badge, image, fallback }) => (
+                  <article 
+                    key={name} 
+                    className="home-category-card"
+                    onClick={() => navigate(`/products?category=${slug}`)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        navigate(`/products?category=${slug}`)
+                      }
+                    }}
+                    aria-label={`Shop ${name}`}
+                  >
+                    <figure className="home-category-image">
+                      <img
+                        src={image}
+                        data-fallback={fallback}
+                        alt={`${name} category`}
+                        loading="lazy"
+                        onError={handleImageError}
+                      />
+                      <span className="category-badge">{badge}</span>
+                    </figure>
+                    <div className="home-category-content">
+                      <h3 className="home-category-title">{name}</h3>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className="card home-section" aria-labelledby="home-spotlight-title" data-testid="seasonal-spotlights">
             <header className="home-section-header">

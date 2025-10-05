@@ -1,6 +1,7 @@
 import { useEffect, useState, type SyntheticEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { products, type Product } from '../data/products'
+import { Pagination } from '../components/Pagination'
 import '../styles/products-listing.css'
 
 const categoryMap: Record<string, Product['category'][]> = {
@@ -55,6 +56,8 @@ const getReviewCount = (productId: string): number => {
   return reviews[productId] || Math.floor(Math.random() * 3000) + 500
 }
 
+const ITEMS_PER_PAGE = 12
+
 export default function ProductsListing() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -70,6 +73,7 @@ export default function ProductsListing() {
   const [inStockOnly, setInStockOnly] = useState(false)
   const [freeDeliveryOnly, setFreeDeliveryOnly] = useState(false)
   const [wishlistedItems, setWishlistedItems] = useState<Set<string>>(new Set())
+  const [currentPage, setCurrentPage] = useState(1)
 
   const getAllBrands = () => {
     const allBrands = new Set<string>()
@@ -175,7 +179,18 @@ export default function ProductsListing() {
     })
     
     setFilteredProducts(sorted)
+    setCurrentPage(1)
   }, [categoryParam, sortBy, searchQuery, priceRange, selectedBrands, minRating, inStockOnly, freeDeliveryOnly])
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const endIndex = startIndex + ITEMS_PER_PAGE
+  const currentProducts = filteredProducts.slice(startIndex, endIndex)
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const categoryName = categoryDisplayNames[categoryParam] || 'All Products'
 
@@ -381,8 +396,9 @@ export default function ProductsListing() {
             {/* Products Grid */}
             <div className="products-content">
               {filteredProducts.length > 0 ? (
-                <div className={`products-grid ${viewMode}`}>
-                  {filteredProducts.map((product) => {
+                <>
+                  <div className={`products-grid ${viewMode}`}>
+                    {currentProducts.map((product) => {
                     const discount = getDiscountForProduct(product.id)
                     const originalPrice = getOriginalPrice(product.price, discount)
                     const reviewCount = getReviewCount(product.id)
@@ -457,7 +473,16 @@ export default function ProductsListing() {
                       </article>
                     )
                   })}
-                </div>
+                  </div>
+
+                  {totalPages > 1 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  )}
+                </>
               ) : (
                 <div className="products-empty">
                   <p>No products found matching your filters.</p>
