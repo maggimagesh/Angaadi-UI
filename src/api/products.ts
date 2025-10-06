@@ -131,3 +131,44 @@ export async function fetchProductsByCategory(
   }
 }
 
+// Public endpoint: Fetch product details by ID
+export async function fetchProductById(
+  categoryId: number | string,
+  productId: number | string
+): Promise<ApiResponse<any>> {
+  try {
+    // Convert IDs to numbers if they're strings
+    const numericCategoryId = typeof categoryId === 'string' ? parseInt(categoryId, 10) : categoryId
+    const numericProductId = typeof productId === 'string' ? parseInt(productId, 10) : productId
+    
+    const response = await fetch(buildApiUrl('/products/by-ids'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        categoryId: numericCategoryId,
+        productId: numericProductId
+      }),
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        error: { 
+          message: result.message || 'Failed to fetch product details' 
+        } 
+      }
+    }
+
+    return { data: result.product }
+  } catch (error) {
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
+    }
+  }
+}
+

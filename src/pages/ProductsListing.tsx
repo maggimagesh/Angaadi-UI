@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { products, type Product } from '../data/products'
 import { fetchProductsByCategory, type ProductItem } from '../api/products'
-import { Pagination } from '../components/Pagination'
+import { PaginationOld } from '../components/PaginationOld'
 import { useImageFallback } from '../hooks/useImageFallback'
 import LoadingSpinner from '../components/LoadingSpinner'
-import '../styles/products-listing.css'
+import { storeCategoryInfo } from '../utils/categoryStorage'
+import '../styles/products-listing-old.css'
 
 const categoryMap: Record<string, Product['category'][]> = {
   'mobiles-tablets': ['smartphone', 'tablet'],
@@ -140,6 +141,9 @@ export default function ProductsListing() {
         : categoryIdMap[categoryParam] !== undefined 
           ? categoryIdMap[categoryParam] 
           : parseInt(categoryParam, 10) || 1
+      
+      // Store categoryId and slug in localStorage for breadcrumb navigation
+      storeCategoryInfo(categoryId, categoryParam)
       
       try {
         const response = await fetchProductsByCategory(categoryId, 1, 100) // Fetch more products for filtering
@@ -285,14 +289,14 @@ export default function ProductsListing() {
   const categoryName = categoryDisplayNames[categoryParam] || 'All Products'
 
   return (
-    <main className="app-main products-listing-main">
+    <main className="app-main products-listing-old-main">
       <div className="surface">
-        <div className="container products-listing-container">
+        <div className="container products-listing-old-container">
           {/* Breadcrumb */}
-          <nav className="breadcrumb" aria-label="Breadcrumb">
+          <nav className="breadcrumb-old" aria-label="Breadcrumb">
             <ol>
               <li>
-                <button onClick={() => navigate('/')} className="breadcrumb-link">
+                <button onClick={() => navigate('/')} className="breadcrumb-old-link">
                   Home
                 </button>
               </li>
@@ -301,10 +305,10 @@ export default function ProductsListing() {
           </nav>
 
           {/* Page Header with View Toggle */}
-          <div className="products-listing-header">
-            <div className="header-left">
-              <h1 className="products-listing-title">{categoryName}</h1>
-              <p className="products-listing-subtitle">
+          <div className="products-listing-old-header">
+            <div className="header-old-left">
+              <h1 className="products-listing-old-title">{categoryName}</h1>
+              <p className="products-listing-old-subtitle">
                 {isLoadingProducts ? (
                   'Loading products...'
                 ) : (
@@ -337,10 +341,10 @@ export default function ProductsListing() {
                 </div>
               )}
             </div>
-            <div className="header-right">
-              <div className="view-toggle">
+            <div className="header-old-right">
+              <div className="view-toggle-old">
                 <button
-                  className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  className={`view-btn-old ${viewMode === 'grid' ? 'active' : ''}`}
                   onClick={() => setViewMode('grid')}
                   aria-label="Grid view"
                 >
@@ -352,7 +356,7 @@ export default function ProductsListing() {
                   </svg>
                 </button>
                 <button
-                  className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                  className={`view-btn-old ${viewMode === 'list' ? 'active' : ''}`}
                   onClick={() => setViewMode('list')}
                   aria-label="List view"
                 >
@@ -366,7 +370,7 @@ export default function ProductsListing() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="sort-select"
+                className="sort-select-old"
               >
                 <option value="relevance">Relevance</option>
                 <option value="rating">Top Rated</option>
@@ -376,18 +380,18 @@ export default function ProductsListing() {
             </div>
           </div>
 
-          <div className="products-listing-layout">
+          <div className="products-listing-old-layout">
             {/* Sidebar Filters */}
-            <aside className="filters-sidebar">
-              <div className="filters-header">
+            <aside className="filters-sidebar-old">
+              <div className="filters-header-old">
                 <h2>Filters</h2>
-                <button className="clear-filters" onClick={clearAllFilters}>Clear All</button>
+                <button className="clear-filters-old" onClick={clearAllFilters}>Clear All</button>
               </div>
 
               {/* Search Filter */}
-              <div className="filter-group">
-                <h3 className="filter-title">Search Products</h3>
-                <div className="search-input-wrapper">
+              <div className="filter-group-old">
+                <h3 className="filter-title-old">Search Products</h3>
+                <div className="search-input-wrapper-old">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                   </svg>
@@ -396,18 +400,18 @@ export default function ProductsListing() {
                     placeholder="Search..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="search-input"
+                    className="search-input-old"
                   />
                 </div>
               </div>
 
               {/* Price Range Filter */}
-              <div className="filter-group">
-                <h3 className="filter-title">Price Range</h3>
-                <div className="dual-range-slider">
-                  <div className="slider-track">
+              <div className="filter-group-old">
+                <h3 className="filter-title-old">Price Range</h3>
+                <div className="dual-range-slider-old">
+                  <div className="slider-track-old">
                     <div 
-                      className="slider-range"
+                      className="slider-range-old"
                       style={{
                         left: `${(priceRange[0] / 200000) * 100}%`,
                         right: `${100 - (priceRange[1] / 200000) * 100}%`
@@ -426,7 +430,7 @@ export default function ProductsListing() {
                         setPriceRange([value, priceRange[1]])
                       }
                     }}
-                    className="price-slider price-slider-min"
+                    className="price-slider-old price-slider-old-min"
                   />
                   <input
                     type="range"
@@ -440,21 +444,21 @@ export default function ProductsListing() {
                         setPriceRange([priceRange[0], value])
                       }
                     }}
-                    className="price-slider price-slider-max"
+                    className="price-slider-old price-slider-old-max"
                   />
                 </div>
-                <div className="price-range-display">
+                <div className="price-range-display-old">
                   <span>₹{priceRange[0].toLocaleString('en-IN')}</span>
                   <span>₹{priceRange[1].toLocaleString('en-IN')}</span>
                 </div>
               </div>
 
               {/* Brands Filter */}
-              <div className="filter-group">
-                <h3 className="filter-title">Brands</h3>
-                <div className="checkbox-list">
+              <div className="filter-group-old">
+                <h3 className="filter-title-old">Brands</h3>
+                <div className="checkbox-list-old">
                   {availableBrands.map(brand => (
-                    <label key={brand} className="checkbox-label">
+                    <label key={brand} className="checkbox-label-old">
                       <input
                         type="checkbox"
                         checked={selectedBrands.includes(brand)}
@@ -467,18 +471,18 @@ export default function ProductsListing() {
               </div>
 
               {/* Rating Filter */}
-              <div className="filter-group">
-                <h3 className="filter-title">Minimum Rating</h3>
-                <div className="rating-options">
+              <div className="filter-group-old">
+                <h3 className="filter-title-old">Minimum Rating</h3>
+                <div className="rating-options-old">
                   {[4, 3, 2, 1].map(rating => (
-                    <label key={rating} className="radio-label">
+                    <label key={rating} className="radio-label-old">
                       <input
                         type="radio"
                         name="rating"
                         checked={minRating === rating}
                         onChange={() => setMinRating(rating)}
                       />
-                      <span className="rating-stars-display">
+                      <span className="rating-stars-display-old">
                         {'★'.repeat(rating)}{'☆'.repeat(5 - rating)}
                       </span>
                       <span>& up</span>
@@ -488,8 +492,8 @@ export default function ProductsListing() {
               </div>
 
               {/* Stock Filter */}
-              <div className="filter-group">
-                <label className="checkbox-label">
+              <div className="filter-group-old">
+                <label className="checkbox-label-old">
                   <input
                     type="checkbox"
                     checked={inStockOnly}
@@ -500,8 +504,8 @@ export default function ProductsListing() {
               </div>
 
               {/* Delivery Filter */}
-              <div className="filter-group">
-                <label className="checkbox-label">
+              <div className="filter-group-old">
+                <label className="checkbox-label-old">
                   <input
                     type="checkbox"
                     checked={freeDeliveryOnly}
@@ -513,7 +517,7 @@ export default function ProductsListing() {
             </aside>
 
             {/* Products Grid */}
-            <div className="products-content">
+            <div className="products-content-old">
               {isLoadingProducts ? (
                 <div style={{ 
                   display: 'flex', 
@@ -527,7 +531,7 @@ export default function ProductsListing() {
                 </div>
               ) : filteredProducts.length > 0 ? (
                 <>
-                  <div className={`products-grid ${viewMode}`}>
+                  <div className={`products-grid-old ${viewMode}`}>
                     {currentProducts.map((product, index) => {
                     // For API products, check if they have discount/reviewCount, otherwise use mock data
                     const discount = (product as any).discount !== undefined 
@@ -542,12 +546,12 @@ export default function ProductsListing() {
                     const isWishlisted = wishlistedItems.has(product.id)
 
                     return (
-                      <article key={`${product.id}-${index}`} className="product-card">
+                      <article key={`${product.id}-${index}`} className="product-card-old">
                         {discount > 0 && (
-                          <span className="discount-badge">{discount}% OFF</span>
+                          <span className="discount-badge-old">{discount}% OFF</span>
                         )}
                         <button
-                          className={`wishlist-btn ${isWishlisted ? 'active' : ''}`}
+                          className={`wishlist-btn-old ${isWishlisted ? 'active' : ''}`}
                           onClick={() => toggleWishlist(product.id)}
                           aria-label="Add to wishlist"
                         >
@@ -556,7 +560,11 @@ export default function ProductsListing() {
                           </svg>
                         </button>
 
-                        <figure className="product-image">
+                        <figure 
+                          className="product-image-old"
+                          onClick={() => navigate(`/product/${categoryIdParam || categoryIdMap[categoryParam] || 1}/${product.id}`)}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <img
                             src={product.image}
                             data-fallback={fallbackImages[product.category]}
@@ -565,15 +573,21 @@ export default function ProductsListing() {
                             onError={handleImageError}
                           />
                           {product.stock === 'Out of Stock' && (
-                            <div className="out-of-stock-overlay">
+                            <div className="out-of-stock-overlay-old">
                               <span>Out of Stock</span>
                             </div>
                           )}
                         </figure>
 
-                        <div className="product-info">
-                          <h3 className="product-name">{product.title}</h3>
-                          <p className="product-specs">
+                        <div className="product-info-old">
+                          <h3 
+                            className="product-name-old"
+                            onClick={() => navigate(`/product/${categoryIdParam || categoryIdMap[categoryParam] || 1}/${product.id}`)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            {product.title}
+                          </h3>
+                          <p className="product-specs-old">
                             {(product as any).description || 
                               (product.category === 'smartphone' && `${product.brand === 'Apple' ? '256GB, Natural Titanium' : product.brand === 'Samsung' ? '512GB, S Pen Included' : 'Premium smartphone features'}`) ||
                               (product.category === 'laptop' && `${product.brand === 'Apple' ? '13-inch, M3 chip' : 'Intel Core i7, 16GB RAM'}`) ||
@@ -591,20 +605,20 @@ export default function ProductsListing() {
                             }
                           </p>
                           
-                          <div className="product-rating">
+                          <div className="product-rating-old">
                             <span className="stars">{'★'.repeat(Math.floor(product.rating))}{'☆'.repeat(5 - Math.floor(product.rating))}</span>
-                            <span className="review-count">({reviewCount.toLocaleString('en-IN')})</span>
+                            <span className="review-count-old">({reviewCount.toLocaleString('en-IN')})</span>
                           </div>
 
-                          <div className="product-pricing">
-                            <span className="current-price">₹{product.price.toLocaleString('en-IN')}</span>
+                          <div className="product-pricing-old">
+                            <span className="current-price-old">₹{product.price.toLocaleString('en-IN')}</span>
                             {discount > 0 && (
-                              <span className="original-price">₹{originalPrice.toLocaleString('en-IN')}</span>
+                              <span className="original-price-old">₹{originalPrice.toLocaleString('en-IN')}</span>
                             )}
                           </div>
 
-                          <button
-                            className={`add-to-cart-btn ${product.stock === 'Out of Stock' ? 'disabled' : ''}`}
+                            <button
+                              className={`add-to-cart-btn-old ${product.stock === 'Out of Stock' ? 'disabled' : ''}`}
                             disabled={product.stock === 'Out of Stock'}
                             aria-label={`Add ${product.title} to cart`}
                           >
@@ -617,7 +631,7 @@ export default function ProductsListing() {
                   </div>
 
                   {totalPages > 1 && (
-                    <Pagination
+                    <PaginationOld
                       currentPage={currentPage}
                       totalPages={totalPages}
                       onPageChange={handlePageChange}
@@ -625,7 +639,7 @@ export default function ProductsListing() {
                   )}
                 </>
               ) : (
-                <div className="products-empty">
+                <div className="products-empty-old">
                   {allProducts.length === 0 ? (
                     <>
                       <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ margin: '0 auto 1.5rem', opacity: 0.3 }}>

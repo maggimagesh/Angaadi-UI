@@ -66,8 +66,6 @@ function SignInPanel() {
 
   const REMEMBER_KEY = 'login.remember'
   const REMEMBER_EMAIL_KEY = 'login.email'
-  const REMEMBER_PASSWORD_KEY = 'login.password'
-
   useEffect(() => {
     if (error) {
       const t = setTimeout(() => {
@@ -81,32 +79,32 @@ function SignInPanel() {
     }
   }, [error])
 
-  // Load remembered credentials on mount
+  // Load remembered email only (never store passwords)
   useEffect(() => {
     try {
+      // SECURITY: Clean up any old password data that might exist
+      localStorage.removeItem('login.password')
+      
       const rem = localStorage.getItem(REMEMBER_KEY) === 'true'
       if (rem) {
         setEmail(localStorage.getItem(REMEMBER_EMAIL_KEY) || '')
-        setPassword(localStorage.getItem(REMEMBER_PASSWORD_KEY) || '')
         setRemember(true)
       }
     } catch {}
   }, [])
 
-  // Persist or clear remembered credentials
+  // Persist or clear remembered email only (SECURITY: never store passwords)
   useEffect(() => {
     try {
-      if (remember) {
+      if (remember && email) {
         localStorage.setItem(REMEMBER_KEY, 'true')
         localStorage.setItem(REMEMBER_EMAIL_KEY, email)
-        localStorage.setItem(REMEMBER_PASSWORD_KEY, password)
       } else {
         localStorage.removeItem(REMEMBER_KEY)
         localStorage.removeItem(REMEMBER_EMAIL_KEY)
-        localStorage.removeItem(REMEMBER_PASSWORD_KEY)
       }
     } catch {}
-  }, [remember, email, password])
+  }, [remember, email])
 
   const demos = [
     { email: 'standard.user@demo.in', password: 'Password123!' },

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { fetchCategories } from '../api/products'
 import { CategorySkeletonLoader } from '../components/CategorySkeleton'
 import { useImageFallback } from '../hooks/useImageFallback'
+import { storeCategoryInfo } from '../utils/categoryStorage'
 import '../styles/home.css'
 
 const heroSlides = [
@@ -415,12 +416,16 @@ export default function HomePage() {
                   <article 
                     key={`${slug}-${index}`} 
                     className="home-category-card"
-                    onClick={() => navigate(`/products?categoryId=${id}&category=${slug}`)}
+                    onClick={() => {
+                      storeCategoryInfo(id, slug)
+                      navigate(`/products?categoryId=${id}&category=${slug}`)
+                    }}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
+                        storeCategoryInfo(id, slug)
                         navigate(`/products?categoryId=${id}&category=${slug}`)
                       }
                     }}
