@@ -1,4 +1,5 @@
 import { formatINR } from '../utils/currency'
+import { useCartStore } from '../store/cart'
 import { buildPlaceholderDataUri } from '../utils/image'
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
 }
 
 export function ProductCard({ id, title, price, image }: Props) {
+  const addByProductId = useCartStore(s => s.addByProductId)
   return (
     <article className="card product-card" id={`product-card-${id}`} data-testid={`product-card-${id}`} role="article" aria-labelledby={`product-card-${id}-title`}>
       <img
@@ -31,7 +33,17 @@ export function ProductCard({ id, title, price, image }: Props) {
             <input type="checkbox" id={`compare-checkbox-${id}`} data-testid={`compare-checkbox-${id}`} aria-label="Compare this product" />
             <span className="label">Compare</span>
           </label>
-          <button className="btn btn-primary" data-testid={`result-addtocart-${id}`} id={`result-addtocart-${id}`} aria-label="Add to cart" style={{flex:1}}>
+          <button
+            className="btn btn-primary"
+            data-testid={`result-addtocart-${id}`}
+            id={`result-addtocart-${id}`}
+            aria-label="Add to cart"
+            style={{flex:1}}
+            onClick={() => {
+              const pid = /^\d+$/.test(id) ? parseInt(id, 10) : Math.abs(id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) + 700000
+              void addByProductId(pid, 1, { name: title, price, image })
+            }}
+          >
             <span className="hide-on-mobile">Add to cart</span>
             <span className="show-on-mobile">Add</span>
           </button>

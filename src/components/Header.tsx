@@ -1,6 +1,7 @@
-import { useState, type MouseEvent } from 'react'
+import { useState, useEffect, type MouseEvent } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
+import { useCartStore } from '../store/cart'
 import { useUIStore } from '../store/ui'
 import { signOut } from '../api/user'
 import { clearAuthTokenCookie } from '../utils/token'
@@ -12,6 +13,10 @@ export function Header() {
   const openSuccessWithDuration = useUIStore(s => s.openSuccessWithDuration)
   const navigate = useNavigate()
   const [signInPromptOpen, setSignInPromptOpen] = useState(false)
+  const cartCount = useCartStore(s => s.totalItems())
+  const fetchServerCart = useCartStore(s => s.fetchServerCart)
+
+  useEffect(() => { void fetchServerCart() }, [fetchServerCart])
 
   const handleProfileClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (isAuthenticated) return
@@ -24,24 +29,27 @@ export function Header() {
         <nav className="container py-4" aria-label="Top Navigation">
           <div className="header-grid">
             <div className="header-logo">
-              <Link to="/" aria-label="Angaadi Home" id="logo" data-testid="logo" style={{display:'flex', alignItems:'center', gap:8, textDecoration:'none'}}>
+              <Link to="/" aria-label="Angaadi Home" id="logo" data-testid="logo" style={{display:'flex', alignItems:'center', gap:4, textDecoration:'none'}}>
                 <img src="/logo/Angaadi.png" alt="Angaadi" style={{height:40, width:'auto'}} />
-                <span className="header-logo-text">Angaadi</span>
+                <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+                  <span className="header-logo-text">Angaadi</span>
+                  <span style={{fontSize:'0.7rem', color:'var(--color-text-secondary)', fontWeight:'400'}}>Your Global Market</span>
+                </div>
               </Link>
             </div>
 
             <div className="header-search">
               <form role="search" aria-label="Site search" style={{display:'flex', flexDirection:'column', gap:8}}>
-                <div style={{display:'flex', gap:6}}>
-                  <select aria-label="Category" id="search-category" data-testid="search-category" className="select" style={{flex:'0 0 auto', width:'80px'}}>
+                <div style={{display:'flex', gap:6, alignItems:'center', marginTop:'8px'}}>
+                  <select aria-label="Category" id="search-category" data-testid="search-category" className="select" style={{flex:'0 0 auto', width:'80px', height:'40px'}}>
                     <option data-testid="option-all" value="all">All</option>
                     <option data-testid="option-phones" value="phones">Mobiles</option>
                     <option data-testid="option-laptops" value="laptops">Laptops</option>
                     <option data-testid="option-audio" value="audio">Audio</option>
                     <option data-testid="option-accessories" value="accessories">Accessories</option>
                   </select>
-                  <input id="search-input" data-testid="search-input" className="input" role="searchbox" placeholder="Search products..." aria-label="Search electronics, models, brands" style={{flex:1, minWidth:0}} />
-                  <button type="submit" id="search-submit" data-testid="search-submit" className="btn btn-primary" aria-label="Search" style={{padding:'0 12px'}}>
+                  <input id="search-input" data-testid="search-input" className="input" role="searchbox" placeholder="Search products..." aria-label="Search electronics, models, brands" style={{flex:1, minWidth:0, height:'40px'}} />
+                  <button type="submit" id="search-submit" data-testid="search-submit" className="btn btn-primary" aria-label="Search" style={{padding:'0 12px', height:'40px'}}>
                     <span className="hide-on-mobile">Search</span>
                     <span className="show-on-mobile">🔍</span>
                   </button>
@@ -55,7 +63,7 @@ export function Header() {
               <NavLink to="/cart" id="nav-cart" data-testid="nav-cart" className="btn btn-ghost" aria-label="Cart">
                 <span className="hide-on-mobile">Cart</span>
                 <span className="show-on-mobile">🛒</span>
-                <span id="nav-cart-count" data-testid="nav-cart-count" aria-label="Items in cart">0</span>
+                <span id="nav-cart-count" data-testid="nav-cart-count" aria-label="Items in cart">{cartCount}</span>
               </NavLink>
               <NavLink
                 to="/profile"

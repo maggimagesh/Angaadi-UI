@@ -12,6 +12,10 @@ type UIState = {
   termsBody: string | null
   openDoc: (title: string, body: string) => void
   closeDoc: () => void
+  signInModalOpen: boolean
+  signInModalCallback: (() => void) | null
+  openSignInModal: (callback?: () => void) => void
+  closeSignInModal: () => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -26,6 +30,10 @@ export const useUIStore = create<UIState>((set) => ({
   termsBody: null,
   openDoc: (title: string, body: string) => set({ termsOpen: true, termsTitle: title, termsBody: body }),
   closeDoc: () => set({ termsOpen: false, termsTitle: null, termsBody: null }),
+  signInModalOpen: false,
+  signInModalCallback: null,
+  openSignInModal: (callback?: () => void) => set({ signInModalOpen: true, signInModalCallback: callback || null }),
+  closeSignInModal: () => set({ signInModalOpen: false, signInModalCallback: null }),
 }))
 
 

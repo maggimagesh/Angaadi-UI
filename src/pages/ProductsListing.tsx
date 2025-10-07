@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { products, type Product } from '../data/products'
+import { useCartStore } from '../store/cart'
+import { useUIStore } from '../store/ui'
 import { fetchProductsByCategory, type ProductItem } from '../api/products'
 import { PaginationOld } from '../components/PaginationOld'
 import { useImageFallback } from '../hooks/useImageFallback'
@@ -109,6 +111,8 @@ const ITEMS_PER_PAGE = 12
 export default function ProductsListing() {
   const { handleImageError } = useImageFallback()
   const navigate = useNavigate()
+  const addByProductId = useCartStore(s => s.addByProductId)
+  const openSuccess = useUIStore(s => s.openSuccess)
   const [searchParams] = useSearchParams()
   const categoryParam = searchParams.get('category') || 'all'
   const categoryIdParam = searchParams.get('categoryId')
@@ -618,12 +622,28 @@ export default function ProductsListing() {
                           </div>
 
                             <button
-                              className={`add-to-cart-btn-old ${product.stock === 'Out of Stock' ? 'disabled' : ''}`}
-                            disabled={product.stock === 'Out of Stock'}
-                            aria-label={`Add ${product.title} to cart`}
-                          >
-                            Add to Cart
-                          </button>
+                              className="btn btn-primary"
+                              style={{ width: '100%' }}
+                              disabled={product.stock === 'Out of Stock'}
+                              aria-label={`Add ${product.title} to cart`}
+                              onClick={() => {
+                                const price = product.price
+                                const oldPrice = (product as any).originalPrice || price
+                                const discount = (product as any).discount
+                                const pid = /^\d+$/.test(product.id) ? parseInt(product.id, 10) : Math.abs(product.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) + 800000
+                                void addByProductId(pid, 1, {
+                                  name: product.title,
+                                  brand: product.brand,
+                                  image: product.image,
+                                  price,
+                                  oldPrice,
+                                  discountPercent: discount,
+                                })
+                                openSuccess('Added to cart')
+                              }}
+                            >
+                              Add to Cart
+                            </button>
                         </div>
                       </article>
                     )

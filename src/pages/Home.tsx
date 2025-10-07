@@ -1,7 +1,13 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useCartStore } from '../store/cart'
+import { useUIStore } from '../store/ui'
+import { useAuthStore } from '../store/auth'
+import { signOut } from '../api/user'
+import { clearAuthTokenCookie } from '../utils/token'
 
-import { fetchCategories } from '../api/products'
+import { fetchCategories, fetchProductsByCategory } from '../api/products'
+import type { ProductItem } from '../api/products'
 import { CategorySkeletonLoader } from '../components/CategorySkeleton'
 import { useImageFallback } from '../hooks/useImageFallback'
 import { storeCategoryInfo } from '../utils/categoryStorage'
@@ -239,12 +245,106 @@ const recommendedHighlights = [
 export default function HomePage() {
   const { handleImageError } = useImageFallback()
   const navigate = useNavigate()
+  const addByProductId = useCartStore(s => s.addByProductId)
+  const openSuccess = useUIStore(s => s.openSuccess)
+  const { isAuthenticated, logout } = useAuthStore()
+  const openSuccessWithDuration = useUIStore(s => s.openSuccessWithDuration)
   const [activeHeroIndex, setActiveHeroIndex] = useState(0)
   const [categories, setCategories] = useState<Array<{ id: number; name: string; slug: string; badge: string; image: string; fallback: string }>>([])
   const [categoriesLoading, setCategoriesLoading] = useState(true)
   const [categoriesError, setCategoriesError] = useState<string | null>(null)
-  const [isPageLoading, setIsPageLoading] = useState(true)
+  
   const hasLoadedCategories = useRef(false)
+  
+  // Deals state
+  const [dealsProducts, setDealsProducts] = useState<ProductItem[]>([])
+  const [dealsLoading, setDealsLoading] = useState(true)
+  const [dealsError, setDealsError] = useState<string | null>(null)
+  
+  // Fresh picks state
+  const [freshPicksProducts, setFreshPicksProducts] = useState<ProductItem[]>([])
+  const [freshPicksLoading, setFreshPicksLoading] = useState(true)
+  const [freshPicksError, setFreshPicksError] = useState<string | null>(null)
+
+  // Fetch deals products from API
+  const fetchDealsProducts = async () => {
+    setDealsLoading(true)
+    setDealsError(null)
+    
+    try {
+      // Fetch products from multiple categories to create deals
+      // We'll fetch from categories that typically have deals (electronics, fashion, etc.)
+      const dealCategories = [1, 2, 3, 4, 5] // Mobile, Laptops, TVs, Audio, Fashion
+      const allDeals: ProductItem[] = []
+      
+      // Fetch products from all categories in parallel for better performance
+      const categoryPromises = dealCategories.map(categoryId => 
+        fetchProductsByCategory(categoryId, 1, 2).catch(error => {
+          console.warn(`Failed to fetch products for category ${categoryId}:`, error)
+          return { data: null }
+        })
+      )
+      
+      const categoryResults = await Promise.all(categoryPromises)
+      
+      categoryResults.forEach(response => {
+        if (response.data?.products) {
+          allDeals.push(...response.data.products.slice(0, 2)) // Take first 2 products
+        }
+      })
+      
+      // Shuffle and take first 4 products for deals
+      const shuffledDeals = allDeals.sort(() => Math.random() - 0.5).slice(0, 4)
+      setDealsProducts(shuffledDeals)
+      
+    } catch (error) {
+      setDealsError('Failed to load deals')
+      // Use fallback deals when API fails
+      setDealsProducts([])
+    } finally {
+      setDealsLoading(false)
+    }
+  }
+
+  // Fetch fresh picks products from API
+  const fetchFreshPicksProducts = async () => {
+    setFreshPicksLoading(true)
+    setFreshPicksError(null)
+    
+    try {
+      // Fetch products from different categories for fresh picks
+      // We'll use different categories than deals to show variety
+      const freshPicksCategories = [6, 7, 8, 9, 10] // Home, Beauty, Books, Sports, Grocery
+      const allFreshPicks: ProductItem[] = []
+      
+      // Fetch products from all categories in parallel for better performance
+      const categoryPromises = freshPicksCategories.map(categoryId => 
+        fetchProductsByCategory(categoryId, 1, 2).catch(error => {
+          console.warn(`Failed to fetch products for category ${categoryId}:`, error)
+          return { data: null }
+        })
+      )
+      
+      const categoryResults = await Promise.all(categoryPromises)
+      
+      categoryResults.forEach(response => {
+        if (response.data?.products) {
+          allFreshPicks.push(...response.data.products.slice(0, 2)) // Take first 2 products
+        }
+      })
+      
+      // Shuffle and take first 4 products for fresh picks
+      const shuffledFreshPicks = allFreshPicks.sort(() => Math.random() - 0.5).slice(0, 4)
+      setFreshPicksProducts(shuffledFreshPicks)
+      
+    } catch (error) {
+      setFreshPicksError('Failed to load fresh picks')
+      // Use fallback fresh picks when API fails
+      setFreshPicksProducts([])
+    } finally {
+      setFreshPicksLoading(false)
+    }
+  }
 
   // Fetch categories from API
   useEffect(() => {
@@ -287,11 +387,12 @@ export default function HomePage() {
         setCategories(FALLBACK_CATEGORIES)
       } finally {
         setCategoriesLoading(false)
-        setIsPageLoading(false)
       }
     }
     
     loadCategories()
+    fetchDealsProducts()
+    fetchFreshPicksProducts()
   }, [])
 
   useEffect(() => {
@@ -312,14 +413,6 @@ export default function HomePage() {
 
   return (
     <main className="app-main home-main" id="home-page" data-testid="home-page">
-      {isPageLoading && (
-        <div className="page-loading-overlay">
-          <div className="page-loading-spinner">
-            <div className="spinner"></div>
-            <p>Loading...</p>
-          </div>
-        </div>
-      )}
       <div className="surface">
         <div className="container home-stack">
           <section className="home-hero-slider" role="region" aria-label="Featured promotions" id="hero-banner" data-testid="hero-banner">
@@ -474,30 +567,157 @@ export default function HomePage() {
             <header className="home-section-header">
               <h2 id="home-deals-title" className="home-section-title">Deals of the day</h2>
               <p className="home-section-subtitle">Limited-hour offers refreshed every morning. Prices include partner bank discounts where applicable.</p>
+              {dealsError && (
+                <div 
+                  style={{ 
+                    marginTop: '8px',
+                    padding: '8px 12px',
+                    background: 'var(--color-warning-container, #fff3cd)',
+                    color: 'var(--color-warning, #856404)',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <span>⚠️</span>
+                  <span>Unable to load latest deals. Showing default deals.</span>
+                  <button 
+                    className="btn btn-ghost" 
+                    onClick={() => fetchDealsProducts()}
+                    style={{ marginLeft: 'auto', padding: '4px 12px', fontSize: '13px' }}
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
             </header>
             <div className="home-products-grid">
-              {dealHighlights.map(({ title, description, priceLabel, tag, image, fallback }) => (
-                <article key={title} className="home-product-card">
-                  <figure className="home-product-media">
-                    <img
-                      src={image}
-                      data-fallback={fallback}
-                      alt={title}
-                      loading="lazy"
-                      onError={handleImageError}
-                    />
-                  </figure>
-                  <div className="home-product-content">
-                    <span className="home-product-tag">{tag}</span>
-                    <h3 className="home-product-title">{title}</h3>
-                    <p className="home-product-description">{description}</p>
-                  </div>
-                  <div className="home-product-footer">
-                    <span className="home-product-price">{priceLabel}</span>
-                    <button className="btn btn-primary" aria-label={`Add ${title} to cart`}>Add to cart</button>
-                  </div>
-                </article>
-              ))}
+              {dealsLoading ? (
+                // Show skeleton loading for deals
+                Array.from({ length: 4 }).map((_, index) => (
+                  <article key={`deal-skeleton-${index}`} className="home-product-card">
+                    <figure className="home-product-media">
+                      <div style={{ 
+                        width: '100%', 
+                        height: '200px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-md)',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                    </figure>
+                    <div className="home-product-content">
+                      <div style={{ 
+                        height: '20px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-sm)',
+                        marginBottom: '8px',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                      <div style={{ 
+                        height: '24px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-sm)',
+                        marginBottom: '8px',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                      <div style={{ 
+                        height: '16px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-sm)',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                    </div>
+                    <div className="home-product-footer">
+                      <div style={{ 
+                        height: '24px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-sm)',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                      <div style={{ 
+                        height: '40px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-md)',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                    </div>
+                  </article>
+                ))
+              ) : dealsProducts.length > 0 ? (
+                dealsProducts.map((product) => (
+                  <article key={product.id} className="home-product-card">
+                    <figure className="home-product-media">
+                      <img
+                        src={product.imageurl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'}
+                        data-fallback="https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+                        alt={product.productname}
+                        loading="lazy"
+                        onError={handleImageError}
+                      />
+                    </figure>
+                    <div className="home-product-content">
+                      <span className="home-product-tag">{product.badge || 'Deal'}</span>
+                      <h3 className="home-product-title">{product.productname}</h3>
+                      <p className="home-product-description">{product.description}</p>
+                    </div>
+                    <div className="home-product-footer">
+                      <span className="home-product-price">₹{product.price}</span>
+                      <button
+                        className="btn btn-primary"
+                        aria-label={`Add ${product.productname} to cart`}
+                        onClick={() => {
+                          const numericPrice = Number(product.price) || 0
+                          void addByProductId(product.id, 1, { 
+                            name: product.productname, 
+                            price: numericPrice, 
+                            image: product.imageurl 
+                          })
+                          openSuccess('Added to cart')
+                        }}
+                      >
+                        Add to cart
+                      </button>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                // Fallback to original hardcoded deals when API fails
+                dealHighlights.map(({ title, description, priceLabel, tag, image, fallback }) => (
+                  <article key={title} className="home-product-card">
+                    <figure className="home-product-media">
+                      <img
+                        src={image}
+                        data-fallback={fallback}
+                        alt={title}
+                        loading="lazy"
+                        onError={handleImageError}
+                      />
+                    </figure>
+                    <div className="home-product-content">
+                      <span className="home-product-tag">{tag}</span>
+                      <h3 className="home-product-title">{title}</h3>
+                      <p className="home-product-description">{description}</p>
+                    </div>
+                    <div className="home-product-footer">
+                      <span className="home-product-price">{priceLabel}</span>
+                      <button
+                        className="btn btn-primary"
+                        aria-label={`Add ${title} to cart`}
+                        onClick={() => {
+                          const numeric = Number(String(priceLabel).replace(/[^0-9]/g, '')) || 0
+                          const pid = Math.abs(title.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) + 900000
+                          void addByProductId(pid, 1, { name: title, price: numeric, image })
+                          openSuccess('Added to cart')
+                        }}
+                      >
+                        Add to cart
+                      </button>
+                    </div>
+                  </article>
+                ))
+              )}
             </div>
           </section>
 
@@ -522,30 +742,141 @@ export default function HomePage() {
             <header className="home-section-header">
               <h2 id="home-recommendations-title" className="home-section-title">Fresh picks for you</h2>
               <p className="home-section-subtitle">Personalized product recommendations based on your browsing history and purchase preferences.</p>
+              {freshPicksError && (
+                <div 
+                  style={{ 
+                    marginTop: '8px',
+                    padding: '8px 12px',
+                    background: 'var(--color-warning-container, #fff3cd)',
+                    color: 'var(--color-warning, #856404)',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <span>⚠️</span>
+                  <span>Unable to load latest fresh picks. Showing default recommendations.</span>
+                  <button 
+                    className="btn btn-ghost" 
+                    onClick={() => fetchFreshPicksProducts()}
+                    style={{ marginLeft: 'auto', padding: '4px 12px', fontSize: '13px' }}
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
             </header>
             <div className="home-products-grid">
-              {recommendedHighlights.map(({ title, description, priceLabel, tag, image, fallback }) => (
-                <article key={title} className="home-product-card">
-                  <figure className="home-product-media">
-                    <img
-                      src={image}
-                      data-fallback={fallback}
-                      alt={title}
-                      loading="lazy"
-                      onError={handleImageError}
-                    />
-                  </figure>
-                  <div className="home-product-content">
-                    <span className="home-product-tag">{tag}</span>
-                    <h3 className="home-product-title">{title}</h3>
-                    <p className="home-product-description">{description}</p>
-                  </div>
-                  <div className="home-product-footer">
-                    <span className="home-product-price">{priceLabel}</span>
-                    <button className="btn btn-secondary" aria-label={`View details for ${title}`}>View details</button>
-                  </div>
-                </article>
-              ))}
+              {freshPicksLoading ? (
+                // Show skeleton loading for fresh picks
+                Array.from({ length: 4 }).map((_, index) => (
+                  <article key={`fresh-picks-skeleton-${index}`} className="home-product-card">
+                    <figure className="home-product-media">
+                      <div style={{ 
+                        width: '100%', 
+                        height: '200px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-md)',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                    </figure>
+                    <div className="home-product-content">
+                      <div style={{ 
+                        height: '20px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-sm)',
+                        marginBottom: '8px',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                      <div style={{ 
+                        height: '24px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-sm)',
+                        marginBottom: '8px',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                      <div style={{ 
+                        height: '16px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-sm)',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                    </div>
+                    <div className="home-product-footer">
+                      <div style={{ 
+                        height: '24px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-sm)',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                      <div style={{ 
+                        height: '40px', 
+                        background: 'var(--color-surface-variant)', 
+                        borderRadius: 'var(--radius-md)',
+                        animation: 'pulse 1.5s ease-in-out infinite'
+                      }}></div>
+                    </div>
+                  </article>
+                ))
+              ) : freshPicksProducts.length > 0 ? (
+                freshPicksProducts.map((product) => (
+                  <article key={product.id} className="home-product-card">
+                    <figure className="home-product-media">
+                      <img
+                        src={product.imageurl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'}
+                        data-fallback="https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+                        alt={product.productname}
+                        loading="lazy"
+                        onError={handleImageError}
+                      />
+                    </figure>
+                    <div className="home-product-content">
+                      <span className="home-product-tag">{product.badge || 'Fresh'}</span>
+                      <h3 className="home-product-title">{product.productname}</h3>
+                      <p className="home-product-description">{product.description}</p>
+                    </div>
+                    <div className="home-product-footer">
+                      <span className="home-product-price">₹{product.price}</span>
+                      <button 
+                        className="btn btn-secondary" 
+                        aria-label={`View details for ${product.productname}`}
+                        onClick={() => {
+                          // Navigate to product details page
+                          navigate(`/products/${product.categoryid}/${product.id}`)
+                        }}
+                      >
+                        View details
+                      </button>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                // Fallback to original hardcoded fresh picks when API fails
+                recommendedHighlights.map(({ title, description, priceLabel, tag, image, fallback }) => (
+                  <article key={title} className="home-product-card">
+                    <figure className="home-product-media">
+                      <img
+                        src={image}
+                        data-fallback={fallback}
+                        alt={title}
+                        loading="lazy"
+                        onError={handleImageError}
+                      />
+                    </figure>
+                    <div className="home-product-content">
+                      <span className="home-product-tag">{tag}</span>
+                      <h3 className="home-product-title">{title}</h3>
+                      <p className="home-product-description">{description}</p>
+                    </div>
+                    <div className="home-product-footer">
+                      <span className="home-product-price">{priceLabel}</span>
+                      <button className="btn btn-secondary" aria-label={`View details for ${title}`}>View details</button>
+                    </div>
+                  </article>
+                ))
+              )}
             </div>
           </section>
 
@@ -568,7 +899,58 @@ export default function HomePage() {
             <h3 id="home-cta-title">Your premium shopping experience starts here</h3>
             <p>Discover the best deals on electronics, fashion, home essentials, and more. Shop from trusted sellers with secure payments and easy returns.</p>
             <div className="home-footer-actions">
-              <button className="btn btn-primary" aria-label="Sign In to Angaadi" onClick={() => navigate('/login')}>Sign In</button>
+              {isAuthenticated ? (
+                <button
+                  className="btn btn-primary"
+                  aria-label="Sign Out from Angaadi"
+                  onClick={async () => {
+                    const redirectToLogin = () => navigate('/login', { replace: true });
+                    try {
+                      const result = await signOut();
+                      if (result.success) {
+                        try {
+                          localStorage.removeItem('jwt');
+                          sessionStorage.removeItem('jwt');
+                        } catch {}
+                        logout();
+                        try {
+                          clearAuthTokenCookie();
+                        } catch {}
+                        openSuccessWithDuration(result.message || 'Signed out successfully', 5000);
+                        redirectToLogin();
+                      } else {
+                        try {
+                          localStorage.removeItem('jwt');
+                          sessionStorage.removeItem('jwt');
+                        } catch {}
+                        logout();
+                        try {
+                          clearAuthTokenCookie();
+                        } catch {}
+                        openSuccessWithDuration(result.error?.message || 'Signed out successfully', 5000);
+                        redirectToLogin();
+                      }
+                    } catch (error) {
+                      try {
+                        localStorage.removeItem('jwt');
+                        sessionStorage.removeItem('jwt');
+                      } catch {}
+                      logout();
+                      try {
+                        clearAuthTokenCookie();
+                      } catch {}
+                      openSuccessWithDuration('Signed out successfully', 5000);
+                      redirectToLogin();
+                    }
+                  }}
+                >
+                  Sign Out
+                </button>
+              ) : (
+                <button className="btn btn-primary" aria-label="Sign In to Angaadi" onClick={() => navigate('/login')}>
+                  Sign In
+                </button>
+              )}
               <button className="btn btn-secondary" aria-label="Start exploring">Start exploring</button>
             </div>
           </section>

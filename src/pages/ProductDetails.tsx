@@ -4,6 +4,8 @@ import { fetchProductById } from '../api/products'
 import { mockReviews, mockQnA, mockRatingDistribution } from '../data/mockData'
 import { useImageFallback } from '../hooks/useImageFallback'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { useCartStore } from '../store/cart'
+import { useUIStore } from '../store/ui'
 import { storeCategoryInfo, getCategoryInfo } from '../utils/categoryStorage'
 import '../styles/product-details.css'
 
@@ -77,6 +79,8 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1)
   const [activeTab, setActiveTab] = useState<'details' | 'specifications' | 'reviews' | 'qa'>('details')
   const [wishlisted, setWishlisted] = useState(false)
+  const addByProductId = useCartStore(s => s.addByProductId)
+  const openSuccess = useUIStore(s => s.openSuccess)
 
   // Fallback image for products without images
   const FALLBACK_PRODUCT_IMAGE = 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80'
@@ -183,8 +187,17 @@ const ProductDetails = () => {
   }, [categoryId, productId])
 
   const handleAddToCart = () => {
-    // TODO: Implement add to cart functionality
-    console.log('Add to cart:', { product, selectedStorage, selectedColor, quantity })
+    if (!product) return
+    const price = getCurrentPrice()
+    void addByProductId(product.id, quantity, {
+      name: product.productname,
+      image: productImages[0],
+      brand: product.brand,
+      price,
+      oldPrice: parseFloat(product.oldprice || '0') || undefined,
+      discountPercent: product.discountpercent,
+    })
+    openSuccess('Added to cart')
   }
 
   const handleBuyNow = () => {

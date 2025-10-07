@@ -182,7 +182,7 @@ h3 {
 .header-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 8px;
   align-items: flex-start;
 }
 
@@ -190,6 +190,14 @@ h3 {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-heading, #1c1b1f);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.header-logo-text:hover {
+  color: var(--color-primary, #007bff);
+  text-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+  transform: scale(1.05);
 }
 
 .header-search {
@@ -218,7 +226,7 @@ h3 {
   .header-grid {
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
   }
   
   .header-actions {
@@ -227,9 +235,7 @@ h3 {
 }
 
 @media (min-width: 1024px) {
-  .header-grid {
-    grid-template-columns: 240px 1fr auto;
-  }
+
 }
 
 /* Category chips - horizontal scroll on mobile */

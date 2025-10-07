@@ -8,8 +8,10 @@ import ProfilePage from './pages/Profile'
 import HealthPage from './pages/Health'
 import ProductsListing from './pages/ProductsListing'
 import ProductDetails from './pages/ProductDetails'
+import CartPage from './pages/Cart'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
+import { SignInModal } from './components/SignInModal'
 import { clearLegacyPasswordStorage, auditStorageSecurity } from './utils/security'
 
 export default function App() {
@@ -34,9 +36,11 @@ export default function App() {
           <Route path="/health" element={<HealthPage />} />
           <Route path="/products" element={<ProductsListing />} />
           <Route path="/product/:categoryId/:productId" element={<ProductDetails />} />
+          <Route path="/cart" element={<CartPage />} />
         </Routes>
         <SuccessModal />
         <DocModal />
+        <SignInModal />
       </BrowserRouter>
     </div>
   )
