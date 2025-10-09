@@ -113,6 +113,34 @@ function SignInPanel() {
     setError(null)
     
     try {
+      // Try popup first, fallback to redirect if blocked
+      const popup = window.open(
+        '',
+        'google-auth',
+        'width=500,height=600,scrollbars=yes,resizable=yes'
+      )
+      
+      if (!popup) {
+        // Popup blocked, use redirect approach
+        console.log('Popup blocked, using redirect approach')
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/oauth-callback`
+          }
+        })
+        
+        if (error) {
+          throw error
+        }
+        
+        if (data.url) {
+          window.location.href = data.url
+        }
+        return
+      }
+      
+      // Get OAuth URL for popup
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -122,53 +150,19 @@ function SignInPanel() {
       })
       
       if (error) {
+        popup.close()
         throw error
       }
       
       if (data.url) {
-        const popup = window.open(
-          data.url,
-          'google-auth',
-          'width=500,height=600,scrollbars=yes,resizable=yes'
-        )
+        // Navigate popup to OAuth URL
+        popup.location.href = data.url
         
-        if (!popup) {
-          throw new Error('Popup blocked. Please allow popups for this site.')
-        }
-        
-        // Set a timeout to close popup if it takes too long
-        const timeout = setTimeout(() => {
-          if (!popup.closed) {
-            popup.close()
-            setIsGoogleLoading(false)
-            setError('Authentication timed out. Please try again.')
-          }
-        }, 300000) // 5 minutes timeout
-        
-        // Check if popup is closed
-        const checkClosed = setInterval(() => {
-          if (popup.closed) {
-            clearTimeout(timeout)
-            clearInterval(checkClosed)
-            setIsGoogleLoading(false)
-            window.removeEventListener('message', messageListener)
-            
-            // Check if we have a session after popup closes
-            supabase.auth.getSession().then(({ data: { session } }) => {
-              if (session) {
-                // If popup closed but we have a session, redirect to callback
-                window.location.href = '/oauth-callback'
-              }
-            })
-          }
-        }, 1000)
-        
-        // Handle messages from popup
+        // Set up message listener
         const messageListener = (event: MessageEvent) => {
           if (event.origin !== window.location.origin) return
           
-          clearTimeout(timeout)
-          clearInterval(checkClosed)
+          console.log('Received message:', event.data)
           
           if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
             popup.close()
@@ -178,12 +172,11 @@ function SignInPanel() {
             // Handle the authentication directly in the parent window
             const userData = event.data.user
             if (userData) {
-              // Update auth store with the user data from popup
+              console.log('Logging in user:', userData)
               login(userData)
-              // Navigate to home page
               navigate('/')
             } else {
-              // Fallback: redirect to callback page
+              console.log('No user data, redirecting to callback')
               window.location.href = '/oauth-callback'
             }
           } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
@@ -193,6 +186,37 @@ function SignInPanel() {
             setError(event.data.error || 'Google authentication failed')
           }
         }
+        
+        // Set up popup monitoring
+        const checkClosed = setInterval(() => {
+          if (popup.closed) {
+            clearInterval(checkClosed)
+            clearTimeout(timeout)
+            window.removeEventListener('message', messageListener)
+            setIsGoogleLoading(false)
+            
+            // Check if we have a session after popup closes
+            supabase.auth.getSession().then(({ data: { session } }) => {
+              if (session) {
+                console.log('Session found after popup closed, redirecting to callback')
+                window.location.href = '/oauth-callback'
+              } else {
+                console.log('No session found after popup closed')
+              }
+            })
+          }
+        }, 1000)
+        
+        // Set timeout
+        const timeout = setTimeout(() => {
+          if (!popup.closed) {
+            popup.close()
+            clearInterval(checkClosed)
+            window.removeEventListener('message', messageListener)
+            setIsGoogleLoading(false)
+            setError('Authentication timed out. Please try again.')
+          }
+        }, 300000) // 5 minutes
         
         window.addEventListener('message', messageListener)
       }

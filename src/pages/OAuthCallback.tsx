@@ -14,8 +14,17 @@ export default function OAuthCallback() {
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
+      console.log('OAuth callback started')
+      console.log('Is popup:', !!window.opener)
+      
       try {
+        // Wait a bit for Supabase to process the auth
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
         const { data, error } = await supabase.auth.getSession()
+        
+        console.log('Session data:', data)
+        console.log('Session error:', error)
         
         if (error) {
           throw error
@@ -23,6 +32,8 @@ export default function OAuthCallback() {
 
         if (data.session) {
           const { user, access_token } = data.session
+          
+          console.log('User data:', user)
           
           if (!user || !user.email) {
             throw new Error('Invalid user session')
@@ -59,11 +70,14 @@ export default function OAuthCallback() {
             lastName: result.user?.lastName || user.user_metadata?.last_name || ''
           }
 
+          console.log('Final user data:', userData)
+
           setAuthTokenCookie(access_token, 7)
           login(userData)
           setStatus('success')
           
           if (window.opener) {
+            console.log('Sending success message to parent')
             // Send success message to parent window
             window.opener.postMessage({
               type: 'GOOGLE_AUTH_SUCCESS',
@@ -72,9 +86,11 @@ export default function OAuthCallback() {
             
             // Close popup after a short delay
             setTimeout(() => {
+              console.log('Closing popup')
               window.close()
             }, 500)
           } else {
+            console.log('Not in popup, redirecting to home')
             // If not in popup, redirect to home
             setTimeout(() => {
               navigate('/')
@@ -85,10 +101,12 @@ export default function OAuthCallback() {
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Authentication failed'
+        console.error('OAuth callback error:', errorMessage)
         setError(errorMessage)
         setStatus('error')
         
         if (window.opener) {
+          console.log('Sending error message to parent')
           // Send error message to parent window
           window.opener.postMessage({
             type: 'GOOGLE_AUTH_ERROR',
@@ -100,6 +118,7 @@ export default function OAuthCallback() {
             window.close()
           }, 1000)
         } else {
+          console.log('Not in popup, redirecting to auth')
           // If not in popup, redirect to auth page
           setTimeout(() => {
             navigate('/auth')
