@@ -27,9 +27,6 @@ export default defineConfig({
   },
 
   build: {
-    // Modern build target - legacy plugin will handle older browsers
-    target: 'es2015',
-    
     // Output directory
     outDir: 'dist',
     
