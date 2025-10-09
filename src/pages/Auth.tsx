@@ -6,6 +6,7 @@ import { isLettersOnly } from '../utils/name'
 import { createUserRecord, signIn } from '../api/user'
 import { setAuthTokenCookie } from '../utils/token'
 import { useAuthStore } from '../store/auth'
+import { supabase } from '../lib/supabase'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 type AuthTab = 'signin' | 'signup'
@@ -63,6 +64,7 @@ function SignInPanel() {
   const [emailError, setEmailError] = useState(false)
   const [passwordError, setPasswordError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 
   const REMEMBER_KEY = 'login.remember'
   const REMEMBER_EMAIL_KEY = 'login.email'
@@ -105,6 +107,73 @@ function SignInPanel() {
       }
     } catch {}
   }, [remember, email])
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true)
+    setError(null)
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/oauth-callback`,
+          skipBrowserRedirect: true
+        }
+      })
+      
+      if (error) {
+        throw error
+      }
+      
+      if (data.url) {
+        const popup = window.open(
+          data.url,
+          'google-auth',
+          'width=500,height=600,scrollbars=yes,resizable=yes'
+        )
+        
+        if (!popup) {
+          throw new Error('Popup blocked. Please allow popups for this site.')
+        }
+        
+        const checkClosed = setInterval(() => {
+          if (popup.closed) {
+            clearInterval(checkClosed)
+            setIsGoogleLoading(false)
+            
+            supabase.auth.getSession().then(({ data: { session } }) => {
+              if (session) {
+                window.location.href = '/oauth-callback'
+              }
+            })
+          }
+        }, 1000)
+        
+        const messageListener = (event: MessageEvent) => {
+          if (event.origin !== window.location.origin) return
+          
+          if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+            clearInterval(checkClosed)
+            popup.close()
+            window.removeEventListener('message', messageListener)
+            setIsGoogleLoading(false)
+            window.location.href = '/oauth-callback'
+          } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
+            clearInterval(checkClosed)
+            popup.close()
+            window.removeEventListener('message', messageListener)
+            setIsGoogleLoading(false)
+            setError(event.data.error || 'Google authentication failed')
+          }
+        }
+        
+        window.addEventListener('message', messageListener)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google sign-in failed')
+      setIsGoogleLoading(false)
+    }
+  }
 
   const demos = [
     { email: 'standard.user@demo.in', password: 'Password123!' },
@@ -208,7 +277,17 @@ function SignInPanel() {
         <div className="mt-6" role="separator" style={{height:1, background:'var(--color-border)'}} />
 
         <div className="mt-4" style={{display:'grid', gap:8}}>
-          <button className="btn" id="oauth-google" data-testid="oauth-google" data-test-name="oauth-google" aria-label="Sign In with Google">Continue with Google</button>
+          <button 
+            className="btn" 
+            id="oauth-google" 
+            data-testid="oauth-google" 
+            data-test-name="oauth-google" 
+            aria-label="Sign In with Google"
+            disabled={isGoogleLoading}
+            onClick={handleGoogleSignIn}
+          >
+            {isGoogleLoading ? <LoadingSpinner size="small" text="Signing in..." /> : 'Continue with Google'}
+          </button>
           <button className="btn" id="oauth-apple" data-testid="oauth-apple" data-test-name="oauth-apple" aria-label="Sign In with Apple">Continue with Apple</button>
         </div>
 

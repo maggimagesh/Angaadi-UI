@@ -4,6 +4,7 @@ import './index.css'
 import { Header } from './components/Header'
 import HomePage from './pages/Home'
 import AuthPage from './pages/Auth'
+import OAuthCallback from './pages/OAuthCallback'
 import ProfilePage from './pages/Profile'
 import HealthPage from './pages/Health'
 import ProductsListing from './pages/ProductsListing'
@@ -31,7 +32,9 @@ export default function App() {
         <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route path="/login" element={<AuthPage />} />
+          <Route path="/oauth-callback" element={<OAuthCallback />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/health" element={<HealthPage />} />
           <Route path="/products" element={<ProductsListing />} />

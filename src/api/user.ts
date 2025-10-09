@@ -1,5 +1,5 @@
 import { buildApiUrl } from '../lib/api'
-import { getAuthTokenCookie, clearAuthTokenCookie } from '../utils/token'
+import { clearAuthTokenCookie, getCurrentAuthToken } from '../utils/token'
 
 interface CreateUserRequest {
   firstName: string
@@ -133,7 +133,7 @@ export async function signOut(): Promise<{ success: boolean; message?: string; e
 // Protected endpoint: Fetch all users
 export async function fetchAllUsers(): Promise<{ users?: UserResponse[]; error?: { message: string } }> {
   try {
-    const token = getAuthTokenCookie()
+    const token = await getCurrentAuthToken()
     if (!token) {
       return { error: { message: 'Authentication required' } }
     }
@@ -169,7 +169,7 @@ export async function fetchAllUsers(): Promise<{ users?: UserResponse[]; error?:
 // Protected endpoint: Fetch a specific user by ID
 export async function fetchUserById(userId: string): Promise<{ user?: UserResponse; error?: { message: string } }> {
   try {
-    const token = getAuthTokenCookie()
+    const token = await getCurrentAuthToken()
     if (!token) {
       return { error: { message: 'Authentication required' } }
     }
@@ -206,7 +206,7 @@ export async function fetchUserById(userId: string): Promise<{ user?: UserRespon
 // Protected endpoint: Save physical stats for a user
 export async function savePhysicalStats(userId: string, data: { heightUnit: string; weightUnit: string; heightValue: number; weightValue: number }): Promise<{ success?: boolean; error?: { message: string } }> {
   try {
-    const token = getAuthTokenCookie()
+    const token = await getCurrentAuthToken()
     if (!token) {
       return { error: { message: 'Authentication required' } }
     }
@@ -245,7 +245,7 @@ export async function savePhysicalStats(userId: string, data: { heightUnit: stri
 
 export async function removePhysicalStats(userId: string): Promise<{ success?: boolean; error?: { message: string } }> {
   try {
-    const token = getAuthTokenCookie()
+    const token = await getCurrentAuthToken()
     if (!token) {
       return { error: { message: 'Authentication required' } }
     }
@@ -294,7 +294,7 @@ export async function fetchPhysicalStats(): Promise<{ stats?: {
   updated_at?: string 
 }; error?: { message: string } }> {
   try {
-    const token = getAuthTokenCookie()
+    const token = await getCurrentAuthToken()
     if (!token) {
       return { error: { message: 'Authentication required' } }
     }

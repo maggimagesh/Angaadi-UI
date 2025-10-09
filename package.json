@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.74.0",
     "core-js": "^3.45.1",
     "css-vars-ponyfill": "^2.4.9",
     "react": "^19.1.1",

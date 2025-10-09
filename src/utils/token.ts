@@ -1,3 +1,5 @@
+import { supabase } from '../lib/supabase'
+
 const COOKIE_NAME = 'auth_token'
 
 export function setAuthTokenCookie(token: string, maxAgeDays: number = 7) {
@@ -25,6 +27,24 @@ export function clearAuthTokenCookie() {
   try {
     document.cookie = `${COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax`
   } catch {}
+}
+
+// Get the current authentication token (Supabase session or cookie fallback)
+export async function getCurrentAuthToken(): Promise<string | null> {
+  try {
+    // First try to get Supabase session token
+    const { data: { session }, error } = await supabase.auth.getSession()
+    
+    if (!error && session?.access_token) {
+      return session.access_token
+    }
+    
+    // Fallback to cookie token (for traditional email/password auth)
+    return getAuthTokenCookie()
+  } catch {
+    // Fallback to cookie token if Supabase fails
+    return getAuthTokenCookie()
+  }
 }
 
 
