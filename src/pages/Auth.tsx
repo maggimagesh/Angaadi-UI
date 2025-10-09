@@ -123,10 +123,13 @@ function SignInPanel() {
       if (!popup) {
         // Popup blocked, use redirect approach
         console.log('Popup blocked, using redirect approach')
+        const redirectUrl = `${window.location.origin}/oauth-callback`
+        console.log('OAuth redirect URL (fallback):', redirectUrl)
+        
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: `${window.location.origin}/oauth-callback`
+            redirectTo: redirectUrl
           }
         })
         
@@ -141,10 +144,13 @@ function SignInPanel() {
       }
       
       // Get OAuth URL for popup
+      const redirectUrl = `${window.location.origin}/oauth-callback`
+      console.log('OAuth redirect URL:', redirectUrl)
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/oauth-callback`,
+          redirectTo: redirectUrl,
           skipBrowserRedirect: true
         }
       })
