@@ -136,30 +136,57 @@ function SignInPanel() {
           throw new Error('Popup blocked. Please allow popups for this site.')
         }
         
+        // Set a timeout to close popup if it takes too long
+        const timeout = setTimeout(() => {
+          if (!popup.closed) {
+            popup.close()
+            setIsGoogleLoading(false)
+            setError('Authentication timed out. Please try again.')
+          }
+        }, 300000) // 5 minutes timeout
+        
+        // Check if popup is closed
         const checkClosed = setInterval(() => {
           if (popup.closed) {
+            clearTimeout(timeout)
             clearInterval(checkClosed)
             setIsGoogleLoading(false)
+            window.removeEventListener('message', messageListener)
             
+            // Check if we have a session after popup closes
             supabase.auth.getSession().then(({ data: { session } }) => {
               if (session) {
+                // If popup closed but we have a session, redirect to callback
                 window.location.href = '/oauth-callback'
               }
             })
           }
         }, 1000)
         
+        // Handle messages from popup
         const messageListener = (event: MessageEvent) => {
           if (event.origin !== window.location.origin) return
           
+          clearTimeout(timeout)
+          clearInterval(checkClosed)
+          
           if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
-            clearInterval(checkClosed)
             popup.close()
             window.removeEventListener('message', messageListener)
             setIsGoogleLoading(false)
-            window.location.href = '/oauth-callback'
+            
+            // Handle the authentication directly in the parent window
+            const userData = event.data.user
+            if (userData) {
+              // Update auth store with the user data from popup
+              login(userData)
+              // Navigate to home page
+              navigate('/')
+            } else {
+              // Fallback: redirect to callback page
+              window.location.href = '/oauth-callback'
+            }
           } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
-            clearInterval(checkClosed)
             popup.close()
             window.removeEventListener('message', messageListener)
             setIsGoogleLoading(false)

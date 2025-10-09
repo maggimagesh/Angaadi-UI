@@ -64,18 +64,21 @@ export default function OAuthCallback() {
           setStatus('success')
           
           if (window.opener) {
+            // Send success message to parent window
             window.opener.postMessage({
               type: 'GOOGLE_AUTH_SUCCESS',
               user: userData
             }, window.location.origin)
             
+            // Close popup after a short delay
             setTimeout(() => {
               window.close()
-            }, 1000)
+            }, 500)
           } else {
+            // If not in popup, redirect to home
             setTimeout(() => {
               navigate('/')
-            }, 2000)
+            }, 1000)
           }
         } else {
           throw new Error('No session found - please try signing in again')
@@ -86,18 +89,21 @@ export default function OAuthCallback() {
         setStatus('error')
         
         if (window.opener) {
+          // Send error message to parent window
           window.opener.postMessage({
             type: 'GOOGLE_AUTH_ERROR',
             error: errorMessage
           }, window.location.origin)
           
+          // Close popup after a short delay
           setTimeout(() => {
             window.close()
-          }, 2000)
+          }, 1000)
         } else {
+          // If not in popup, redirect to auth page
           setTimeout(() => {
             navigate('/auth')
-          }, 3000)
+          }, 2000)
         }
       }
     }
