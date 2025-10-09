@@ -84,10 +84,36 @@ export default function OAuthCallback() {
               user: userData
             }, window.location.origin)
             
-            // Close popup after a short delay
+            // Try multiple methods to close popup in production
             setTimeout(() => {
-              console.log('Closing popup')
-              window.close()
+              console.log('Attempting to close popup')
+              try {
+                // Method 1: Standard close
+                window.close()
+                
+                // Method 2: If close doesn't work, try to navigate away
+                setTimeout(() => {
+                  if (!window.closed) {
+                    console.log('Window still open, trying alternative close methods')
+                    // Try to navigate to a blank page
+                    window.location.href = 'about:blank'
+                    
+                    // Method 3: Try to focus parent and close
+                    setTimeout(() => {
+                      try {
+                        window.opener?.focus()
+                        window.close()
+                      } catch (e) {
+                        console.log('Could not close popup:', e)
+                      }
+                    }, 100)
+                  }
+                }, 1000)
+              } catch (e) {
+                console.log('Error closing popup:', e)
+                // Fallback: navigate to blank page
+                window.location.href = 'about:blank'
+              }
             }, 500)
           } else {
             console.log('Not in popup, redirecting to home')
@@ -113,9 +139,36 @@ export default function OAuthCallback() {
             error: errorMessage
           }, window.location.origin)
           
-          // Close popup after a short delay
+          // Try multiple methods to close popup in production
           setTimeout(() => {
-            window.close()
+            console.log('Attempting to close popup (error case)')
+            try {
+              // Method 1: Standard close
+              window.close()
+              
+              // Method 2: If close doesn't work, try to navigate away
+              setTimeout(() => {
+                if (!window.closed) {
+                  console.log('Window still open, trying alternative close methods (error case)')
+                  // Try to navigate to a blank page
+                  window.location.href = 'about:blank'
+                  
+                  // Method 3: Try to focus parent and close
+                  setTimeout(() => {
+                    try {
+                      window.opener?.focus()
+                      window.close()
+                    } catch (e) {
+                      console.log('Could not close popup (error case):', e)
+                    }
+                  }, 100)
+                }
+              }, 1000)
+            } catch (e) {
+              console.log('Error closing popup (error case):', e)
+              // Fallback: navigate to blank page
+              window.location.href = 'about:blank'
+            }
           }, 1000)
         } else {
           console.log('Not in popup, redirecting to auth')

@@ -165,7 +165,26 @@ function SignInPanel() {
           console.log('Received message:', event.data)
           
           if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
-            popup.close()
+            // Force close popup with multiple methods
+            try {
+              popup.close()
+              // Additional attempts to ensure popup closes
+              setTimeout(() => {
+                if (!popup.closed) {
+                  console.log('Popup still open, forcing close')
+                  popup.close()
+                  // Try to navigate popup to blank page
+                  try {
+                    popup.location.href = 'about:blank'
+                  } catch (e) {
+                    console.log('Could not navigate popup:', e)
+                  }
+                }
+              }, 100)
+            } catch (e) {
+              console.log('Error closing popup from parent:', e)
+            }
+            
             window.removeEventListener('message', messageListener)
             setIsGoogleLoading(false)
             
@@ -180,14 +199,33 @@ function SignInPanel() {
               window.location.href = '/oauth-callback'
             }
           } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
-            popup.close()
+            // Force close popup with multiple methods
+            try {
+              popup.close()
+              // Additional attempts to ensure popup closes
+              setTimeout(() => {
+                if (!popup.closed) {
+                  console.log('Popup still open (error), forcing close')
+                  popup.close()
+                  // Try to navigate popup to blank page
+                  try {
+                    popup.location.href = 'about:blank'
+                  } catch (e) {
+                    console.log('Could not navigate popup (error):', e)
+                  }
+                }
+              }, 100)
+            } catch (e) {
+              console.log('Error closing popup from parent (error):', e)
+            }
+            
             window.removeEventListener('message', messageListener)
             setIsGoogleLoading(false)
             setError(event.data.error || 'Google authentication failed')
           }
         }
         
-        // Set up popup monitoring
+        // Set up popup monitoring with more aggressive checking
         const checkClosed = setInterval(() => {
           if (popup.closed) {
             clearInterval(checkClosed)
@@ -204,8 +242,31 @@ function SignInPanel() {
                 console.log('No session found after popup closed')
               }
             })
+          } else {
+            // Additional check: if popup is still open after 30 seconds, try to close it
+            const popupAge = Date.now() - popupStartTime
+            if (popupAge > 30000) { // 30 seconds
+              console.log('Popup has been open too long, attempting to close')
+              try {
+                popup.close()
+                // If still open, try to navigate to blank page
+                setTimeout(() => {
+                  if (!popup.closed) {
+                    try {
+                      popup.location.href = 'about:blank'
+                    } catch (e) {
+                      console.log('Could not navigate popup to blank page:', e)
+                    }
+                  }
+                }, 100)
+              } catch (e) {
+                console.log('Could not close old popup:', e)
+              }
+            }
           }
         }, 1000)
+        
+        const popupStartTime = Date.now()
         
         // Set timeout
         const timeout = setTimeout(() => {
