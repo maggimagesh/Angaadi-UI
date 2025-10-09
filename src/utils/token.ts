@@ -32,15 +32,28 @@ export function clearAuthTokenCookie() {
 // Get the current authentication token (Supabase session or cookie fallback)
 export async function getCurrentAuthToken(): Promise<string | null> {
   try {
-    // First try to get Supabase session token
+    // Get cookie token first
+    const cookieToken = getAuthTokenCookie()
+    
+    // Try to get Supabase session token
     const { data: { session }, error } = await supabase.auth.getSession()
     
-    if (!error && session?.access_token) {
-      return session.access_token
+    // Check if Supabase session exists and is not expired
+    const supabaseToken = (!error && session?.access_token && session.expires_at && new Date(session.expires_at * 1000) > new Date()) 
+      ? session.access_token 
+      : null
+    
+    // Prioritize cookie token for traditional email/password auth
+    // Only use Supabase token if no cookie token exists
+    if (cookieToken) {
+      return cookieToken
     }
     
-    // Fallback to cookie token (for traditional email/password auth)
-    return getAuthTokenCookie()
+    if (supabaseToken) {
+      return supabaseToken
+    }
+    
+    return null
   } catch {
     // Fallback to cookie token if Supabase fails
     return getAuthTokenCookie()
