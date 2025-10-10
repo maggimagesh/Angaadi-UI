@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 
+type ForgotPasswordStep = 'email' | 'otp' | 'password' | 'success'
+
 type UIState = {
   successOpen: boolean
   successMessage: string | null
@@ -16,6 +18,15 @@ type UIState = {
   signInModalCallback: (() => void) | null
   openSignInModal: (callback?: () => void) => void
   closeSignInModal: () => void
+  forgotPasswordOpen: boolean
+  forgotPasswordStep: ForgotPasswordStep
+  forgotPasswordEmail: string | null
+  forgotPasswordResetToken: string | null
+  openForgotPassword: () => void
+  closeForgotPassword: () => void
+  setForgotPasswordStep: (step: ForgotPasswordStep) => void
+  setForgotPasswordEmail: (email: string) => void
+  setForgotPasswordResetToken: (resetToken: string) => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -34,6 +45,15 @@ export const useUIStore = create<UIState>((set) => ({
   signInModalCallback: null,
   openSignInModal: (callback?: () => void) => set({ signInModalOpen: true, signInModalCallback: callback || null }),
   closeSignInModal: () => set({ signInModalOpen: false, signInModalCallback: null }),
+  forgotPasswordOpen: false,
+  forgotPasswordStep: 'email',
+  forgotPasswordEmail: null,
+  forgotPasswordResetToken: null,
+  openForgotPassword: () => set({ forgotPasswordOpen: true, forgotPasswordStep: 'email', forgotPasswordEmail: null, forgotPasswordResetToken: null }),
+  closeForgotPassword: () => set({ forgotPasswordOpen: false, forgotPasswordStep: 'email', forgotPasswordEmail: null, forgotPasswordResetToken: null }),
+  setForgotPasswordStep: (step: ForgotPasswordStep) => set({ forgotPasswordStep: step }),
+  setForgotPasswordEmail: (email: string) => set({ forgotPasswordEmail: email }),
+  setForgotPasswordResetToken: (resetToken: string) => set({ forgotPasswordResetToken: resetToken }),
 }))
 
 

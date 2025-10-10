@@ -282,6 +282,116 @@ export async function removePhysicalStats(userId: string): Promise<{ success?: b
   }
 }
 
+// Forgot Password API Functions
+
+interface ForgotPasswordRequest {
+  email: string
+}
+
+interface VerifyOTPRequest {
+  email: string
+  otp: string
+}
+
+interface ResetPasswordRequest {
+  resetToken: string
+  newPassword: string
+  confirmPassword: string
+}
+
+// Public endpoint: Send OTP for password reset
+export async function forgotPassword(data: ForgotPasswordRequest): Promise<{ success?: boolean; error?: { message: string } }> {
+  try {
+    const response = await fetch(buildApiUrl('/users/forgot-password'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        error: { 
+          message: result.message || 'Failed to send OTP' 
+        } 
+      }
+    }
+
+    return { success: true }
+  } catch (error) {
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
+    }
+  }
+}
+
+// Public endpoint: Verify OTP
+export async function verifyOTP(data: VerifyOTPRequest): Promise<{ resetToken?: string; error?: { message: string } }> {
+  try {
+    const response = await fetch(buildApiUrl('/users/verify-otp'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        error: { 
+          message: result.message || 'Invalid OTP' 
+        } 
+      }
+    }
+
+    return { resetToken: result.resetToken || result.token }
+  } catch (error) {
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
+    }
+  }
+}
+
+// Public endpoint: Reset password with new password
+export async function resetPassword(data: ResetPasswordRequest): Promise<{ success?: boolean; error?: { message: string } }> {
+  try {
+    const response = await fetch(buildApiUrl('/users/reset-password'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      return { 
+        error: { 
+          message: result.message || 'Failed to reset password' 
+        } 
+      }
+    }
+
+    return { success: true }
+  } catch (error) {
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Network error occurred' 
+      } 
+    }
+  }
+}
+
 // Protected endpoint: Fetch physical stats for the authenticated user
 export async function fetchPhysicalStats(): Promise<{ stats?: { 
   id?: string; 

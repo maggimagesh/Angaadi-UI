@@ -8,6 +8,7 @@ import { setAuthTokenCookie } from '../utils/token'
 import { useAuthStore } from '../store/auth'
 import { supabase } from '../lib/supabase'
 import LoadingSpinner from '../components/LoadingSpinner'
+import ForgotPasswordModal from '../components/ForgotPasswordModal'
 
 type AuthTab = 'signin' | 'signup'
 
@@ -48,6 +49,8 @@ export default function AuthPage() {
           </div>
         </div>
       </section>
+      
+      <ForgotPasswordModal />
     </main>
   )
 }
@@ -55,6 +58,7 @@ export default function AuthPage() {
 function SignInPanel() {
   const navigate = useNavigate()
   const openSuccess = useUIStore(s => s.openSuccess)
+  const openForgotPassword = useUIStore(s => s.openForgotPassword)
   const login = useAuthStore(s => s.login)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -322,7 +326,15 @@ function SignInPanel() {
             <input id="login-remember" data-testid="login-remember" data-test-name="login-remember" type="checkbox" aria-checked={remember} checked={remember} onChange={(e)=>setRemember(e.target.checked)} />
             <span className="label">Remember me</span>
           </label>
-          <button className="btn btn-ghost" id="login-forgot" data-testid="login-forgot" data-test-name="login-forgot">Forgot password?</button>
+          <button 
+            className="btn btn-ghost" 
+            id="login-forgot" 
+            data-testid="login-forgot" 
+            data-test-name="login-forgot"
+            onClick={openForgotPassword}
+          >
+            Forgot password?
+          </button>
         </div>
 
         <button
