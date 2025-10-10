@@ -6,12 +6,12 @@
 // Resolve from Vite envs. Only `VITE_` prefixed vars are exposed to client.
 const fromViteEnv: string | undefined = (import.meta as any)?.env?.VITE_BACKEND_URL || (import.meta as any)?.env?.BACKEND_URL
 
-// If not provided, use environment variable or fallback
-const DEFAULT_DEV = (import.meta as any)?.env?.BACKEND_URL || 'http://localhost:3300/api/v1'
-
 // Vite exposes MODE; fall back to NODE_ENV if needed
 const mode: string | undefined = (import.meta as any)?.env?.MODE || (import.meta as any)?.env?.NODE_ENV
 const isDev = mode ? /^(dev|development)$/i.test(mode) : false
+
+// In development, use proxy to avoid CORS issues
+const DEFAULT_DEV = isDev ? '/api' : 'http://localhost:3300/api/v1'
 
 // In production, require explicit VITE_BACKEND_URL configuration
 if (!isDev && !fromViteEnv) {
