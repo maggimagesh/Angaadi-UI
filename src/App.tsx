@@ -14,6 +14,7 @@ import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
 import ForgotPasswordModal from './components/ForgotPasswordModal'
+import { WelcomeModal } from './components/WelcomeModal'
 import { clearLegacyPasswordStorage, auditStorageSecurity } from './utils/security'
 
 export default function App() {
@@ -46,6 +47,7 @@ export default function App() {
         <DocModal />
         <SignInModal />
         <ForgotPasswordModal />
+        <WelcomeModal />
       </BrowserRouter>
     </div>
   )
