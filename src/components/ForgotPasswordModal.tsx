@@ -48,6 +48,14 @@ export default function ForgotPasswordModal() {
     }
   }, [otpTimer])
 
+  // Auto-dismiss error messages after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
+
   const handleEmailSubmit = async () => {
     if (!email.trim()) {
       setError('Please enter your email address')
@@ -81,6 +89,8 @@ export default function ForgotPasswordModal() {
   }
 
   const handleOTPSubmit = async () => {
+    console.log('OTP Submit clicked', { otp, email: forgotPasswordEmail })
+    
     if (!otp.trim()) {
       setError('Please enter the OTP')
       return
@@ -98,22 +108,34 @@ export default function ForgotPasswordModal() {
 
     setIsLoading(true)
     setError(null)
+    console.log('Calling verifyOTP API...')
 
     try {
       const result = await verifyOTP({ email: forgotPasswordEmail, otp })
+      console.log('verifyOTP response:', result)
+      
       if (result.error) {
-        setError(result.error.message)
+        console.error('OTP verification error:', result.error)
+        setError(result.error.message || 'Invalid OTP. Please try again.')
+        setIsLoading(false)
         return
       }
 
       if (result.resetToken) {
+        console.log('OTP verified successfully, resetToken received')
         setForgotPasswordResetToken(result.resetToken)
         setForgotPasswordStep('password')
         openSuccess('OTP verified successfully')
+        setIsLoading(false)
+      } else {
+        console.error('No resetToken in response:', result)
+        setError('OTP verification failed. Please try again.')
+        setIsLoading(false)
       }
     } catch (err) {
-      setError('Failed to verify OTP. Please try again.')
-    } finally {
+      console.error('Exception during OTP verification:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to verify OTP. Please try again.'
+      setError(errorMessage)
       setIsLoading(false)
     }
   }
@@ -234,7 +256,15 @@ export default function ForgotPasswordModal() {
       </div>
 
       {error && (
-        <div role="alert" style={{ color: 'var(--color-danger)' }}>
+        <div role="alert" style={{ 
+          color: 'var(--color-danger)', 
+          wordBreak: 'break-word', 
+          overflowWrap: 'break-word',
+          whiteSpace: 'normal', 
+          maxWidth: '100%',
+          width: '100%',
+          display: 'block'
+        }}>
           {error}
         </div>
       )}
@@ -279,7 +309,15 @@ export default function ForgotPasswordModal() {
       )}
 
       {error && (
-        <div role="alert" style={{ color: 'var(--color-danger)' }}>
+        <div role="alert" style={{ 
+          color: 'var(--color-danger)', 
+          wordBreak: 'break-word', 
+          overflowWrap: 'break-word',
+          whiteSpace: 'normal', 
+          maxWidth: '100%',
+          width: '100%',
+          display: 'block'
+        }}>
           {error}
         </div>
       )}
@@ -360,7 +398,15 @@ export default function ForgotPasswordModal() {
       </label>
 
       {error && (
-        <div role="alert" style={{ color: 'var(--color-danger)' }}>
+        <div role="alert" style={{ 
+          color: 'var(--color-danger)', 
+          wordBreak: 'break-word', 
+          overflowWrap: 'break-word',
+          whiteSpace: 'normal', 
+          maxWidth: '100%',
+          width: '100%',
+          display: 'block'
+        }}>
           {error}
         </div>
       )}

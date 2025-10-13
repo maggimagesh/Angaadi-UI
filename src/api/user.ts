@@ -346,8 +346,17 @@ export async function verifyOTP(data: VerifyOTPRequest): Promise<{ resetToken?: 
     if (!response.ok) {
       return { 
         error: { 
-          message: result.message || 'Invalid OTP' 
+          message: result.message || result.error || 'Invalid OTP' 
         } 
+      }
+    }
+
+    // Check if the response contains an error even with 200 status
+    if (result.error || result.message && !result.resetToken && !result.token) {
+      return {
+        error: {
+          message: result.error || result.message || 'OTP verification failed'
+        }
       }
     }
 

@@ -12,9 +12,9 @@ interface BaseModalProps {
 }
 
 const sizeStyles = {
-  small: { minWidth: 420, maxWidth: '90vw' },
-  medium: { minWidth: 520, maxWidth: '90vw' },
-  large: { minWidth: 700, maxWidth: '90vw' }
+  small: { width: 420, maxWidth: '90vw' },
+  medium: { width: 520, maxWidth: '90vw' },
+  large: { width: 700, maxWidth: '90vw' }
 }
 
 export function BaseModal({
@@ -73,7 +73,8 @@ export function BaseModal({
           position: 'relative',
           borderRadius: 'var(--radius-lg)',
           boxShadow: 'var(--elev-3)',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          boxSizing: 'border-box'
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -123,7 +124,7 @@ export function BaseModal({
         </div>
 
         {/* Content */}
-        <div style={{ padding: 24, background: 'var(--color-card)' }}>
+        <div style={{ padding: 24, background: 'var(--color-card)', boxSizing: 'border-box', overflow: 'hidden' }}>
           {children}
         </div>
 

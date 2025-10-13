@@ -13,6 +13,7 @@ import CartPage from './pages/Cart'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
+import ForgotPasswordModal from './components/ForgotPasswordModal'
 import { clearLegacyPasswordStorage, auditStorageSecurity } from './utils/security'
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
         <SuccessModal />
         <DocModal />
         <SignInModal />
+        <ForgotPasswordModal />
       </BrowserRouter>
     </div>
   )

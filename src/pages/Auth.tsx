@@ -8,7 +8,6 @@ import { setAuthTokenCookie } from '../utils/token'
 import { useAuthStore } from '../store/auth'
 import { supabase } from '../lib/supabase'
 import LoadingSpinner from '../components/LoadingSpinner'
-import ForgotPasswordModal from '../components/ForgotPasswordModal'
 
 type AuthTab = 'signin' | 'signup'
 
@@ -49,8 +48,6 @@ export default function AuthPage() {
           </div>
         </div>
       </section>
-      
-      <ForgotPasswordModal />
     </main>
   )
 }
@@ -418,7 +415,6 @@ function SignInPanel() {
           >
             {isGoogleLoading ? <LoadingSpinner size="small" text="Signing in..." /> : 'Continue with Google'}
           </button>
-          <button className="btn" id="oauth-apple" data-testid="oauth-apple" data-test-name="oauth-apple" aria-label="Sign In with Apple">Continue with Apple</button>
         </div>
 
         <div className="mt-6 card p-4" id="demo-credentials" data-testid="demo-credentials" aria-label="Demo login credentials">
