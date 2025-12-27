@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useUIStore } from '../store/ui'
 import '../styles/cookie-banner.css'
 
@@ -8,6 +9,18 @@ export function CookieBanner() {
   const [optionalCookies, setOptionalCookies] = useState(true)
   const cookieBannerShown = useUIStore((state) => state.cookieBannerShown)
   const setCookieBannerShown = useUIStore((state) => state.setCookieBannerShown)
+  const navigate = useNavigate()
+
+  function setCookie(name: string, value: string, days: number) {
+    try {
+      const maxAge = days * 24 * 60 * 60
+      const cookieValue = encodeURIComponent(value)
+      const cookie = `${name}=${cookieValue}; path=/; max-age=${maxAge}; SameSite=Lax; Secure`
+      document.cookie = cookie
+    } catch (e) {
+      // ignore
+    }
+  }
 
   useEffect(() => {
     // Check if user has already accepted cookies
@@ -18,25 +31,21 @@ export function CookieBanner() {
 
   const handleAccept = () => {
     setCookieBannerShown(true)
-    // Save cookie preferences
-    localStorage.setItem('cookie-preferences', JSON.stringify({
-      mandatory: true,
-      optional: optionalCookies,
-      acceptedAt: new Date().toISOString()
-    }))
+    // Save cookie preferences as a real cookie (1 year)
+    const prefs = { mandatory: true, optional: optionalCookies, acceptedAt: new Date().toISOString() }
+    setCookie('cookie-preferences', JSON.stringify(prefs), 365)
     setShowBanner(false)
+    navigate('/')
   }
 
   const handleManageOk = () => {
     setCookieBannerShown(true)
-    // Save cookie preferences
-    localStorage.setItem('cookie-preferences', JSON.stringify({
-      mandatory: true,
-      optional: optionalCookies,
-      acceptedAt: new Date().toISOString()
-    }))
+    // Save cookie preferences as a real cookie (1 year)
+    const prefs = { mandatory: true, optional: optionalCookies, acceptedAt: new Date().toISOString() }
+    setCookie('cookie-preferences', JSON.stringify(prefs), 365)
     setShowBanner(false)
     setShowManage(false)
+    navigate('/')
   }
 
   const handleClose = () => {

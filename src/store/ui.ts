@@ -58,8 +58,9 @@ export const useUIStore = create<UIState>((set) => ({
   setForgotPasswordResetToken: (resetToken: string) => set({ forgotPasswordResetToken: resetToken }),
   cookieBannerShown: (() => {
     try {
-      const preferences = localStorage.getItem('cookie-preferences')
-      return !!preferences
+      if (typeof document === 'undefined') return false
+      const match = document.cookie.split('; ').find((row) => row.startsWith('cookie-preferences='))
+      return !!match
     } catch {
       return false
     }
