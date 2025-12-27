@@ -27,6 +27,8 @@ type UIState = {
   setForgotPasswordStep: (step: ForgotPasswordStep) => void
   setForgotPasswordEmail: (email: string) => void
   setForgotPasswordResetToken: (resetToken: string) => void
+  cookieBannerShown: boolean
+  setCookieBannerShown: (shown: boolean) => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -54,6 +56,15 @@ export const useUIStore = create<UIState>((set) => ({
   setForgotPasswordStep: (step: ForgotPasswordStep) => set({ forgotPasswordStep: step }),
   setForgotPasswordEmail: (email: string) => set({ forgotPasswordEmail: email }),
   setForgotPasswordResetToken: (resetToken: string) => set({ forgotPasswordResetToken: resetToken }),
+  cookieBannerShown: (() => {
+    try {
+      const preferences = localStorage.getItem('cookie-preferences')
+      return !!preferences
+    } catch {
+      return false
+    }
+  })(),
+  setCookieBannerShown: (shown: boolean) => set({ cookieBannerShown: shown }),
 }))
 
 

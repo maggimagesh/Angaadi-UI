@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './index.css'
 import { Header } from './components/Header'
+import { CookieBanner } from './components/CookieBanner'
 import HomePage from './pages/Home'
 import AuthPage from './pages/Auth'
 import OAuthCallback from './pages/OAuthCallback'
@@ -48,6 +49,7 @@ export default function App() {
         <SignInModal />
         <ForgotPasswordModal />
         <WelcomeModal />
+        <CookieBanner />
       </BrowserRouter>
     </div>
   )
