@@ -7,6 +7,16 @@ import { signOut } from '../api/user'
 import { clearAuthTokenCookie } from '../utils/token'
 import ConfirmDialog from './ConfirmDialog'
 
+import { storeCategoryInfo } from '../utils/categoryStorage'
+
+const HEADER_CATEGORIES = [
+  { id: 1, name: 'Mobiles', slug: 'mobiles-tablets', testId: 'category-chip-Mobiles' },
+  { id: 2, name: 'Laptops', slug: 'laptops-computers', testId: 'category-chip-Laptops' },
+  { id: 3, name: 'Television', slug: 'tvs-appliances', testId: 'category-chip-Television' },
+  { id: 6, name: 'Appliances', slug: 'home-kitchen', testId: 'category-chip-Appliances' },
+  { id: 4, name: 'Accessories', slug: 'audio-headphones', testId: 'category-chip-Accessories' },
+]
+
 export function Header() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated)
   const logout = useAuthStore(s => s.logout)
@@ -25,31 +35,31 @@ export function Header() {
   }
   return (
     <>
-      <header className="surface header-mobile" style={{borderBottom: '1px solid var(--color-border)'}}>
+      <header className="surface header-mobile" style={{ borderBottom: '1px solid var(--color-border)' }}>
         <nav className="container py-4" aria-label="Top Navigation">
           <div className="header-grid">
             <div className="header-logo">
-              <Link to="/" aria-label="Angaadi Home" id="logo" data-testid="logo" style={{display:'flex', alignItems:'center', gap:4, textDecoration:'none'}}>
-                <img src="/logo/Angaadi.png" alt="Angaadi" style={{height:40, width:'auto'}} />
-                <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+              <Link to="/" aria-label="Angaadi Home" id="logo" data-testid="logo" style={{ display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}>
+                <img src="/logo/Angaadi.png" alt="Angaadi" style={{ height: 40, width: 'auto' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <span className="header-logo-text">Angaadi</span>
-                  <span style={{fontSize:'0.7rem', color:'var(--color-text-secondary)', fontWeight:'400'}}>Your Global Market</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)', fontWeight: '400' }}>Your Global Market</span>
                 </div>
               </Link>
             </div>
 
             <div className="header-search">
-              <form role="search" aria-label="Site search" style={{display:'flex', flexDirection:'column', gap:8}}>
-                <div style={{display:'flex', gap:6, alignItems:'center', marginTop:'8px'}}>
-                  <select aria-label="Category" id="search-category" data-testid="search-category" className="select" style={{flex:'0 0 auto', width:'80px', height:'40px'}}>
+              <form role="search" aria-label="Site search" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: '8px' }}>
+                  <select aria-label="Category" id="search-category" data-testid="search-category" className="select" style={{ flex: '0 0 auto', width: '80px', height: '40px' }}>
                     <option data-testid="option-all" value="all">All</option>
                     <option data-testid="option-phones" value="phones">Mobiles</option>
                     <option data-testid="option-laptops" value="laptops">Laptops</option>
                     <option data-testid="option-audio" value="audio">Audio</option>
                     <option data-testid="option-accessories" value="accessories">Accessories</option>
                   </select>
-                  <input id="search-input" data-testid="search-input" className="input" role="searchbox" placeholder="Search products..." aria-label="Search electronics, models, brands" style={{flex:1, minWidth:0, height:'40px'}} />
-                  <button type="submit" id="search-submit" data-testid="search-submit" className="btn btn-primary" aria-label="Search" style={{padding:'0 12px', height:'40px'}}>
+                  <input id="search-input" data-testid="search-input" className="input" role="searchbox" placeholder="Search products..." aria-label="Search electronics, models, brands" style={{ flex: 1, minWidth: 0, height: '40px' }} />
+                  <button type="submit" id="search-submit" data-testid="search-submit" className="btn btn-primary" aria-label="Search" style={{ padding: '0 12px', height: '40px' }}>
                     <span className="hide-on-mobile">Search</span>
                     <span className="show-on-mobile">🔍</span>
                   </button>
@@ -82,31 +92,31 @@ export function Header() {
                   id="nav-signout"
                   data-testid="nav-signout"
                   className="btn btn-primary"
-                  style={{whiteSpace:'nowrap', padding:'6px 12px'}}
+                  style={{ whiteSpace: 'nowrap', padding: '6px 12px' }}
                   onClick={async () => {
                     const redirectToLogin = () => navigate('/login', { replace: true })
                     try {
                       const result = await signOut()
                       if (result.success) {
                         // Clear any local JWT storage keys if present
-                        try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch {}
+                        try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch { }
                         logout()
-                        try { clearAuthTokenCookie() } catch {}
+                        try { clearAuthTokenCookie() } catch { }
                         openSuccessWithDuration(result.message || 'Signed out successfully', 5000)
                         redirectToLogin()
                       } else {
                         // Even if API call fails, still perform local logout
-                        try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch {}
+                        try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch { }
                         logout()
-                        try { clearAuthTokenCookie() } catch {}
+                        try { clearAuthTokenCookie() } catch { }
                         openSuccessWithDuration(result.error?.message || 'Signed out successfully', 5000)
                         redirectToLogin()
                       }
                     } catch (error) {
                       // In case of network error, still perform local logout
-                      try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch {}
+                      try { localStorage.removeItem('jwt'); sessionStorage.removeItem('jwt') } catch { }
                       logout()
-                      try { clearAuthTokenCookie() } catch {}
+                      try { clearAuthTokenCookie() } catch { }
                       openSuccessWithDuration('Signed out successfully', 5000)
                       redirectToLogin()
                     }
@@ -116,7 +126,7 @@ export function Header() {
                   <span className="show-on-mobile">Out</span>
                 </button>
               ) : (
-                <NavLink to="/login" id="nav-signin" data-testid="nav-signin" className="btn btn-primary" style={{whiteSpace:'nowrap', padding:'6px 12px'}}>
+                <NavLink to="/login" id="nav-signin" data-testid="nav-signin" className="btn btn-primary" style={{ whiteSpace: 'nowrap', padding: '6px 12px' }}>
                   <span className="hide-on-mobile">Sign In/Sign Up</span>
                   <span className="show-on-mobile">Sign In</span>
                 </NavLink>
@@ -124,13 +134,23 @@ export function Header() {
             </div>
           </div>
         </nav>
-        <div className="surface" style={{borderTop:'1px solid var(--color-border)'}}>
+        <div className="surface" style={{ borderTop: '1px solid var(--color-border)' }}>
           <div className="container category-chips" role="list" aria-label="Categories">
-            <button className="btn" id="category-chip-Mobiles" data-testid="category-chip-Mobiles" role="listitem">Mobiles</button>
-            <button className="btn" id="category-chip-Laptops" data-testid="category-chip-Laptops" role="listitem">Laptops</button>
-            <button className="btn" id="category-chip-Television" data-testid="category-chip-Television" role="listitem">Television</button>
-            <button className="btn" id="category-chip-Appliances" data-testid="category-chip-Appliances" role="listitem">Appliances</button>
-            <button className="btn" id="category-chip-Accessories" data-testid="category-chip-Accessories" role="listitem">Accessories</button>
+            {HEADER_CATEGORIES.map((category) => (
+              <button
+                key={category.id}
+                className="btn"
+                id={category.testId}
+                data-testid={category.testId}
+                role="listitem"
+                onClick={() => {
+                  storeCategoryInfo(category.id, category.slug)
+                  navigate(`/products?categoryId=${category.id}&category=${category.slug}`)
+                }}
+              >
+                {category.name}
+              </button>
+            ))}
           </div>
         </div>
       </header>
