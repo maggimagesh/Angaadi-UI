@@ -11,6 +11,8 @@ import HealthPage from './pages/Health'
 import ProductsListing from './pages/ProductsListing'
 import ProductDetails from './pages/ProductDetails'
 import CartPage from './pages/Cart'
+import CookieConsentGallery from './pages/CookieConsentGallery'
+import CookieDesignDetails from './pages/CookieDesignDetails'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
@@ -22,7 +24,7 @@ export default function App() {
   // SECURITY: Clear any legacy password storage on app initialization
   useEffect(() => {
     clearLegacyPasswordStorage()
-    
+
     // Run security audit in development mode
     if (import.meta.env.DEV) {
       auditStorageSecurity()
@@ -43,6 +45,8 @@ export default function App() {
           <Route path="/products" element={<ProductsListing />} />
           <Route path="/product/:categoryId/:productId" element={<ProductDetails />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/cookie-consent" element={<CookieConsentGallery />} />
+          <Route path="/cookie-consent/:designId" element={<CookieDesignDetails />} />
         </Routes>
         <SuccessModal />
         <DocModal />
