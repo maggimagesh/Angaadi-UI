@@ -41,13 +41,13 @@ export function CookieBanner() {
     }
   }, [cookieBannerShown])
 
-  // const handleAccept = () => {
-  //   setCookieBannerShown(true)
-  //   const prefs = { mandatory: true, optional: optionalCookies, acceptedAt: new Date().toISOString() }
-  //   setCookie('cookie-preferences', JSON.stringify(prefs), 365)
-  //   setShowBanner(false)
-  //   navigate('/')
-  // }
+  const handleAccept = () => {
+    setCookieBannerShown(true)
+    const prefs = { mandatory: true, optional: optionalCookies, acceptedAt: new Date().toISOString() }
+    setCookie('cookie-preferences', JSON.stringify(prefs), 365)
+    setShowBanner(false)
+    navigate('/')
+  }
 
   const handleManageOk = () => {
     setCookieBannerShown(true)
@@ -58,9 +58,9 @@ export function CookieBanner() {
     navigate('/')
   }
 
-  const handleClose = () => {
-    setShowBanner(false)
-  }
+  // const handleClose = () => {
+  //   setShowBanner(false)
+  // }
 
   if (!showBanner) return null
 
@@ -117,7 +117,7 @@ export function CookieBanner() {
               >
                 Manage
               </button>
-              {/* <button
+              <button
                 onClick={handleAccept}
                 className="btn btn-primary"
                 style={{
@@ -129,8 +129,8 @@ export function CookieBanner() {
                 }}
               >
                 Accept
-              </button> */}
-              <button
+              </button>
+              { /* <button
                 onClick={handleClose}
                 style={{
                   background: 'none',
@@ -144,7 +144,7 @@ export function CookieBanner() {
                 }}
               >
                 ×
-              </button>
+              </button>  */}
             </div>
           </div>
         </div>
