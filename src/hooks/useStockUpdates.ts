@@ -26,11 +26,11 @@ export function useStockUpdates(onStockUpdate: (event: StockUpdateEvent) => void
       .channel('stock-updates')
       .on('broadcast', { event: 'stock-change' }, (payload) => {
         const data = payload.payload as StockUpdateEvent
-        console.log('[Supabase Realtime] Stock update received:', data)
+        console.info('[Supabase Realtime] Stock update received:', data)
         callbackRef.current(data)
       })
       .subscribe((status) => {
-        console.log('[Supabase Realtime] Channel status:', status)
+        console.info('[Supabase Realtime] Channel status:', status)
       })
 
     return () => {
@@ -38,3 +38,4 @@ export function useStockUpdates(onStockUpdate: (event: StockUpdateEvent) => void
     }
   }, [])
 }
+
