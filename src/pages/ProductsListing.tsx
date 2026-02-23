@@ -8,7 +8,7 @@ import { PaginationOld } from '../components/PaginationOld'
 import { useImageFallback } from '../hooks/useImageFallback'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { storeCategoryInfo } from '../utils/categoryStorage'
-import { useStockWebSocket, type StockUpdateEvent } from '../hooks/useStockWebSocket'
+import { useStockUpdates, type StockUpdateEvent } from '../hooks/useStockUpdates'
 import '../styles/products-listing-old.css'
 
 const categoryMap: Record<string, Product['category'][]> = {
@@ -199,7 +199,7 @@ export default function ProductsListing() {
     )
   }, [])
 
-  useStockWebSocket(handleStockUpdate)
+  useStockUpdates(handleStockUpdate)
 
   const getAllBrands = () => {
     const allBrands = new Set<string>()
