@@ -20,6 +20,11 @@ export function useStockWebSocket(onStockUpdate: (event: StockUpdateEvent) => vo
   callbackRef.current = onStockUpdate
 
   useEffect(() => {
+    // WebSocket is only available in development (custom server).
+    // Vercel (production) doesn't support persistent WebSocket connections.
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    if (!isLocalhost) return
+
     let ws: WebSocket | null = null
     let retryDelay = 1000
     let cancelled = false
@@ -27,9 +32,7 @@ export function useStockWebSocket(onStockUpdate: (event: StockUpdateEvent) => vo
     function connect() {
       if (cancelled) return
 
-      // Determine ws URL based on current page location
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const wsUrl = `${protocol}//${window.location.host}/ws`
+      const wsUrl = `ws://${window.location.host}/ws`
 
       ws = new WebSocket(wsUrl)
 
