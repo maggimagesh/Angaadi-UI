@@ -57,7 +57,7 @@ const categoryIdMap: Record<string, number> = {
 }
 
 // Helper function to convert API ProductItem to local Product type (extended with API fields)
-function mapApiProductToLocal(apiProduct: ProductItem): Product & { discount?: number; reviewCount?: number; originalPrice?: number; description?: string } {
+function mapApiProductToLocal(apiProduct: ProductItem): Product & { discount?: number; reviewCount?: number; originalPrice?: number; description?: string; stockCount?: number } {
   // Convert string price to number
   const numericPrice = parseFloat(apiProduct.price) || 0
   const numericOldPrice = parseFloat(apiProduct.oldprice) || numericPrice
@@ -81,6 +81,7 @@ function mapApiProductToLocal(apiProduct: ProductItem): Product & { discount?: n
     reviewCount: apiProduct.ratingscount,
     originalPrice: numericOldPrice,
     description: apiProduct.description, // Include product description from API
+    stockCount: apiProduct.stock, // Numeric stock count from API
   }
 }
 
@@ -591,6 +592,18 @@ export default function ProductsListing() {
                           >
                             {product.title}
                           </h3>
+                          {(product as any).stockCount !== undefined && (
+                            <p style={{
+                              fontSize: '13px',
+                              fontWeight: 600,
+                              margin: '0',
+                              color: (product as any).stockCount > 0 ? '#2e7d32' : '#d32f2f',
+                            }}>
+                              {(product as any).stockCount > 0
+                                ? `Available: ${(product as any).stockCount}`
+                                : 'Out of Stock'}
+                            </p>
+                          )}
                           <p className="product-specs-old">
                             {(product as any).description || 
                               (product.category === 'smartphone' && `${product.brand === 'Apple' ? '256GB, Natural Titanium' : product.brand === 'Samsung' ? '512GB, S Pen Included' : 'Premium smartphone features'}`) ||
