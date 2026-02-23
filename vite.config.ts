@@ -18,6 +18,10 @@ export default defineConfig({
   server: { 
     port: 3000,
     proxy: {
+      '/ws': {
+        target: 'http://localhost:3300',
+        ws: true,
+      },
       '/api': {
         target: 'http://localhost:3300',
         changeOrigin: true,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { products, type Product } from '../data/products'
 import { useCartStore } from '../store/cart'
@@ -8,6 +8,7 @@ import { PaginationOld } from '../components/PaginationOld'
 import { useImageFallback } from '../hooks/useImageFallback'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { storeCategoryInfo } from '../utils/categoryStorage'
+import { useStockWebSocket, type StockUpdateEvent } from '../hooks/useStockWebSocket'
 import '../styles/products-listing-old.css'
 
 const categoryMap: Record<string, Product['category'][]> = {
@@ -179,6 +180,26 @@ export default function ProductsListing() {
     
     loadProducts()
   }, [categoryParam, categoryIdParam])
+
+  // ── WebSocket: live stock updates ─────────────────────────────────
+  const handleStockUpdate = useCallback((event: StockUpdateEvent) => {
+    const updatedProduct = event.product
+    setAllProducts(prev =>
+      prev.map(p => {
+        if (p.id === String(updatedProduct.id)) {
+          const newStock = Number(updatedProduct.stock) ?? 0
+          return {
+            ...p,
+            stock: newStock > 0 ? 'In Stock' as const : 'Out of Stock' as const,
+            stockCount: newStock,
+          } as typeof p
+        }
+        return p
+      })
+    )
+  }, [])
+
+  useStockWebSocket(handleStockUpdate)
 
   const getAllBrands = () => {
     const allBrands = new Set<string>()
