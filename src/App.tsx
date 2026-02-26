@@ -17,6 +17,7 @@ import InfiniteScrollPage from './pages/InfiniteScrollPage'
 import IframePage from './pages/IframePage'
 import ShadowDomPage from './pages/ShadowDomPage'
 import ShadowIframePage from './pages/ShadowIframePage'
+import SlowInfiniteScrollPage from './pages/SlowInfiniteScrollPage'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/cookie-consent" element={<CookieConsentGallery />} />
           <Route path="/cookie-consent/:designId" element={<CookieDesignDetails />} />
           <Route path="/infinite-scroll" element={<InfiniteScrollPage />} />
+          <Route path="/slow-infinite-scroll" element={<SlowInfiniteScrollPage />} />
           <Route path="/iframe" element={<IframePage />} />
           <Route path="/shadow-dom" element={<ShadowDomPage />} />
           <Route path="/shadow-iframe" element={<ShadowIframePage />} />
