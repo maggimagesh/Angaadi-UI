@@ -13,6 +13,10 @@ import ProductDetails from './pages/ProductDetails'
 import CartPage from './pages/Cart'
 import CookieConsentGallery from './pages/CookieConsentGallery'
 import CookieDesignDetails from './pages/CookieDesignDetails'
+import InfiniteScrollPage from './pages/InfiniteScrollPage'
+import IframePage from './pages/IframePage'
+import ShadowDomPage from './pages/ShadowDomPage'
+import ShadowIframePage from './pages/ShadowIframePage'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
@@ -47,6 +51,10 @@ export default function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/cookie-consent" element={<CookieConsentGallery />} />
           <Route path="/cookie-consent/:designId" element={<CookieDesignDetails />} />
+          <Route path="/infinite-scroll" element={<InfiniteScrollPage />} />
+          <Route path="/iframe" element={<IframePage />} />
+          <Route path="/shadow-dom" element={<ShadowDomPage />} />
+          <Route path="/shadow-iframe" element={<ShadowIframePage />} />
         </Routes>
         <SuccessModal />
         <DocModal />
