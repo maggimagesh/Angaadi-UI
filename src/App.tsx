@@ -20,6 +20,7 @@ import ShadowIframePage from './pages/ShadowIframePage'
 import SlowInfiniteScrollPage from './pages/SlowInfiniteScrollPage'
 import MultiScrollPage from './pages/MultiScrollPage'
 import InfiniteTextScrollPage from './pages/InfiniteTextScrollPage'
+import InfiniteHeavyScrollPage from './pages/InfiniteHeavyScrollPage'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
@@ -61,6 +62,7 @@ export default function App() {
           <Route path="/shadow-iframe" element={<ShadowIframePage />} />
           <Route path="/multi-scroll" element={<MultiScrollPage />} />
           <Route path="/infinite-text" element={<InfiniteTextScrollPage />} />
+          <Route path="/infinite-heavy" element={<InfiniteHeavyScrollPage />} />
         </Routes>
         <SuccessModal />
         <DocModal />
