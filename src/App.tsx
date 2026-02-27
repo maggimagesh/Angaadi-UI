@@ -15,12 +15,15 @@ import CookieConsentGallery from './pages/CookieConsentGallery'
 import CookieDesignDetails from './pages/CookieDesignDetails'
 import InfiniteScrollPage from './pages/InfiniteScrollPage'
 import IframePage from './pages/IframePage'
+import IframeFullPage from './pages/IframeFullPage'
 import ShadowDomPage from './pages/ShadowDomPage'
+import ShadowDomFullPage from './pages/ShadowDomFullPage'
 import ShadowIframePage from './pages/ShadowIframePage'
 import SlowInfiniteScrollPage from './pages/SlowInfiniteScrollPage'
 import MultiScrollPage from './pages/MultiScrollPage'
 import InfiniteTextScrollPage from './pages/InfiniteTextScrollPage'
 import InfiniteHeavyScrollPage from './pages/InfiniteHeavyScrollPage'
+import IframeContentPage from './pages/IframeContentPage'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
@@ -58,11 +61,14 @@ export default function App() {
           <Route path="/infinite-scroll" element={<InfiniteScrollPage />} />
           <Route path="/slow-infinite-scroll" element={<SlowInfiniteScrollPage />} />
           <Route path="/iframe" element={<IframePage />} />
+          <Route path="/iframe-full" element={<IframeFullPage />} />
           <Route path="/shadow-dom" element={<ShadowDomPage />} />
+          <Route path="/shadow-dom-full" element={<ShadowDomFullPage />} />
           <Route path="/shadow-iframe" element={<ShadowIframePage />} />
           <Route path="/multi-scroll" element={<MultiScrollPage />} />
           <Route path="/infinite-text" element={<InfiniteTextScrollPage />} />
           <Route path="/infinite-heavy" element={<InfiniteHeavyScrollPage />} />
+          <Route path="/iframe-content" element={<IframeContentPage />} />
         </Routes>
         <SuccessModal />
         <DocModal />
