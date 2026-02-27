@@ -24,6 +24,7 @@ import MultiScrollPage from './pages/MultiScrollPage'
 import InfiniteTextScrollPage from './pages/InfiniteTextScrollPage'
 import InfiniteHeavyScrollPage from './pages/InfiniteHeavyScrollPage'
 import IframeContentPage from './pages/IframeContentPage'
+import AllResponsesPage from './pages/AllResponsesPage'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
@@ -69,6 +70,7 @@ export default function App() {
           <Route path="/infinite-text" element={<InfiniteTextScrollPage />} />
           <Route path="/infinite-heavy" element={<InfiniteHeavyScrollPage />} />
           <Route path="/iframe-content" element={<IframeContentPage />} />
+          <Route path="/all-resp" element={<AllResponsesPage />} />
         </Routes>
         <SuccessModal />
         <DocModal />
