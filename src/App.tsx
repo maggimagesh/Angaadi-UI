@@ -26,6 +26,7 @@ import InfiniteHeavyScrollPage from './pages/InfiniteHeavyScrollPage'
 import IframeContentPage from './pages/IframeContentPage'
 import AllResponsesPage from './pages/AllResponsesPage'
 import DualScrollPage from './pages/DualScrollPage'
+import MouseOnlyScrollPage from './pages/MouseOnlyScrollPage'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
@@ -73,6 +74,7 @@ export default function App() {
           <Route path="/iframe-content" element={<IframeContentPage />} />
           <Route path="/all-resp" element={<AllResponsesPage />} />
           <Route path="/dual-scroll" element={<DualScrollPage />} />
+          <Route path="/mouse-only-scroll" element={<MouseOnlyScrollPage />} />
         </Routes>
         <SuccessModal />
         <DocModal />
