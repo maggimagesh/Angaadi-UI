@@ -7,7 +7,7 @@ export default function AllResponsesPage() {
       .catch(err => console.error('Failed to fetch JSON', err));
     
     // XML Request via fetch
-    fetch('https://www.w3schools.com/xml/note.xml')
+    fetch('https://httpbin.org/xml')
       .catch(err => console.error('Failed to fetch XML', err));
   }, []);
 
@@ -47,7 +47,7 @@ export default function AllResponsesPage() {
       <div className="mt-8 p-4 bg-blue-50 text-blue-800 rounded border border-blue-200">
         <h3 className="font-semibold mb-2">Requests Triggered:</h3>
         <ul className="list-disc ml-6 mt-2">
-          <li><strong>XML:</strong> Fetching note.xml from w3schools</li>
+          <li><strong>XML:</strong> Fetching sample XML from httpbin</li>
           <li><strong>JSON:</strong> Fetching a todo from jsonplaceholder</li>
           <li><strong>Media:</strong> Loading an image (picsum.photos) and video (w3schools)</li>
           <li><strong>CSS:</strong> Loading animate.css via link tag</li>
