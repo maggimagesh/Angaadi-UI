@@ -86,6 +86,16 @@ function buildShell(pageNum) {
     li{margin-bottom:6px}
     section{margin-bottom:32px}
     .filler-text { word-wrap: break-word; color: #4b5563; font-size: 0.95rem; }
+    /* Premium International Footer Styles */
+    .site-footer { background-color: #111827; color: #f9fafb; padding: 64px 24px 24px; margin-top: 64px; }
+    .footer-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; margin-bottom: 48px; }
+    .footer-column h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: 20px; color: #ffffff; letter-spacing: 0.05em; text-transform: uppercase; }
+    .footer-column p { color: #9ca3af; font-size: 0.95rem; line-height: 1.6; margin-bottom: 16px; }
+    .footer-column ul { list-style: none; padding: 0; }
+    .footer-column ul li { margin-bottom: 12px; }
+    .footer-column ul li a { color: #d1d5db; text-decoration: none; font-size: 0.95rem; transition: color 0.2s ease-in-out; }
+    .footer-column ul li a:hover { color: #ffffff; text-decoration: underline; }
+    .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 24px; border-top: 1px solid #374151; text-align: center; color: #9ca3af; font-size: 0.875rem; }
   </style>
 </head>
 <body>
@@ -107,7 +117,48 @@ function buildShell(pageNum) {
   }
   content += '</tbody></table></section>\n';
 
-  const footer = `</main>\n<footer><p>&copy; 2026 Angaadi Crawler Test. Page ${pageNum}/${TOTAL_PAGES}.</p></footer>\n</body></html>`;
+  const MAIN_APP_URL = 'https://angaadi.online';
+  
+  const footer = `</main>
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-column">
+      <h3>Angaadi</h3>
+      <p>Your Global Market for top-tier electronics, appliances, and accessories. Experience seamless shopping worldwide.</p>
+    </div>
+    <div class="footer-column">
+      <h3>Explore Products</h3>
+      <ul>
+        <li><a href="${MAIN_APP_URL}/category/smartphones">Mobile Phones</a></li>
+        <li><a href="${MAIN_APP_URL}/category/laptops">Laptops & Computers</a></li>
+        <li><a href="${MAIN_APP_URL}/category/tvs-appliances">Television & Appliances</a></li>
+        <li><a href="${MAIN_APP_URL}/category/audio-headphones">Audio & Accessories</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h3>Quick Links</h3>
+      <ul>
+        <li><a href="${MAIN_APP_URL}/">Home</a></li>
+        <li><a href="${MAIN_APP_URL}/login">Login / Sign Up</a></li>
+        <li><a href="${MAIN_APP_URL}/profile">Your Profile</a></li>
+        <li><a href="${MAIN_APP_URL}/cart">Shopping Cart</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h3>Customer Care</h3>
+      <ul>
+        <li><a href="${MAIN_APP_URL}/contact">Contact Support</a></li>
+        <li><a href="${MAIN_APP_URL}/faq">Help Center & FAQ</a></li>
+        <li><a href="${MAIN_APP_URL}/returns">Returns Policy</a></li>
+        <li><a href="${MAIN_APP_URL}/privacy">Privacy & Terms</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 Angaadi. All rights reserved. (Static Test Page ${pageNum}/${TOTAL_PAGES})</p>
+  </div>
+</footer>
+</body></html>`;
 
   return { header, nav, content, footer, targetTextBytes };
 }
