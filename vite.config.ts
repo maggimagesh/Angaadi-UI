@@ -1,6 +1,47 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import legacy from '@vitejs/plugin-legacy'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Custom plugin to serve the 5MB HTML files directly
+// and bypass Vite's SPA fallback
+function serve5mbPagesPlugin(): Plugin {
+  return {
+    name: 'serve-5mb-pages',
+
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        // Check if the request is for our 5mb pages
+        if (!req.url) return next()
+        
+        const match = req.url.match(/^\/5mb-(\d+)\/?$/)
+        if (match) {
+          try {
+            const pageNum = match[1]
+            // Calculate absolute path to the generated file in public dir
+            const filePath = path.resolve(__dirname, 'public', `5mb-${pageNum}`, 'index.html')
+            
+            if (fs.existsSync(filePath)) {
+              const content = fs.readFileSync(filePath)
+              res.setHeader('Content-Type', 'text/html')
+              res.setHeader('Cache-Control', 'no-cache')
+              res.end(content)
+              return
+            }
+          } catch (e) {
+            console.error('Error serving 5MB page:', e)
+          }
+        }
+        next()
+      })
+    }
+  }
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -13,6 +54,7 @@ export default defineConfig({
       renderLegacyChunks: true,
       // Don't override build.target - let it be configured separately
     }),
+    serve5mbPagesPlugin(),
   ],
   
   server: { 
