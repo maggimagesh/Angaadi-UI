@@ -16,6 +16,7 @@ const fs = require('fs');
 const path = require('path');
 
 const TOTAL_PAGES = 100;
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
 function getTargetBytes(pageNum) {
@@ -52,7 +53,7 @@ function buildNav(skipPage) {
   let nav = '<nav id="page-navigation">\n<h2>All Pages</h2>\n<ul>\n';
   for (let i = 1; i <= TOTAL_PAGES; i++) {
     if (i !== skipPage) {
-      nav += `  <li><a href="/5mb-${i}/">5MB Test Page ${i}</a></li>\n`;
+      nav += `  <li><a href="${BASE_URL}/5mb-${i}/">5MB Test Page ${i}</a></li>\n`;
     }
   }
   nav += '</ul>\n</nav>\n';
