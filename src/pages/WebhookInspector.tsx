@@ -136,7 +136,17 @@ export default function WebhookInspector() {
       }
     }
 
-    void loadRequests(true)
+    const initializeInspector = async () => {
+      try {
+        await clearWebhookRequests(token)
+      } catch {
+        // Ignore reset failures and continue with a read attempt.
+      }
+
+      await loadRequests(true)
+    }
+
+    void initializeInspector()
 
     const intervalId = window.setInterval(() => {
       void loadRequests(false)

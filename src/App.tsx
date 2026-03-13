@@ -31,6 +31,7 @@ import WebhookLanding from './pages/WebhookLanding'
 import WebhookInspector from './pages/WebhookInspector'
 import LegacyWebhookLanding from './pages/LegacyWebhookLanding'
 import LegacyWebhookInspector from './pages/LegacyWebhookInspector'
+import LoopDetectedPage from './pages/LoopDetectedPage'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
@@ -85,6 +86,7 @@ export default function App() {
           <Route path="/webhhook/:token" element={<LegacyWebhookInspector />} />
           <Route path="/valid-webhooks" element={<WebhookLanding />} />
           <Route path="/valid-webhooks/:token" element={<WebhookInspector />} />
+          <Route path="/loop-detected" element={<LoopDetectedPage />} />
         </Routes>
         <SuccessModal />
         <DocModal />
