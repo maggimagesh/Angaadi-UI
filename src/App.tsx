@@ -27,6 +27,8 @@ import IframeContentPage from './pages/IframeContentPage'
 import AllResponsesPage from './pages/AllResponsesPage'
 import DualScrollPage from './pages/DualScrollPage'
 import MouseOnlyScrollPage from './pages/MouseOnlyScrollPage'
+import WebhookLanding from './pages/WebhookLanding'
+import WebhookInspector from './pages/WebhookInspector'
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
 import { SignInModal } from './components/SignInModal'
@@ -75,6 +77,8 @@ export default function App() {
           <Route path="/all-resp" element={<AllResponsesPage />} />
           <Route path="/dual-scroll" element={<DualScrollPage />} />
           <Route path="/mouse-only-scroll" element={<MouseOnlyScrollPage />} />
+          <Route path="/webhook" element={<WebhookLanding />} />
+          <Route path="/webhook/:token" element={<WebhookInspector />} />
         </Routes>
         <SuccessModal />
         <DocModal />
