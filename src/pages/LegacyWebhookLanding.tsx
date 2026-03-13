@@ -7,9 +7,9 @@ import {
   getWebhookPublicApiOrigin,
   isValidWebhookToken,
   isLoopbackWebhookOrigin,
-} from '../api/webhook'
+} from '../api/legacyWebhook'
 
-export default function WebhookLanding() {
+export default function LegacyWebhookLanding() {
   const navigate = useNavigate()
   const [tokenInput, setTokenInput] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +31,7 @@ export default function WebhookLanding() {
   const exampleToken = 'demoWebhook12345'
 
   return (
-    <main className="app-main" id="webhook-landing-page" data-testid="webhook-landing-page">
+    <main className="app-main" id="legacy-webhook-landing-page" data-testid="legacy-webhook-landing-page">
       <section className="container p-6">
         <div
           className="card p-6"
@@ -57,10 +57,9 @@ export default function WebhookLanding() {
               >
                 Webhook Inspector
               </p>
-              <h1 style={{ marginTop: 10 }}>Receive webhooks on the public API URL and inspect them here.</h1>
+              <h1 style={{ marginTop: 10 }}>Legacy webhook path.</h1>
               <p style={{ margin: '12px 0 0', maxWidth: 760, color: 'var(--color-text-secondary)' }}>
-                Create a token here, send payloads to the generated webhook URL, and inspect all
-                captured request and response data from this UI.
+                This keeps the previous webhook strategy unchanged on the existing path.
               </p>
             </div>
 
@@ -87,7 +86,7 @@ export default function WebhookLanding() {
                 }}
                 style={{ display: 'grid', gap: 10 }}
               >
-                <label htmlFor="webhook-token-input" style={{ fontWeight: 700 }}>
+                <label htmlFor="legacy-webhook-token-input" style={{ fontWeight: 700 }}>
                   Open existing token
                 </label>
                 <div
@@ -98,7 +97,7 @@ export default function WebhookLanding() {
                   }}
                 >
                   <input
-                    id="webhook-token-input"
+                    id="legacy-webhook-token-input"
                     className="input"
                     type="text"
                     placeholder="Paste token"
@@ -127,8 +126,8 @@ export default function WebhookLanding() {
                   color: '#6e3a10',
                 }}
               >
-                External webhook providers cannot reach <code>{publicApiOrigin}</code>. Set
-                <code> VITE_WEBHOOK_PUBLIC_API_ORIGIN</code> to your public production API origin.
+                External webhook providers cannot reach <code>{publicApiOrigin}</code>. This page is
+                intentionally left on the previous strategy.
               </div>
             ) : null}
 
@@ -162,24 +161,6 @@ export default function WebhookLanding() {
                 <h2 style={{ marginBottom: 10 }}>Receive URL shape</h2>
                 <code style={{ overflowWrap: 'anywhere' }}>{buildWebhookCaptureUrl(exampleToken)}</code>
               </div>
-            </div>
-
-            <div
-              style={{
-                padding: 18,
-                borderRadius: 20,
-                background: '#1f252a',
-                color: '#f7efe2',
-                overflowX: 'auto',
-              }}
-            >
-              <div style={{ fontSize: '0.78rem', letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.8 }}>
-                Quick test
-              </div>
-              <pre style={{ margin: '12px 0 0', whiteSpace: 'pre-wrap', fontFamily: '"JetBrains Mono", monospace' }}>{`curl -X POST \\
-  -H "Content-Type: application/json" \\
-  -d '{"message":"hello"}' \\
-  ${publicApiOrigin}/hook/<token>`}</pre>
             </div>
           </div>
         </div>

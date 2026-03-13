@@ -1,45 +1,13 @@
-export type WebhookBodyFormat = 'empty' | 'json' | 'text' | 'binary'
-export type WebhookBodyEncoding = 'none' | 'utf8' | 'base64'
+export type {
+  WebhookBodyEncoding,
+  WebhookBodyFormat,
+  WebhookCaptureListResponse,
+  WebhookCaptureRecord,
+  WebhookResponseInfo,
+  WebhookStoredBody,
+} from './webhook'
 
-export interface WebhookStoredBody {
-  format: WebhookBodyFormat
-  encoding: WebhookBodyEncoding
-  sizeBytes: number
-  contentType: string | null
-  text: string | null
-  json: unknown | null
-  base64: string | null
-  preview: string | null
-}
-
-export interface WebhookResponseInfo {
-  statusCode: number
-  headers: Record<string, string>
-  body: unknown | null
-  text: string | null
-}
-
-export interface WebhookCaptureRecord {
-  id: string
-  token: string
-  receivedAt: string
-  method: string
-  path: string
-  url: string
-  query: Record<string, string | string[]>
-  headers: Record<string, string | string[]>
-  cookies: Record<string, string>
-  ip: string | null
-  body: WebhookStoredBody
-  response: WebhookResponseInfo
-}
-
-export interface WebhookCaptureListResponse {
-  token: string
-  captureUrl: string
-  inspectUrl: string
-  requests: WebhookCaptureRecord[]
-}
+import type { WebhookCaptureListResponse } from './webhook'
 
 const WEBHOOK_TOKEN_REGEX = /^[A-Za-z0-9_-]{10,128}$/
 
@@ -51,40 +19,11 @@ function normalizeOrigin(value: string): string {
   return value.replace(/\/+$/, '')
 }
 
-function normalizeBasePath(value: string): string {
-  const trimmed = value.trim()
-
-  if (!trimmed) {
-    return '/webhhook'
-  }
-
-  const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
-  return withLeadingSlash.replace(/\/+$/, '')
-}
-
-function deriveOriginFromApiBase(apiBaseUrl: string | undefined): string | null {
-  if (!apiBaseUrl) {
-    return null
-  }
-
-  try {
-    return normalizeOrigin(new URL(apiBaseUrl).origin)
-  } catch {
-    return null
-  }
-}
-
 export function getWebhookApiOrigin(): string {
   const envOrigin = getEnvValue('VITE_WEBHOOK_API_ORIGIN') || getEnvValue('VITE_API_ORIGIN')
-  const backendApiBase = getEnvValue('VITE_BACKEND_URL') || getEnvValue('BACKEND_URL')
-  const backendOrigin = deriveOriginFromApiBase(backendApiBase)
 
   if (envOrigin) {
     return normalizeOrigin(envOrigin)
-  }
-
-  if (backendOrigin) {
-    return backendOrigin
   }
 
   if (typeof window !== 'undefined') {
@@ -127,8 +66,7 @@ export function buildWebhookRequestsApiUrl(token: string): string {
 }
 
 export function buildWebhookInspectorPath(token: string): string {
-  const basePath = normalizeBasePath(getEnvValue('VITE_WEBHOOK_UI_BASE_PATH') || '/valid-webhooks')
-  return `${basePath}/${encodeURIComponent(token)}`
+  return `/webhhook/${encodeURIComponent(token)}`
 }
 
 export function buildWebhookInspectorUrl(token: string): string {

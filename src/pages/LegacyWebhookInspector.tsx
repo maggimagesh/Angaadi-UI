@@ -5,13 +5,12 @@ import {
   buildWebhookInspectorUrl,
   clearWebhookRequests,
   fetchWebhookRequests,
-  getWebhookApiOrigin,
   getWebhookPublicApiOrigin,
-  isValidWebhookToken,
   isLoopbackWebhookOrigin,
+  isValidWebhookToken,
   type WebhookCaptureListResponse,
   type WebhookCaptureRecord,
-} from '../api/webhook'
+} from '../api/legacyWebhook'
 
 function formatDateTime(value: string): string {
   return new Date(value).toLocaleString()
@@ -62,7 +61,7 @@ async function copyText(value: string): Promise<boolean> {
   }
 }
 
-export default function WebhookInspector() {
+export default function LegacyWebhookInspector() {
   const navigate = useNavigate()
   const { token = '' } = useParams()
   const [payload, setPayload] = useState<WebhookCaptureListResponse>({
@@ -85,7 +84,7 @@ export default function WebhookInspector() {
 
   useEffect(() => {
     if (!token || !isValidWebhookToken(token)) {
-      navigate('/valid-webhooks', { replace: true })
+      navigate('/webhhook', { replace: true })
     }
   }, [navigate, token])
 
@@ -187,18 +186,9 @@ export default function WebhookInspector() {
   }
 
   return (
-    <main className="app-main" id="webhook-inspector-page" data-testid="webhook-inspector-page">
+    <main className="app-main" id="legacy-webhook-inspector-page" data-testid="legacy-webhook-inspector-page">
       <section className="container p-6" style={{ display: 'grid', gap: 18 }}>
-        <div
-          className="card p-6"
-          style={{
-            background:
-              'radial-gradient(circle at top left, rgba(255, 192, 120, 0.18), transparent 28%), linear-gradient(180deg, #fffdf8 0%, #f7efe2 100%)',
-            border: '1px solid rgba(35, 36, 40, 0.1)',
-            borderRadius: '28px',
-            boxShadow: '0 24px 60px rgba(31, 37, 42, 0.08)',
-          }}
-        >
+        <div className="card p-6" style={{ borderRadius: 28 }}>
           <div style={{ display: 'grid', gap: 18 }}>
             <div>
               <p
@@ -211,22 +201,26 @@ export default function WebhookInspector() {
                   color: '#9b4d12',
                 }}
               >
-                Live Webhook Inbox
+                Legacy Webhook Inspector
               </p>
               <h1 style={{ marginTop: 10, overflowWrap: 'anywhere' }}>{token}</h1>
-              <p style={{ margin: '12px 0 0', maxWidth: 900, color: 'var(--color-text-secondary)' }}>
-                Send payloads to the generated public webhook URL. This UI polls the inspector endpoint
-                and shows every captured request plus the response body returned by the API.
-              </p>
             </div>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: 16,
-              }}
-            >
+            {showPublicUrlWarning ? (
+              <div
+                style={{
+                  padding: 16,
+                  borderRadius: 18,
+                  background: 'rgba(255, 238, 210, 0.9)',
+                  border: '1px solid rgba(155, 77, 18, 0.2)',
+                  color: '#6e3a10',
+                }}
+              >
+                This page keeps the previous webhook strategy unchanged.
+              </div>
+            ) : null}
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
               <div style={{ padding: 18, borderRadius: 20, background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(35, 36, 40, 0.08)' }}>
                 <div style={{ fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 800, color: '#6b7d8d' }}>
                   Receive URL
@@ -238,7 +232,7 @@ export default function WebhookInspector() {
               </div>
               <div style={{ padding: 18, borderRadius: 20, background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(35, 36, 40, 0.08)' }}>
                 <div style={{ fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 800, color: '#6b7d8d' }}>
-                  UI viewer path
+                  Viewer URL
                 </div>
                 <code style={{ display: 'block', marginTop: 10, overflowWrap: 'anywhere' }}>{buildWebhookInspectorUrl(token)}</code>
                 <button className="btn btn-primary mt-4" onClick={() => void handleCopy('inspect', buildWebhookInspectorUrl(token))}>
@@ -255,59 +249,15 @@ export default function WebhookInspector() {
                 Clear Inbox
               </button>
               <span style={{ color: 'var(--color-text-secondary)' }}>
-                API host: <code>{getWebhookApiOrigin()}</code>
-              </span>
-              <span style={{ color: 'var(--color-text-secondary)' }}>
                 {lastUpdatedAt ? `Last synced ${formatDateTime(lastUpdatedAt)}` : 'Waiting for first sync'}
               </span>
             </div>
 
-            <div
-              style={{
-                padding: 18,
-                borderRadius: 20,
-                background: '#1f252a',
-                color: '#f7efe2',
-                overflowX: 'auto',
-              }}
-            >
-              <div style={{ fontSize: '0.78rem', letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.8 }}>
-                Quick test
-              </div>
-              <pre style={{ margin: '12px 0 0', whiteSpace: 'pre-wrap', fontFamily: '"JetBrains Mono", monospace' }}>{`curl -X POST \\
-  -H "Content-Type: application/json" \\
-  -d '{"message":"hello","source":"curl"}' \\
-  ${payload.captureUrl}`}</pre>
-            </div>
-
             {error ? <p style={{ margin: 0, color: 'var(--color-danger)', fontWeight: 700 }}>{error}</p> : null}
-
-            {showPublicUrlWarning ? (
-              <div
-                style={{
-                  padding: 16,
-                  borderRadius: 18,
-                  background: 'rgba(255, 238, 210, 0.9)',
-                  border: '1px solid rgba(155, 77, 18, 0.2)',
-                  color: '#6e3a10',
-                }}
-              >
-                The receive URL currently points to <code>{publicApiOrigin}</code>. External webhook
-                providers cannot call that address, which commonly appears as a network timeout. Set
-                <code> VITE_WEBHOOK_PUBLIC_API_ORIGIN</code> to your public production API origin.
-              </div>
-            ) : null}
           </div>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(280px, 360px) minmax(0, 1fr)',
-            gap: 18,
-            alignItems: 'start',
-          }}
-        >
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 360px) minmax(0, 1fr)', gap: 18, alignItems: 'start' }}>
           <div className="card p-4" style={{ borderRadius: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 14 }}>
               <h2 style={{ margin: 0 }}>Requests</h2>
@@ -354,13 +304,7 @@ export default function WebhookInspector() {
               <>
                 <div className="card p-4" style={{ borderRadius: 24 }}>
                   <h2>Overview</h2>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                      gap: 12,
-                    }}
-                  >
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                     {[
                       ['Received', formatDateTime(selectedRequest.receivedAt)],
                       ['Path', selectedRequest.path],
