@@ -1,23 +1,8 @@
-export const config = {
-  maxDuration: 60, // set max duration to 60s
-};
-
-export default async function handler(req, res) {
-  // Delay for 60 seconds
-  await new Promise(resolve => setTimeout(resolve, 60000));
-
-  // Fetch the homepage HTML
-  const protocol = req.headers['x-forwarded-proto'] || 'http';
-  const host = req.headers['x-forwarded-host'] || req.headers.host || 'angaadi.online';
+export default function handler(req, res) {
+  // We must redirect to the backend API because Vercel Hobby limits execution to 10s.
+  // The Backend API (running on a VM) will handle the 60s delay and return the HTML.
+  const backendUrl = process.env.VITE_BACKEND_URL || 'http://localhost:3300/api/v1';
+  const baseUrl = backendUrl.replace(/\/api\/v1\/?$/, '');
   
-  try {
-    const response = await fetch(`${protocol}://${host}/`);
-    const html = await response.text();
-    
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.status(200).send(html);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error loading page');
-  }
+  res.redirect(302, `${baseUrl}/slow-loading`);
 }
