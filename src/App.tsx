@@ -33,14 +33,7 @@ import LegacyWebhookLanding from './pages/LegacyWebhookLanding'
 import LegacyWebhookInspector from './pages/LegacyWebhookInspector'
 import LoopDetectedPage from './pages/LoopDetectedPage'
 
-// Redirect to Angaadi-API for slow-loading page
-import { API_BASE } from './lib/api'
-
-const SlowLoadingRedirect = () => {
-  const baseUrl = API_BASE.replace(/\/api\/v1\/?$/, '')
-  window.location.href = `${baseUrl}/slow-loading`
-  return null
-}
+import SlowLoadingHomePage from './pages/SlowLoadingHomePage'
 
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
@@ -97,7 +90,7 @@ export default function App() {
           <Route path="/valid-webhooks" element={<WebhookLanding />} />
           <Route path="/valid-webhooks/:token" element={<WebhookInspector />} />
           <Route path="/loop-detected" element={<LoopDetectedPage />} />
-          <Route path="/slow-loading" element={<SlowLoadingRedirect />} />
+          <Route path="/slow-loading" element={<SlowLoadingHomePage />} />
         </Routes>
         <SuccessModal />
         <DocModal />
