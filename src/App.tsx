@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import './index.css'
 import { Header } from './components/Header'
 import { CookieBanner } from './components/CookieBanner'
@@ -33,7 +33,6 @@ import LegacyWebhookLanding from './pages/LegacyWebhookLanding'
 import LegacyWebhookInspector from './pages/LegacyWebhookInspector'
 import LoopDetectedPage from './pages/LoopDetectedPage'
 
-import SlowLoadingHomePage from './pages/SlowLoadingHomePage'
 
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
@@ -41,6 +40,35 @@ import { SignInModal } from './components/SignInModal'
 import ForgotPasswordModal from './components/ForgotPasswordModal'
 import { WelcomeModal } from './components/WelcomeModal'
 import { clearLegacyPasswordStorage, auditStorageSecurity } from './utils/security'
+
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation()
+  const isSlowRoute = location.pathname === '/slow-loading'
+  const [ready, setReady] = useState(!isSlowRoute)
+
+  useEffect(() => {
+    if (isSlowRoute) {
+      setReady(false)
+      const timer = setTimeout(() => {
+        setReady(true)
+      }, 60000)
+      return () => clearTimeout(timer)
+    } else {
+      setReady(true)
+    }
+  }, [isSlowRoute])
+
+  if (!ready) {
+    return (
+      <div 
+        style={{ height: '100vh', width: '100vw', background: '#f6f1e8' }} 
+        data-testid="slow-loading-screen"
+      />
+    )
+  }
+
+  return <>{children}</>
+}
 
 export default function App() {
   // SECURITY: Clear any legacy password storage on app initialization
@@ -56,8 +84,9 @@ export default function App() {
   return (
     <div className="app-shell">
       <BrowserRouter>
-        <Header />
-        <Routes>
+        <RootLayout>
+          <Header />
+          <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/login" element={<AuthPage />} />
@@ -90,14 +119,15 @@ export default function App() {
           <Route path="/valid-webhooks" element={<WebhookLanding />} />
           <Route path="/valid-webhooks/:token" element={<WebhookInspector />} />
           <Route path="/loop-detected" element={<LoopDetectedPage />} />
-          <Route path="/slow-loading" element={<SlowLoadingHomePage />} />
+          <Route path="/slow-loading" element={<HomePage />} />
         </Routes>
         <SuccessModal />
         <DocModal />
         <SignInModal />
         <ForgotPasswordModal />
         <WelcomeModal />
-        <CookieBanner />
+          <CookieBanner />
+        </RootLayout>
       </BrowserRouter>
     </div>
   )
