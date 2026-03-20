@@ -34,8 +34,11 @@ import LegacyWebhookInspector from './pages/LegacyWebhookInspector'
 import LoopDetectedPage from './pages/LoopDetectedPage'
 
 // Redirect to Angaadi-API for slow-loading page
+import { API_BASE } from './lib/api'
+
 const SlowLoadingRedirect = () => {
-  window.location.href = 'http://localhost:3000/slow-loading'
+  const baseUrl = API_BASE.replace(/\/api\/v1\/?$/, '')
+  window.location.href = `${baseUrl}/slow-loading`
   return null
 }
 
