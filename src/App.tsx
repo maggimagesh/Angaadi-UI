@@ -32,7 +32,6 @@ import WebhookInspector from './pages/WebhookInspector'
 import LegacyWebhookLanding from './pages/LegacyWebhookLanding'
 import LegacyWebhookInspector from './pages/LegacyWebhookInspector'
 import LoopDetectedPage from './pages/LoopDetectedPage'
-import { Navigate } from 'react-router-dom'
 
 // Redirect to Angaadi-API for slow-loading page
 const SlowLoadingRedirect = () => {
