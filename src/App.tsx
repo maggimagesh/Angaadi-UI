@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './index.css'
 import { Header } from './components/Header'
 import { CookieBanner } from './components/CookieBanner'
@@ -41,35 +41,6 @@ import ForgotPasswordModal from './components/ForgotPasswordModal'
 import { WelcomeModal } from './components/WelcomeModal'
 import { clearLegacyPasswordStorage, auditStorageSecurity } from './utils/security'
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation()
-  const isSlowRoute = location.pathname === '/slow-loading'
-  const [ready, setReady] = useState(!isSlowRoute)
-
-  useEffect(() => {
-    if (isSlowRoute) {
-      setReady(false)
-      const timer = setTimeout(() => {
-        setReady(true)
-      }, 60000)
-      return () => clearTimeout(timer)
-    } else {
-      setReady(true)
-    }
-  }, [isSlowRoute])
-
-  if (!ready) {
-    return (
-      <div 
-        style={{ height: '100vh', width: '100vw', background: '#f6f1e8' }} 
-        data-testid="slow-loading-screen"
-      />
-    )
-  }
-
-  return <>{children}</>
-}
-
 export default function App() {
   // SECURITY: Clear any legacy password storage on app initialization
   useEffect(() => {
@@ -84,9 +55,8 @@ export default function App() {
   return (
     <div className="app-shell">
       <BrowserRouter>
-        <RootLayout>
-          <Header />
-          <Routes>
+        <Header />
+        <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/login" element={<AuthPage />} />
@@ -126,8 +96,7 @@ export default function App() {
         <SignInModal />
         <ForgotPasswordModal />
         <WelcomeModal />
-          <CookieBanner />
-        </RootLayout>
+        <CookieBanner />
       </BrowserRouter>
     </div>
   )

@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/slow-loading",
+      "destination": "/api/slow-loading"
+    },
+    {
       "source": "/((?!api|_next|_static|favicon.ico|logo|images).*)",
       "destination": "/index.html"
     }
