@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<!--
+  CRAWLER TEST FIXTURE — /crawlableDocuments
+  Purpose : QA fixture for verifying a web crawler's document-discovery feature.
+  Layout  : arXiv abstract page (main content column + right "Access Documents" sidebar).
+
+  Link categories on this page
+  ────────────────────────────
+  1. POSITIVE  – Supported extensions: .pdf (3), .md (2), .txt (3), .docx (2)
+  2. CASE      – Uppercase .PDF and mixed-case .Pdf
+  3. QS/FRAG   – ?version=2&lang=en  |  #page=3  |  ?download=true
+  4. TRICKY    – .pdf in middle path segment, .pdf only in query param, %2Epdf encoded
+  5. NEGATIVE  – Unsupported: .xlsx  .pptx  .zip  .csv  .html
+  6. X-DOMAIN  – 2 links from a domain different from primary sources
+  7. INLINE    – 3 document links embedded inside flowing paragraph prose
+  8. SIDEBAR   – "Access Documents" box with 6 labelled direct-download links
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comprehensive Survey of Document-Discovery Techniques in Focused Web Crawlers — Angaadi Research Portal</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.65;
+      color: #1c1b1f;
+      background: #f7f2f9;
+    }
+
+    /* ── Top banner (arXiv-style coloured header) ─────────────────── */
+    .top-band {
+      background: #6750a4;
+      color: #fff;
+      text-align: center;
+      padding: 7px 16px;
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+    .top-band a { color: #e8def8; text-decoration: none; }
+    .top-band a:hover { text-decoration: underline; }
+
+    /* ── Page wrapper ─────────────────────────────────────────────── */
+    .wrapper {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+    }
+
+    /* ── Paper header (title / authors / meta) ────────────────────── */
+    .paper-meta { font-size: 13px; color: #4a4458; margin-bottom: 4px; }
+    .paper-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1c1b1f;
+      line-height: 1.3;
+      margin: 6px 0 4px;
+    }
+    .paper-authors { font-size: 14px; color: #1c1b1f; margin-bottom: 2px; }
+    .paper-affil  { font-size: 13px; color: #4a4458; margin-bottom: 0; }
+
+    /* ── Divider ──────────────────────────────────────────────────── */
+    hr { border: none; border-top: 1px solid #d8cfe5; margin: 12px 0; }
+
+    /* ── Two-column layout ────────────────────────────────────────── */
+    .body-row {
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+      margin-top: 16px;
+    }
+    .main-col { flex: 1 1 0; min-width: 0; }
+
+    /* ── Sidebar ──────────────────────────────────────────────────── */
+    .sidebar { flex: 0 0 210px; width: 210px; }
+    .sidebar-box {
+      background: #fff;
+      border: 1px solid #d8cfe5;
+      border-radius: 8px;
+      padding: 14px 16px;
+      box-shadow: 0 1px 3px rgba(28,27,31,0.08);
+      margin-bottom: 14px;
+    }
+    .sidebar-box-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #4a4458;
+      margin-bottom: 10px;
+    }
+    .sidebar-box a {
+      display: block;
+      padding: 5px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6750a4;
+      text-decoration: none;
+      border-bottom: 1px solid #d8cfe5;
+    }
+    .sidebar-box a:last-child { border-bottom: none; }
+    .sidebar-box a:hover { text-decoration: underline; }
+    .sidebar-meta { font-size: 12px; color: #4a4458; }
+    .sidebar-meta p { margin-top: 6px; }
+
+    /* ── Section headings ─────────────────────────────────────────── */
+    h2.section {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1c1b1f;
+      margin: 24px 0 8px;
+      padding-bottom: 3px;
+      border-bottom: 2px solid #eaddff;
+    }
+    h3.sub {
+      font-size: 14px;
+      font-weight: 600;
+      color: #625b71;
+      margin: 16px 0 6px;
+    }
+
+    /* ── Prose paragraphs ─────────────────────────────────────────── */
+    p { margin-bottom: 10px; }
+
+    /* ── Link lists ───────────────────────────────────────────────── */
+    ul.link-list {
+      list-style: disc;
+      padding-left: 20px;
+      margin: 4px 0 10px;
+    }
+    ul.link-list li { margin-bottom: 5px; }
+    ul.link-list a { color: #6750a4; text-decoration: none; word-break: break-all; }
+    ul.link-list a:hover { text-decoration: underline; }
+    .note {
+      font-size: 12px;
+      color: #4a4458;
+      font-style: italic;
+      margin-left: 6px;
+    }
+
+    /* ── Inline links inside prose ────────────────────────────────── */
+    a.inline-doc { color: #6750a4; font-weight: 600; text-decoration: none; }
+    a.inline-doc:hover { text-decoration: underline; }
+
+    /* ── Responsive collapse ──────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .body-row  { flex-direction: column-reverse; }
+      .sidebar   { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Top decorative band ─────────────────────────────────────────── -->
+<div class="top-band">
+  Angaadi Research Portal &nbsp;·&nbsp; Document Repository &nbsp;·&nbsp; Open Access
+</div>
+
+<div class="wrapper">
+
+  <!-- ── Paper-style header ──────────────────────────────────────── -->
+  <p class="paper-meta"><strong>arXiv:2404.00001</strong> [cs.IR] &nbsp;·&nbsp; Submitted 10 Apr 2024</p>
+  <h1 class="paper-title">Comprehensive Survey of Document-Discovery Techniques in Focused Web Crawlers</h1>
+  <p class="paper-authors">A. Sharma, B. Krishnamurti, C. Osei-Bonsu, D. Lindqvist</p>
+  <p class="paper-affil">Angaadi Institute of Information Retrieval &nbsp;·&nbsp; Technical Report ARF-2024-04</p>
+
+  <hr />
+
+  <!-- ── Two-column body ─────────────────────────────────────────── -->
+  <div class="body-row">
+
+    <!-- ════════════════ MAIN CONTENT COLUMN ═══════════════════════ -->
+    <div class="main-col">
+
+      <!-- Abstract with 3 INLINE document links (category 7) -->
+      <h2 class="section">Abstract</h2>
+
+      <p>
+        Modern focused crawlers must reliably discover documents of diverse formats across
+        heterogeneous web deployments. This survey examines link-extraction strategies over
+        corpora spanning PDFs, plain-text standards documents, and structured markup formats.
+        The baseline corpus includes the canonical
+        <a class="inline-doc" href="https://www.africau.edu/images/default/sample.pdf">sample reference PDF</a>
+        from Africau University, the Internet Engineering Task Force specification
+        <a class="inline-doc" href="https://www.rfc-editor.org/rfc/rfc791.txt">RFC 791 (Internet Protocol)</a>
+        as a plain-text baseline, and the Project Gutenberg edition of
+        <a class="inline-doc" href="https://www.gutenberg.org/files/1342/1342-0.txt">Pride and Prejudice</a>
+        as a large prose corpus. Together these three anchors exercise the most common MIME
+        types a production crawler will encounter.
+      </p>
+
+      <p>
+        We further analyse edge cases introduced by case-insensitive file extensions, query-string
+        parameters that carry version metadata, and URL-encoded extension characters that naive
+        parsers misclassify. Reproducibility artifacts are available through the access panel
+        on the right.
+      </p>
+
+      <hr />
+
+      <!-- ── SECTION 1: POSITIVE — Supported Extensions ──────────── -->
+      <h2 class="section">1 &middot; Supported Extensions (Positive Controls)</h2>
+      <p>
+        Each subsection lists 2–3 independently hosted files of the same format so testers
+        can confirm consistent scheduling behaviour across source domains.
+      </p>
+
+      <h3 class="sub">1.1 &nbsp; PDF (.pdf)</h3>
+      <ul class="link-list">
+        <li>
+          <a href="https://www.africau.edu/images/default/sample.pdf">
+            https://www.africau.edu/images/default/sample.pdf
+          </a>
+          <span class="note">— Africau University sample PDF</span>
+        </li>
+        <li>
+          <a href="https://arxiv.org/pdf/2301.00774.pdf">
+            https://arxiv.org/pdf/2301.00774.pdf
+          </a>
+          <span class="note">— arXiv preprint PDF</span>
+        </li>
+        <li>
+          <a href="https://www.irs.gov/pub/irs-pdf/f1040.pdf">
+            https://www.irs.gov/pub/irs-pdf/f1040.pdf
+          </a>
+          <span class="note">— IRS Form 1040</span>
+        </li>
+      </ul>
+
+      <h3 class="sub">1.2 &nbsp; Markdown (.md)</h3>
+      <ul class="link-list">
+        <li>
+          <a href="https://gitlab.com/gitlab-org/gitlab/-/raw/master/README.md">
+            https://gitlab.com/gitlab-org/gitlab/-/raw/master/README.md
+          </a>
+          <span class="note">— GitLab CE readme (raw Markdown)</span>
+        </li>
+        <li>
+          <a href="https://gitlab.com/inkscape/inkscape/-/raw/master/README.md">
+            https://gitlab.com/inkscape/inkscape/-/raw/master/README.md
+          </a>
+          <span class="note">— Inkscape project readme (raw Markdown)</span>
+        </li>
+      </ul>
+
+      <h3 class="sub">1.3 &nbsp; Plain Text (.txt)</h3>
+      <ul class="link-list">
+        <li>
+          <a href="https://www.rfc-editor.org/rfc/rfc791.txt">
+            https://www.rfc-editor.org/rfc/rfc791.txt
+          </a>
+          <span class="note">— RFC 791 (IETF)</span>
+        </li>
+        <li>
+          <a href="https://www.gutenberg.org/files/1342/1342-0.txt">
+            https://www.gutenberg.org/files/1342/1342-0.txt
+          </a>
+          <span class="note">— Pride and Prejudice (Project Gutenberg)</span>
+        </li>
+        <li>
+          <a href="https://www.gutenberg.org/files/84/84-0.txt">
+            https://www.gutenberg.org/files/84/84-0.txt
+          </a>
+          <span class="note">— Frankenstein (Project Gutenberg)</span>
+        </li>
+      </ul>
+
+      <h3 class="sub">1.4 &nbsp; Word Document (.docx)</h3>
+      <ul class="link-list">
+        <li>
+          <a href="https://file-examples.com/storage/fe8c7eef0c6364f6c9504cc/2017/02/file-sample_100kB.docx">
+            https://file-examples.com/…/file-sample_100kB.docx
+          </a>
+          <span class="note">— 100 kB sample DOCX (file-examples.com)</span>
+        </li>
+        <li>
+          <a href="https://filesamples.com/samples/document/docx/sample1.docx">
+            https://filesamples.com/samples/document/docx/sample1.docx
+          </a>
+          <span class="note">— Sample DOCX (filesamples.com)</span>
+        </li>
+      </ul>
+
+      <hr />
+
+      <!-- ── SECTION 2: CASE VARIATIONS ─────────────────────────── -->
+      <h2 class="section">2 &middot; Case Variations</h2>
+      <p>
+        Crawlers must normalise or detect extensions independent of capitalisation.
+        The links below use uppercase and mixed-case extensions on otherwise valid document URLs.
+      </p>
+      <ul class="link-list">
+        <li>
+          <a href="https://www.africau.edu/images/default/sample.PDF">
+            https://www.africau.edu/images/default/sample.PDF
+          </a>
+          <span class="note">— uppercase extension (.PDF)</span>
+        </li>
+        <li>
+          <a href="https://www.africau.edu/images/default/sample.Pdf">
+            https://www.africau.edu/images/default/sample.Pdf
+          </a>
+          <span class="note">— mixed-case extension (.Pdf)</span>
+        </li>
+      </ul>
+
+      <hr />
+
+      <!-- ── SECTION 3: QUERY STRINGS & FRAGMENTS ───────────────── -->
+      <h2 class="section">3 &middot; Query Strings and Fragments</h2>
+      <p>
+        Version metadata appended as query parameters and anchor fragments must not confuse
+        the extension extractor. All three links below point to a supported format.
+      </p>
+      <ul class="link-list">
+        <li>
+          <a href="https://www.africau.edu/images/default/sample.pdf?version=2&amp;lang=en">
+            https://www.africau.edu/images/default/sample.pdf?version=2&amp;lang=en
+          </a>
+          <span class="note">— query string appended to .pdf</span>
+        </li>
+        <li>
+          <a href="https://www.africau.edu/images/default/sample.pdf#page=3">
+            https://www.africau.edu/images/default/sample.pdf#page=3
+          </a>
+          <span class="note">— fragment appended to .pdf</span>
+        </li>
+        <li>
+          <a href="https://www.rfc-editor.org/rfc/rfc791.txt?download=true">
+            https://www.rfc-editor.org/rfc/rfc791.txt?download=true
+          </a>
+          <span class="note">— query string appended to .txt</span>
+        </li>
+      </ul>
+
+      <hr />
+
+      <!-- ── SECTION 4: TRICKY PATHS ────────────────────────────── -->
+      <h2 class="section">4 &middot; Tricky Paths — Parser Edge Cases</h2>
+      <p>
+        These three URLs exercise pathological patterns that naive extension-matching regexes
+        misclassify. A robust crawler should handle all three correctly.
+      </p>
+
+      <h3 class="sub">4.1 &nbsp; Extension in a Middle Path Segment</h3>
+      <ul class="link-list">
+        <li>
+          <a href="https://www.irs.gov/forms.pdf/archive/f1040">
+            https://www.irs.gov/forms.pdf/archive/f1040
+          </a>
+          <span class="note">— ".pdf" in a path segment; final segment has no extension</span>
+        </li>
+      </ul>
+
+      <h3 class="sub">4.2 &nbsp; Extension Only in a Query Parameter</h3>
+      <ul class="link-list">
+        <li>
+          <a href="https://www.irs.gov/view?file=report.pdf">
+            https://www.irs.gov/view?file=report.pdf
+          </a>
+          <span class="note">— ".pdf" is a query-param value, not the path extension</span>
+        </li>
+      </ul>
+
+      <h3 class="sub">4.3 &nbsp; Percent-Encoded Extension</h3>
+      <ul class="link-list">
+        <li>
+          <a href="https://www.africau.edu/images/default/sample%2Epdf">
+            https://www.africau.edu/images/default/sample%2Epdf
+          </a>
+          <span class="note">— dot before "pdf" is percent-encoded as %2E; parsers must decode before matching</span>
+        </li>
+      </ul>
+
+      <hr />
+
+      <!-- ── SECTION 5: UNSUPPORTED EXTENSIONS (negative controls) ─ -->
+      <h2 class="section">5 &middot; Unsupported Extensions — Negative Controls</h2>
+      <p>
+        When the crawler is configured to collect only the four supported formats, it must skip
+        every link in this section. These links confirm correct exclusion behaviour.
+      </p>
+      <ul class="link-list">
+        <li>
+          <a href="https://file-examples.com/storage/fe8c7eef0c6364f6c9504cc/2017/02/file_example_XLS_10.xlsx">
+            spreadsheet.xlsx
+          </a>
+          <span class="note">— Excel workbook (.xlsx) — should be skipped</span>
+        </li>
+        <li>
+          <a href="https://file-examples.com/storage/fe8c7eef0c6364f6c9504cc/2017/08/file_example_PPT_250kB.pptx">
+            presentation.pptx
+          </a>
+          <span class="note">— PowerPoint (.pptx) — should be skipped</span>
+        </li>
+        <li>
+          <a href="https://file-examples.com/storage/fe8c7eef0c6364f6c9504cc/2017/02/zip_2MB.zip">
+            archive.zip
+          </a>
+          <span class="note">— ZIP archive (.zip) — should be skipped</span>
+        </li>
+        <li>
+          <a href="https://file-examples.com/storage/fe8c7eef0c6364f6c9504cc/2017/02/file_example_CSV_5000.csv">
+            dataset.csv
+          </a>
+          <span class="note">— CSV data file (.csv) — should be skipped</span>
+        </li>
+        <li>
+          <a href="https://docs.python.org/3/library/index.html">
+            Python standard library index
+          </a>
+          <span class="note">— HTML page (.html) — should be skipped</span>
+        </li>
+      </ul>
+
+      <hr />
+
+      <!-- ── SECTION 6: CROSS-DOMAIN LINKS ─────────────────────── -->
+      <h2 class="section">6 &middot; Cross-Domain Links</h2>
+      <p>
+        These two document links originate from domains distinct from the primary sources used
+        elsewhere on this page, allowing testers to verify same-domain vs cross-domain crawl
+        rules apply correctly.
+      </p>
+      <ul class="link-list">
+        <li>
+          <a href="https://www.irs.gov/pub/irs-pdf/f1040ez.pdf">
+            https://www.irs.gov/pub/irs-pdf/f1040ez.pdf
+          </a>
+          <span class="note">— cross-domain: irs.gov PDF</span>
+        </li>
+        <li>
+          <a href="https://www.rfc-editor.org/rfc/rfc2616.txt">
+            https://www.rfc-editor.org/rfc/rfc2616.txt
+          </a>
+          <span class="note">— cross-domain: rfc-editor.org TXT (HTTP/1.1 spec)</span>
+        </li>
+      </ul>
+
+    </div><!-- end .main-col -->
+
+    <!-- ════════════════ SIDEBAR ════════════════════════════════════ -->
+    <aside class="sidebar">
+
+      <!-- Access Documents box (category 8) -->
+      <div class="sidebar-box">
+        <div class="sidebar-box-title">Access Documents</div>
+        <a href="https://www.africau.edu/images/default/sample.pdf">&darr; View PDF</a>
+        <a href="https://arxiv.org/pdf/2301.00774.pdf">&darr; Full-text PDF</a>
+        <a href="https://file-examples.com/storage/fe8c7eef0c6364f6c9504cc/2017/02/file-sample_100kB.docx">&darr; Download DOCX</a>
+        <a href="https://www.rfc-editor.org/rfc/rfc791.txt">&darr; Read TXT</a>
+        <a href="https://gitlab.com/gitlab-org/gitlab/-/raw/master/README.md">&darr; Read Markdown</a>
+        <a href="https://www.gutenberg.org/files/84/84-0.txt">&darr; Corpus TXT</a>
+      </div>
+
+      <!-- Fixture metadata box -->
+      <div class="sidebar-box sidebar-meta">
+        <strong>Fixture metadata</strong>
+        <p>
+          Route: <code>/crawlableDocuments</code><br />
+          Purpose: crawler QA<br />
+          Formats: PDF · MD · TXT · DOCX
+        </p>
+      </div>
+
+    </aside>
+
+  </div><!-- end .body-row -->
+</div><!-- end .wrapper -->
+
+</body>
+</html>

@@ -5,7 +5,7 @@
       "destination": "/api/slow-loading"
     },
     {
-      "source": "/((?!api|_next|_static|favicon.ico|logo|images).*)",
+      "source": "/((?!api|_next|_static|favicon.ico|logo|images|crawlableDocuments).*)",
       "destination": "/index.html"
     }
   ],
