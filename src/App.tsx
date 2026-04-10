@@ -32,6 +32,7 @@ import WebhookInspector from './pages/WebhookInspector'
 import LegacyWebhookLanding from './pages/LegacyWebhookLanding'
 import LegacyWebhookInspector from './pages/LegacyWebhookInspector'
 import LoopDetectedPage from './pages/LoopDetectedPage'
+import CrawlableDocuments from './pages/CrawlableDocuments'
 
 
 import { SuccessModal } from './components/SuccessModal'
@@ -90,6 +91,7 @@ export default function App() {
           <Route path="/valid-webhooks/:token" element={<WebhookInspector />} />
           <Route path="/loop-detected" element={<LoopDetectedPage />} />
           <Route path="/slow-loading" element={<HomePage />} />
+          <Route path="/crawlableDocuments" element={<CrawlableDocuments />} />
         </Routes>
         <SuccessModal />
         <DocModal />
