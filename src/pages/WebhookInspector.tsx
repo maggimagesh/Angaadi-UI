@@ -105,20 +105,98 @@ async function copyText(value: string): Promise<boolean> {
   }
 }
 
-function PrimitiveValue({ value }: { value: unknown }) {
+function nodeContainsQuery(value: unknown, query: string): boolean {
+  if (!query) return false
+  const q = query.toLowerCase()
+  if (value === null || value === undefined) return false
+  if (typeof value !== 'object') {
+    return String(value).toLowerCase().includes(q)
+  }
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (k.toLowerCase().includes(q)) return true
+    if (nodeContainsQuery(v, q)) return true
+  }
+  return false
+}
+
+function countMatches(text: string, query: string): number {
+  if (!query) return 0
+  const lower = text.toLowerCase()
+  const q = query.toLowerCase()
+  let count = 0
+  let idx = lower.indexOf(q)
+  while (idx !== -1) {
+    count++
+    idx = lower.indexOf(q, idx + q.length)
+  }
+  return count
+}
+
+function HighlightedText({
+  text,
+  query,
+}: {
+  text: string
+  query: string
+}) {
+  if (!query) {
+    return <>{text}</>
+  }
+  const lower = text.toLowerCase()
+  const q = query.toLowerCase()
+  const parts: React.ReactNode[] = []
+  let lastIndex = 0
+  let idx = lower.indexOf(q)
+  let key = 0
+  while (idx !== -1) {
+    if (idx > lastIndex) {
+      parts.push(<span key={key++}>{text.slice(lastIndex, idx)}</span>)
+    }
+    parts.push(
+      <mark
+        key={key++}
+        style={{
+          background: '#ffe066',
+          color: '#1f252a',
+          borderRadius: 2,
+          padding: '0 2px',
+          fontWeight: 700,
+        }}
+      >
+        {text.slice(idx, idx + query.length)}
+      </mark>
+    )
+    lastIndex = idx + query.length
+    idx = lower.indexOf(q, lastIndex)
+  }
+  if (lastIndex < text.length) {
+    parts.push(<span key={key++}>{text.slice(lastIndex)}</span>)
+  }
+  return <>{parts}</>
+}
+
+function PrimitiveValue({ value, searchQuery }: { value: unknown; searchQuery: string }) {
   if (value === null) {
     return <span style={{ color: '#a39a8c' }}>null</span>
   }
   if (typeof value === 'boolean') {
-    return <span style={{ color: '#9b4d12', fontWeight: 700 }}>{String(value)}</span>
+    return (
+      <span style={{ color: '#9b4d12', fontWeight: 700 }}>
+        <HighlightedText text={String(value)} query={searchQuery} />
+      </span>
+    )
   }
   if (typeof value === 'number') {
-    return <span style={{ color: '#1f6feb' }}>{value}</span>
+    return (
+      <span style={{ color: '#1f6feb' }}>
+        <HighlightedText text={String(value)} query={searchQuery} />
+      </span>
+    )
   }
   if (typeof value === 'string') {
     return (
       <span style={{ color: '#22863a', wordBreak: 'break-all' }}>
-        &quot;{value}&quot;
+        &quot;<HighlightedText text={value} query={searchQuery} />&quot;
       </span>
     )
   }
@@ -131,14 +209,21 @@ interface JsonNodeProps {
   depth: number
   expandSignal: number
   defaultExpanded: boolean
+  searchQuery: string
 }
 
-function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded }: JsonNodeProps) {
+function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, searchQuery }: JsonNodeProps) {
   const [expanded, setExpanded] = useState(defaultExpanded)
 
   useEffect(() => {
     setExpanded(defaultExpanded)
   }, [expandSignal, defaultExpanded])
+
+  const hasSearchMatch = useMemo(() => {
+    if (!searchQuery) return false
+    if (keyName && keyName.toLowerCase().includes(searchQuery.toLowerCase())) return true
+    return nodeContainsQuery(value, searchQuery)
+  }, [searchQuery, keyName, value])
 
   const isObject = value !== null && typeof value === 'object'
   const isArray = Array.isArray(value)
@@ -146,7 +231,9 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded }: Json
 
   const keyLabel = keyName !== undefined ? (
     <>
-      <span style={{ color: '#a06b1d' }}>&quot;{keyName}&quot;</span>
+      <span style={{ color: '#a06b1d' }}>
+        &quot;<HighlightedText text={keyName} query={searchQuery} />&quot;
+      </span>
       <span style={{ color: '#888' }}>: </span>
     </>
   ) : null
@@ -163,7 +250,7 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded }: Json
         }}
       >
         {keyLabel}
-        <PrimitiveValue value={value} />
+        <PrimitiveValue value={value} searchQuery={searchQuery} />
       </div>
     )
   }
@@ -194,6 +281,8 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded }: Json
     )
   }
 
+  const effectivelyExpanded = expanded || hasSearchMatch
+
   return (
     <div style={{ paddingLeft: indent }}>
       <button
@@ -221,7 +310,7 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded }: Json
             display: 'inline-block',
             width: 12,
             color: '#9b4d12',
-            transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+            transform: effectivelyExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform 120ms ease',
           }}
         >
@@ -229,7 +318,7 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded }: Json
         </span>
         {keyLabel}
         <span style={{ color: '#666' }}>{open}</span>
-        {!expanded ? (
+        {!effectivelyExpanded ? (
           <>
             <span style={{ color: '#a39a8c', marginLeft: 6, fontStyle: 'italic' }}>
               {count} {isArray ? 'item' : 'key'}
@@ -239,7 +328,7 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded }: Json
           </>
         ) : null}
       </button>
-      {expanded ? (
+      {effectivelyExpanded ? (
         <>
           <div>
             {entries.map(([k, v]) => (
@@ -250,6 +339,7 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded }: Json
                 depth={depth + 1}
                 expandSignal={expandSignal}
                 defaultExpanded={defaultExpanded}
+                searchQuery={searchQuery}
               />
             ))}
           </div>
@@ -274,9 +364,17 @@ interface JsonViewerProps {
   value: unknown
   expandSignal: number
   defaultExpanded: boolean
+  searchQuery?: string
+  maxHeight?: number | string
 }
 
-function JsonViewer({ value, expandSignal, defaultExpanded }: JsonViewerProps) {
+function JsonViewer({
+  value,
+  expandSignal,
+  defaultExpanded,
+  searchQuery = '',
+  maxHeight = 480,
+}: JsonViewerProps) {
   return (
     <div
       style={{
@@ -284,9 +382,10 @@ function JsonViewer({ value, expandSignal, defaultExpanded }: JsonViewerProps) {
         color: '#f7efe2',
         padding: 16,
         borderRadius: 14,
-        maxHeight: 480,
+        maxHeight,
         overflow: 'auto',
         minWidth: 0,
+        resize: 'vertical',
       }}
     >
       <JsonNode
@@ -294,12 +393,22 @@ function JsonViewer({ value, expandSignal, defaultExpanded }: JsonViewerProps) {
         depth={0}
         expandSignal={expandSignal}
         defaultExpanded={defaultExpanded}
+        searchQuery={searchQuery}
       />
     </div>
   )
 }
 
-function PlainTextViewer({ value }: { value: string }) {
+function PlainTextViewer({
+  value,
+  searchQuery = '',
+  maxHeight = 480,
+}: {
+  value: string
+  searchQuery?: string
+  maxHeight?: number | string
+}) {
+  const text = value || '(empty)'
   return (
     <pre
       style={{
@@ -308,7 +417,7 @@ function PlainTextViewer({ value }: { value: string }) {
         borderRadius: 14,
         background: '#1f252a',
         color: '#f7efe2',
-        maxHeight: 480,
+        maxHeight,
         overflow: 'auto',
         whiteSpace: 'pre-wrap',
         wordBreak: 'break-word',
@@ -316,10 +425,129 @@ function PlainTextViewer({ value }: { value: string }) {
         fontFamily: '"JetBrains Mono", ui-monospace, monospace',
         fontSize: 13,
         lineHeight: '1.7',
+        resize: 'vertical',
       }}
     >
-      {value || '(empty)'}
+      <HighlightedText text={text} query={searchQuery} />
     </pre>
+  )
+}
+
+interface BodyContentViewerProps {
+  body: { value: unknown; isJson: boolean }
+  expandSignal: number
+  defaultExpanded: boolean
+  storageKey: string
+}
+
+function BodyContentViewer({
+  body,
+  expandSignal,
+  defaultExpanded,
+  storageKey,
+}: BodyContentViewerProps) {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const plainText = useMemo(() => {
+    if (body.isJson) {
+      try {
+        return JSON.stringify(body.value, null, 2)
+      } catch {
+        return String(body.value ?? '')
+      }
+    }
+    return typeof body.value === 'string'
+      ? body.value
+      : JSON.stringify(body.value, null, 2)
+  }, [body])
+
+  const matchCount = useMemo(
+    () => countMatches(plainText, searchQuery),
+    [plainText, searchQuery]
+  )
+
+  return (
+    <div style={{ display: 'grid', gap: 10, minWidth: 0 }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: 8,
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div
+          style={{
+            position: 'relative',
+            flex: '1 1 240px',
+            minWidth: 0,
+          }}
+        >
+          <input
+            type="search"
+            placeholder="Search in body…"
+            aria-label={`Search in ${storageKey}`}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              borderRadius: 10,
+              border: '1px solid rgba(35, 36, 40, 0.16)',
+              background: 'rgba(255,255,255,0.85)',
+              color: 'inherit',
+              fontSize: '0.9rem',
+              boxSizing: 'border-box',
+            }}
+          />
+        </div>
+        {searchQuery ? (
+          <span
+            style={{
+              fontSize: '0.82rem',
+              color: matchCount > 0 ? '#22863a' : 'var(--color-danger)',
+              fontWeight: 700,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {matchCount} match{matchCount === 1 ? '' : 'es'}
+          </span>
+        ) : null}
+        {searchQuery ? (
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            style={{
+              background: 'rgba(255,255,255,0.7)',
+              border: '1px solid rgba(35, 36, 40, 0.12)',
+              borderRadius: 8,
+              padding: '6px 10px',
+              cursor: 'pointer',
+              color: 'inherit',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+            }}
+          >
+            Clear
+          </button>
+        ) : null}
+      </div>
+      {body.isJson ? (
+        <JsonViewer
+          value={body.value}
+          expandSignal={expandSignal}
+          defaultExpanded={defaultExpanded}
+          searchQuery={searchQuery}
+          maxHeight="70vh"
+        />
+      ) : (
+        <PlainTextViewer
+          value={plainText}
+          searchQuery={searchQuery}
+          maxHeight="70vh"
+        />
+      )}
+    </div>
   )
 }
 
@@ -1167,22 +1395,15 @@ export default function WebhookInspector() {
                   expanded={expandedSections.has('request-body')}
                   onToggle={() => toggleSection('request-body')}
                 >
-                  {requestBody && requestBody.isJson ? (
-                    <JsonViewer
-                      value={requestBody.value}
+                  {requestBody ? (
+                    <BodyContentViewer
+                      body={requestBody}
                       expandSignal={jsonExpandSignal}
                       defaultExpanded={jsonExpandAll}
+                      storageKey="request-body"
                     />
                   ) : (
-                    <PlainTextViewer
-                      value={
-                        typeof requestBody?.value === 'string'
-                          ? requestBody.value
-                          : requestBody
-                          ? JSON.stringify(requestBody.value, null, 2)
-                          : ''
-                      }
-                    />
+                    <PlainTextViewer value="" maxHeight="70vh" />
                   )}
                 </SectionPanel>
 
@@ -1278,22 +1499,15 @@ export default function WebhookInspector() {
                       >
                         Response Body
                       </div>
-                      {responseBody && responseBody.isJson ? (
-                        <JsonViewer
-                          value={responseBody.value}
+                      {responseBody ? (
+                        <BodyContentViewer
+                          body={responseBody}
                           expandSignal={jsonExpandSignal}
                           defaultExpanded={jsonExpandAll}
+                          storageKey="response-body"
                         />
                       ) : (
-                        <PlainTextViewer
-                          value={
-                            typeof responseBody?.value === 'string'
-                              ? responseBody.value
-                              : responseBody
-                              ? JSON.stringify(responseBody.value, null, 2)
-                              : ''
-                          }
-                        />
+                        <PlainTextViewer value="" maxHeight="70vh" />
                       )}
                     </div>
                   </div>
