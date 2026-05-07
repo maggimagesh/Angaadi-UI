@@ -6,6 +6,7 @@ export default function IframeFullPage() {
 
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return
       if (e.data?.type === 'IFRAME_RESIZE') {
         if (iframeRef.current) {
           iframeRef.current.style.height = e.data.height + 'px'
@@ -19,7 +20,7 @@ export default function IframeFullPage() {
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
-        iframeRef.current?.contentWindow?.postMessage('LOAD_MORE', '*')
+        iframeRef.current?.contentWindow?.postMessage('LOAD_MORE', window.location.origin)
       }
     }, { rootMargin: '800px' })
     if (sentinelRef.current) observer.observe(sentinelRef.current)

@@ -30,12 +30,16 @@ export default function IframeContentPage() {
     
     // Listen for resize to notify parent of height
     const observer = new ResizeObserver(() => {
-      window.parent.postMessage({ type: 'IFRAME_RESIZE', height: document.documentElement.scrollHeight }, '*')
+      window.parent.postMessage(
+        { type: 'IFRAME_RESIZE', height: document.documentElement.scrollHeight },
+        window.location.origin,
+      )
     })
     observer.observe(document.body)
 
     // Listen for LOAD_MORE from parent's scroll observer
     const handleMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return
       if (e.data === 'LOAD_MORE') loadMore()
     }
     window.addEventListener('message', handleMessage)

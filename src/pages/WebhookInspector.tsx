@@ -570,16 +570,7 @@ export default function WebhookInspector() {
     }
     cancelledRef.current = false
 
-    const initialize = async () => {
-      try {
-        await clearWebhookRequests(token)
-      } catch {
-        // ignore reset failure
-      }
-      await loadRequests(true)
-    }
-
-    void initialize()
+    void loadRequests(true)
 
     const intervalId = window.setInterval(() => {
       void loadRequests(false)
