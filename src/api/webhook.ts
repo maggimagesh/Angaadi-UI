@@ -10,6 +10,8 @@ export interface WebhookStoredBody {
   json: unknown | null
   base64: string | null
   preview: string | null
+  truncated?: boolean
+  downloadUrl?: string | null
 }
 
 export interface WebhookResponseInfo {
@@ -124,6 +126,17 @@ export function buildWebhookCaptureUrl(token: string): string {
 
 export function buildWebhookRequestsApiUrl(token: string): string {
   return `${getWebhookApiOrigin()}/api/webhook/${encodeURIComponent(token)}/requests`
+}
+
+export function buildWebhookBodyDownloadUrl(
+  token: string,
+  requestId: string,
+  serverDownloadPath?: string | null
+): string {
+  if (serverDownloadPath && serverDownloadPath.startsWith('/')) {
+    return `${getWebhookApiOrigin()}${serverDownloadPath}`
+  }
+  return `${getWebhookApiOrigin()}/api/webhook/${encodeURIComponent(token)}/${encodeURIComponent(requestId)}/body`
 }
 
 export function buildWebhookInspectorPath(token: string): string {

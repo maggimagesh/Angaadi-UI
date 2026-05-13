@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
+  buildWebhookBodyDownloadUrl,
   buildWebhookCaptureUrl,
   buildWebhookInspectorUrl,
   clearWebhookRequests,
@@ -11,7 +12,11 @@ import {
   isLoopbackWebhookOrigin,
   type WebhookCaptureListResponse,
   type WebhookCaptureRecord,
+  type WebhookStoredBody,
 } from '../api/webhook'
+import { buildZipBlob, downloadBlob } from '../utils/zip'
+
+const LARGE_BODY_RENDER_THRESHOLD = 512 * 1024
 
 type SectionKey = 'overview' | 'request-body' | 'query' | 'headers' | 'cookies' | 'response'
 
@@ -86,14 +91,17 @@ function getResponseBodyValue(record: WebhookCaptureRecord): { value: unknown; i
 
 function downloadJson(filename: string, value: unknown): void {
   const blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
+  downloadBlob(filename, blob)
+}
+
+function safeFilenameSegment(value: string): string {
+  return value.replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'item'
+}
+
+function buildRequestJsonName(request: WebhookCaptureRecord, index: number): string {
+  const stamp = new Date(request.receivedAt).toISOString().replace(/[:.]/g, '-')
+  const idTail = request.id.slice(0, 8)
+  return `${String(index + 1).padStart(3, '0')}-${safeFilenameSegment(stamp)}-${safeFilenameSegment(request.method)}-${idTail}.json`
 }
 
 async function copyText(value: string): Promise<boolean> {
@@ -246,7 +254,10 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
           fontFamily: '"JetBrains Mono", ui-monospace, monospace',
           fontSize: 13,
           lineHeight: '1.7',
-          wordBreak: 'break-all',
+          whiteSpace: 'pre-wrap',
+          overflowWrap: 'anywhere',
+          wordBreak: 'break-word',
+          minWidth: 0,
         }}
       >
         {keyLabel}
@@ -300,9 +311,15 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
           fontFamily: '"JetBrains Mono", ui-monospace, monospace',
           fontSize: 13,
           lineHeight: '1.7',
-          display: 'inline-flex',
-          alignItems: 'center',
+          display: 'flex',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
           gap: 4,
+          width: '100%',
+          minWidth: 0,
+          whiteSpace: 'pre-wrap',
+          overflowWrap: 'anywhere',
+          wordBreak: 'break-word',
         }}
       >
         <span
@@ -430,6 +447,63 @@ function PlainTextViewer({
     >
       <HighlightedText text={text} query={searchQuery} />
     </pre>
+  )
+}
+
+interface LargeBodyNoticeProps {
+  storedBody: WebhookStoredBody
+  downloadUrl: string
+  downloadFilename: string
+  preview: string | null
+}
+
+function LargeBodyNotice({ storedBody, downloadUrl, downloadFilename, preview }: LargeBodyNoticeProps) {
+  return (
+    <div style={{ display: 'grid', gap: 12, minWidth: 0 }}>
+      <div
+        style={{
+          padding: 14,
+          borderRadius: 14,
+          background: 'rgba(255, 238, 210, 0.85)',
+          border: '1px solid rgba(155, 77, 18, 0.25)',
+          color: '#5e3308',
+          fontSize: '0.92rem',
+          lineHeight: 1.55,
+          display: 'grid',
+          gap: 10,
+        }}
+      >
+        <div style={{ fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', fontSize: '0.72rem', color: '#9b4d12' }}>
+          Large payload — inline view disabled
+        </div>
+        <div style={{ overflowWrap: 'anywhere' }}>
+          This body is <strong>{formatBytes(storedBody.sizeBytes)}</strong>
+          {storedBody.contentType ? <> · <code>{storedBody.contentType}</code></> : null}. Inline JSON rendering is skipped so the inspector stays responsive. Download the full payload to inspect it locally.
+        </div>
+        <a
+          href={downloadUrl}
+          download={downloadFilename}
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '8px 14px',
+            borderRadius: 10,
+            background: '#1f252a',
+            color: '#fff7eb',
+            fontWeight: 700,
+            textDecoration: 'none',
+            width: 'fit-content',
+          }}
+        >
+          Download body ({formatBytes(storedBody.sizeBytes)})
+        </a>
+      </div>
+      {preview ? (
+        <PlainTextViewer value={preview} maxHeight={320} />
+      ) : null}
+    </div>
   )
 }
 
@@ -864,19 +938,59 @@ export default function WebhookInspector() {
 
   const handleDownloadRequest = (request: WebhookCaptureRecord) => {
     const stamp = new Date(request.receivedAt).toISOString().replace(/[:.]/g, '-')
-    downloadJson(`webhook-${token}-${stamp}.json`, request)
+    downloadJson(`webhook-${token}-${stamp}-${request.id.slice(0, 8)}.json`, request)
   }
 
   const handleDownloadAll = () => {
+    if (payload.requests.length === 0) {
+      return
+    }
     const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-    downloadJson(`webhook-${token}-all-${stamp}.json`, {
+
+    if (payload.requests.length === 1) {
+      handleDownloadRequest(payload.requests[0])
+      return
+    }
+
+    const encoder = new TextEncoder()
+    const manifest = {
       token,
       captureUrl: payload.captureUrl,
       inspectUrl: payload.inspectUrl,
       exportedAt: new Date().toISOString(),
       count: payload.requests.length,
-      requests: payload.requests,
-    })
+      files: payload.requests.map((request, index) => ({
+        file: buildRequestJsonName(request, index),
+        id: request.id,
+        method: request.method,
+        path: request.path,
+        receivedAt: request.receivedAt,
+        sizeBytes: request.body.sizeBytes,
+        truncated: Boolean(request.body.truncated),
+      })),
+    }
+
+    const entries = [
+      {
+        name: 'manifest.json',
+        data: encoder.encode(JSON.stringify(manifest, null, 2)),
+      },
+      ...payload.requests.map((request, index) => ({
+        name: buildRequestJsonName(request, index),
+        data: encoder.encode(JSON.stringify(request, null, 2)),
+      })),
+    ]
+
+    try {
+      const blob = buildZipBlob(entries)
+      downloadBlob(`webhook-${token}-${stamp}.zip`, blob)
+    } catch (zipError) {
+      setError(
+        zipError instanceof Error
+          ? `Failed to build zip: ${zipError.message}`
+          : 'Failed to build zip archive'
+      )
+    }
   }
 
   if (!token || !isValidWebhookToken(token)) {
@@ -1095,7 +1209,9 @@ export default function WebhookInspector() {
                   disabled={payload.requests.length === 0}
                   onClick={handleDownloadAll}
                 >
-                  Download All ({payload.requests.length})
+                  {payload.requests.length > 1
+                    ? `Download All (${payload.requests.length}) as .zip`
+                    : `Download All (${payload.requests.length})`}
                 </button>
                 <span
                   style={{
@@ -1215,10 +1331,20 @@ export default function WebhookInspector() {
             <div style={{ display: 'grid', gap: 8 }}>
               {payload.requests.map((request) => {
                 const isSelected = selectedRequest?.id === request.id
+                const selectRow = () => setSelectedRequestId(request.id)
                 return (
-                  <button
+                  <div
                     key={request.id}
-                    onClick={() => setSelectedRequestId(request.id)}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isSelected}
+                    onClick={selectRow}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        selectRow()
+                      }
+                    }}
                     style={{
                       width: '100%',
                       textAlign: 'left',
@@ -1281,14 +1407,48 @@ export default function WebhookInspector() {
                     </div>
                     <div
                       style={{
-                        fontSize: '0.78rem',
-                        marginTop: 4,
-                        color: 'var(--color-text-secondary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 8,
+                        marginTop: 6,
                       }}
                     >
-                      {formatDateTime(request.receivedAt)} · {formatBytes(request.body.sizeBytes)}
+                      <div
+                        style={{
+                          fontSize: '0.78rem',
+                          color: 'var(--color-text-secondary)',
+                          overflowWrap: 'anywhere',
+                          minWidth: 0,
+                        }}
+                      >
+                        {formatDateTime(request.receivedAt)} · {formatBytes(request.body.sizeBytes)}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          handleDownloadRequest(request)
+                        }}
+                        title="Download this callback as JSON"
+                        aria-label="Download this callback as JSON"
+                        style={{
+                          flexShrink: 0,
+                          padding: '4px 10px',
+                          borderRadius: 8,
+                          border: '1px solid rgba(35, 36, 40, 0.16)',
+                          background: 'rgba(255,255,255,0.85)',
+                          color: 'inherit',
+                          cursor: 'pointer',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          letterSpacing: '0.04em',
+                        }}
+                      >
+                        ↓ JSON
+                      </button>
                     </div>
-                  </button>
+                  </div>
                 )
               })}
             </div>
@@ -1395,7 +1555,19 @@ export default function WebhookInspector() {
                   expanded={expandedSections.has('request-body')}
                   onToggle={() => toggleSection('request-body')}
                 >
-                  {requestBody ? (
+                  {selectedRequest.body.truncated ||
+                  selectedRequest.body.sizeBytes > LARGE_BODY_RENDER_THRESHOLD ? (
+                    <LargeBodyNotice
+                      storedBody={selectedRequest.body}
+                      downloadUrl={buildWebhookBodyDownloadUrl(
+                        token,
+                        selectedRequest.id,
+                        selectedRequest.body.downloadUrl
+                      )}
+                      downloadFilename={`webhook-${token}-${selectedRequest.id}.bin`}
+                      preview={selectedRequest.body.preview}
+                    />
+                  ) : requestBody ? (
                     <BodyContentViewer
                       body={requestBody}
                       expandSignal={jsonExpandSignal}
