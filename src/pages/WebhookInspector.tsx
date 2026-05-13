@@ -16,8 +16,6 @@ import {
 } from '../api/webhook'
 import { buildZipBlob, downloadBlob } from '../utils/zip'
 
-const LARGE_BODY_RENDER_THRESHOLD = 512 * 1024
-
 type SectionKey = 'overview' | 'request-body' | 'query' | 'headers' | 'cookies' | 'response'
 
 const ALL_SECTIONS: SectionKey[] = [
@@ -76,6 +74,46 @@ function getRequestBodyValue(record: WebhookCaptureRecord): { value: unknown; is
     return { value: parsed, isJson: ok }
   }
   return { value: '', isJson: false }
+}
+
+type FullBodyValue = { value: unknown; isJson: boolean }
+
+type BodyFetchState =
+  | { status: 'loading' }
+  | { status: 'success'; body: FullBodyValue }
+  | { status: 'error'; error: string }
+
+async function fetchFullRequestBody(
+  token: string,
+  requestId: string,
+  body: WebhookStoredBody
+): Promise<FullBodyValue> {
+  const url = buildWebhookBodyDownloadUrl(token, requestId, body.downloadUrl)
+  const response = await fetch(url, { headers: { Accept: '*/*' } })
+  if (!response.ok) {
+    throw new Error(`Failed to load full body (status ${response.status})`)
+  }
+  if (body.format === 'binary') {
+    const buffer = await response.arrayBuffer()
+    const bytes = new Uint8Array(buffer)
+    let binary = ''
+    const chunkSize = 0x8000
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const slice = bytes.subarray(i, i + chunkSize)
+      binary += String.fromCharCode(...slice)
+    }
+    return { value: btoa(binary), isJson: false }
+  }
+  const text = await response.text()
+  if (body.format === 'json') {
+    try {
+      return { value: JSON.parse(text), isJson: true }
+    } catch {
+      return { value: text, isJson: false }
+    }
+  }
+  const { ok, parsed } = tryParseJson(text)
+  return { value: parsed, isJson: ok }
 }
 
 function getResponseBodyValue(record: WebhookCaptureRecord): { value: unknown; isJson: boolean } {
@@ -450,36 +488,77 @@ function PlainTextViewer({
   )
 }
 
-interface LargeBodyNoticeProps {
+interface BodyLoadingNoticeProps {
+  storedBody: WebhookStoredBody
+}
+
+function BodyLoadingNotice({ storedBody }: BodyLoadingNoticeProps) {
+  return (
+    <div
+      style={{
+        padding: 14,
+        borderRadius: 14,
+        background: 'rgba(255, 247, 235, 0.85)',
+        border: '1px solid rgba(35, 36, 40, 0.12)',
+        color: '#5e3308',
+        fontSize: '0.92rem',
+        lineHeight: 1.55,
+      }}
+    >
+      Loading full payload ({formatBytes(storedBody.sizeBytes)})
+      {storedBody.contentType ? <> · <code>{storedBody.contentType}</code></> : null}…
+    </div>
+  )
+}
+
+interface BodyFetchErrorProps {
+  message: string
   storedBody: WebhookStoredBody
   downloadUrl: string
   downloadFilename: string
-  preview: string | null
+  onRetry: () => void
 }
 
-function LargeBodyNotice({ storedBody, downloadUrl, downloadFilename, preview }: LargeBodyNoticeProps) {
+function BodyFetchErrorNotice({
+  message,
+  storedBody,
+  downloadUrl,
+  downloadFilename,
+  onRetry,
+}: BodyFetchErrorProps) {
   return (
-    <div style={{ display: 'grid', gap: 12, minWidth: 0 }}>
-      <div
-        style={{
-          padding: 14,
-          borderRadius: 14,
-          background: 'rgba(255, 238, 210, 0.85)',
-          border: '1px solid rgba(155, 77, 18, 0.25)',
-          color: '#5e3308',
-          fontSize: '0.92rem',
-          lineHeight: 1.55,
-          display: 'grid',
-          gap: 10,
-        }}
-      >
-        <div style={{ fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', fontSize: '0.72rem', color: '#9b4d12' }}>
-          Large payload — inline view disabled
-        </div>
-        <div style={{ overflowWrap: 'anywhere' }}>
-          This body is <strong>{formatBytes(storedBody.sizeBytes)}</strong>
-          {storedBody.contentType ? <> · <code>{storedBody.contentType}</code></> : null}. Inline JSON rendering is skipped so the inspector stays responsive. Download the full payload to inspect it locally.
-        </div>
+    <div
+      style={{
+        padding: 14,
+        borderRadius: 14,
+        background: 'rgba(255, 230, 230, 0.85)',
+        border: '1px solid rgba(176, 0, 32, 0.25)',
+        color: '#7a1320',
+        fontSize: '0.92rem',
+        lineHeight: 1.55,
+        display: 'grid',
+        gap: 10,
+      }}
+    >
+      <div style={{ overflowWrap: 'anywhere' }}>
+        Failed to load body ({formatBytes(storedBody.sizeBytes)}): {message}
+      </div>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          onClick={onRetry}
+          style={{
+            padding: '8px 14px',
+            borderRadius: 10,
+            background: '#1f252a',
+            color: '#fff7eb',
+            border: 'none',
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+        >
+          Retry
+        </button>
         <a
           href={downloadUrl}
           download={downloadFilename}
@@ -487,22 +566,18 @@ function LargeBodyNotice({ storedBody, downloadUrl, downloadFilename, preview }:
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
             padding: '8px 14px',
             borderRadius: 10,
-            background: '#1f252a',
-            color: '#fff7eb',
+            background: 'rgba(255,255,255,0.7)',
+            color: '#1f252a',
+            border: '1px solid rgba(35, 36, 40, 0.16)',
             fontWeight: 700,
             textDecoration: 'none',
-            width: 'fit-content',
           }}
         >
-          Download body ({formatBytes(storedBody.sizeBytes)})
+          Download body
         </a>
       </div>
-      {preview ? (
-        <PlainTextViewer value={preview} maxHeight={320} />
-      ) : null}
     </div>
   )
 }
@@ -804,6 +879,9 @@ export default function WebhookInspector() {
   )
   const [jsonExpandAll, setJsonExpandAll] = useState(true)
   const [jsonExpandSignal, setJsonExpandSignal] = useState(0)
+  const [fullBodyCache, setFullBodyCache] = useState<Record<string, BodyFetchState>>({})
+  const [bodyFetchTick, setBodyFetchTick] = useState(0)
+  const fetchedBodyIdsRef = useRef<Set<string>>(new Set())
   const cancelledRef = useRef(false)
 
   const publicApiOrigin = getWebhookPublicApiOrigin()
@@ -884,6 +962,53 @@ export default function WebhookInspector() {
     }
   }, [token, loadRequests])
 
+  useEffect(() => {
+    if (!selectedRequest || !token || !selectedRequest.body.truncated) {
+      return
+    }
+    const requestId = selectedRequest.id
+    if (fetchedBodyIdsRef.current.has(requestId)) {
+      return
+    }
+    fetchedBodyIdsRef.current.add(requestId)
+
+    let cancelled = false
+    setFullBodyCache((prev) => ({ ...prev, [requestId]: { status: 'loading' } }))
+
+    fetchFullRequestBody(token, requestId, selectedRequest.body)
+      .then((body) => {
+        if (cancelled) return
+        setFullBodyCache((prev) => ({
+          ...prev,
+          [requestId]: { status: 'success', body },
+        }))
+      })
+      .catch((requestError: unknown) => {
+        if (cancelled) return
+        const message =
+          requestError instanceof Error ? requestError.message : 'Failed to load full body'
+        setFullBodyCache((prev) => ({
+          ...prev,
+          [requestId]: { status: 'error', error: message },
+        }))
+        fetchedBodyIdsRef.current.delete(requestId)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [selectedRequest, token, bodyFetchTick])
+
+  const retryFullBodyFetch = useCallback((requestId: string) => {
+    fetchedBodyIdsRef.current.delete(requestId)
+    setFullBodyCache((prev) => {
+      const next = { ...prev }
+      delete next[requestId]
+      return next
+    })
+    setBodyFetchTick((tick) => tick + 1)
+  }, [])
+
   const handleCopy = async (key: string, value: string) => {
     const ok = await copyText(value)
     if (!ok) {
@@ -906,6 +1031,8 @@ export default function WebhookInspector() {
       setPayload((current) => ({ ...current, requests: [] }))
       setSelectedRequestId(null)
       setLastUpdatedAt(new Date().toISOString())
+      setFullBodyCache({})
+      fetchedBodyIdsRef.current.clear()
       setError(null)
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Failed to clear requests')
@@ -1555,28 +1682,48 @@ export default function WebhookInspector() {
                   expanded={expandedSections.has('request-body')}
                   onToggle={() => toggleSection('request-body')}
                 >
-                  {selectedRequest.body.truncated ||
-                  selectedRequest.body.sizeBytes > LARGE_BODY_RENDER_THRESHOLD ? (
-                    <LargeBodyNotice
-                      storedBody={selectedRequest.body}
-                      downloadUrl={buildWebhookBodyDownloadUrl(
-                        token,
-                        selectedRequest.id,
-                        selectedRequest.body.downloadUrl
-                      )}
-                      downloadFilename={`webhook-${token}-${selectedRequest.id}.bin`}
-                      preview={selectedRequest.body.preview}
-                    />
-                  ) : requestBody ? (
-                    <BodyContentViewer
-                      body={requestBody}
-                      expandSignal={jsonExpandSignal}
-                      defaultExpanded={jsonExpandAll}
-                      storageKey="request-body"
-                    />
-                  ) : (
-                    <PlainTextViewer value="" maxHeight="70vh" />
-                  )}
+                  {(() => {
+                    if (selectedRequest.body.truncated) {
+                      const cached = fullBodyCache[selectedRequest.id]
+                      if (!cached || cached.status === 'loading') {
+                        return <BodyLoadingNotice storedBody={selectedRequest.body} />
+                      }
+                      if (cached.status === 'error') {
+                        return (
+                          <BodyFetchErrorNotice
+                            message={cached.error}
+                            storedBody={selectedRequest.body}
+                            downloadUrl={buildWebhookBodyDownloadUrl(
+                              token,
+                              selectedRequest.id,
+                              selectedRequest.body.downloadUrl
+                            )}
+                            downloadFilename={`webhook-${token}-${selectedRequest.id}.bin`}
+                            onRetry={() => retryFullBodyFetch(selectedRequest.id)}
+                          />
+                        )
+                      }
+                      return (
+                        <BodyContentViewer
+                          body={cached.body}
+                          expandSignal={jsonExpandSignal}
+                          defaultExpanded={jsonExpandAll}
+                          storageKey="request-body"
+                        />
+                      )
+                    }
+                    if (requestBody) {
+                      return (
+                        <BodyContentViewer
+                          body={requestBody}
+                          expandSignal={jsonExpandSignal}
+                          defaultExpanded={jsonExpandAll}
+                          storageKey="request-body"
+                        />
+                      )
+                    }
+                    return <PlainTextViewer value="" maxHeight="70vh" />
+                  })()}
                 </SectionPanel>
 
                 <SectionPanel
