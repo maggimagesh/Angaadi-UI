@@ -57,7 +57,7 @@ function normalizeBasePath(value: string): string {
   const trimmed = value.trim()
 
   if (!trimmed) {
-    return '/webhhook'
+    return '/valid-webhooks'
   }
 
   const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
@@ -121,7 +121,8 @@ export function createWebhookToken(): string {
 }
 
 export function buildWebhookCaptureUrl(token: string): string {
-  return `${getWebhookPublicApiOrigin()}/hook/${encodeURIComponent(token)}`
+  const basePath = normalizeBasePath(getEnvValue('VITE_WEBHOOK_UI_BASE_PATH') || '/valid-webhooks')
+  return `${getWebhookPublicApiOrigin()}${basePath}/${encodeURIComponent(token)}`
 }
 
 export function buildWebhookRequestsApiUrl(token: string): string {

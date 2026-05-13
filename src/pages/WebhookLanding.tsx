@@ -179,7 +179,7 @@ export default function WebhookLanding() {
               <pre style={{ margin: '12px 0 0', whiteSpace: 'pre-wrap', fontFamily: '"JetBrains Mono", monospace' }}>{`curl -X POST \\
   -H "Content-Type: application/json" \\
   -d '{"message":"hello"}' \\
-  ${publicApiOrigin}/hook/<token>`}</pre>
+  ${publicApiOrigin}/valid-webhooks/<token>`}</pre>
             </div>
           </div>
         </div>
