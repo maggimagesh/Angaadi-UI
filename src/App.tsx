@@ -33,8 +33,6 @@ import LegacyWebhookLanding from './pages/LegacyWebhookLanding'
 import LegacyWebhookInspector from './pages/LegacyWebhookInspector'
 import LoopDetectedPage from './pages/LoopDetectedPage'
 import CrawlableDocuments from './pages/CrawlableDocuments'
-import BadRequestPage from './pages/BadRequestPage'
-import BadRequestDetail from './pages/BadRequestDetail'
 
 
 import { SuccessModal } from './components/SuccessModal'
@@ -94,8 +92,6 @@ export default function App() {
           <Route path="/loop-detected" element={<LoopDetectedPage />} />
           <Route path="/slow-loading" element={<HomePage />} />
           <Route path="/crawlableDocuments" element={<CrawlableDocuments />} />
-          <Route path="/bad-request" element={<BadRequestPage />} />
-          <Route path="/bad-request/:id" element={<BadRequestDetail />} />
         </Routes>
         <SuccessModal />
         <DocModal />

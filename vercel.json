@@ -5,6 +5,14 @@
       "destination": "/api/slow-loading"
     },
     {
+      "source": "/bad-request",
+      "destination": "/api/bad-request"
+    },
+    {
+      "source": "/bad-request/:id",
+      "destination": "/api/bad-request?id=:id"
+    },
+    {
       "source": "/((?!api|_next|_static|favicon.ico|logo|images|crawlableDocuments).*)",
       "destination": "/index.html"
     }
