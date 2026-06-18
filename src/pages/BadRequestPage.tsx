@@ -2,26 +2,28 @@
  * CRAWLER TEST FIXTURE — /bad-request
  *
  * Purpose: QA fixture for verifying a crawler's handling of HTTP 400 responses.
- * Renders 100 <a href> links, each pointing at the Angaadi-API endpoint
+ * Renders 100 links, each pointing at the UI route
+ *   /bad-request/<n>
+ * Clicking a link navigates within the UI (no direct API URL in the href).
+ * The detail page (BadRequestDetail) then issues the actual API call
  *   GET {API_BASE}/status/400/<n>
- * which always responds 400 Bad Request. A crawler that schedules these links
- * for crawling should record 100 terminal 400 (non-retryable) responses.
- *
- * Links are built from API_BASE (VITE_BACKEND_URL) so they resolve to the
- * configured backend in both development and production.
+ * which always responds 400 Bad Request. This keeps the API call an
+ * in-app fetch triggered by a UI interaction, rather than the browser
+ * navigating straight to the backend endpoint.
  */
 import React from 'react'
-import { buildApiUrl, API_BASE } from '../lib/api'
+import { Link } from 'react-router-dom'
 
 const LINK_COUNT = 100
 const methods = ['GET', 'POST', 'HEAD', 'PUT', 'DELETE']
 
-// Build the 100 absolute endpoint URLs once.
+// Build the 100 UI endpoint paths once. These are in-app routes; the API
+// call is performed by the detail page, not by following the href.
 const links = Array.from({ length: LINK_COUNT }, (_, i) => {
   const n = i + 1
   return {
     n,
-    href: buildApiUrl(`/status/400/${n}`),
+    to: `/bad-request/${n}`,
     method: methods[n % methods.length],
   }
 })
@@ -125,19 +127,20 @@ export default function BadRequestPage() {
         <p style={metaStyle}>
           <strong>Fixture:</strong> /bad-request &nbsp;·&nbsp;{' '}
           <strong>Links:</strong> {LINK_COUNT} &nbsp;·&nbsp;{' '}
-          <strong>Each returns:</strong> 400 Bad Request
+          <strong>Each triggers:</strong> 400 Bad Request
         </p>
         <h1 style={titleStyle}>
           HTTP 400 Bad Request — Crawler Error-Handling Fixture
         </h1>
         <p style={metaStyle}>
-          Endpoint base: <code>{API_BASE}/status/400/&lt;n&gt;</code>
+          UI endpoint base: <code>/bad-request/&lt;n&gt;</code>
         </p>
         <p>
-          This page lists {LINK_COUNT} links, each pointing at an Angaadi-API
-          endpoint that always responds with <strong>HTTP 400 Bad Request</strong>.
-          A crawler that schedules these links should record {LINK_COUNT} terminal,
-          non-retryable 400 responses.
+          This page lists {LINK_COUNT} UI links, each pointing at an in-app route{' '}
+          <code>/bad-request/&lt;n&gt;</code>. Clicking a link navigates within the
+          UI; the detail page then issues the API call to{' '}
+          <code>/status/400/&lt;n&gt;</code>, which always responds with{' '}
+          <strong>HTTP 400 Bad Request</strong>.
         </p>
 
         <hr style={dividerStyle} />
@@ -148,14 +151,14 @@ export default function BadRequestPage() {
               Batch {b + 1} · endpoints {b * 10 + 1}–{b * 10 + 10}
             </h2>
             <ul style={ulStyle}>
-              {batch.map(({ n, href, method }) => (
+              {batch.map(({ n, to, method }) => (
                 <li key={n} style={liStyle}>
                   <code style={methodStyle}>{method}</code>{' '}
-                  <a href={href} style={linkStyle}>
-                    {href}
-                  </a>
+                  <Link to={to} style={linkStyle} data-testid={`bad-request-link-${n}`}>
+                    {to}
+                  </Link>
                   <span style={noteStyle}>
-                    — fixture endpoint #{n}, always responds 400 Bad Request
+                    — UI endpoint #{n}, triggers a 400 Bad Request API call
                   </span>
                 </li>
               ))}
