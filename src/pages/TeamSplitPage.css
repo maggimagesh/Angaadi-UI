@@ -1,0 +1,369 @@
+/* TeamSplitPage.css — uses global app theme tokens from styles/tokens.css */
+
+.team-split-page {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  padding: clamp(16px, 4vw, 40px) clamp(12px, 4vw, 32px) clamp(48px, 8vw, 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 4vw, 32px);
+}
+
+/* Controls live in a centered column capped so they don't stretch on wide screens */
+.ts-container {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5, 20px);
+}
+
+.ts-header {
+  text-align: center;
+}
+
+.ts-title {
+  margin: 0 0 var(--space-2, 8px);
+  font-size: clamp(1.6rem, 5vw, 2.25rem);
+  line-height: 1.15;
+  color: var(--color-heading, #1c1b1f);
+  font-weight: 700;
+}
+
+.ts-subtitle {
+  margin: 0 auto;
+  max-width: 52ch;
+  color: var(--color-muted, #4a4458);
+  font-size: clamp(0.9rem, 2.6vw, 1rem);
+  line-height: 1.5;
+}
+
+.ts-panel {
+  padding: clamp(16px, 4vw, 28px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6, 24px);
+}
+
+.ts-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+.ts-label {
+  font-weight: 600;
+  color: var(--color-heading, #1c1b1f);
+}
+
+/* Input row: stacks on narrow screens, inline once there's room */
+.ts-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2, 8px);
+}
+
+.ts-name-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.ts-add-btn {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 clamp(16px, 4vw, 24px);
+}
+
+.ts-hint {
+  margin: 0;
+  font-size: var(--font-xs, 12px);
+  color: var(--color-muted, #4a4458);
+}
+
+/* Players list */
+.ts-players {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+}
+
+.ts-players-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 12px);
+}
+
+.ts-count {
+  font-size: var(--font-sm, 14px);
+  font-weight: 600;
+  color: var(--color-heading, #1c1b1f);
+}
+
+.ts-clear {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  min-height: 44px;
+  color: var(--color-primary, #6750a4);
+  font-size: var(--font-sm, 14px);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.ts-clear:hover {
+  background: rgba(103, 80, 164, 0.1);
+}
+
+.ts-clear:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.ts-empty {
+  margin: 0;
+  color: var(--color-muted, #4a4458);
+  font-size: var(--font-sm, 14px);
+}
+
+.ts-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2, 8px);
+}
+
+.ts-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 6px 6px 6px 12px;
+  background: var(--color-primary-container, #eaddff);
+  color: var(--color-heading, #1c1b1f);
+  border-radius: var(--radius-full, 999px);
+  font-size: var(--font-sm, 14px);
+}
+
+.ts-chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 16rem;
+}
+
+.ts-chip-remove {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius-full, 999px);
+  background: rgba(28, 27, 31, 0.08);
+  color: var(--color-heading, #1c1b1f);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--motion-duration-short, 120ms) ease;
+}
+
+.ts-chip-remove:hover {
+  background: rgba(28, 27, 31, 0.18);
+}
+
+.ts-chip-remove:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Team count + shuffle controls: stacked on narrow, inline on wider */
+.ts-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4, 16px);
+}
+
+.ts-teams {
+  flex: 0 0 auto;
+}
+
+.ts-stepper {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--color-border, #d8cfe5);
+  border-radius: var(--radius-md, 12px);
+  overflow: hidden;
+  background: var(--color-card, #fff);
+  width: max-content;
+}
+
+.ts-step-btn {
+  flex: 0 0 auto;
+  width: 44px;
+  min-height: 44px;
+  border: none;
+  background: var(--color-surface-variant, #e7e0ec);
+  color: var(--color-heading, #1c1b1f);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--motion-duration-short, 120ms) ease;
+}
+
+.ts-step-btn:hover:not([disabled]) {
+  background: #d8c8ff;
+}
+
+.ts-step-btn:focus-visible {
+  outline: none;
+  box-shadow: inset var(--focus-ring);
+}
+
+.ts-step-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ts-step-value {
+  width: 3.25rem;
+  min-height: 44px;
+  border: none;
+  text-align: center;
+  font-size: var(--font-md, 16px);
+  font-weight: 700;
+  color: var(--color-heading, #1c1b1f);
+  background: var(--color-card, #fff);
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.ts-step-value::-webkit-outer-spin-button,
+.ts-step-value::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.ts-step-value:focus-visible {
+  outline: none;
+  box-shadow: inset var(--focus-ring);
+}
+
+.ts-shuffle-wrap {
+  flex: 1 1 12rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+  align-items: stretch;
+}
+
+.ts-helper {
+  margin: 0;
+  font-size: var(--font-sm, 14px);
+  color: var(--color-muted, #4a4458);
+  text-align: center;
+}
+
+.ts-shuffle {
+  min-height: 48px;
+  width: 100%;
+  font-size: var(--font-md, 16px);
+}
+
+/* Results: wider centered area; cards reflow fluidly by width */
+.ts-results-section {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+}
+
+.ts-results-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 12px);
+}
+
+.ts-results-title {
+  margin: 0;
+  font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+  color: var(--color-heading, #1c1b1f);
+}
+
+.ts-copy {
+  min-height: 44px;
+}
+
+.ts-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--space-4, 16px);
+}
+
+.ts-team-card {
+  padding: clamp(14px, 3vw, 20px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+  animation: ts-deal var(--motion-duration-medium, 220ms) var(--motion-easing-decelerate, ease) both;
+}
+
+.ts-team-name {
+  margin: 0;
+  font-size: var(--font-lg, 20px);
+  color: var(--color-primary, #6750a4);
+}
+
+.ts-joker-card {
+  background: var(--color-warning-container, #ffe0b5);
+  border-color: var(--color-warning, #b27300);
+}
+
+.ts-joker-card .ts-team-name {
+  color: var(--color-warning, #b27300);
+}
+
+.ts-team-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+.ts-team-player {
+  padding: 8px 12px;
+  background: var(--color-surface, #fdf8ff);
+  border: 1px solid var(--color-border, #d8cfe5);
+  border-radius: var(--radius-sm, 8px);
+  font-size: var(--font-sm, 14px);
+  word-break: break-word;
+}
+
+.ts-joker-card .ts-team-player {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(178, 115, 0, 0.4);
+}
+
+@keyframes ts-deal {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ts-team-card {
+    animation: none;
+  }
+}

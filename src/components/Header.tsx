@@ -70,6 +70,7 @@ export function Header() {
 
             <div className="header-actions">
               <NavLink to="/compare" id="nav-compare" data-testid="nav-compare" className="btn btn-ghost hide-on-mobile" aria-label="Compare">Compare</NavLink>
+              <NavLink to="/team-split" id="nav-team-split" data-testid="nav-team-split" className="btn btn-ghost hide-on-mobile" aria-label="Team Split">Team Split</NavLink>
               <NavLink to="/cart" id="nav-cart" data-testid="nav-cart" className="btn btn-ghost" aria-label="Cart">
                 <span className="hide-on-mobile">Cart</span>
                 <span className="show-on-mobile">🛒</span>

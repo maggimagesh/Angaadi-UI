@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useUIStore } from '../store/ui'
 import '../styles/cookie-banner.css'
 
@@ -9,7 +8,6 @@ export function CookieBanner() {
   const [optionalCookies, setOptionalCookies] = useState(true)
   const cookieBannerShown = useUIStore((state) => state.cookieBannerShown)
   const setCookieBannerShown = useUIStore((state) => state.setCookieBannerShown)
-  const navigate = useNavigate()
 
   function setCookie(name: string, value: string, days: number) {
     try {
@@ -46,7 +44,6 @@ export function CookieBanner() {
     const prefs = { mandatory: true, optional: optionalCookies, acceptedAt: new Date().toISOString() }
     setCookie('cookie-preferences', JSON.stringify(prefs), 365)
     setShowBanner(false)
-    navigate('/')
   }
 
   const handleManageOk = () => {
@@ -55,7 +52,6 @@ export function CookieBanner() {
     setCookie('cookie-preferences', JSON.stringify(prefs), 365)
     setShowBanner(false)
     setShowManage(false)
-    navigate('/')
   }
 
   // const handleClose = () => {
