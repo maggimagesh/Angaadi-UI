@@ -28,12 +28,12 @@ type SectionKey =
 
 const ALL_SECTIONS: SectionKey[] = [
   'overview',
-  'sender',
   'request-body',
   'query',
   'headers',
   'cookies',
   'response',
+  'sender',
 ]
 
 const SECTION_LABELS: Record<SectionKey, string> = {
@@ -1733,115 +1733,6 @@ export default function WebhookInspector() {
                 </SectionPanel>
 
                 <SectionPanel
-                  title={SECTION_LABELS.sender}
-                  meta={
-                    selectedRequest.sender
-                      ? [selectedRequest.sender.ip, selectedRequest.sender.clientApp]
-                          .filter(Boolean)
-                          .join(' · ') || 'no sender details'
-                      : 'not captured'
-                  }
-                  expanded={expandedSections.has('sender')}
-                  onToggle={() => toggleSection('sender')}
-                  actions={
-                    selectedRequest.sender?.ip ? (
-                      <a
-                        href={`https://ipinfo.io/${encodeURIComponent(selectedRequest.sender.ip)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          padding: '4px 10px',
-                          borderRadius: 8,
-                          border: '1px solid rgba(35, 36, 40, 0.16)',
-                          background: 'rgba(255,255,255,0.85)',
-                          color: 'inherit',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          textDecoration: 'none',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        Lookup IP ↗
-                      </a>
-                    ) : undefined
-                  }
-                >
-                  {selectedRequest.sender ? (
-                    <div style={{ display: 'grid', gap: 12, minWidth: 0 }}>
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))',
-                          gap: 10,
-                          minWidth: 0,
-                        }}
-                      >
-                        {buildSenderItems(selectedRequest.sender).map(([label, value]) => (
-                          <div
-                            key={label}
-                            style={{
-                              padding: 12,
-                              borderRadius: 14,
-                              background: 'rgba(255,255,255,0.72)',
-                              border: '1px solid rgba(35, 36, 40, 0.08)',
-                              minWidth: 0,
-                            }}
-                          >
-                            <div
-                              style={{
-                                fontSize: '0.7rem',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.08em',
-                                fontWeight: 800,
-                                color: '#6b7d8d',
-                              }}
-                            >
-                              {label}
-                            </div>
-                            <div
-                              style={{
-                                marginTop: 6,
-                                fontWeight: 700,
-                                overflowWrap: 'anywhere',
-                                wordBreak: 'break-all',
-                                fontSize: '0.9rem',
-                              }}
-                            >
-                              {value}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div>
-                        <div
-                          style={{
-                            fontSize: '0.72rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.08em',
-                            fontWeight: 800,
-                            color: '#6b7d8d',
-                            marginBottom: 6,
-                          }}
-                        >
-                          All collected sender data (raw)
-                        </div>
-                        <JsonViewer
-                          value={selectedRequest.sender}
-                          expandSignal={jsonExpandSignal}
-                          defaultExpanded={jsonExpandAll}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <p style={{ margin: 0, color: 'var(--color-text-secondary)' }}>
-                      Sender details were not captured for this request (it was received before
-                      sender tracking was enabled). New requests will include IP, reverse DNS,
-                      client app, proxy and geo data.
-                    </p>
-                  )}
-                </SectionPanel>
-
-                <SectionPanel
                   title={SECTION_LABELS['request-body']}
                   meta={selectedRequest.body.contentType || selectedRequest.body.format}
                   expanded={expandedSections.has('request-body')}
@@ -1995,6 +1886,115 @@ export default function WebhookInspector() {
                       )}
                     </div>
                   </div>
+                </SectionPanel>
+
+                <SectionPanel
+                  title={SECTION_LABELS.sender}
+                  meta={
+                    selectedRequest.sender
+                      ? [selectedRequest.sender.ip, selectedRequest.sender.clientApp]
+                          .filter(Boolean)
+                          .join(' · ') || 'no sender details'
+                      : 'not captured'
+                  }
+                  expanded={expandedSections.has('sender')}
+                  onToggle={() => toggleSection('sender')}
+                  actions={
+                    selectedRequest.sender?.ip ? (
+                      <a
+                        href={`https://ipinfo.io/${encodeURIComponent(selectedRequest.sender.ip)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          padding: '4px 10px',
+                          borderRadius: 8,
+                          border: '1px solid rgba(35, 36, 40, 0.16)',
+                          background: 'rgba(255,255,255,0.85)',
+                          color: 'inherit',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          textDecoration: 'none',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        Lookup IP ↗
+                      </a>
+                    ) : undefined
+                  }
+                >
+                  {selectedRequest.sender ? (
+                    <div style={{ display: 'grid', gap: 12, minWidth: 0 }}>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))',
+                          gap: 10,
+                          minWidth: 0,
+                        }}
+                      >
+                        {buildSenderItems(selectedRequest.sender).map(([label, value]) => (
+                          <div
+                            key={label}
+                            style={{
+                              padding: 12,
+                              borderRadius: 14,
+                              background: 'rgba(255,255,255,0.72)',
+                              border: '1px solid rgba(35, 36, 40, 0.08)',
+                              minWidth: 0,
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: '0.7rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.08em',
+                                fontWeight: 800,
+                                color: '#6b7d8d',
+                              }}
+                            >
+                              {label}
+                            </div>
+                            <div
+                              style={{
+                                marginTop: 6,
+                                fontWeight: 700,
+                                overflowWrap: 'anywhere',
+                                wordBreak: 'break-all',
+                                fontSize: '0.9rem',
+                              }}
+                            >
+                              {value}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div>
+                        <div
+                          style={{
+                            fontSize: '0.72rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                            fontWeight: 800,
+                            color: '#6b7d8d',
+                            marginBottom: 6,
+                          }}
+                        >
+                          All collected sender data (raw)
+                        </div>
+                        <JsonViewer
+                          value={selectedRequest.sender}
+                          expandSignal={jsonExpandSignal}
+                          defaultExpanded={jsonExpandAll}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <p style={{ margin: 0, color: 'var(--color-text-secondary)' }}>
+                      Sender details were not captured for this request (it was received before
+                      sender tracking was enabled). New requests will include IP, reverse DNS,
+                      client app, proxy and geo data.
+                    </p>
+                  )}
                 </SectionPanel>
               </>
             ) : (
