@@ -74,6 +74,11 @@ function describeGeo(sender: WebhookSenderInfo): string | null {
 
 function buildSenderItems(sender: WebhookSenderInfo): Array<[string, string]> {
   const items: Array<[string, string | null]> = [
+    ['Callback sender IP', sender.callbackSenderIp || sender.ip || 'Unknown'],
+    ['Callback IP detected via', sender.callbackSenderIpSource || sender.ipSource],
+    ['Fly-Client-IP', sender.flyClientIp || null],
+    ['Fly forwarding hop', sender.flyForwardedIp || null],
+    ['Fly socket peer', sender.flyProxyIp || null],
     ['IP address', sender.ip || 'Unknown'],
     ['IP detected via', sender.ipSource],
     ['Forwarding chain', sender.ipChain.length > 1 ? sender.ipChain.join('  →  ') : null],
@@ -1218,7 +1223,14 @@ export default function WebhookInspector() {
         ['Method', selectedRequest.method],
         ['Received', formatDateTime(selectedRequest.receivedAt)],
         ['Path', selectedRequest.path],
-        ['Remote IP', selectedRequest.sender?.ip || selectedRequest.ip || 'Unknown'],
+        [
+          'Remote IP',
+          selectedRequest.sender?.callbackSenderIp ||
+            selectedRequest.callbackSenderIp ||
+            selectedRequest.sender?.ip ||
+            selectedRequest.ip ||
+            'Unknown',
+        ],
         ['Sender client', selectedRequest.sender?.clientApp || selectedRequest.sender?.userAgent || 'Unknown'],
         ['Body size', formatBytes(selectedRequest.body.sizeBytes)],
         ['Status', String(selectedRequest.response.statusCode)],
@@ -1599,10 +1611,17 @@ export default function WebhookInspector() {
                         }}
                       >
                         {formatDateTime(request.receivedAt)} · {formatBytes(request.body.sizeBytes)}
-                        {(request.sender?.ip || request.ip) ? (
+                        {(request.sender?.callbackSenderIp ||
+                          request.callbackSenderIp ||
+                          request.sender?.ip ||
+                          request.ip) ? (
                           <>
                             <br />
-                            from {request.sender?.ip || request.ip}
+                            from{' '}
+                            {request.sender?.callbackSenderIp ||
+                              request.callbackSenderIp ||
+                              request.sender?.ip ||
+                              request.ip}
                             {request.sender?.clientApp ? ` · ${request.sender.clientApp}` : ''}
                           </>
                         ) : null}
@@ -1892,7 +1911,10 @@ export default function WebhookInspector() {
                   title={SECTION_LABELS.sender}
                   meta={
                     selectedRequest.sender
-                      ? [selectedRequest.sender.ip, selectedRequest.sender.clientApp]
+                      ? [
+                          selectedRequest.sender.callbackSenderIp || selectedRequest.sender.ip,
+                          selectedRequest.sender.clientApp,
+                        ]
                           .filter(Boolean)
                           .join(' · ') || 'no sender details'
                       : 'not captured'
@@ -1900,9 +1922,11 @@ export default function WebhookInspector() {
                   expanded={expandedSections.has('sender')}
                   onToggle={() => toggleSection('sender')}
                   actions={
-                    selectedRequest.sender?.ip ? (
+                    selectedRequest.sender?.callbackSenderIp || selectedRequest.sender?.ip ? (
                       <a
-                        href={`https://ipinfo.io/${encodeURIComponent(selectedRequest.sender.ip)}`}
+                        href={`https://ipinfo.io/${encodeURIComponent(
+                          selectedRequest.sender.callbackSenderIp || selectedRequest.sender.ip || ''
+                        )}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
