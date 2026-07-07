@@ -12,14 +12,23 @@ import {
   isLoopbackWebhookOrigin,
   type WebhookCaptureListResponse,
   type WebhookCaptureRecord,
+  type WebhookSenderInfo,
   type WebhookStoredBody,
 } from '../api/webhook'
 import { buildZipBlob, downloadBlob } from '../utils/zip'
 
-type SectionKey = 'overview' | 'request-body' | 'query' | 'headers' | 'cookies' | 'response'
+type SectionKey =
+  | 'overview'
+  | 'sender'
+  | 'request-body'
+  | 'query'
+  | 'headers'
+  | 'cookies'
+  | 'response'
 
 const ALL_SECTIONS: SectionKey[] = [
   'overview',
+  'sender',
   'request-body',
   'query',
   'headers',
@@ -29,6 +38,7 @@ const ALL_SECTIONS: SectionKey[] = [
 
 const SECTION_LABELS: Record<SectionKey, string> = {
   overview: 'Overview',
+  sender: 'Sender / Source',
   'request-body': 'Request Body',
   query: 'Query Params',
   headers: 'Headers',
@@ -38,6 +48,82 @@ const SECTION_LABELS: Record<SectionKey, string> = {
 
 function formatDateTime(value: string): string {
   return new Date(value).toLocaleString()
+}
+
+function describeReverseDns(reverseDns: string[] | null): string {
+  if (reverseDns === null) {
+    return 'Resolving…'
+  }
+  return reverseDns.length > 0 ? reverseDns.join(', ') : 'No PTR record'
+}
+
+function describeGeo(sender: WebhookSenderInfo): string | null {
+  if (!sender.geo) {
+    return null
+  }
+  const parts = [sender.geo.city, sender.geo.region, sender.geo.country].filter(Boolean)
+  const coords =
+    sender.geo.latitude && sender.geo.longitude
+      ? ` (${sender.geo.latitude}, ${sender.geo.longitude})`
+      : ''
+  if (parts.length === 0 && !coords) {
+    return null
+  }
+  return `${parts.join(', ')}${coords}${sender.geo.source ? ` — via ${sender.geo.source}` : ''}`
+}
+
+function buildSenderItems(sender: WebhookSenderInfo): Array<[string, string]> {
+  const items: Array<[string, string | null]> = [
+    ['IP address', sender.ip || 'Unknown'],
+    ['IP detected via', sender.ipSource],
+    ['Forwarding chain', sender.ipChain.length > 1 ? sender.ipChain.join('  →  ') : null],
+    [
+      'Socket peer',
+      sender.remoteAddress
+        ? `${sender.remoteAddress}${sender.remotePort ? `:${sender.remotePort}` : ''}${
+            sender.remoteFamily ? ` (${sender.remoteFamily})` : ''
+          }`
+        : null,
+    ],
+    ['Reverse DNS', describeReverseDns(sender.reverseDns)],
+    ['Client app', sender.clientApp],
+    ['User agent', sender.userAgent || '(none sent)'],
+    [
+      'Protocol',
+      `${sender.protocol ? sender.protocol.toUpperCase() : 'HTTP'}/${sender.httpVersion || '?'}${
+        sender.secureConnection ? ' · TLS' : ''
+      }`,
+    ],
+    ['Geo location', describeGeo(sender)],
+    ['Target host', sender.host],
+    ['Origin', sender.origin],
+    ['Referer', sender.referer],
+    ['Accept-Language', sender.acceptLanguage],
+    ['Accept-Encoding', sender.acceptEncoding],
+    [
+      'Declared body',
+      sender.contentLength !== null
+        ? `${formatBytes(sender.contentLength)}${sender.contentType ? ` · ${sender.contentType}` : ''}`
+        : sender.transferEncoding
+          ? `transfer-encoding: ${sender.transferEncoding}`
+          : null,
+    ],
+    ['Authorization header', sender.authorizationPresent ? 'Present (value in Headers section)' : 'Not sent'],
+    [
+      'Signature/webhook headers',
+      Object.keys(sender.signatureHeaders).length > 0
+        ? Object.keys(sender.signatureHeaders).join(', ')
+        : null,
+    ],
+    [
+      'Proxy / CDN headers',
+      Object.keys(sender.proxyHeaders).length > 0
+        ? `${Object.keys(sender.proxyHeaders).length} detected`
+        : null,
+    ],
+  ]
+
+  return items.filter((entry): entry is [string, string] => Boolean(entry[1]))
 }
 
 function formatBytes(bytes: number): string {
@@ -1132,7 +1218,8 @@ export default function WebhookInspector() {
         ['Method', selectedRequest.method],
         ['Received', formatDateTime(selectedRequest.receivedAt)],
         ['Path', selectedRequest.path],
-        ['Remote IP', selectedRequest.ip || 'Unknown'],
+        ['Remote IP', selectedRequest.sender?.ip || selectedRequest.ip || 'Unknown'],
+        ['Sender client', selectedRequest.sender?.clientApp || selectedRequest.sender?.userAgent || 'Unknown'],
         ['Body size', formatBytes(selectedRequest.body.sizeBytes)],
         ['Status', String(selectedRequest.response.statusCode)],
         ['Request URL', selectedRequest.url],
@@ -1271,44 +1358,6 @@ export default function WebhookInspector() {
                     onClick={() => void handleCopy('capture', payload.captureUrl)}
                   >
                     {copyState === 'capture' ? 'Copied' : 'Copy Receive URL'}
-                  </button>
-                </div>
-                <div
-                  style={{
-                    padding: 14,
-                    borderRadius: 16,
-                    background: 'rgba(255,255,255,0.72)',
-                    border: '1px solid rgba(35, 36, 40, 0.08)',
-                    minWidth: 0,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: '0.72rem',
-                      letterSpacing: '0.12em',
-                      textTransform: 'uppercase',
-                      fontWeight: 800,
-                      color: '#6b7d8d',
-                    }}
-                  >
-                    UI viewer path
-                  </div>
-                  <code
-                    style={{
-                      display: 'block',
-                      marginTop: 8,
-                      overflowWrap: 'anywhere',
-                      wordBreak: 'break-all',
-                      fontSize: '0.85rem',
-                    }}
-                  >
-                    {buildWebhookInspectorUrl(token)}
-                  </code>
-                  <button
-                    className="btn btn-primary mt-2"
-                    onClick={() => void handleCopy('inspect', buildWebhookInspectorUrl(token))}
-                  >
-                    {copyState === 'inspect' ? 'Copied' : 'Copy Viewer URL'}
                   </button>
                 </div>
               </div>
@@ -1550,6 +1599,13 @@ export default function WebhookInspector() {
                         }}
                       >
                         {formatDateTime(request.receivedAt)} · {formatBytes(request.body.sizeBytes)}
+                        {(request.sender?.ip || request.ip) ? (
+                          <>
+                            <br />
+                            from {request.sender?.ip || request.ip}
+                            {request.sender?.clientApp ? ` · ${request.sender.clientApp}` : ''}
+                          </>
+                        ) : null}
                       </div>
                       <button
                         type="button"
@@ -1674,6 +1730,115 @@ export default function WebhookInspector() {
                       </div>
                     ))}
                   </div>
+                </SectionPanel>
+
+                <SectionPanel
+                  title={SECTION_LABELS.sender}
+                  meta={
+                    selectedRequest.sender
+                      ? [selectedRequest.sender.ip, selectedRequest.sender.clientApp]
+                          .filter(Boolean)
+                          .join(' · ') || 'no sender details'
+                      : 'not captured'
+                  }
+                  expanded={expandedSections.has('sender')}
+                  onToggle={() => toggleSection('sender')}
+                  actions={
+                    selectedRequest.sender?.ip ? (
+                      <a
+                        href={`https://ipinfo.io/${encodeURIComponent(selectedRequest.sender.ip)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          padding: '4px 10px',
+                          borderRadius: 8,
+                          border: '1px solid rgba(35, 36, 40, 0.16)',
+                          background: 'rgba(255,255,255,0.85)',
+                          color: 'inherit',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          textDecoration: 'none',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        Lookup IP ↗
+                      </a>
+                    ) : undefined
+                  }
+                >
+                  {selectedRequest.sender ? (
+                    <div style={{ display: 'grid', gap: 12, minWidth: 0 }}>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))',
+                          gap: 10,
+                          minWidth: 0,
+                        }}
+                      >
+                        {buildSenderItems(selectedRequest.sender).map(([label, value]) => (
+                          <div
+                            key={label}
+                            style={{
+                              padding: 12,
+                              borderRadius: 14,
+                              background: 'rgba(255,255,255,0.72)',
+                              border: '1px solid rgba(35, 36, 40, 0.08)',
+                              minWidth: 0,
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: '0.7rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.08em',
+                                fontWeight: 800,
+                                color: '#6b7d8d',
+                              }}
+                            >
+                              {label}
+                            </div>
+                            <div
+                              style={{
+                                marginTop: 6,
+                                fontWeight: 700,
+                                overflowWrap: 'anywhere',
+                                wordBreak: 'break-all',
+                                fontSize: '0.9rem',
+                              }}
+                            >
+                              {value}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div>
+                        <div
+                          style={{
+                            fontSize: '0.72rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                            fontWeight: 800,
+                            color: '#6b7d8d',
+                            marginBottom: 6,
+                          }}
+                        >
+                          All collected sender data (raw)
+                        </div>
+                        <JsonViewer
+                          value={selectedRequest.sender}
+                          expandSignal={jsonExpandSignal}
+                          defaultExpanded={jsonExpandAll}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <p style={{ margin: 0, color: 'var(--color-text-secondary)' }}>
+                      Sender details were not captured for this request (it was received before
+                      sender tracking was enabled). New requests will include IP, reverse DNS,
+                      client app, proxy and geo data.
+                    </p>
+                  )}
                 </SectionPanel>
 
                 <SectionPanel
