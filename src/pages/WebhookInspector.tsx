@@ -1091,7 +1091,7 @@ function AuthHeadersPanel({ token }: { token: string }) {
       setMessage({
         kind: 'ok',
         text: config.enabled
-          ? 'Saved. Share the header key and value below with the callback sender — callbacks without them are rejected with 401 and logged as blocked attempts.'
+          ? 'Saved.'
           : 'Saved. Authorized receiving is off — every callback is accepted.',
       })
     } catch (error) {
@@ -1277,7 +1277,7 @@ function AuthHeadersPanel({ token }: { token: string }) {
             }}
           >
             <div style={{ fontWeight: 800, color: '#1a5c2c', fontSize: '0.92rem' }}>
-              ✅ Give these headers to the callback sender
+              ✅ Give these headers to the user
             </div>
             <p style={{ margin: 0, fontSize: '0.85rem', color: '#2c5138', lineHeight: 1.5 }}>
               The sender must add each one as a custom request header (&quot;Header Key&quot; /
