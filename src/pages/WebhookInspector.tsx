@@ -4,12 +4,17 @@ import {
   buildWebhookBodyDownloadUrl,
   buildWebhookCaptureUrl,
   buildWebhookInspectorUrl,
+  clearWebhookBlockedAttempts,
   clearWebhookRequests,
+  fetchWebhookAuthConfig,
   fetchWebhookRequests,
   getWebhookApiOrigin,
   getWebhookPublicApiOrigin,
   isValidWebhookToken,
   isLoopbackWebhookOrigin,
+  saveWebhookAuthConfig,
+  type WebhookAuthConfig,
+  type WebhookBlockedRecord,
   type WebhookCaptureListResponse,
   type WebhookCaptureRecord,
   type WebhookSenderInfo,
@@ -949,6 +954,524 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
   )
 }
 
+interface AuthHeaderDraft {
+  key: string
+  name: string
+  value: string
+}
+
+let authRowCounter = 0
+function nextAuthRowKey(): string {
+  authRowCounter += 1
+  return `auth-row-${authRowCounter}`
+}
+
+function generateSecretValue(): string {
+  const bytes = new Uint8Array(24)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+function nextGeneratedHeaderName(existingNames: string[]): string {
+  const base = 'X-Webhook-Key'
+  const taken = new Set(existingNames.map((name) => name.toLowerCase()))
+  if (!taken.has(base.toLowerCase())) {
+    return base
+  }
+  let suffix = 2
+  while (taken.has(`${base.toLowerCase()}-${suffix}`)) {
+    suffix += 1
+  }
+  return `${base}-${suffix}`
+}
+
+const AUTH_INPUT_STYLE: React.CSSProperties = {
+  width: '100%',
+  padding: '8px 12px',
+  borderRadius: 10,
+  border: '1px solid rgba(35, 36, 40, 0.16)',
+  background: 'rgba(255,255,255,0.85)',
+  color: 'inherit',
+  fontSize: '0.88rem',
+  fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+  boxSizing: 'border-box',
+}
+
+function AuthHeadersPanel({ token }: { token: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const [enabled, setEnabled] = useState(false)
+  const [rows, setRows] = useState<AuthHeaderDraft[]>([])
+  const [savedConfig, setSavedConfig] = useState<WebhookAuthConfig | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setMessage(null)
+
+    fetchWebhookAuthConfig(token)
+      .then((config) => {
+        if (cancelled) return
+        setEnabled(config.enabled)
+        setRows(
+          config.headers.map((header) => ({
+            key: nextAuthRowKey(),
+            name: header.name,
+            value: header.value,
+          }))
+        )
+        setSavedConfig(config)
+        if (config.enabled) {
+          setExpanded(true)
+        }
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return
+        setMessage({
+          kind: 'error',
+          text:
+            error instanceof Error ? error.message : 'Failed to load authorization settings',
+        })
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [token])
+
+  const updateRow = (key: string, field: 'name' | 'value', nextValue: string) => {
+    setRows((prev) => prev.map((row) => (row.key === key ? { ...row, [field]: nextValue } : row)))
+  }
+
+  const removeRow = (key: string) => {
+    setRows((prev) => prev.filter((row) => row.key !== key))
+  }
+
+  const addRow = () => {
+    setRows((prev) => [...prev, { key: nextAuthRowKey(), name: '', value: '' }])
+  }
+
+  const handleCopy = async (key: string, value: string) => {
+    const ok = await copyText(value)
+    if (!ok) {
+      setMessage({ kind: 'error', text: 'Clipboard access failed' })
+      return
+    }
+    setCopiedKey(key)
+    window.setTimeout(() => {
+      setCopiedKey((current) => (current === key ? null : current))
+    }, 1600)
+  }
+
+  const persist = async (
+    nextEnabled: boolean,
+    headers: Array<{ name: string; value: string }>
+  ) => {
+    setSaving(true)
+    setMessage(null)
+    try {
+      const config = await saveWebhookAuthConfig(token, { enabled: nextEnabled, headers })
+      setEnabled(config.enabled)
+      setRows(
+        config.headers.map((header) => ({
+          key: nextAuthRowKey(),
+          name: header.name,
+          value: header.value,
+        }))
+      )
+      setSavedConfig(config)
+      setMessage({
+        kind: 'ok',
+        text: config.enabled
+          ? 'Saved. Share the header key and value below with the callback sender — callbacks without them are rejected with 401 and logged as blocked attempts.'
+          : 'Saved. Authorized receiving is off — every callback is accepted.',
+      })
+    } catch (error) {
+      setMessage({
+        kind: 'error',
+        text: error instanceof Error ? error.message : 'Failed to save authorization settings',
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleSave = async () => {
+    const headers = rows
+      .map((row) => ({ name: row.name.trim(), value: row.value.trim() }))
+      .filter((header) => header.name || header.value)
+
+    if (enabled && headers.length === 0) {
+      setMessage({
+        kind: 'error',
+        text: 'Add at least one header before enabling authorized receiving.',
+      })
+      return
+    }
+
+    await persist(enabled, headers)
+  }
+
+  const handleGenerate = async () => {
+    const completeHeaders = rows
+      .map((row) => ({ name: row.name.trim(), value: row.value.trim() }))
+      .filter((header) => header.name && header.value)
+
+    const generated = {
+      name: nextGeneratedHeaderName(completeHeaders.map((header) => header.name)),
+      value: generateSecretValue(),
+    }
+
+    await persist(true, [...completeHeaders, generated])
+  }
+
+  return (
+    <SectionPanel
+      title="Authorized Receiving"
+      meta={
+        loading
+          ? 'loading…'
+          : enabled
+            ? `ON · ${rows.length} required header${rows.length === 1 ? '' : 's'}`
+            : 'off — all senders accepted'
+      }
+      expanded={expanded}
+      onToggle={() => setExpanded((prev) => !prev)}
+    >
+      <div style={{ display: 'grid', gap: 12, minWidth: 0 }}>
+        <p
+          style={{
+            margin: 0,
+            color: 'var(--color-text-secondary)',
+            fontSize: '0.9rem',
+            lineHeight: 1.55,
+          }}
+        >
+          Define secret headers that every callback must include. Requests missing them (or
+          sending wrong values) are rejected with <code>401 Unauthorized</code>, never stored in
+          the inbox, and reported below as blocked attempts.
+        </p>
+
+        <ToggleSwitch
+          checked={enabled}
+          onChange={setEnabled}
+          label={enabled ? 'Require headers: ON' : 'Require headers: OFF'}
+        />
+
+        <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
+          {rows.map((row) => (
+            <div
+              key={row.key}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'minmax(120px, 1fr) minmax(160px, 2fr) auto',
+                gap: 8,
+                alignItems: 'center',
+                minWidth: 0,
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Header name (e.g. X-Callback-Key)"
+                aria-label="Header name"
+                value={row.name}
+                onChange={(e) => updateRow(row.key, 'name', e.target.value)}
+                style={AUTH_INPUT_STYLE}
+              />
+              <input
+                type="text"
+                placeholder="Expected value"
+                aria-label="Header value"
+                value={row.value}
+                onChange={(e) => updateRow(row.key, 'value', e.target.value)}
+                style={AUTH_INPUT_STYLE}
+              />
+              <button
+                type="button"
+                onClick={() => removeRow(row.key)}
+                title="Remove header"
+                aria-label="Remove header"
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: 10,
+                  border: '1px solid rgba(176, 0, 32, 0.25)',
+                  background: 'rgba(255, 230, 230, 0.7)',
+                  color: '#7a1320',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          {rows.length === 0 ? (
+            <p
+              style={{
+                margin: 0,
+                color: 'var(--color-text-secondary)',
+                fontSize: '0.85rem',
+                fontStyle: 'italic',
+              }}
+            >
+              No headers configured yet.
+            </p>
+          ) : null}
+        </div>
+
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={() => void handleGenerate()}
+            disabled={saving || loading || rows.length >= 10}
+            title="Create a secret header for this webhook and enable authorized receiving"
+          >
+            {saving ? 'Working…' : '⚡ Generate Secret Header'}
+          </button>
+          <button className="btn" type="button" onClick={addRow} disabled={rows.length >= 10}>
+            + Add Header Manually
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={() => void handleSave()}
+            disabled={saving || loading}
+          >
+            {saving ? 'Saving…' : 'Save Settings'}
+          </button>
+        </div>
+
+        {message ? (
+          <p
+            style={{
+              margin: 0,
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              color: message.kind === 'ok' ? '#22863a' : 'var(--color-danger)',
+              overflowWrap: 'anywhere',
+            }}
+          >
+            {message.text}
+          </p>
+        ) : null}
+
+        {savedConfig?.enabled && savedConfig.headers.length > 0 ? (
+          <div
+            style={{
+              padding: 14,
+              borderRadius: 14,
+              background: 'rgba(224, 245, 227, 0.7)',
+              border: '1px solid rgba(34, 134, 58, 0.3)',
+              display: 'grid',
+              gap: 10,
+              minWidth: 0,
+            }}
+          >
+            <div style={{ fontWeight: 800, color: '#1a5c2c', fontSize: '0.92rem' }}>
+              ✅ Give these headers to the callback sender
+            </div>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: '#2c5138', lineHeight: 1.5 }}>
+              The sender must add each one as a custom request header (&quot;Header Key&quot; /
+              &quot;Header Value&quot;) in their application. Callbacks that include them are
+              received; everything else is rejected with 401 and you get a blocked-attempt alert.
+            </p>
+            {savedConfig.headers.map((header) => (
+              <div
+                key={header.name}
+                style={{
+                  display: 'flex',
+                  gap: 8,
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  minWidth: 0,
+                }}
+              >
+                <code
+                  style={{
+                    padding: '6px 10px',
+                    borderRadius: 8,
+                    background: 'rgba(255,255,255,0.85)',
+                    border: '1px solid rgba(34, 134, 58, 0.2)',
+                    fontSize: '0.82rem',
+                    overflowWrap: 'anywhere',
+                    wordBreak: 'break-all',
+                    minWidth: 0,
+                  }}
+                >
+                  {header.name}: {header.value}
+                </code>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => void handleCopy(`key-${header.name}`, header.name)}
+                >
+                  {copiedKey === `key-${header.name}` ? 'Copied' : 'Copy Key'}
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => void handleCopy(`value-${header.name}`, header.value)}
+                >
+                  {copiedKey === `value-${header.name}` ? 'Copied' : 'Copy Value'}
+                </button>
+              </div>
+            ))}
+            {savedConfig.headers.length > 1 ? (
+              <div>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() =>
+                    void handleCopy(
+                      'all-headers',
+                      savedConfig.headers
+                        .map((header) => `${header.name}: ${header.value}`)
+                        .join('\n')
+                    )
+                  }
+                >
+                  {copiedKey === 'all-headers' ? 'Copied' : 'Copy All Headers'}
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    </SectionPanel>
+  )
+}
+
+function describeBlockedReason(record: WebhookBlockedRecord): string {
+  const parts: string[] = []
+  if (record.missingHeaders.length > 0) {
+    parts.push(`missing header${record.missingHeaders.length === 1 ? '' : 's'}: ${record.missingHeaders.join(', ')}`)
+  }
+  if (record.mismatchedHeaders.length > 0) {
+    parts.push(`wrong value for: ${record.mismatchedHeaders.join(', ')}`)
+  }
+  return parts.join(' · ') || 'authorization failed'
+}
+
+function BlockedAttemptsPanel({
+  blocked,
+  clearing,
+  onClear,
+}: {
+  blocked: WebhookBlockedRecord[]
+  clearing: boolean
+  onClear: () => void
+}) {
+  const [expanded, setExpanded] = useState(true)
+
+  return (
+    <SectionPanel
+      title="Blocked Callback Attempts"
+      meta={`${blocked.length} unauthorized attempt${blocked.length === 1 ? '' : 's'}`}
+      expanded={expanded}
+      onToggle={() => setExpanded((prev) => !prev)}
+      actions={
+        <button
+          type="button"
+          onClick={onClear}
+          disabled={clearing || blocked.length === 0}
+          style={{
+            padding: '4px 10px',
+            borderRadius: 8,
+            border: '1px solid rgba(35, 36, 40, 0.16)',
+            background: 'rgba(255,255,255,0.85)',
+            color: 'inherit',
+            cursor: 'pointer',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {clearing ? 'Clearing…' : 'Clear Log'}
+        </button>
+      }
+    >
+      <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
+        {blocked.map((record) => (
+          <div
+            key={record.id}
+            style={{
+              padding: 12,
+              borderRadius: 14,
+              background: 'rgba(255, 230, 230, 0.5)',
+              border: '1px solid rgba(176, 0, 32, 0.2)',
+              minWidth: 0,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 8,
+                flexWrap: 'wrap',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: '0.7rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  fontWeight: 800,
+                  color: '#7a1320',
+                  background: 'rgba(176, 0, 32, 0.12)',
+                  padding: '2px 8px',
+                  borderRadius: 6,
+                }}
+              >
+                {record.method} · 401 blocked
+              </span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--color-text-secondary)' }}>
+                {formatDateTime(record.receivedAt)}
+              </span>
+            </div>
+            <div
+              style={{
+                marginTop: 6,
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                overflowWrap: 'anywhere',
+              }}
+            >
+              {record.path} — {describeBlockedReason(record)}
+            </div>
+            <div
+              style={{
+                marginTop: 4,
+                fontSize: '0.8rem',
+                color: 'var(--color-text-secondary)',
+                overflowWrap: 'anywhere',
+              }}
+            >
+              from {record.ip || 'unknown IP'}
+              {record.clientApp ? ` · ${record.clientApp}` : ''}
+              {record.userAgent ? ` · ${record.userAgent}` : ''}
+            </div>
+          </div>
+        ))}
+        {blocked.length === 0 ? (
+          <p style={{ margin: 0, color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
+            No blocked attempts recorded.
+          </p>
+        ) : null}
+      </div>
+    </SectionPanel>
+  )
+}
+
 export default function WebhookInspector() {
   const navigate = useNavigate()
   const { token = '' } = useParams()
@@ -974,6 +1497,50 @@ export default function WebhookInspector() {
   const [bodyFetchTick, setBodyFetchTick] = useState(0)
   const fetchedBodyIdsRef = useRef<Set<string>>(new Set())
   const cancelledRef = useRef(false)
+  const [blockedDismissedAt, setBlockedDismissedAt] = useState<string | null>(null)
+  const [clearingBlocked, setClearingBlocked] = useState(false)
+
+  useEffect(() => {
+    try {
+      setBlockedDismissedAt(window.localStorage.getItem(`webhook-blocked-dismissed-${token}`))
+    } catch {
+      setBlockedDismissedAt(null)
+    }
+  }, [token])
+
+  const blockedAttempts = useMemo(() => payload.blocked ?? [], [payload.blocked])
+  const newBlockedAttempts = useMemo(
+    () =>
+      blockedAttempts.filter(
+        (record) => !blockedDismissedAt || record.receivedAt > blockedDismissedAt
+      ),
+    [blockedAttempts, blockedDismissedAt]
+  )
+
+  const dismissBlockedBanner = () => {
+    const latest = blockedAttempts[0]?.receivedAt || new Date().toISOString()
+    setBlockedDismissedAt(latest)
+    try {
+      window.localStorage.setItem(`webhook-blocked-dismissed-${token}`, latest)
+    } catch {
+      /* ignore storage failures */
+    }
+  }
+
+  const handleClearBlocked = async () => {
+    setClearingBlocked(true)
+    try {
+      await clearWebhookBlockedAttempts(token)
+      setPayload((current) => ({ ...current, blocked: [] }))
+      setError(null)
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error ? requestError.message : 'Failed to clear blocked attempts'
+      )
+    } finally {
+      setClearingBlocked(false)
+    }
+  }
 
   const publicApiOrigin = getWebhookPublicApiOrigin()
   const showPublicUrlWarning = isLoopbackWebhookOrigin(publicApiOrigin)
@@ -1451,6 +2018,63 @@ export default function WebhookInspector() {
             </div>
           ) : null}
         </div>
+
+        {newBlockedAttempts.length > 0 ? (
+          <div
+            role="alert"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              flexWrap: 'wrap',
+              padding: '14px 18px',
+              borderRadius: 16,
+              background: 'rgba(176, 0, 32, 0.08)',
+              border: '1px solid rgba(176, 0, 32, 0.35)',
+              color: '#7a1320',
+            }}
+          >
+            <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+              <strong style={{ fontSize: '0.95rem' }}>
+                🚫 {newBlockedAttempts.length} unauthorized callback attempt
+                {newBlockedAttempts.length === 1 ? '' : 's'} blocked
+              </strong>
+              <div style={{ fontSize: '0.85rem', marginTop: 4 }}>
+                Latest: {formatDateTime(newBlockedAttempts[0].receivedAt)} from{' '}
+                {newBlockedAttempts[0].ip || 'unknown IP'} —{' '}
+                {describeBlockedReason(newBlockedAttempts[0])}. Details in Blocked Callback
+                Attempts below.
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={dismissBlockedBanner}
+              style={{
+                flexShrink: 0,
+                padding: '8px 14px',
+                borderRadius: 10,
+                border: '1px solid rgba(176, 0, 32, 0.35)',
+                background: 'rgba(255,255,255,0.8)',
+                color: '#7a1320',
+                cursor: 'pointer',
+                fontWeight: 700,
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        ) : null}
+
+        <AuthHeadersPanel token={token} />
+
+        {blockedAttempts.length > 0 || payload.authEnabled ? (
+          <BlockedAttemptsPanel
+            blocked={blockedAttempts}
+            clearing={clearingBlocked}
+            onClear={() => void handleClearBlocked()}
+          />
+        ) : null}
 
         <div
           className="webhook-grid"

@@ -96,6 +96,39 @@ export interface WebhookCaptureListResponse {
   captureUrl: string
   inspectUrl: string
   requests: WebhookCaptureRecord[]
+  authEnabled?: boolean
+  blocked?: WebhookBlockedRecord[]
+}
+
+export interface WebhookAuthHeader {
+  name: string
+  value: string
+}
+
+export interface WebhookAuthConfig {
+  enabled: boolean
+  headers: WebhookAuthHeader[]
+  updatedAt: string | null
+}
+
+export type WebhookBlockedReason = 'missing-header' | 'header-mismatch'
+
+export interface WebhookBlockedRecord {
+  id: string
+  token: string
+  receivedAt: string
+  method: string
+  path: string
+  url: string
+  ip: string | null
+  ipSource: string | null
+  userAgent: string | null
+  clientApp: string | null
+  host: string | null
+  origin: string | null
+  reason: WebhookBlockedReason
+  missingHeaders: string[]
+  mismatchedHeaders: string[]
 }
 
 const WEBHOOK_TOKEN_REGEX = /^[A-Za-z0-9_-]{10,128}$/
@@ -254,6 +287,54 @@ export async function fetchWebhookRequests(token: string): Promise<WebhookCaptur
 
 export async function clearWebhookRequests(token: string): Promise<{ ok: true; token: string; deleted: number }> {
   const response = await fetch(buildWebhookRequestsApiUrl(token), {
+    method: 'DELETE',
+  })
+
+  return parseJsonResponse<{ ok: true; token: string; deleted: number }>(response)
+}
+
+export function buildWebhookAuthApiUrl(token: string): string {
+  return `${getWebhookApiOrigin()}/api/webhook/${encodeURIComponent(token)}/auth`
+}
+
+export function buildWebhookBlockedApiUrl(token: string): string {
+  return `${getWebhookApiOrigin()}/api/webhook/${encodeURIComponent(token)}/blocked`
+}
+
+export async function fetchWebhookAuthConfig(token: string): Promise<WebhookAuthConfig> {
+  const response = await fetch(buildWebhookAuthApiUrl(token), {
+    headers: {
+      Accept: 'application/json',
+    },
+  })
+
+  const payload = await parseJsonResponse<{ token: string; config: WebhookAuthConfig }>(response)
+  return payload.config
+}
+
+export async function saveWebhookAuthConfig(
+  token: string,
+  config: Pick<WebhookAuthConfig, 'enabled' | 'headers'>
+): Promise<WebhookAuthConfig> {
+  const response = await fetch(buildWebhookAuthApiUrl(token), {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(config),
+  })
+
+  const payload = await parseJsonResponse<{ ok: true; token: string; config: WebhookAuthConfig }>(
+    response
+  )
+  return payload.config
+}
+
+export async function clearWebhookBlockedAttempts(
+  token: string
+): Promise<{ ok: true; token: string; deleted: number }> {
+  const response = await fetch(buildWebhookBlockedApiUrl(token), {
     method: 'DELETE',
   })
 
