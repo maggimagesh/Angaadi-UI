@@ -1715,15 +1715,36 @@ export default function WebhookInspector() {
     setJsonExpandSignal((s) => s + 1)
   }
 
+  const startServerDownload = async (url: string) => {
+    try {
+      const probe = await fetch(url, { method: 'HEAD' })
+      if (!probe.ok) {
+        setError(
+          `Download failed (status ${probe.status}). ` +
+            (probe.status === 404
+              ? 'The API server may be running an older build without this download route — restart/redeploy Angaadi-API.'
+              : 'Check that the API server is reachable.')
+        )
+        return
+      }
+      setError(null)
+      triggerUrlDownload(url)
+    } catch {
+      setError(`Download failed: could not reach ${url}`)
+    }
+  }
+
   const handleDownloadRequest = (request: WebhookCaptureRecord) => {
-    triggerUrlDownload(buildWebhookBodyDownloadUrl(token, request.id, request.body.downloadUrl))
+    void startServerDownload(
+      buildWebhookBodyDownloadUrl(token, request.id, request.body.downloadUrl)
+    )
   }
 
   const handleDownloadAll = () => {
     if (payload.requests.length === 0) {
       return
     }
-    triggerUrlDownload(buildWebhookDownloadAllUrl(token))
+    void startServerDownload(buildWebhookDownloadAllUrl(token))
   }
 
   if (!token || !isValidWebhookToken(token)) {
