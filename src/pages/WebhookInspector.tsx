@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   buildWebhookBodyDownloadUrl,
   buildWebhookCaptureUrl,
+  buildWebhookDownloadAllUrl,
   buildWebhookInspectorUrl,
   clearWebhookBlockedAttempts,
   clearWebhookRequests,
@@ -20,7 +21,6 @@ import {
   type WebhookSenderInfo,
   type WebhookStoredBody,
 } from '../api/webhook'
-import { buildZipBlob, downloadBlob } from '../utils/zip'
 
 type SectionKey =
   | 'overview'
@@ -223,19 +223,13 @@ function getResponseBodyValue(record: WebhookCaptureRecord): { value: unknown; i
   return { value: '', isJson: false }
 }
 
-function downloadJson(filename: string, value: unknown): void {
-  const blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' })
-  downloadBlob(filename, blob)
-}
-
-function safeFilenameSegment(value: string): string {
-  return value.replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'item'
-}
-
-function buildRequestJsonName(request: WebhookCaptureRecord, index: number): string {
-  const stamp = new Date(request.receivedAt).toISOString().replace(/[:.]/g, '-')
-  const idTail = request.id.slice(0, 8)
-  return `${String(index + 1).padStart(3, '0')}-${safeFilenameSegment(stamp)}-${safeFilenameSegment(request.method)}-${idTail}.json`
+function triggerUrlDownload(url: string): void {
+  const link = document.createElement('a')
+  link.href = url
+  link.rel = 'noopener noreferrer'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
 async function copyText(value: string): Promise<boolean> {
@@ -1722,60 +1716,14 @@ export default function WebhookInspector() {
   }
 
   const handleDownloadRequest = (request: WebhookCaptureRecord) => {
-    const stamp = new Date(request.receivedAt).toISOString().replace(/[:.]/g, '-')
-    downloadJson(`webhook-${token}-${stamp}-${request.id.slice(0, 8)}.json`, request)
+    triggerUrlDownload(buildWebhookBodyDownloadUrl(token, request.id, request.body.downloadUrl))
   }
 
   const handleDownloadAll = () => {
     if (payload.requests.length === 0) {
       return
     }
-    const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-
-    if (payload.requests.length === 1) {
-      handleDownloadRequest(payload.requests[0])
-      return
-    }
-
-    const encoder = new TextEncoder()
-    const manifest = {
-      token,
-      captureUrl: payload.captureUrl,
-      inspectUrl: payload.inspectUrl,
-      exportedAt: new Date().toISOString(),
-      count: payload.requests.length,
-      files: payload.requests.map((request, index) => ({
-        file: buildRequestJsonName(request, index),
-        id: request.id,
-        method: request.method,
-        path: request.path,
-        receivedAt: request.receivedAt,
-        sizeBytes: request.body.sizeBytes,
-        truncated: Boolean(request.body.truncated),
-      })),
-    }
-
-    const entries = [
-      {
-        name: 'manifest.json',
-        data: encoder.encode(JSON.stringify(manifest, null, 2)),
-      },
-      ...payload.requests.map((request, index) => ({
-        name: buildRequestJsonName(request, index),
-        data: encoder.encode(JSON.stringify(request, null, 2)),
-      })),
-    ]
-
-    try {
-      const blob = buildZipBlob(entries)
-      downloadBlob(`webhook-${token}-${stamp}.zip`, blob)
-    } catch (zipError) {
-      setError(
-        zipError instanceof Error
-          ? `Failed to build zip: ${zipError.message}`
-          : 'Failed to build zip archive'
-      )
-    }
+    triggerUrlDownload(buildWebhookDownloadAllUrl(token))
   }
 
   if (!token || !isValidWebhookToken(token)) {
@@ -1964,9 +1912,7 @@ export default function WebhookInspector() {
                   disabled={payload.requests.length === 0}
                   onClick={handleDownloadAll}
                 >
-                  {payload.requests.length > 1
-                    ? `Download All (${payload.requests.length}) as .zip`
-                    : `Download All (${payload.requests.length})`}
+                  {`Download All (${payload.requests.length}) as .zip`}
                 </button>
                 <span
                   style={{
@@ -2256,8 +2202,8 @@ export default function WebhookInspector() {
                           event.stopPropagation()
                           handleDownloadRequest(request)
                         }}
-                        title="Download this callback as JSON"
-                        aria-label="Download this callback as JSON"
+                        title="Download this request body"
+                        aria-label="Download this request body"
                         style={{
                           flexShrink: 0,
                           padding: '4px 10px',
@@ -2271,7 +2217,7 @@ export default function WebhookInspector() {
                           letterSpacing: '0.04em',
                         }}
                       >
-                        ↓ JSON
+                        ↓ Body
                       </button>
                     </div>
                   </div>
@@ -2319,7 +2265,7 @@ export default function WebhookInspector() {
                     className="btn btn-primary"
                     onClick={() => handleDownloadRequest(selectedRequest)}
                   >
-                    Download Request
+                    Download Body
                   </button>
                 </div>
 

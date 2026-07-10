@@ -228,6 +228,10 @@ export function buildWebhookBodyDownloadUrl(
   return `${getWebhookApiOrigin()}/api/webhook/${encodeURIComponent(token)}/${encodeURIComponent(requestId)}/body`
 }
 
+export function buildWebhookDownloadAllUrl(token: string): string {
+  return `${getWebhookApiOrigin()}/api/webhook/${encodeURIComponent(token)}/download`
+}
+
 export function buildWebhookInspectorPath(token: string): string {
   const basePath = normalizeBasePath(getEnvValue('VITE_WEBHOOK_UI_BASE_PATH') || '/valid-webhooks')
   return `${basePath}/${encodeURIComponent(token)}`
