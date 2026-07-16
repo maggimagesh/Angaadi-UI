@@ -1,4 +1,4 @@
-import { buildApiUrl } from '../lib/api'
+import { secureFetch } from '../lib/secureClient'
 import { clearAuthTokenCookie, getCurrentAuthToken } from '../utils/token'
 
 interface CreateUserRequest {
@@ -36,7 +36,7 @@ interface ApiResponse<T> {
 // Public endpoint: Create a new user
 export async function createUserRecord(data: CreateUserRequest): Promise<ApiResponse<UserResponse>> {
   try {
-    const response = await fetch(buildApiUrl('/users/createUser'), {
+    const response = await secureFetch('/users/createUser', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ export async function createUserRecord(data: CreateUserRequest): Promise<ApiResp
 // Public endpoint: Sign In with email and password
 export async function signIn(data: SignInRequest): Promise<ApiResponse<UserResponse>> {
   try {
-    const response = await fetch(buildApiUrl('/users/signIn'), {
+    const response = await secureFetch('/users/signIn', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ export async function signIn(data: SignInRequest): Promise<ApiResponse<UserRespo
 // Public endpoint: Sign out
 export async function signOut(): Promise<{ success: boolean; message?: string; error?: { message: string } }> {
   try {
-    const response = await fetch(buildApiUrl('/users/signOut'), {
+    const response = await secureFetch('/users/signOut', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ export async function fetchAllUsers(): Promise<{ users?: UserResponse[]; error?:
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await fetch(buildApiUrl('/users'), {
+    const response = await secureFetch('/users', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -174,7 +174,7 @@ export async function fetchUserById(userId: string): Promise<{ user?: UserRespon
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await fetch(buildApiUrl(`/users/${userId}`), {
+    const response = await secureFetch(`/users/${userId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -211,7 +211,7 @@ export async function savePhysicalStats(userId: string, data: { heightUnit: stri
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await fetch(buildApiUrl('/users/physical-stats'), {
+    const response = await secureFetch('/users/physical-stats', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -250,7 +250,7 @@ export async function removePhysicalStats(userId: string): Promise<{ success?: b
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await fetch(buildApiUrl(`/users/physical-stats?userId=${encodeURIComponent(userId)}`), {
+    const response = await secureFetch(`/users/physical-stats?userId=${encodeURIComponent(userId)}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -302,7 +302,7 @@ interface ResetPasswordRequest {
 // Public endpoint: Send OTP for password reset
 export async function forgotPassword(data: ForgotPasswordRequest): Promise<{ success?: boolean; error?: { message: string } }> {
   try {
-    const response = await fetch(buildApiUrl('/users/forgot-password'), {
+    const response = await secureFetch('/users/forgot-password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -333,7 +333,7 @@ export async function forgotPassword(data: ForgotPasswordRequest): Promise<{ suc
 // Public endpoint: Verify OTP
 export async function verifyOTP(data: VerifyOTPRequest): Promise<{ resetToken?: string; error?: { message: string } }> {
   try {
-    const response = await fetch(buildApiUrl('/users/verify-otp'), {
+    const response = await secureFetch('/users/verify-otp', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -373,7 +373,7 @@ export async function verifyOTP(data: VerifyOTPRequest): Promise<{ resetToken?: 
 // Public endpoint: Reset password with new password
 export async function resetPassword(data: ResetPasswordRequest): Promise<{ success?: boolean; error?: { message: string } }> {
   try {
-    const response = await fetch(buildApiUrl('/users/reset-password'), {
+    const response = await secureFetch('/users/reset-password', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -418,7 +418,7 @@ export async function fetchPhysicalStats(): Promise<{ stats?: {
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await fetch(buildApiUrl('/users/physical-stats'), {
+    const response = await secureFetch('/users/physical-stats', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

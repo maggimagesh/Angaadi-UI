@@ -1,4 +1,4 @@
-import { buildApiUrl } from '../lib/api'
+import { secureFetch } from '../lib/secureClient'
 import { getAuthTokenCookie } from '../utils/token'
 
 export type ShoeWidth = 'Narrow' | 'Standard' | 'Wide'
@@ -48,7 +48,7 @@ export async function fetchAllShoeSizes(): Promise<{
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await fetch(buildApiUrl('/shoe-size'), {
+    const response = await secureFetch('/shoe-size', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ export async function fetchUserShoeSize(userId: string): Promise<{
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await fetch(buildApiUrl(`/shoe-size/${userId}`), {
+    const response = await secureFetch(`/shoe-size/${userId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ export async function saveUserShoeSize(userId: string, size: ShoeSizeValue, widt
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await fetch(buildApiUrl('/shoe-size'), {
+    const response = await secureFetch('/shoe-size', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -211,7 +211,7 @@ export async function removeUserShoeSize(userId: string): Promise<{
       return { success: false, error: { message: 'Authentication required' } }
     }
 
-    const response = await fetch(buildApiUrl(`/shoe-size/${userId}`), {
+    const response = await secureFetch(`/shoe-size/${userId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
