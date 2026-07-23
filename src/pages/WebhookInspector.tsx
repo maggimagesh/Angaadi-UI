@@ -7,6 +7,7 @@ import {
   buildWebhookInspectorUrl,
   clearWebhookBlockedAttempts,
   clearWebhookRequests,
+  DEFAULT_WEBHOOK_RETENTION_HOURS,
   fetchWebhookAuthConfig,
   fetchWebhookRequests,
   getWebhookApiOrigin,
@@ -1860,6 +1861,18 @@ export default function WebhookInspector() {
               >
                 Send payloads to the public webhook URL below. The inspector polls every 2.5s and
                 renders every captured request.
+              </p>
+              <p
+                style={{
+                  margin: 0,
+                  color: '#9b4d12',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                }}
+              >
+                Data retention: {payload.retentionHours ?? DEFAULT_WEBHOOK_RETENTION_HOURS} hours.
+                Captured requests and their bodies are permanently deleted after that — download
+                anything you need to keep.
               </p>
 
               <div

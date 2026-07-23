@@ -4,6 +4,7 @@ import {
   buildWebhookCaptureUrl,
   buildWebhookInspectorPath,
   createWebhookToken,
+  DEFAULT_WEBHOOK_RETENTION_HOURS,
   getWebhookPublicApiOrigin,
   isValidWebhookToken,
   isLoopbackWebhookOrigin,
@@ -61,6 +62,18 @@ export default function WebhookLanding() {
               <p style={{ margin: '12px 0 0', maxWidth: 760, color: 'var(--color-text-secondary)' }}>
                 Create a token here, send payloads to the generated webhook URL, and inspect all
                 captured request and response data from this UI.
+              </p>
+              <p
+                style={{
+                  margin: '8px 0 0',
+                  maxWidth: 760,
+                  color: '#9b4d12',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                }}
+              >
+                Data retention: {DEFAULT_WEBHOOK_RETENTION_HOURS} hours. Captured requests and their
+                bodies are permanently deleted after that.
               </p>
             </div>
 

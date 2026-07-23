@@ -98,7 +98,10 @@ export interface WebhookCaptureListResponse {
   requests: WebhookCaptureRecord[]
   authEnabled?: boolean
   blocked?: WebhookBlockedRecord[]
+  retentionHours?: number
 }
+
+export const DEFAULT_WEBHOOK_RETENTION_HOURS = 48
 
 export interface WebhookAuthHeader {
   name: string
