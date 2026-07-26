@@ -5,7 +5,7 @@ export type Department = {
   /** Full department name used in the mega-menu and the home grid. */
   name: string
   slug: string
-  /** Local grayscale placeholder, used when the API has no image. */
+  /** Local fallback photo, used when the API has no image. */
   art: CatalogArt
   /** Sub-links, grouped as they appear in the mega-menu. */
   groups?: { label: string; items: string[] }[]
@@ -21,7 +21,7 @@ export type CatalogArt =
   | 'tablet'
 
 export function artUrl(art: CatalogArt): string {
-  return `/images/catalog/${art}.svg`
+  return `/images/catalog/${art}.jpg`
 }
 
 /** The five chips that live in the header's third row. */

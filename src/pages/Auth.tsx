@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { isStrongPassword } from '../utils/password'
 import { useUIStore } from '../store/ui'
 import { isLettersOnly } from '../utils/name'
 import { createUserRecord, signIn } from '../api/user'
 import { setAuthTokenCookie } from '../utils/token'
 import { useAuthStore } from '../store/auth'
+import { clearAuthRedirect, getAuthRedirect, rememberAuthRedirect } from '../utils/authRedirect'
 import { supabase } from '../lib/supabase'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { Footer } from '../components/Footer'
@@ -71,7 +72,8 @@ export default function AuthPage() {
 
 function SignInPanel({ onSwitch }: { onSwitch: () => void }) {
   const navigate = useNavigate()
-  const openSuccess = useUIStore(s => s.openSuccess)
+  const location = useLocation()
+  const openSuccessWithDuration = useUIStore(s => s.openSuccessWithDuration)
   const openForgotPassword = useUIStore(s => s.openForgotPassword)
   const login = useAuthStore(s => s.login)
   const [email, setEmail] = useState('')
@@ -126,9 +128,23 @@ function SignInPanel({ onSwitch }: { onSwitch: () => void }) {
     } catch {}
   }, [remember, email])
 
+  const completeSignInNavigation = () => {
+    const redirectTo = getAuthRedirect(location.search, location.state)
+    clearAuthRedirect()
+    openSuccessWithDuration(
+      redirectTo === '/profile' ? 'Signed in. Opening Profile & fit.' : 'Login successful',
+      2000
+    )
+    setTimeout(() => {
+      navigate(redirectTo, { replace: true })
+    }, 2100)
+  }
+
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true)
     setError(null)
+    const redirectTo = getAuthRedirect(location.search, location.state)
+    rememberAuthRedirect(redirectTo)
     
     try {
       // Try popup first, fallback to redirect if blocked
@@ -217,7 +233,7 @@ function SignInPanel({ onSwitch }: { onSwitch: () => void }) {
             if (userData) {
               console.log('Logging in user:', userData)
               login(userData)
-              navigate('/')
+              completeSignInNavigation()
             } else {
               console.log('No user data, redirecting to callback')
               window.location.href = '/oauth-callback'
@@ -412,8 +428,7 @@ function SignInPanel({ onSwitch }: { onSwitch: () => void }) {
                 const lastName: string | undefined = signedInUser.lastName
                 if (token) setAuthTokenCookie(token, 7)
                 login({ emailId: e, userId, token, firstName, lastName })
-                openSuccess('Login successful')
-                setTimeout(() => { navigate('/') }, 2100)
+                completeSignInNavigation()
               } catch (error) {
                 setError('An unexpected error occurred. Please try again.')
                 if (statusEl) statusEl.textContent = 'An unexpected error occurred. Please try again.'
@@ -485,7 +500,9 @@ function SignInPanel({ onSwitch }: { onSwitch: () => void }) {
 }
 
 function SignUpPanel({ onSwitch }: { onSwitch: () => void }) {
-  const openSuccess = useUIStore(s => s.openSuccess)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const openSuccessWithDuration = useUIStore(s => s.openSuccessWithDuration)
   const openDoc = useUIStore(s => s.openDoc)
   const login = useAuthStore(s => s.login)
   const [firstName, setFirstName] = useState('')
@@ -689,8 +706,17 @@ function SignUpPanel({ onSwitch }: { onSwitch: () => void }) {
                 if (s) s.textContent = ''
                 setSuccess(true)
                 login({ emailId: email, firstName, lastName })
-                openSuccess('Account created successfully')
-                setTimeout(() => { window.location.href = '/' }, 2100)
+                const redirectTo = getAuthRedirect(location.search, location.state)
+                clearAuthRedirect()
+                openSuccessWithDuration(
+                  redirectTo === '/profile'
+                    ? 'Account created. Opening Profile & fit.'
+                    : 'Account created successfully',
+                  2000
+                )
+                setTimeout(() => {
+                  navigate(redirectTo, { replace: true })
+                }, 2100)
               } catch (error) {
                 setError('An unexpected error occurred. Please try again.')
               } finally {
@@ -743,5 +769,3 @@ const PRIVACY_BODY = `
   <li><strong>Your Rights</strong>: You can access, update, or delete your personal information by contacting our support team or through your account settings.</li>
 </ul>
 `
-
-

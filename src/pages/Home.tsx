@@ -521,7 +521,7 @@ export default function HomePage() {
             </form>
             {alertSet ? (
               <p className="poster-note" role="status">
-                Saved on this device. We&rsquo;ll mail {alertEmail} when a watched price moves.
+                We&rsquo;ll mail {alertEmail} when a watched price moves.
               </p>
             ) : null}
           </div>

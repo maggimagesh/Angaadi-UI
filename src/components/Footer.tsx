@@ -1,5 +1,9 @@
-import { Link } from 'react-router-dom'
+import type { MouseEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { DEPARTMENTS, productsHref } from '../data/catalog'
+import { useAuthStore } from '../store/auth'
+import { useUIStore } from '../store/ui'
+import { authRedirectState, loginPathWithRedirect, rememberAuthRedirect } from '../utils/authRedirect'
 
 /**
  * Site footer — five ruled columns on the darkest neutral.
@@ -8,6 +12,24 @@ import { DEPARTMENTS, productsHref } from '../data/catalog'
  * from ordinary chrome; everything it links is a real route in App.tsx.
  */
 export function Footer() {
+  const navigate = useNavigate()
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
+  const openSuccessWithDuration = useUIStore((s) => s.openSuccessWithDuration)
+
+  const handleProfileFitClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (isAuthenticated) {
+      openSuccessWithDuration('Opening Profile & fit.', 1800)
+      return
+    }
+
+    event.preventDefault()
+    rememberAuthRedirect('/profile')
+    openSuccessWithDuration('Please sign in to continue to Profile & fit.', 3500)
+    navigate(loginPathWithRedirect('/profile'), {
+      state: authRedirectState('/profile'),
+    })
+  }
+
   return (
     <footer className="site-footer" id="site-footer" data-testid="site-footer">
       <div className="footer-grid">
@@ -32,7 +54,7 @@ export function Footer() {
         <nav className="footer-col" aria-label="Account">
           <div className="footer-col-title">Account</div>
           <Link to="/login">Sign in</Link>
-          <Link to="/profile">Profile &amp; fit</Link>
+          <Link to="/profile" onClick={handleProfileFitClick}>Profile &amp; fit</Link>
           <Link to="/wishlist">Wishlist</Link>
           <Link to="/cart">Cart</Link>
         </nav>

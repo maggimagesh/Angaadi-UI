@@ -2,15 +2,19 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../store/auth'
+import { useUIStore } from '../store/ui'
 import { setAuthTokenCookie } from '../utils/token'
+import { consumeAuthRedirect, loginPathWithRedirect, readAuthRedirect } from '../utils/authRedirect'
 import { buildApiUrl } from '../lib/api'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 export default function OAuthCallback() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [error, setError] = useState<string | null>(null)
+  const [redirectTargetLabel, setRedirectTargetLabel] = useState('home page')
   const navigate = useNavigate()
   const login = useAuthStore(s => s.login)
+  const openSuccessWithDuration = useUIStore(s => s.openSuccessWithDuration)
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
@@ -116,10 +120,16 @@ export default function OAuthCallback() {
               }
             }, 500)
           } else {
-            console.log('Not in popup, redirecting to home')
-            // If not in popup, redirect to home
+            const redirectTo = consumeAuthRedirect('/')
+            setRedirectTargetLabel(redirectTo === '/profile' ? 'Profile & fit' : 'home page')
+            openSuccessWithDuration(
+              redirectTo === '/profile' ? 'Signed in. Opening Profile & fit.' : 'Login successful',
+              2000
+            )
+            console.log('Not in popup, redirecting to', redirectTo)
+            // If not in popup, redirect to the saved destination.
             setTimeout(() => {
-              navigate('/')
+              navigate(redirectTo, { replace: true })
             }, 1000)
           }
         } else {
@@ -172,16 +182,17 @@ export default function OAuthCallback() {
           }, 1000)
         } else {
           console.log('Not in popup, redirecting to auth')
-          // If not in popup, redirect to auth page
+          // If not in popup, redirect to auth page and preserve the saved destination.
           setTimeout(() => {
-            navigate('/auth')
+            const redirectTo = readAuthRedirect('/')
+            navigate(redirectTo === '/' ? '/auth' : loginPathWithRedirect(redirectTo))
           }, 2000)
         }
       }
     }
 
     handleOAuthCallback()
-  }, [navigate, login])
+  }, [navigate, login, openSuccessWithDuration])
 
   if (status === 'loading') {
     return (
@@ -210,7 +221,7 @@ export default function OAuthCallback() {
               Sign-in Successful!
             </h2>
             <p style={{ color: 'var(--color-muted)' }}>
-              {window.opener ? 'Closing popup...' : 'Redirecting you to the home page...'}
+              {window.opener ? 'Closing popup...' : `Redirecting you to ${redirectTargetLabel}...`}
             </p>
           </div>
         </section>
