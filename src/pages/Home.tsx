@@ -1,963 +1,534 @@
-import { useEffect, useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useCartStore } from '../store/cart'
-import { useUIStore } from '../store/ui'
-import { useAuthStore } from '../store/auth'
-import { signOut } from '../api/user'
-import { clearAuthTokenCookie } from '../utils/token'
-
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { fetchCategories, fetchProductsByCategory } from '../api/products'
-import type { ProductItem } from '../api/products'
-import { CategorySkeletonLoader } from '../components/CategorySkeleton'
-import { useImageFallback } from '../hooks/useImageFallback'
+import type { Category, ProductItem } from '../api/products'
+import { ProductCard, ProductGridSkeleton, type CardProduct } from '../components/ProductCard'
+import { Footer } from '../components/Footer'
+import { EmptyState, ErrorState } from '../components/States'
+import { ChevronLeft, ChevronRight } from '../components/icons'
 import { storeCategoryInfo } from '../utils/categoryStorage'
+import { formatINR } from '../utils/currency'
+import {
+  ALL_DEPARTMENT_COUNT,
+  DEPARTMENTS,
+  artUrl,
+  placeholderFor,
+  productsHref,
+} from '../data/catalog'
 import '../styles/home.css'
 
-const heroSlides = [
-  {
-    title: 'Great Indian Festival',
-    subtitle: 'Up to 80% off on Electronics',
-    cta: 'Shop Now',
-    background: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920',
-    alt: 'Great Indian Festival sale banner',
-  },
-  {
-    title: 'Smartphone Sale',
-    subtitle: 'Latest models at best prices',
-    cta: 'Shop Mobiles',
-    background: 'https://images.unsplash.com/photo-1605236453806-6ff36851218e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920',
-    alt: 'Smartphone sale banner',
-  },
-  {
-    title: 'Festive Tech Week',
-    subtitle: 'Upgrade your everyday with latest technology',
-    cta: 'Explore Deals',
-    background: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920',
-    alt: 'Festive tech week banner',
-  },
-]
+/** Categories the price-drop rail is drawn from. */
+const DEAL_CATEGORY_IDS = [1, 2, 3, 4]
+/** Categories the recommendation strip is drawn from. */
+const PICK_CATEGORY_IDS = [11, 6, 4, 1, 2, 3]
 
-// Helper function to map API category names to slugs
-const categorySlugMap: Record<string, string> = {
-  mobileAndTablets: 'mobiles-tablets',
-  laptopsAndComputers: 'laptops-computers',
-  fashionAndLifestyle: 'fashion-lifestyle',
-  homeAndKitchen: 'home-kitchen',
-  beautyAndPersonalCare: 'beauty-personal-care',
-  booksAndMedia: 'books-media',
-  sportsAndFitness: 'sports-fitness',
-  groceryAndGourmet: 'grocery-gourmet',
-  tvsAndAppliances: 'tvs-appliances',
-  audioAndHeadphones: 'audio-headphones',
+type HomeDepartment = {
+  id: number
+  name: string
+  slug: string
+  art: string
+  count: number
 }
 
-// Default fallback image for categories without API image
-const DEFAULT_CATEGORY_IMAGE = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'
-
-// Fallback categories when API fails
-const FALLBACK_CATEGORIES = [
-  {
-    id: 1,
-    name: 'Mobiles & Tablets',
-    slug: 'mobiles-tablets',
-    badge: 'Up to 40% Off',
-    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    fallback: DEFAULT_CATEGORY_IMAGE,
-  },
-  {
-    id: 2,
-    name: 'Laptops & Computers',
-    slug: 'laptops-computers',
-    badge: 'Starting ₹25,990',
-    image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    fallback: DEFAULT_CATEGORY_IMAGE,
-  },
-  {
-    id: 3,
-    name: 'TVs & Appliances',
-    slug: 'tvs-appliances',
-    badge: 'Up to ₹60,000 Off',
-    image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    fallback: DEFAULT_CATEGORY_IMAGE,
-  },
-  {
-    id: 4,
-    name: 'Audio & Headphones',
-    slug: 'audio-headphones',
-    badge: 'Starting ₹199',
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    fallback: DEFAULT_CATEGORY_IMAGE,
-  },
-  {
-    id: 5,
-    name: 'Fashion & Lifestyle',
-    slug: 'fashion-lifestyle',
-    badge: 'Min 50% Off',
-    image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    fallback: DEFAULT_CATEGORY_IMAGE,
-  },
-  {
-    id: 6,
-    name: 'Home & Kitchen',
-    slug: 'home-kitchen',
-    badge: 'Up to 60% Off',
-    image: 'https://images.unsplash.com/photo-1570222094114-d054a817e56b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    fallback: DEFAULT_CATEGORY_IMAGE,
-  },
-  {
-    id: 7,
-    name: 'Beauty & Personal Care',
-    slug: 'beauty-personal-care',
-    badge: 'Starting ₹99',
-    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    fallback: DEFAULT_CATEGORY_IMAGE,
-  },
-  {
-    id: 8,
-    name: 'Books & Media',
-    slug: 'books-media',
-    badge: 'Up to 80% Off',
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    fallback: DEFAULT_CATEGORY_IMAGE,
-  },
-  {
-    id: 9,
-    name: 'Sports & Fitness',
-    slug: 'sports-fitness',
-    badge: 'Min 30% Off',
-    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    fallback: DEFAULT_CATEGORY_IMAGE,
-  },
-  {
-    id: 11,
-    name: 'Smartwatches',
-    slug: 'smartwatches',
-    badge: 'Starting ₹1,999',
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    fallback: DEFAULT_CATEGORY_IMAGE,
-  },
-]
-
-// Helper function to generate badge text for categories (will be replaced by API data later)
-const categoryBadgeMap: Record<string, string> = {
-  mobileAndTablets: 'Up to 40% Off',
-  laptopsAndComputers: 'Starting ₹25,990',
-  fashionAndLifestyle: 'Min 50% Off',
-  homeAndKitchen: 'Up to 60% Off',
-  beautyAndPersonalCare: 'Starting ₹99',
-  booksAndMedia: 'Up to 80% Off',
-  sportsAndFitness: 'Min 30% Off',
-  groceryAndGourmet: 'Free Delivery',
-  tvsAndAppliances: 'Up to ₹60,000 Off',
-  audioAndHeadphones: 'Starting ₹199',
+function toCardProduct(item: ProductItem): CardProduct {
+  const price = parseFloat(item.price) || 0
+  const oldPrice = parseFloat(item.oldprice) || undefined
+  return {
+    id: item.id,
+    title: item.productname,
+    brand: item.brand,
+    price,
+    oldPrice: oldPrice && oldPrice > price ? oldPrice : undefined,
+    discountPercent: item.discountpercent,
+    image: item.imageurl,
+    rating: parseFloat(item.starrating) || undefined,
+    ratingsCount: item.ratingscount,
+    stockCount: item.stock,
+    inStock: item.stock > 0,
+    freeDelivery: item.freedelivery,
+    categoryId: item.categoryid,
+    description: item.description,
+    badge: item.badge,
+  }
 }
 
-const spotlights = [
-  { title: 'End of season refresh', description: 'Switch to eco-efficient appliances with special bank offers.', meta: 'Valid till 10 Oct' },
-  { title: 'Creator studio setup', description: 'Build your dream workspace with monitors, mics, and lighting.', meta: 'Limited stocks' },
-  { title: 'Campus essentials', description: 'Lightweight laptops, tablets, and backpacks for the new semester.', meta: 'Student exclusive' },
-]
+/** Deals refresh at 06:00 IST; the countdown says how long is left today. */
+function useCountdown() {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const t = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(t)
+  }, [])
 
-const curatedCollections = [
-  { badge: 'Top rated', title: 'Power & productivity', copy: 'Long-lasting battery champs with stellar performance for work and play.' },
-  { badge: 'New arrival', title: 'Latest arrivals', copy: 'Browse the newest products from top brands with modern features.' },
-  { badge: "Editor's choice", title: 'Soundscapes', copy: 'Noise-cancelling headphones and speakers for audiophiles.' },
-  { badge: 'Value buys', title: 'Daily essentials', copy: 'Chargers, cables, and accessories you reach for every day.' },
-]
-
-const trustSignals = [
-  { title: 'Trusted sellers', description: 'Every partner is vetted for quality, warranty, and post-sale support.' },
-  { title: 'Secure payments', description: 'UPI, credit, EMI, and wallet support with industry-grade encryption.' },
-  { title: 'Expert concierge', description: 'Need guidance? Chat with our product specialists 7 days a week.' },
-  { title: 'Easy returns', description: 'Hassle-free pickup and instant refunds within 48 hours.' },
-]
-
-const dealHighlights = [
-  {
-    title: 'iPhone 15 Pro Max',
-    description: 'A17 Pro • Titanium build • 256 GB',
-    priceLabel: '₹1,34,900',
-    tag: 'Festival offer',
-    image: '/images/deals/deal-iphone.jpg',
-    fallback: 'https://images.unsplash.com/photo-1675953935267-e039f13ddd79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    title: 'MacBook Air M3',
-    description: '13-inch • 8C CPU • 18-hour battery',
-    priceLabel: '₹1,07,990',
-    tag: 'Bank cashback',
-    image: '/images/deals/deal-macbook.jpg',
-    fallback: 'https://images.unsplash.com/photo-1737868131581-6379cdee4ec3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    title: 'Sony WH-1000XM5',
-    description: 'Adaptive ANC • 30-hour battery life',
-    priceLabel: '₹29,499',
-    tag: 'Price drop',
-    image: '/images/deals/deal-headphones.jpg',
-    fallback: 'https://images.unsplash.com/photo-1649956736509-f359d191bbcb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    title: 'Samsung Neo QLED 55"',
-    description: 'Mini LED • Dolby Atmos • Tizen TV',
-    priceLabel: '₹1,05,999',
-    tag: 'Exchange bonus',
-    image: '/images/deals/deal-tv.jpg',
-    fallback: 'https://images.unsplash.com/photo-1601944177325-f8867652837f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-]
-
-const recommendedHighlights = [
-  {
-    title: 'Galaxy S24 Ultra',
-    description: 'Quad telephoto • S Pen in the box',
-    priceLabel: '₹1,09,999',
-    tag: 'Trending',
-    image: '/images/featured/featured-galaxy.jpg',
-    fallback: 'https://images.unsplash.com/photo-1675953935267-e039f13ddd79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    title: 'Dell XPS 13 Plus',
-    description: 'OLED InfinityEdge • Intel Ultra 7',
-    priceLabel: '₹1,72,490',
-    tag: 'Editor’s pick',
-    image: '/images/featured/featured-dell.jpg',
-    fallback: 'https://images.unsplash.com/photo-1737868131581-6379cdee4ec3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    title: 'Apple Watch Series 9',
-    description: 'S9 SiP • Double Tap gestures',
-    priceLabel: '₹39,900',
-    tag: 'Bundle offer',
-    image: '/images/featured/featured-watch.jpg',
-    fallback: 'https://images.unsplash.com/photo-1675953935267-e039f13ddd79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-  {
-    title: 'Sony A7 IV',
-    description: '33 MP full-frame • 4K 60p video',
-    priceLabel: '₹2,19,990',
-    tag: 'Back in stock',
-    image: '/images/featured/featured-camera.jpg',
-    fallback: 'https://images.unsplash.com/photo-1737868131581-6379cdee4ec3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-  },
-]
+  return useMemo(() => {
+    const next = new Date(now)
+    next.setHours(6, 0, 0, 0)
+    if (next.getTime() <= now) next.setDate(next.getDate() + 1)
+    const remaining = Math.max(0, next.getTime() - now)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return {
+      h: pad(Math.floor(remaining / 3_600_000)),
+      m: pad(Math.floor((remaining % 3_600_000) / 60_000)),
+      s: pad(Math.floor((remaining % 60_000) / 1000)),
+    }
+  }, [now])
+}
 
 export default function HomePage() {
-  const { handleImageError } = useImageFallback()
   const navigate = useNavigate()
-  const addByProductId = useCartStore(s => s.addByProductId)
-  const openSuccess = useUIStore(s => s.openSuccess)
-  const { isAuthenticated, logout } = useAuthStore()
-  const openSuccessWithDuration = useUIStore(s => s.openSuccessWithDuration)
-  const [activeHeroIndex, setActiveHeroIndex] = useState(0)
-  const [categories, setCategories] = useState<Array<{ id: number; name: string; slug: string; badge: string; image: string; fallback: string }>>([])
-  const [categoriesLoading, setCategoriesLoading] = useState(true)
-  const [categoriesError, setCategoriesError] = useState<string | null>(null)
-  
-  const hasLoadedCategories = useRef(false)
-  
-  // Deals state
-  const [dealsProducts, setDealsProducts] = useState<ProductItem[]>([])
+  const countdown = useCountdown()
+
+  const [departments, setDepartments] = useState<HomeDepartment[]>([])
+  const [departmentsLoading, setDepartmentsLoading] = useState(true)
+  const [departmentsError, setDepartmentsError] = useState<string | null>(null)
+
+  const [deals, setDeals] = useState<CardProduct[]>([])
   const [dealsLoading, setDealsLoading] = useState(true)
   const [dealsError, setDealsError] = useState<string | null>(null)
-  
-  // Fresh picks state
-  const [freshPicksProducts, setFreshPicksProducts] = useState<ProductItem[]>([])
-  const [freshPicksLoading, setFreshPicksLoading] = useState(true)
-  const [freshPicksError, setFreshPicksError] = useState<string | null>(null)
+  const [dealPage, setDealPage] = useState(0)
 
-  // Fetch deals products from API
-  const fetchDealsProducts = async () => {
+  const [picks, setPicks] = useState<CardProduct[]>([])
+  const [picksLoading, setPicksLoading] = useState(true)
+
+  const [alertEmail, setAlertEmail] = useState('')
+  const [alertSet, setAlertSet] = useState(false)
+
+  const hasLoaded = useRef(false)
+
+  const loadDeals = async () => {
     setDealsLoading(true)
     setDealsError(null)
-    
     try {
-      // Fetch products from multiple categories to create deals
-      // We'll fetch from categories that typically have deals (electronics, fashion, etc.)
-      const dealCategories = [1, 2, 3, 4, 5] // Mobile, Laptops, TVs, Audio, Fashion
-      const allDeals: ProductItem[] = []
-      
-      // Fetch products from all categories in parallel for better performance
-      const categoryPromises = dealCategories.map(categoryId => 
-        fetchProductsByCategory(categoryId, 1, 2).catch(error => {
-          console.warn(`Failed to fetch products for category ${categoryId}:`, error)
-          return { data: null }
-        })
+      const results = await Promise.all(
+        DEAL_CATEGORY_IDS.map((id) =>
+          fetchProductsByCategory(id, 1, 4).catch(() => ({ data: undefined }))
+        )
       )
-      
-      const categoryResults = await Promise.all(categoryPromises)
-      
-      categoryResults.forEach(response => {
-        if (response.data?.products) {
-          allDeals.push(...response.data.products.slice(0, 2)) // Take first 2 products
-        }
+      const collected: ProductItem[] = []
+      results.forEach((res) => {
+        if (res.data?.products) collected.push(...res.data.products)
       })
-      
-      // Shuffle and take first 4 products for deals
-      const shuffledDeals = allDeals.sort(() => Math.random() - 0.5).slice(0, 4)
-      setDealsProducts(shuffledDeals)
-      
-    } catch (error) {
-      setDealsError('Failed to load deals')
-      // Use fallback deals when API fails
-      setDealsProducts([])
+      if (collected.length === 0) {
+        setDealsError('The catalogue service returned no price drops.')
+      }
+      // Deepest discount first — the section is called "price drops".
+      collected.sort((a, b) => (b.discountpercent || 0) - (a.discountpercent || 0))
+      setDeals(collected.map(toCardProduct))
+    } catch {
+      setDealsError('The catalogue service did not answer in time.')
+      setDeals([])
     } finally {
       setDealsLoading(false)
     }
   }
 
-  // Fetch fresh picks products from API
-  const fetchFreshPicksProducts = async () => {
-    setFreshPicksLoading(true)
-    setFreshPicksError(null)
-    
+  const loadPicks = async () => {
+    setPicksLoading(true)
     try {
-      // Fetch products from different categories for fresh picks
-      // We'll use different categories than deals to show variety
-      const freshPicksCategories = [6, 7, 8, 9, 10] // Home, Beauty, Books, Sports, Grocery
-      const allFreshPicks: ProductItem[] = []
-      
-      // Fetch products from all categories in parallel for better performance
-      const categoryPromises = freshPicksCategories.map(categoryId => 
-        fetchProductsByCategory(categoryId, 1, 2).catch(error => {
-          console.warn(`Failed to fetch products for category ${categoryId}:`, error)
-          return { data: null }
-        })
+      const results = await Promise.all(
+        PICK_CATEGORY_IDS.map((id) =>
+          fetchProductsByCategory(id, 1, 1).catch(() => ({ data: undefined }))
+        )
       )
-      
-      const categoryResults = await Promise.all(categoryPromises)
-      
-      categoryResults.forEach(response => {
-        if (response.data?.products) {
-          allFreshPicks.push(...response.data.products.slice(0, 2)) // Take first 2 products
-        }
+      const collected: ProductItem[] = []
+      results.forEach((res) => {
+        if (res.data?.products?.length) collected.push(res.data.products[0])
       })
-      
-      // Shuffle and take first 4 products for fresh picks
-      const shuffledFreshPicks = allFreshPicks.sort(() => Math.random() - 0.5).slice(0, 4)
-      setFreshPicksProducts(shuffledFreshPicks)
-      
-    } catch (error) {
-      setFreshPicksError('Failed to load fresh picks')
-      // Use fallback fresh picks when API fails
-      setFreshPicksProducts([])
+      setPicks(collected.slice(0, 6).map(toCardProduct))
+    } catch {
+      setPicks([])
     } finally {
-      setFreshPicksLoading(false)
+      setPicksLoading(false)
     }
   }
 
-  // Fetch categories from API
-  useEffect(() => {
-    // Prevent duplicate API calls in React StrictMode
-    if (hasLoadedCategories.current) {
-      return
-    }
-    
-    const loadCategories = async () => {
-      hasLoadedCategories.current = true
-      setCategoriesLoading(true)
-      setCategoriesError(null)
-      
-      try {
-        const response = await fetchCategories()
-        
-        if (response.error) {
-          setCategoriesError(response.error.message)
-          // Use fallback categories when API fails
-          setCategories(FALLBACK_CATEGORIES)
-        } else if (response.data) {
-          // Filter only active categories and transform API data to match component structure
-          const transformedCategories = response.data
-            .filter((cat) => cat.isactive)
-            .sort((a, b) => a.displayorder - b.displayorder)
-            .map((cat) => ({
-              id: cat.id, // Store the category ID from API
-              name: cat.description,
-              slug: cat.slug || categorySlugMap[cat.productname] || cat.productname,
-              badge: cat.badge || categoryBadgeMap[cat.productname] || 'Shop Now',
-              image: cat.imageurl || DEFAULT_CATEGORY_IMAGE,
-              fallback: DEFAULT_CATEGORY_IMAGE,
-            }))
-          
-          setCategories(transformedCategories)
-        }
-      } catch (error) {
-        setCategoriesError('Failed to load categories')
-        // Use fallback categories when API fails
-        setCategories(FALLBACK_CATEGORIES)
-      } finally {
-        setCategoriesLoading(false)
+  const loadDepartments = async () => {
+    setDepartmentsLoading(true)
+    setDepartmentsError(null)
+    try {
+      const response = await fetchCategories()
+      if (response.error || !response.data) {
+        setDepartmentsError(response.error?.message || 'Failed to load departments')
+        setDepartments(
+          DEPARTMENTS.map((d) => ({ id: d.id, name: d.name, slug: d.slug, art: artUrl(d.art), count: 0 }))
+        )
+        return
       }
+      const mapped = response.data
+        .filter((c: Category) => c.isactive)
+        .sort((a, b) => a.displayorder - b.displayorder)
+        .slice(0, 6)
+        .map((c: Category) => ({
+          id: c.id,
+          name: c.description || c.productname,
+          slug: c.slug || String(c.id),
+          art: c.imageurl || placeholderFor({ categoryId: c.id, slug: c.slug, name: c.productname }),
+          count: c.productcount || 0,
+        }))
+      setDepartments(mapped)
+    } catch {
+      setDepartmentsError('Failed to load departments')
+      setDepartments(
+        DEPARTMENTS.map((d) => ({ id: d.id, name: d.name, slug: d.slug, art: artUrl(d.art), count: 0 }))
+      )
+    } finally {
+      setDepartmentsLoading(false)
     }
-    
-    loadCategories()
-    fetchDealsProducts()
-    fetchFreshPicksProducts()
+  }
+
+  useEffect(() => {
+    if (hasLoaded.current) return
+    hasLoaded.current = true
+    void loadDepartments()
+    void loadDeals()
+    void loadPicks()
   }, [])
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setActiveHeroIndex((current) => (current + 1) % heroSlides.length)
-    }, 5000)
+  const dealWindow = deals.slice(dealPage * 4, dealPage * 4 + 4)
+  const dealPages = Math.max(1, Math.ceil(deals.length / 4))
+  const featured = deals[0]
 
-    return () => window.clearTimeout(timer)
-  }, [activeHeroIndex])
-
-  const handlePrevSlide = () => {
-    setActiveHeroIndex((current) => (current - 1 + heroSlides.length) % heroSlides.length)
-  }
-
-  const handleNextSlide = () => {
-    setActiveHeroIndex((current) => (current + 1) % heroSlides.length)
+  const openDepartment = (id: number, slug: string) => {
+    storeCategoryInfo(id, slug)
+    navigate(productsHref(id, slug))
   }
 
   return (
-    <main className="app-main home-main" id="home-page" data-testid="home-page">
-      <div className="surface">
-        <div className="container home-stack">
-          <section className="home-hero-slider" role="region" aria-label="Featured promotions" id="hero-banner" data-testid="hero-banner">
-            <div className="slider-wrapper">
-              {heroSlides.map((slide, index) => (
-                <div
-                  key={slide.title}
-                  className={`slide ${index === activeHeroIndex ? 'is-active' : ''}`}
-                  style={{ backgroundImage: `url(${slide.background})` }}
-                  aria-hidden={index !== activeHeroIndex}
-                >
-                  <div className="slide-overlay"></div>
-                  <div className="slide-content">
-                    <h1 className="slide-title">{slide.title}</h1>
-                    <p className="slide-subtitle">{slide.subtitle}</p>
-                    <button className="btn btn-hero" aria-label={slide.cta}>
-                      {slide.cta}
-                    </button>
-                  </div>
-                </div>
-              ))}
-              
-              <button
-                className="slider-nav slider-nav-prev"
-                onClick={handlePrevSlide}
-                aria-label="Previous slide"
-                type="button"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-              
-              <button
-                className="slider-nav slider-nav-next"
-                onClick={handleNextSlide}
-                aria-label="Next slide"
-                type="button"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-              
-              <div className="slider-indicators">
-                {heroSlides.map((_, index) => (
-                  <button
-                    key={index}
-                    className={`slider-dot ${index === activeHeroIndex ? 'is-active' : ''}`}
-                    onClick={() => setActiveHeroIndex(index)}
-                    aria-label={`Go to slide ${index + 1}`}
-                    aria-current={index === activeHeroIndex}
-                    type="button"
-                  ></button>
-                ))}
-              </div>
-            </div>
-          </section>
+    <main className="app-main" id="home-page" data-testid="home-page">
+      {/* ── hero: two cells split by a 2px rule ─────────────────────────── */}
+      <section
+        className="home-hero"
+        role="region"
+        aria-label="Featured promotions"
+        id="hero-banner"
+        data-testid="hero-banner"
+      >
+        <div className="hero-copy">
+          <div className="hero-label">
+            <span className="tag tag-outline">Monsoon Electronics Week</span>
+            <span style={{ fontSize: 12, color: 'var(--color-neutral-700)' }}>Ends 06:00 daily</span>
+          </div>
 
-          {categoriesLoading ? (
-            <CategorySkeletonLoader />
-          ) : (
-            <section className="home-section home-categories-section" aria-labelledby="home-categories-title" data-testid="home-categories">
-              <header className="home-section-header">
-                <h2 id="home-categories-title" className="home-section-title">Shop by Category</h2>
-                {categoriesError && (
-                  <div 
-                    style={{ 
-                      marginTop: '8px',
-                      padding: '8px 12px',
-                      background: 'var(--color-warning-container, #fff3cd)',
-                      color: 'var(--color-warning, #856404)',
-                      borderRadius: 'var(--radius-md)',
-                      fontSize: '14px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}
-                  >
-                    <span>⚠️</span>
-                    <span>Unable to load latest categories. Showing default categories.</span>
-                    <button 
-                      className="btn btn-ghost" 
-                      onClick={() => window.location.reload()}
-                      style={{ marginLeft: 'auto', padding: '4px 12px', fontSize: '13px' }}
-                    >
-                      Retry
-                    </button>
-                  </div>
-                )}
-              </header>
-              <div className="home-category-grid">
-                {categories.map(({ id, name, slug, badge, image, fallback }, index) => (
-                  <article 
-                    key={`${slug}-${index}`} 
-                    className="home-category-card"
-                    onClick={() => {
-                      storeCategoryInfo(id, slug)
-                      navigate(`/products?categoryId=${id}&category=${slug}`)
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        storeCategoryInfo(id, slug)
-                        navigate(`/products?categoryId=${id}&category=${slug}`)
-                      }
-                    }}
-                    aria-label={`Shop ${name}`}
-                  >
-                    <figure className="home-category-image">
-                      <img
-                        src={image}
-                        data-fallback={fallback}
-                        alt={`${name} category`}
-                        loading="lazy"
-                        onError={handleImageError}
-                      />
-                      <span className="category-badge">{badge}</span>
-                    </figure>
-                    <div className="home-category-content">
-                      <h3 className="home-category-title">{name}</h3>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-          )}
+          <h1 className="hero-title">Specs, not spin.</h1>
 
-          <section className="card home-section" aria-labelledby="home-spotlight-title" data-testid="seasonal-spotlights">
-            <header className="home-section-header">
-              <h2 id="home-spotlight-title" className="home-section-title">Seasonal spotlights</h2>
-              <p className="home-section-subtitle">Discover exclusive seasonal collections and limited-time offers on your favorite products.</p>
-            </header>
-            <div className="home-spotlight-grid">
-              {spotlights.map(({ title, description, meta }) => (
-                <article key={title} className="home-spotlight-card">
-                  <div className="home-spotlight-meta">
-                    <span>{meta}</span>
-                    <span>Shop now</span>
-                  </div>
-                  <h3>{title}</h3>
-                  <p>{description}</p>
-                  <button className="btn btn-secondary" aria-label={`View collection ${title}`}>View collection</button>
-                </article>
-              ))}
-            </div>
-          </section>
+          <p className="hero-lede">
+            Every listing shows the real landed price, the stock count and the delivery date
+            before you click. No countdown theatre.
+          </p>
 
-          <section className="card home-section" aria-labelledby="home-deals-title" data-testid="deals-of-day">
-            <header className="home-section-header">
-              <h2 id="home-deals-title" className="home-section-title">Deals of the day</h2>
-              <p className="home-section-subtitle">Limited-hour offers refreshed every morning. Prices include partner bank discounts where applicable.</p>
-              {dealsError && (
-                <div 
-                  style={{ 
-                    marginTop: '8px',
-                    padding: '8px 12px',
-                    background: 'var(--color-warning-container, #fff3cd)',
-                    color: 'var(--color-warning, #856404)',
-                    borderRadius: 'var(--radius-md)',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  <span>⚠️</span>
-                  <span>Unable to load latest deals. Showing default deals.</span>
-                  <button 
-                    className="btn btn-ghost" 
-                    onClick={() => fetchDealsProducts()}
-                    style={{ marginLeft: 'auto', padding: '4px 12px', fontSize: '13px' }}
-                  >
-                    Retry
-                  </button>
-                </div>
-              )}
-            </header>
-            <div className="home-products-grid">
-              {dealsLoading ? (
-                // Show skeleton loading for deals
-                Array.from({ length: 4 }).map((_, index) => (
-                  <article key={`deal-skeleton-${index}`} className="home-product-card">
-                    <figure className="home-product-media">
-                      <div style={{ 
-                        width: '100%', 
-                        height: '200px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-md)',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                    </figure>
-                    <div className="home-product-content">
-                      <div style={{ 
-                        height: '20px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-sm)',
-                        marginBottom: '8px',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                      <div style={{ 
-                        height: '24px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-sm)',
-                        marginBottom: '8px',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                      <div style={{ 
-                        height: '16px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-sm)',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                    </div>
-                    <div className="home-product-footer">
-                      <div style={{ 
-                        height: '24px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-sm)',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                      <div style={{ 
-                        height: '40px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-md)',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                    </div>
-                  </article>
-                ))
-              ) : dealsProducts.length > 0 ? (
-                dealsProducts.map((product) => (
-                  <article key={product.id} className="home-product-card">
-                    <figure className="home-product-media">
-                      <img
-                        src={product.imageurl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'}
-                        data-fallback="https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-                        alt={product.productname}
-                        loading="lazy"
-                        onError={handleImageError}
-                      />
-                    </figure>
-                    <div className="home-product-content">
-                      <span className="home-product-tag">{product.badge || 'Deal'}</span>
-                      <h3 className="home-product-title">{product.productname}</h3>
-                      <p className="home-product-description">{product.description}</p>
-                    </div>
-                    <div className="home-product-footer">
-                      <span className="home-product-price">₹{product.price}</span>
-                      <button
-                        className="btn btn-primary"
-                        aria-label={`Add ${product.productname} to cart`}
-                        onClick={() => {
-                          const numericPrice = Number(product.price) || 0
-                          void addByProductId(product.id, 1, { 
-                            name: product.productname, 
-                            price: numericPrice, 
-                            image: product.imageurl 
-                          })
-                          openSuccess('Added to cart')
-                        }}
-                      >
-                        Add to cart
-                      </button>
-                    </div>
-                  </article>
-                ))
-              ) : (
-                // Fallback to original hardcoded deals when API fails
-                dealHighlights.map(({ title, description, priceLabel, tag, image, fallback }) => (
-                  <article key={title} className="home-product-card">
-                    <figure className="home-product-media">
-                      <img
-                        src={image}
-                        data-fallback={fallback}
-                        alt={title}
-                        loading="lazy"
-                        onError={handleImageError}
-                      />
-                    </figure>
-                    <div className="home-product-content">
-                      <span className="home-product-tag">{tag}</span>
-                      <h3 className="home-product-title">{title}</h3>
-                      <p className="home-product-description">{description}</p>
-                    </div>
-                    <div className="home-product-footer">
-                      <span className="home-product-price">{priceLabel}</span>
-                      <button
-                        className="btn btn-primary"
-                        aria-label={`Add ${title} to cart`}
-                        onClick={() => {
-                          const numeric = Number(String(priceLabel).replace(/[^0-9]/g, '')) || 0
-                          const pid = Math.abs(title.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) + 900000
-                          void addByProductId(pid, 1, { name: title, price: numeric, image })
-                          openSuccess('Added to cart')
-                        }}
-                      >
-                        Add to cart
-                      </button>
-                    </div>
-                  </article>
-                ))
-              )}
-            </div>
-          </section>
+          <div className="hero-actions">
+            <Link className="btn btn-primary" to={productsHref(1, 'mobiles-tablets')}>
+              Shop the week
+            </Link>
+            <Link className="btn btn-secondary" to="/compare">
+              Compare top phones
+            </Link>
+          </div>
 
-          <section className="card home-section" aria-labelledby="home-collections-title" data-testid="curated-collections">
-            <header className="home-section-header">
-              <h2 id="home-collections-title" className="home-section-title">Curated for you</h2>
-              <p className="home-section-subtitle">Handpicked product collections based on your shopping preferences and latest trends.</p>
-            </header>
-            <div className="home-collection-grid">
-              {curatedCollections.map(({ badge, title, copy }) => (
-                <article key={title} className="home-collection-card">
-                  <span className="home-collection-badge">{badge}</span>
-                  <h3 className="home-collection-title">{title}</h3>
-                  <p className="home-collection-copy">{copy}</p>
-                  <button className="btn btn-ghost" aria-label={`Browse ${title}`}>Browse</button>
-                </article>
-              ))}
+          <div className="hero-stats">
+            <div className="hero-stat">
+              <div className="hero-stat-value">4.2L</div>
+              <div className="hero-stat-label">products listed</div>
             </div>
-          </section>
-
-          <section className="card home-section" aria-labelledby="home-recommendations-title" data-testid="recommended-products">
-            <header className="home-section-header">
-              <h2 id="home-recommendations-title" className="home-section-title">Fresh picks for you</h2>
-              <p className="home-section-subtitle">Personalized product recommendations based on your browsing history and purchase preferences.</p>
-              {freshPicksError && (
-                <div 
-                  style={{ 
-                    marginTop: '8px',
-                    padding: '8px 12px',
-                    background: 'var(--color-warning-container, #fff3cd)',
-                    color: 'var(--color-warning, #856404)',
-                    borderRadius: 'var(--radius-md)',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  <span>⚠️</span>
-                  <span>Unable to load latest fresh picks. Showing default recommendations.</span>
-                  <button 
-                    className="btn btn-ghost" 
-                    onClick={() => fetchFreshPicksProducts()}
-                    style={{ marginLeft: 'auto', padding: '4px 12px', fontSize: '13px' }}
-                  >
-                    Retry
-                  </button>
-                </div>
-              )}
-            </header>
-            <div className="home-products-grid">
-              {freshPicksLoading ? (
-                // Show skeleton loading for fresh picks
-                Array.from({ length: 4 }).map((_, index) => (
-                  <article key={`fresh-picks-skeleton-${index}`} className="home-product-card">
-                    <figure className="home-product-media">
-                      <div style={{ 
-                        width: '100%', 
-                        height: '200px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-md)',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                    </figure>
-                    <div className="home-product-content">
-                      <div style={{ 
-                        height: '20px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-sm)',
-                        marginBottom: '8px',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                      <div style={{ 
-                        height: '24px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-sm)',
-                        marginBottom: '8px',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                      <div style={{ 
-                        height: '16px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-sm)',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                    </div>
-                    <div className="home-product-footer">
-                      <div style={{ 
-                        height: '24px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-sm)',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                      <div style={{ 
-                        height: '40px', 
-                        background: 'var(--color-surface-variant)', 
-                        borderRadius: 'var(--radius-md)',
-                        animation: 'pulse 1.5s ease-in-out infinite'
-                      }}></div>
-                    </div>
-                  </article>
-                ))
-              ) : freshPicksProducts.length > 0 ? (
-                freshPicksProducts.map((product) => (
-                  <article key={product.id} className="home-product-card">
-                    <figure className="home-product-media">
-                      <img
-                        src={product.imageurl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'}
-                        data-fallback="https://images.unsplash.com/photo-1523275335684-37898b6baf30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-                        alt={product.productname}
-                        loading="lazy"
-                        onError={handleImageError}
-                      />
-                    </figure>
-                    <div className="home-product-content">
-                      <span className="home-product-tag">{product.badge || 'Fresh'}</span>
-                      <h3 className="home-product-title">{product.productname}</h3>
-                      <p className="home-product-description">{product.description}</p>
-                    </div>
-                    <div className="home-product-footer">
-                      <span className="home-product-price">₹{product.price}</span>
-                      <button 
-                        className="btn btn-secondary" 
-                        aria-label={`View details for ${product.productname}`}
-                        onClick={() => {
-                          // Navigate to product details page
-                          navigate(`/products/${product.categoryid}/${product.id}`)
-                        }}
-                      >
-                        View details
-                      </button>
-                    </div>
-                  </article>
-                ))
-              ) : (
-                // Fallback to original hardcoded fresh picks when API fails
-                recommendedHighlights.map(({ title, description, priceLabel, tag, image, fallback }) => (
-                  <article key={title} className="home-product-card">
-                    <figure className="home-product-media">
-                      <img
-                        src={image}
-                        data-fallback={fallback}
-                        alt={title}
-                        loading="lazy"
-                        onError={handleImageError}
-                      />
-                    </figure>
-                    <div className="home-product-content">
-                      <span className="home-product-tag">{tag}</span>
-                      <h3 className="home-product-title">{title}</h3>
-                      <p className="home-product-description">{description}</p>
-                    </div>
-                    <div className="home-product-footer">
-                      <span className="home-product-price">{priceLabel}</span>
-                      <button className="btn btn-secondary" aria-label={`View details for ${title}`}>View details</button>
-                    </div>
-                  </article>
-                ))
-              )}
+            <div className="hero-stat">
+              <div className="hero-stat-value">48h</div>
+              <div className="hero-stat-label">median delivery</div>
             </div>
-          </section>
-
-          <section className="card home-section" aria-labelledby="home-trust-title" data-testid="trust-highlights">
-            <header className="home-section-header">
-              <h2 id="home-trust-title" className="home-section-title">Why Angaadi</h2>
-              <p className="home-section-subtitle">Customer-focused shopping experience with reliable service and quality products at best prices.</p>
-            </header>
-            <div className="home-trust-grid">
-              {trustSignals.map(({ title, description }) => (
-                <article key={title} className="home-trust-card">
-                  <span className="home-trust-title">{title}</span>
-                  <p className="home-trust-desc">{description}</p>
-                </article>
-              ))}
+            <div className="hero-stat">
+              <div className="hero-stat-value">7 days</div>
+              <div className="hero-stat-label">no-question returns</div>
             </div>
-          </section>
-
-          <section className="home-footer-cta" aria-labelledby="home-cta-title" data-testid="home-footer-cta">
-            <h3 id="home-cta-title">Your premium shopping experience starts here</h3>
-            <p>Discover the best deals on electronics, fashion, home essentials, and more. Shop from trusted sellers with secure payments and easy returns.</p>
-            <div className="home-footer-actions">
-              {isAuthenticated ? (
-                <button
-                  className="btn btn-primary"
-                  aria-label="Sign Out from Angaadi"
-                  onClick={async () => {
-                    const redirectToLogin = () => navigate('/login', { replace: true });
-                    try {
-                      const result = await signOut();
-                      if (result.success) {
-                        try {
-                          localStorage.removeItem('jwt');
-                          sessionStorage.removeItem('jwt');
-                        } catch {}
-                        logout();
-                        try {
-                          clearAuthTokenCookie();
-                        } catch {}
-                        openSuccessWithDuration(result.message || 'Signed out successfully', 5000);
-                        redirectToLogin();
-                      } else {
-                        try {
-                          localStorage.removeItem('jwt');
-                          sessionStorage.removeItem('jwt');
-                        } catch {}
-                        logout();
-                        try {
-                          clearAuthTokenCookie();
-                        } catch {}
-                        openSuccessWithDuration(result.error?.message || 'Signed out successfully', 5000);
-                        redirectToLogin();
-                      }
-                    } catch (error) {
-                      try {
-                        localStorage.removeItem('jwt');
-                        sessionStorage.removeItem('jwt');
-                      } catch {}
-                      logout();
-                      try {
-                        clearAuthTokenCookie();
-                      } catch {}
-                      openSuccessWithDuration('Signed out successfully', 5000);
-                      redirectToLogin();
-                    }
-                  }}
-                >
-                  Sign Out
-                </button>
-              ) : (
-                <button className="btn btn-primary" aria-label="Sign In to Angaadi" onClick={() => navigate('/login')}>
-                  Sign In
-                </button>
-              )}
-              <button className="btn btn-secondary" aria-label="Start exploring">Start exploring</button>
-            </div>
-          </section>
+          </div>
         </div>
-      </div>
+
+        <div className="grayscale hero-figure">
+          <img
+            src={featured ? (featured.image || placeholderFor({ name: featured.title })) : artUrl('smartphone')}
+            alt={featured ? featured.title : 'Featured product'}
+          />
+        </div>
+      </section>
+
+      {/* ── departments ─────────────────────────────────────────────────── */}
+      <section
+        aria-labelledby="home-categories-title"
+        data-testid="home-categories"
+        style={{ borderBottom: '2px solid var(--color-divider)' }}
+      >
+        <div className="section-head">
+          <h2 id="home-categories-title">Shop by department</h2>
+          <Link className="section-link" to="/products?category=all">
+            All {ALL_DEPARTMENT_COUNT} departments →
+          </Link>
+        </div>
+
+        {departmentsError ? (
+          <div style={{ padding: '0 40px 28px' }}>
+            <ErrorState
+              operation="/products"
+              title="We couldn't load the departments."
+              body="Showing the standing list instead. Your cart is safe."
+              actions={[{ label: 'Retry', variant: 'primary', onClick: () => void loadDepartments() }]}
+            />
+          </div>
+        ) : null}
+
+        <div className="dept-grid">
+          {departmentsLoading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <div className="dept-cell sk-cell" key={i} style={{ animationDelay: `${i * 0.2}s` }} aria-hidden="true">
+                  <div className="sk" style={{ height: 92 }} />
+                  <div>
+                    <div className="sk" style={{ height: 15, width: '80%' }} />
+                    <div className="sk" style={{ height: 12, width: '45%', marginTop: 6 }} />
+                  </div>
+                </div>
+              ))
+            : departments.map((d) => (
+                <button
+                  type="button"
+                  className="dept-cell"
+                  key={`${d.slug}-${d.id}`}
+                  onClick={() => openDepartment(d.id, d.slug)}
+                  aria-label={`Shop ${d.name}`}
+                >
+                  <span className="grayscale dept-icon">
+                    <img src={d.art} alt="" loading="lazy" />
+                  </span>
+                  <span>
+                    <span className="dept-name" style={{ display: 'block' }}>{d.name}</span>
+                    <span className="dept-count">
+                      {d.count > 0 ? `${d.count.toLocaleString('en-IN')} items` : 'Browse department'}
+                    </span>
+                  </span>
+                </button>
+              ))}
+        </div>
+      </section>
+
+      {/* ── today's price drops ─────────────────────────────────────────── */}
+      <section
+        aria-labelledby="home-deals-title"
+        data-testid="deals-of-day"
+        style={{ borderBottom: '2px solid var(--color-divider)' }}
+      >
+        <div className="section-head">
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
+            <h2 id="home-deals-title">Today&rsquo;s price drops</h2>
+            <span className="countdown">
+              ends in
+              <span className="unit">{countdown.h}</span>
+              <span className="unit">{countdown.m}</span>
+              <span className="unit">{countdown.s}</span>
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="button"
+              className="btn btn-secondary btn-icon"
+              aria-label="Previous price drops"
+              disabled={dealPage === 0}
+              onClick={() => setDealPage((p) => Math.max(0, p - 1))}
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary btn-icon"
+              aria-label="Next price drops"
+              disabled={dealPage >= dealPages - 1}
+              onClick={() => setDealPage((p) => Math.min(dealPages - 1, p + 1))}
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+
+        {dealsLoading ? (
+          <ProductGridSkeleton count={4} />
+        ) : dealsError ? (
+          <div style={{ padding: '0 40px 28px' }}>
+            <ErrorState
+              operation="/products/by-category"
+              title="We couldn't load today's price drops."
+              body="The catalogue service didn't answer in time. Your cart is safe."
+              actions={[
+                { label: 'Retry', variant: 'primary', onClick: () => void loadDeals() },
+                { label: 'Check system health', href: '/health' },
+              ]}
+            />
+          </div>
+        ) : (
+          <div className="pgrid">
+            {dealWindow.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ── two editorial cells ─────────────────────────────────────────── */}
+      <section
+        aria-labelledby="home-spotlight-title"
+        data-testid="seasonal-spotlights"
+        className="spotlight-grid"
+      >
+        <div className="spotlight">
+          <h2 id="home-spotlight-title">Work-from-anywhere kit</h2>
+          <p>
+            Six pieces our buyers actually use — a 14&quot; ultrabook, a 65 W charger, and the dock
+            that survives daily travel.
+          </p>
+          <span className="grayscale spotlight-figure">
+            <img src={artUrl('laptop')} alt="" loading="lazy" />
+          </span>
+          <Link className="btn btn-secondary" to={productsHref(2, 'laptops-computers')}>
+            See the kit — laptops from {formatINR(36990)}
+          </Link>
+        </div>
+
+        <div className="spotlight">
+          <h2>Upgrade your living room</h2>
+          <p>
+            QLED panels, soundbars and the wall mounts that fit them. Installation is booked at
+            checkout, not chased later.
+          </p>
+          <span className="grayscale spotlight-figure">
+            <img src={artUrl('tv')} alt="" loading="lazy" />
+          </span>
+          <Link className="btn btn-secondary" to={productsHref(3, 'tvs-appliances')}>
+            Browse televisions — from {formatINR(12499)}
+          </Link>
+        </div>
+      </section>
+
+      {/* ── recommendations ─────────────────────────────────────────────── */}
+      <section
+        aria-labelledby="home-recommendations-title"
+        data-testid="recommended-products"
+        style={{ borderBottom: '2px solid var(--color-divider)' }}
+      >
+        <div className="section-head">
+          <h2 id="home-recommendations-title">Picked from your last visit</h2>
+          <Link className="section-link" to="/profile">
+            Manage recommendations →
+          </Link>
+        </div>
+
+        {!picksLoading && picks.length === 0 ? (
+          <div style={{ padding: '0 40px 28px' }}>
+            <EmptyState
+              title="No recommendations yet."
+              body="We build these from what you have looked at. Open a few products and they will show up here."
+              actions={[
+                { label: 'Browse all products', variant: 'primary', href: '/products?category=all' },
+              ]}
+            />
+          </div>
+        ) : (
+        <div className={picksLoading ? 'pgrid' : 'compact-grid'}>
+          {picksLoading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div className="pskel sk-cell" key={i} style={{ animationDelay: `${i * 0.2}s` }} aria-hidden="true">
+                  <div className="sk sk-well" style={{ marginTop: 0, height: 118 }} />
+                  <div className="sk sk-title" />
+                  <div className="sk sk-price" />
+                </div>
+              ))
+            : picks.map((p) => (
+                <Link
+                  className="compact-cell"
+                  key={p.id}
+                  to={`/product/${p.categoryId ?? 1}/${p.id}`}
+                >
+                  <span className="grayscale compact-well">
+                    <img
+                      src={p.image || placeholderFor({ categoryId: p.categoryId, name: p.title })}
+                      alt=""
+                      loading="lazy"
+                    />
+                  </span>
+                  <h3>{p.title}</h3>
+                  <span className="compact-price">{formatINR(p.price)}</span>
+                  <span className="compact-meta">
+                    {p.rating ? `${p.rating.toFixed(1)} ★` : 'Not yet rated'}
+                    {p.ratingsCount ? ` · ${p.ratingsCount.toLocaleString('en-IN')}` : ''}
+                  </span>
+                </Link>
+              ))}
+        </div>
+        )}
+      </section>
+
+      {/* ── trust row ───────────────────────────────────────────────────── */}
+      <section
+        aria-labelledby="home-trust-title"
+        data-testid="trust-highlights"
+        className="trust-grid"
+      >
+        <div className="trust-cell">
+          <h2 id="home-trust-title">Landed price, always</h2>
+          <p>GST, delivery and installation show on the card — not at step four of checkout.</p>
+        </div>
+        <div className="trust-cell">
+          <h2>Real stock counts</h2>
+          <p>Live from the warehouse feed, updated every 30 seconds.</p>
+        </div>
+        <div className="trust-cell">
+          <h2>7-day returns</h2>
+          <p>Pickup from your door, refund inside 48 hours of collection.</p>
+        </div>
+        <div className="trust-cell">
+          <h2>Brand warranty</h2>
+          <p>Every unit sold with the manufacturer&rsquo;s India warranty, invoice attached.</p>
+        </div>
+      </section>
+
+      {/* ── the one red field on the page ───────────────────────────────── */}
+      <section aria-labelledby="home-cta-title" data-testid="home-footer-cta" className="poster">
+        <div className="poster-grid">
+          <div>
+            <h2 id="home-cta-title">Price alerts beat panic buying.</h2>
+          </div>
+          <div>
+            <p>
+              Tell us the product and the price you want. We watch the feed and mail you once — no
+              daily digest.
+            </p>
+            <form
+              className="poster-capture"
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (alertEmail.trim()) setAlertSet(true)
+              }}
+            >
+              <input
+                type="email"
+                required
+                placeholder="you@example.com"
+                aria-label="Email for price alerts"
+                id="price-alert-email"
+                data-testid="price-alert-email"
+                value={alertEmail}
+                onChange={(e) => {
+                  setAlertEmail(e.target.value)
+                  setAlertSet(false)
+                }}
+              />
+              <button type="submit" id="price-alert-submit" data-testid="price-alert-submit">
+                Set alert
+              </button>
+            </form>
+            {alertSet ? (
+              <p className="poster-note" role="status">
+                Saved on this device. We&rsquo;ll mail {alertEmail} when a watched price moves.
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </main>
   )
 }
-
-

@@ -9,13 +9,13 @@ const shadowCSS = `
   :host { display: block; font-family: system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
   .shadow-scroll-wrap { max-height: 70vh; overflow-y: auto; padding: 1.5rem; scroll-behavior: smooth; }
   .is-product-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.25rem; }
-  .is-product-card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04); transition:transform .25s ease,box-shadow .25s ease; display:flex; flex-direction:column; }
+  .is-product-card { background:#fff; border-radius: 0; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04); transition:transform .25s ease,box-shadow .25s ease; display:flex; flex-direction:column; }
   .is-product-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(103,80,164,.12),0 0 0 1px rgba(103,80,164,.08); }
   .is-card-image { position:relative; aspect-ratio:1; background:#f8f8fa; overflow:hidden; }
   .is-card-image img { width:100%; height:100%; object-fit:contain; padding:1rem; transition:transform .4s ease; }
   .is-product-card:hover .is-card-image img { transform:scale(1.05); }
-  .is-card-badge { position:absolute; top:10px; left:10px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; padding:4px 10px; border-radius:6px; font-size:.7rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
-  .is-card-stock-badge { position:absolute; bottom:10px; right:10px; padding:3px 8px; border-radius:4px; font-size:.7rem; font-weight:600; }
+  .is-card-badge { position:absolute; top:10px; left:10px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; padding:4px 10px; border-radius: 0; font-size:.7rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+  .is-card-stock-badge { position:absolute; bottom:10px; right:10px; padding:3px 8px; border-radius: 0; font-size:.7rem; font-weight:600; }
   .is-card-stock-badge.in-stock { background:#dcfce7; color:#166534; }
   .is-card-stock-badge.out-of-stock { background:#fee2e2; color:#991b1b; }
   .is-card-body { padding:1rem; display:flex; flex-direction:column; gap:.375rem; flex:1; }
@@ -29,10 +29,10 @@ const shadowCSS = `
   .is-card-old-price { font-size:.8125rem; color:#94a3b8; text-decoration:line-through; }
   .is-card-delivery { font-size:.75rem; color:#059669; font-weight:500; }
   .is-sentinel { display:flex; justify-content:center; align-items:center; padding:2.5rem 0; gap:.75rem; }
-  .is-spinner { width:28px; height:28px; border:3px solid #e2d8f8; border-top-color:#6750a4; border-radius:50%; animation:spin .7s linear infinite; }
+  .is-spinner { width:28px; height:28px; border:3px solid #e2d8f8; border-top-color:#6750a4; border-radius: 0; animation:spin .7s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
   .is-sentinel span { font-size:.9375rem; color:#6750a4; font-weight:500; }
-  .shadow-badge { display:inline-flex; align-items:center; gap:.375rem; background:rgba(103,80,164,.1); color:#6750a4; padding:.375rem .875rem; border-radius:999px; font-size:.8125rem; font-weight:600; margin-bottom:1.25rem; }
+  .shadow-badge { display:inline-flex; align-items:center; gap:.375rem; background:rgba(103,80,164,.1); color:#6750a4; padding:.375rem .875rem; border-radius: 0; font-size:.8125rem; font-weight:600; margin-bottom:1.25rem; }
   @media (max-width:1200px) { .is-product-grid { grid-template-columns:repeat(3,1fr); } }
   @media (max-width:768px)  { .is-product-grid { grid-template-columns:repeat(2,1fr); gap:.75rem; } }
   @media (max-width:480px)  { .is-product-grid { grid-template-columns:1fr; } }
@@ -117,7 +117,7 @@ function InlineShadowScroll() {
     return () => obs.disconnect()
   }, [])
 
-  return <div className="combined-shadow-host" ref={hostRef} style={{ minHeight: '500px', borderRadius: '0 0 16px 16px' }} />
+  return <div className="combined-shadow-host" ref={hostRef} style={{ minHeight: '500px', borderRadius: 0 }} />
 }
 
 /* ── Main combined page ───────────────────────────────────── */
@@ -156,7 +156,7 @@ export default function ShadowIframePage() {
             <iframe
               src="/infinite-scroll"
               title="Infinite Scroll (direct)"
-              style={{ width: '100%', minHeight: '70vh', border: 'none', borderRadius: '0 0 16px 16px' }}
+              style={{ width: '100%', minHeight: '70vh', border: 'none', borderRadius: 0 }}
             />
           </div>
         )}
@@ -167,7 +167,7 @@ export default function ShadowIframePage() {
             <iframe
               src="/infinite-scroll"
               title="Infinite Scroll (iframe)"
-              style={{ width: '100%', minHeight: '70vh', border: 'none', borderRadius: '0 0 16px 16px' }}
+              style={{ width: '100%', minHeight: '70vh', border: 'none', borderRadius: 0 }}
               sandbox="allow-scripts allow-same-origin"
             />
           </div>

@@ -3,38 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './index.css'
 import { Header } from './components/Header'
 import { CookieBanner } from './components/CookieBanner'
-import HomePage from './pages/Home'
-import AuthPage from './pages/Auth'
-import OAuthCallback from './pages/OAuthCallback'
-import ProfilePage from './pages/Profile'
-import HealthPage from './pages/Health'
-import ProductsListing from './pages/ProductsListing'
-import ProductDetails from './pages/ProductDetails'
-import CartPage from './pages/Cart'
-import CookieConsentGallery from './pages/CookieConsentGallery'
-import CookieDesignDetails from './pages/CookieDesignDetails'
-import InfiniteScrollPage from './pages/InfiniteScrollPage'
-import IframePage from './pages/IframePage'
-import IframeFullPage from './pages/IframeFullPage'
-import ShadowDomPage from './pages/ShadowDomPage'
-import ShadowDomFullPage from './pages/ShadowDomFullPage'
-import ShadowIframePage from './pages/ShadowIframePage'
-import SlowInfiniteScrollPage from './pages/SlowInfiniteScrollPage'
-import MultiScrollPage from './pages/MultiScrollPage'
-import InfiniteTextScrollPage from './pages/InfiniteTextScrollPage'
-import InfiniteHeavyScrollPage from './pages/InfiniteHeavyScrollPage'
-import IframeContentPage from './pages/IframeContentPage'
-import AllResponsesPage from './pages/AllResponsesPage'
-import DualScrollPage from './pages/DualScrollPage'
-import MouseOnlyScrollPage from './pages/MouseOnlyScrollPage'
-import WebhookLanding from './pages/WebhookLanding'
-import WebhookInspector from './pages/WebhookInspector'
-import LegacyWebhookLanding from './pages/LegacyWebhookLanding'
-import LegacyWebhookInspector from './pages/LegacyWebhookInspector'
-import LoopDetectedPage from './pages/LoopDetectedPage'
-import CrawlableDocuments from './pages/CrawlableDocuments'
-import TeamSplitPage from './pages/TeamSplitPage'
-
+import { APP_ROUTES } from './routes'
 
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
@@ -59,41 +28,11 @@ export default function App() {
       <BrowserRouter>
         <Header />
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/oauth-callback" element={<OAuthCallback />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/health" element={<HealthPage />} />
-          <Route path="/products" element={<ProductsListing />} />
-          <Route path="/product/:categoryId/:productId" element={<ProductDetails />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/cookie-consent" element={<CookieConsentGallery />} />
-          <Route path="/cookie-consent/:designId" element={<CookieDesignDetails />} />
-          <Route path="/infinite-scroll" element={<InfiniteScrollPage />} />
-          <Route path="/slow-infinite-scroll" element={<SlowInfiniteScrollPage />} />
-          <Route path="/iframe" element={<IframePage />} />
-          <Route path="/iframe-full" element={<IframeFullPage />} />
-          <Route path="/shadow-dom" element={<ShadowDomPage />} />
-          <Route path="/shadow-dom-full" element={<ShadowDomFullPage />} />
-          <Route path="/shadow-iframe" element={<ShadowIframePage />} />
-          <Route path="/multi-scroll" element={<MultiScrollPage />} />
-          <Route path="/infinite-text" element={<InfiniteTextScrollPage />} />
-          <Route path="/infinite-heavy" element={<InfiniteHeavyScrollPage />} />
-          <Route path="/iframe-content" element={<IframeContentPage />} />
-          <Route path="/all-resp" element={<AllResponsesPage />} />
-          <Route path="/dual-scroll" element={<DualScrollPage />} />
-          <Route path="/mouse-only-scroll" element={<MouseOnlyScrollPage />} />
-          <Route path="/webhook" element={<LegacyWebhookLanding />} />
-          <Route path="/webhook/:token" element={<LegacyWebhookInspector />} />
-          <Route path="/webhhook" element={<LegacyWebhookLanding />} />
-          <Route path="/webhhook/:token" element={<LegacyWebhookInspector />} />
-          <Route path="/valid-webhooks" element={<WebhookLanding />} />
-          <Route path="/valid-webhooks/:token" element={<WebhookInspector />} />
-          <Route path="/loop-detected" element={<LoopDetectedPage />} />
-          <Route path="/slow-loading" element={<HomePage />} />
-          <Route path="/crawlableDocuments" element={<CrawlableDocuments />} />
-          <Route path="/team-split" element={<TeamSplitPage />} />
+          {/* One <Route> per entry in src/routes.tsx — the same table
+              /playground enumerates, so the two can never drift apart. */}
+          {APP_ROUTES.map((route) => (
+            <Route key={route.path} path={route.path} element={route.element} />
+          ))}
         </Routes>
         <SuccessModal />
         <DocModal />

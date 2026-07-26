@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
 import { useUIStore } from '../store/ui'
+import { Footer } from '../components/Footer'
 import { fetchPreferredDepartment, setPreferredDepartment, deactivatePreferredDepartment, fetchGenderOptions } from '../api/gender'
 import { savePhysicalStats, fetchPhysicalStats, fetchUserById, removePhysicalStats } from '../api/user'
 import { fetchAllAgeGroups, fetchUserAgeGroup, saveUserAgeGroup, removeUserAgeGroup } from '../api/ageGroup'
@@ -544,26 +546,45 @@ export default function ProfilePage() {
 
   return (
     <main className="app-main" id="profile-page" data-testid="profile-page">
-      <section className="container p-6">
-        <header id="profile-header" data-testid="profile-header" style={{display:'flex', alignItems:'center', gap:16, marginBottom:16}}>
-          <div id="profile-avatar" data-testid="profile-avatar" style={{width:64, height:64, borderRadius:'50%', background:'var(--color-border)'}} aria-hidden="true" />
-          <div>
-            <h1 id="profile-name" data-testid="profile-name" style={{margin:0}}>{profileName}</h1>
+      <div className="profile-layout">
+        <aside className="profile-rail" aria-label="Profile sections">
+          <div className="profile-identity" id="profile-header" data-testid="profile-header">
+            <div
+              id="profile-avatar"
+              data-testid="profile-avatar"
+              className="grayscale"
+              style={{ width: 40, height: 40, background: 'var(--color-neutral-300)', marginBottom: 10 }}
+              aria-hidden="true"
+            />
+            <div className="n" id="profile-name" data-testid="profile-name">{profileName}</div>
             {profileEmail && (
-              <div id="profile-email" data-testid="profile-email" style={{opacity:0.8, marginTop:4}}>{profileEmail}</div>
+              <div className="e" id="profile-email" data-testid="profile-email">{profileEmail}</div>
             )}
           </div>
-        </header>
 
-        <div className="card p-0" role="region" aria-label="Profile preferences" id="profile-preferences" data-testid="profile-preferences">
-          <div style={{borderBottom:'1px solid var(--color-border)', padding:16, display:'flex', alignItems:'center', gap:12}}>
-            <button id="profile-tab-clothing" data-testid="profile-tab-clothing" className="btn btn-ghost" aria-current="page">Clothing and Shoes</button>
-            <div id="profile-tab-subtitle" data-testid="profile-tab-subtitle" className="surface" style={{padding:'6px 12px', borderRadius:'var(--radius-sm)', border:'1px solid var(--color-border)'}}>Size, fit and price</div>
+          <nav className="profile-nav">
+            <span className="profile-nav-item is-active" aria-current="page">Profile &amp; fit</span>
+            <Link className="profile-nav-item" to="/wishlist">Wishlist</Link>
+            <Link className="profile-nav-item" to="/compare">Compare</Link>
+            <Link className="profile-nav-item" to="/cart">Cart</Link>
+            <Link className="profile-nav-item is-signout" to="/login">Sign out</Link>
+          </nav>
+        </aside>
+
+        <div className="profile-pane" role="region" aria-label="Profile preferences" id="profile-preferences" data-testid="profile-preferences">
+          <div className="profile-pane-head">
+            <h1>Profile &amp; fit</h1>
+            <p>
+              <span id="profile-tab-clothing" data-testid="profile-tab-clothing">Clothing and shoes</span>
+              {' — '}
+              <span id="profile-tab-subtitle" data-testid="profile-tab-subtitle">size, fit and price</span>.
+              These drive size recommendations on wearables and accessories.
+            </p>
           </div>
 
-          <div style={{padding:16}}>
-            <section aria-label="About you">
-              <h2 className="sr-only">About you</h2>
+          <section className="profile-section" aria-label="About you">
+            <h2>About you</h2>
+            <div className="attr-list">
               <PreferredDepartmentRow
                 value={preferredDepartment}
                 onChange={(val) => setPreferredDepartment(val)}
@@ -584,53 +605,53 @@ export default function ProfilePage() {
                 onClear={() => setAgeGroupClearOpen(true)}
                 loading={ageGroupLoading}
               />
-            </section>
+            </div>
+          </section>
 
-            <section aria-label="Department preferences" id="dept-preferences-section" data-testid="dept-preferences-section" style={{marginTop:12}}>
-              <h2 id="dept-preferences-title" data-testid="dept-preferences-title" style={{fontSize:16, fontWeight:700}}>Department preferences</h2>
-              <p id="dept-preferences-subtitle" data-testid="dept-preferences-subtitle" style={{marginTop:4, opacity:0.85}}>Share preferences for each department to get improved recommendations when you shop there.</p>
+          <section className="profile-section" aria-label="Department preferences" id="dept-preferences-section" data-testid="dept-preferences-section">
+            <h2 id="dept-preferences-title" data-testid="dept-preferences-title">Department preferences</h2>
+            <p id="dept-preferences-subtitle" data-testid="dept-preferences-subtitle" style={{marginTop:-8, marginBottom:16, fontSize:13, color:'var(--color-neutral-700)'}}>Share preferences for each department to get better recommendations when you shop there.</p>
 
-              <div style={{marginTop:12}}>
-                <FitAttributesRow 
-                  category="womens"
-                  fitAttributes={allFitAttributes}
-                  userFitAttributes={userFitAttributes}
-                  lastUpdated={fitAttributesLastUpdated}
-                  loading={fitAttributesLoading || userFitAttributesLoading}
-                  onAdd={() => { setFitAttributesModalCategory('womens'); setFitAttributesModalOpen(true); }}
-                  onUpdate={() => { setFitAttributesModalCategory('womens'); setFitAttributesModalOpen(true); }}
-                  onClear={() => setFitAttributesClearOpen(true)}
-                />
-                <ShoesRow
-                  value={shoesPreference}
-                  loading={shoesPreferenceLoading}
-                  onAdd={() => {
-                    console.log('Opening shoes modal, allShoeSizes:', allShoeSizes);
-                    setShoesModalOpen(true);
-                  }}
-                  onUpdate={() => {
-                    console.log('Updating shoes modal');
-                    setShoesModalOpen(true);
-                  }}
-                  onClear={() => setShoesClearOpen(true)}
-                />
-              </div>
-            </section>
+            <div className="attr-list">
+              <FitAttributesRow
+                category="womens"
+                fitAttributes={allFitAttributes}
+                userFitAttributes={userFitAttributes}
+                lastUpdated={fitAttributesLastUpdated}
+                loading={fitAttributesLoading || userFitAttributesLoading}
+                onAdd={() => { setFitAttributesModalCategory('womens'); setFitAttributesModalOpen(true); }}
+                onUpdate={() => { setFitAttributesModalCategory('womens'); setFitAttributesModalOpen(true); }}
+                onClear={() => setFitAttributesClearOpen(true)}
+              />
+              <ShoesRow
+                value={shoesPreference}
+                loading={shoesPreferenceLoading}
+                onAdd={() => {
+                  console.log('Opening shoes modal, allShoeSizes:', allShoeSizes);
+                  setShoesModalOpen(true);
+                }}
+                onUpdate={() => {
+                  console.log('Updating shoes modal');
+                  setShoesModalOpen(true);
+                }}
+                onClear={() => setShoesClearOpen(true)}
+              />
+            </div>
+          </section>
 
-            <section aria-label="Interests" id="interests-section" data-testid="interests-section" style={{marginTop:12}}>
-              <h2 id="interests-title" data-testid="interests-title" style={{fontSize:16, fontWeight:700}}>Interests</h2>
-              <div id="interests-tags" data-testid="interests-tags" style={{display:'flex', flexWrap:'wrap', gap:8, marginTop:8}}>
-                {['Skin Care','Storage & Organization','Interior Design','Dorm Essentials','Hair Care and Styling','Babies and Toddlers','Baking','Women\'s Attire','Men\'s Attire','Party Planning'].map(tag => (
-                  <button key={tag} id={`interest-${tag.toLowerCase().replace(/[\s&']/g, '-')}`} data-testid={`interest-${tag.toLowerCase().replace(/[\s&']/g, '-')}`} className="btn" aria-label={`Add interest ${tag}`}>+ {tag}</button>
-                ))}
-              </div>
-              <div style={{marginTop:16}}>
-                <button id="interests-save" data-testid="interests-save" className="btn btn-primary">Save</button>
-              </div>
-            </section>
-          </div>
+          <section className="profile-section" aria-label="Interests" id="interests-section" data-testid="interests-section">
+            <h2 id="interests-title" data-testid="interests-title">Interests</h2>
+            <div id="interests-tags" data-testid="interests-tags" style={{display:'flex', flexWrap:'wrap', gap:8}}>
+              {['Skin Care','Storage & Organization','Interior Design','Dorm Essentials','Hair Care and Styling','Babies and Toddlers','Baking','Women\'s Attire','Men\'s Attire','Party Planning'].map(tag => (
+                <button key={tag} id={`interest-${tag.toLowerCase().replace(/[\s&']/g, '-')}`} data-testid={`interest-${tag.toLowerCase().replace(/[\s&']/g, '-')}`} className="btn btn-secondary" aria-label={`Add interest ${tag}`}>+ {tag}</button>
+              ))}
+            </div>
+            <div style={{marginTop:16}}>
+              <button id="interests-save" data-testid="interests-save" className="btn btn-primary">Save</button>
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
 
       {heightWeightModalOpen && (
         <HeightWeightModal
@@ -757,6 +778,8 @@ export default function ProfilePage() {
           }
         }}
       />
+
+      <Footer />
     </main>
   )
 }
@@ -841,7 +864,7 @@ function FitAttributesRow({
   };
 
   return (
-    <div id="fit-attributes-row" data-testid="fit-attributes-row" style={{borderBottom:'1px solid var(--color-border)'}}>
+    <div id="fit-attributes-row" data-testid="fit-attributes-row">
       <div
         style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
       >
@@ -951,7 +974,7 @@ function ShoesRow({ value, loading = false, onAdd, onUpdate, onClear }: ShoesRow
   };
 
   return (
-    <div id="shoes-row" data-testid="shoes-row" style={{borderBottom:'1px solid var(--color-border)'}}>
+    <div id="shoes-row" data-testid="shoes-row">
       <div
         style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
       >
@@ -1035,7 +1058,7 @@ function HeightWeightRow({ value, onAdd, onUpdate, onClear, loading = false }: H
   };
   
   return (
-    <div id="height-weight-row" data-testid="height-weight-row" style={{borderBottom:'1px solid var(--color-border)'}}>
+    <div id="height-weight-row" data-testid="height-weight-row">
       <div
         style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
       >
@@ -1104,7 +1127,7 @@ function AgeGroupRow({ value, onAdd, onUpdate, onClear, loading = false }: AgeGr
   };
   
   return (
-    <div id="age-group-row" data-testid="age-group-row" style={{borderBottom:'1px solid var(--color-border)'}}>
+    <div id="age-group-row" data-testid="age-group-row">
       <div
         style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
       >
@@ -1255,7 +1278,7 @@ function PreferredDepartmentRow({ value, onChange, onClear, loading = false }: P
   }
 
   return (
-    <div id="pref-dept-row" data-testid="pref-dept-row" style={{borderBottom:'1px solid var(--color-border)'}}>
+    <div id="pref-dept-row" data-testid="pref-dept-row">
       <div
         style={{display:'grid', gridTemplateColumns:'240px 1fr auto', gap:12, alignItems:'center', padding:'12px 0'}}
       >
@@ -1350,12 +1373,11 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
           minWidth:520,
           maxWidth:'90vw',
           position:'relative',
-          borderRadius:'var(--radius-lg)',
-          boxShadow:'var(--elev-3)',
+          borderRadius: 0,
           overflow:'hidden'
         }}
       >
-        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 20px', background:'var(--color-surface)', borderTopLeftRadius:'var(--radius-lg)', borderTopRightRadius:'var(--radius-lg)', borderBottom:'1px solid var(--color-border)'}}>
+        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 20px', background:'var(--color-surface)', borderBottom:'1px solid var(--color-border)'}}>
           <h3 id="dept-picker-title" data-testid="dept-picker-title" style={{margin:0, fontWeight:800, color:'var(--color-text)'}}>Preferred department</h3>
           <button
             id="dept-picker-close"
@@ -1365,7 +1387,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
             style={{
               width:40,
               height:40,
-              borderRadius:12,
+              borderRadius: 0,
               background:'var(--color-card)',
               color:'var(--color-text)',
               border:'1px solid var(--color-border)',
@@ -1396,7 +1418,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
                     data-testid={`dept-option-${opt.id}`}
                     onClick={() => setChoice(opt)}
                     style={{
-                      borderRadius:'var(--radius-full)',
+                      borderRadius: 0,
                       padding:'12px 20px',
                       background: isSelected ? 'var(--color-primary)' : 'var(--color-surface)',
                       color: isSelected ? 'var(--color-on-primary)' : 'var(--color-text)',
@@ -1419,7 +1441,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
               disabled={!isDirty}
               className="btn btn-primary"
               style={{
-                borderRadius:'var(--radius-full)',
+                borderRadius: 0,
                 padding:'10px 28px',
                 cursor: isDirty ? 'pointer' : 'not-allowed',
                 opacity: isDirty ? 1 : 0.6,

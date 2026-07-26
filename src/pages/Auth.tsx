@@ -8,51 +8,68 @@ import { setAuthTokenCookie } from '../utils/token'
 import { useAuthStore } from '../store/auth'
 import { supabase } from '../lib/supabase'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { Footer } from '../components/Footer'
 
 type AuthTab = 'signin' | 'signup'
+
+/**
+ * Errors render as a 2px accent-bordered block above the form: an 11px
+ * uppercase label naming what failed, then the message in accent-700.
+ */
+function AuthError({ label, message, id, testId }: { label: string; message: string; id?: string; testId?: string }) {
+  return (
+    <div className="auth-error" role="alert" id={id} data-testid={testId}>
+      <div className="auth-error-label">{label}</div>
+      <div className="auth-error-body">{message}</div>
+    </div>
+  )
+}
 
 export default function AuthPage() {
   const [tab, setTab] = useState<AuthTab>('signin')
 
   return (
     <main className="app-main">
-      <section className="container p-6" aria-label="Authentication">
-        <div className="card" style={{display:'grid', gridTemplateColumns:'1fr', gap:16, padding:20, maxWidth:560, margin:'24px auto', width:'100%'}}>
-          <div>
-            <nav aria-label="Auth tabs" style={{display:'flex', gap:8}}>
-              <button
-                id="tab-signin"
-                data-testid="tab-signin"
-                className={`btn ${tab==='signin' ? 'btn-primary' : ''}`}
-                role="tab"
-                aria-selected={tab==='signin'}
-                aria-controls="panel-signin"
-                onClick={() => setTab('signin')}
-              >
-                Sign In
-              </button>
-              <button
-                id="tab-signup"
-                data-testid="tab-signup"
-                className={`btn ${tab==='signup' ? 'btn-primary' : ''}`}
-                role="tab"
-                aria-selected={tab==='signup'}
-                aria-controls="panel-signup"
-                onClick={() => setTab('signup')}
-              >
-                Sign Up
-              </button>
-            </nav>
+      <section className="auth-page" aria-label="Authentication">
+        <div className="auth-column">
+          <nav aria-label="Auth tabs" className="auth-tabs" role="tablist">
+            <button
+              id="tab-signin"
+              data-testid="tab-signin"
+              className="auth-tab"
+              role="tab"
+              aria-selected={tab === 'signin'}
+              aria-controls="panel-signin"
+              onClick={() => setTab('signin')}
+            >
+              Sign in
+            </button>
+            <button
+              id="tab-signup"
+              data-testid="tab-signup"
+              className="auth-tab"
+              role="tab"
+              aria-selected={tab === 'signup'}
+              aria-controls="panel-signup"
+              onClick={() => setTab('signup')}
+            >
+              Create account
+            </button>
+          </nav>
 
-            {tab === 'signin' ? <SignInPanel /> : <SignUpPanel />}
-          </div>
+          {tab === 'signin' ? (
+            <SignInPanel onSwitch={() => setTab('signup')} />
+          ) : (
+            <SignUpPanel onSwitch={() => setTab('signin')} />
+          )}
         </div>
       </section>
+      <Footer />
     </main>
   )
 }
 
-function SignInPanel() {
+function SignInPanel({ onSwitch }: { onSwitch: () => void }) {
   const navigate = useNavigate()
   const openSuccess = useUIStore(s => s.openSuccess)
   const openForgotPassword = useUIStore(s => s.openForgotPassword)
@@ -300,42 +317,50 @@ function SignInPanel() {
     { email: 'problem.user@demo.in', password: 'Password123!' },
   ]
   return (
-    <section id="panel-signin" role="tabpanel" aria-labelledby="tab-signin" className="mt-4">
-      <div style={{display:'grid', gap:8}}>
-        <label className="label" htmlFor="login-email">Email</label>
-        <input id="login-email" data-testid="login-email" data-test-name="login-email" className="input" type="email" placeholder="you@example.com" aria-label="Email" value={email} onChange={(e)=>setEmail(e.target.value)} aria-invalid={emailError}
-        />
+    <section id="panel-signin" role="tabpanel" aria-labelledby="tab-signin">
+      <h1>Sign in</h1>
+      <p className="auth-lede">Your cart and wishlist follow you across devices.</p>
 
-        <label className="label mt-4" htmlFor="login-password">Password</label>
-        <input id="login-password" data-testid="login-password" data-test-name="login-password" className="input" type={showPassword ? 'text' : 'password'} placeholder="••••••••" aria-label="Password" value={password} onChange={(e)=>setPassword(e.target.value)} aria-invalid={passwordError}
-        />
-        <label className="mt-2" style={{display:'inline-flex', alignItems:'center', gap:8}}>
-          <input id="login-show-password" data-testid="login-show-password" type="checkbox" aria-checked={showPassword} checked={showPassword} onChange={(e)=>setShowPassword(e.target.checked)} />
-          <span className="label">Show password</span>
-        </label>
+      {error && (
+        <AuthError label="Sign in failed" message={error} id="login-error" testId="login-error" />
+      )}
 
-        {error && (
-          <div id="login-error" data-testid="login-error" role="alert" style={{color:'var(--color-danger)'}} className="mt-2">{error}</div>
-        )}
-
-        <div className="mt-4" style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-          <label style={{display:'inline-flex', alignItems:'center', gap:8}}>
-            <input id="login-remember" data-testid="login-remember" data-test-name="login-remember" type="checkbox" aria-checked={remember} checked={remember} onChange={(e)=>setRemember(e.target.checked)} />
-            <span className="label">Remember me</span>
-          </label>
-          <button 
-            className="btn btn-ghost" 
-            id="login-forgot" 
-            data-testid="login-forgot" 
-            data-test-name="login-forgot"
-            onClick={openForgotPassword}
-          >
-            Forgot password?
-          </button>
+      <div className="auth-stack">
+        <div className="field">
+          <label className="field-label" htmlFor="login-email">Email</label>
+          <input id="login-email" data-testid="login-email" data-test-name="login-email" className={`input${emailError ? ' has-error' : ''}`} type="email" placeholder="you@example.com" aria-label="Email" value={email} onChange={(e)=>setEmail(e.target.value)} aria-invalid={emailError}
+          />
         </div>
 
+        <div className="field">
+          <div style={{display:'flex', justifyContent:'space-between', alignItems:'baseline'}}>
+            <label className="field-label" htmlFor="login-password">Password</label>
+            <button
+              className="linkish"
+              id="login-forgot"
+              data-testid="login-forgot"
+              data-test-name="login-forgot"
+              onClick={openForgotPassword}
+            >
+              Forgot?
+            </button>
+          </div>
+          <input id="login-password" data-testid="login-password" data-test-name="login-password" className={`input${passwordError ? ' has-error' : ''}`} type={showPassword ? 'text' : 'password'} placeholder="At least 8 characters" aria-label="Password" value={password} onChange={(e)=>setPassword(e.target.value)} aria-invalid={passwordError}
+          />
+        </div>
+
+        <label className="check-row">
+          <input id="login-show-password" data-testid="login-show-password" type="checkbox" aria-checked={showPassword} checked={showPassword} onChange={(e)=>setShowPassword(e.target.checked)} />
+          <span>Show password</span>
+        </label>
+
+        <label className="check-row">
+          <input id="login-remember" data-testid="login-remember" data-test-name="login-remember" type="checkbox" aria-checked={remember} checked={remember} onChange={(e)=>setRemember(e.target.checked)} />
+          <span>Keep me signed in</span>
+        </label>
+
         <button
-          className="btn btn-primary mt-4"
+          className="btn btn-primary btn-block"
           id="login-submit"
           data-testid="login-submit"
           data-test-name="login-submit"
@@ -398,61 +423,68 @@ function SignInPanel() {
             })()
           }}
         >
-          {isLoading ? <LoadingSpinner size="small" text="Signing in..." /> : 'Sign In'}
+          {isLoading ? <LoadingSpinner size="small" text="Signing in..." /> : 'Sign in'}
         </button>
 
-        <div className="mt-6" role="separator" style={{height:1, background:'var(--color-border)'}} />
-
-        <div className="mt-4" style={{display:'grid', gap:8}}>
-          <button 
-            className="btn" 
-            id="oauth-google" 
-            data-testid="oauth-google" 
-            data-test-name="oauth-google" 
-            aria-label="Sign In with Google"
-            disabled={isGoogleLoading}
-            onClick={handleGoogleSignIn}
-          >
-            {isGoogleLoading ? <LoadingSpinner size="small" text="Signing in..." /> : 'Continue with Google'}
-          </button>
-        </div>
-
-        <div className="mt-6 card p-4" id="demo-credentials" data-testid="demo-credentials" aria-label="Demo login credentials">
-          <h3 className="mb-4">Use these demo accounts</h3>
-          <ul role="list" style={{display:'grid', gap:8}}>
-            {demos.map((d, idx) => (
-              <li key={idx} className="surface" style={{border:'1px solid var(--color-border)', borderRadius:'var(--radius-md)', padding:12, display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                <div>
-                  <div id={`demo-cred-email-${idx}`} data-testid={`demo-cred-email-${idx}`}>{d.email}</div>
-                  <div id={`demo-cred-password-${idx}`} data-testid={`demo-cred-password-${idx}`} style={{color:'var(--color-muted)'}}>Password: {d.password}</div>
-                </div>
-                <button
-                  className="btn"
-                  id={`demo-cred-fill-${idx}`}
-                  data-testid={`demo-cred-fill-${idx}`}
-                  aria-label={`Fill ${d.email}`}
-                  onClick={() => {
-                    setEmail(d.email)
-                    setPassword(d.password)
-                    setRemember(true)
-                    setError(null)
-                    setEmailError(false)
-                    setPasswordError(false)
-                  }}
-                >
-                  Fill
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <button
+          className="btn btn-secondary btn-block"
+          style={{ justifyContent: 'center', marginTop: 0 }}
+          id="oauth-google"
+          data-testid="oauth-google"
+          data-test-name="oauth-google"
+          aria-label="Sign In with Google"
+          disabled={isGoogleLoading}
+          onClick={handleGoogleSignIn}
+        >
+          {isGoogleLoading ? <LoadingSpinner size="small" text="Signing in..." /> : 'Continue with Google'}
+        </button>
       </div>
+
+      <hr className="hr" style={{ margin: '22px 0' }} />
+
+      <div style={{ fontSize: 14 }}>
+        New here?{' '}
+        <button type="button" className="linkish" onClick={onSwitch}>
+          Create an account
+        </button>
+      </div>
+
+      <div className="demo-block" id="demo-credentials" data-testid="demo-credentials" aria-label="Demo login credentials">
+        <div className="demo-row">
+          <span className="kicker">Demo accounts</span>
+        </div>
+        {demos.map((d, idx) => (
+          <div key={idx} className="demo-row">
+            <div>
+              <div id={`demo-cred-email-${idx}`} data-testid={`demo-cred-email-${idx}`}>{d.email}</div>
+              <div id={`demo-cred-password-${idx}`} data-testid={`demo-cred-password-${idx}`} style={{color:'var(--color-neutral-700)'}}>Password: {d.password}</div>
+            </div>
+            <button
+              className="btn btn-secondary"
+              id={`demo-cred-fill-${idx}`}
+              data-testid={`demo-cred-fill-${idx}`}
+              aria-label={`Fill ${d.email}`}
+              onClick={() => {
+                setEmail(d.email)
+                setPassword(d.password)
+                setRemember(true)
+                setError(null)
+                setEmailError(false)
+                setPasswordError(false)
+              }}
+            >
+              Fill
+            </button>
+          </div>
+        ))}
+      </div>
+
       <div className="visually-hidden" role="status" aria-live="polite" id="login-status" data-testid="login-status" />
     </section>
   )
 }
 
-function SignUpPanel() {
+function SignUpPanel({ onSwitch }: { onSwitch: () => void }) {
   const openSuccess = useUIStore(s => s.openSuccess)
   const openDoc = useUIStore(s => s.openDoc)
   const login = useAuthStore(s => s.login)
@@ -490,6 +522,20 @@ function SignUpPanel() {
     }
   }, [error])
 
+  // Presentational only — submission still gates on isStrongPassword().
+  const passwordStrength = [
+    password.length >= 8,
+    /[a-z]/.test(password) && /[A-Z]/.test(password),
+    /\d/.test(password),
+    /[^A-Za-z0-9]/.test(password),
+  ].filter(Boolean).length
+
+  const strengthNote = !password
+    ? 'Eight characters, mixed case, a number and a symbol.'
+    : ['Too short.', 'Weak — add mixed case.', 'Fair — add a number.', 'Good — add a symbol.', 'Strong.'][
+        passwordStrength
+      ]
+
   // Auto-dismiss inline field errors even when no top-level error is set
   useEffect(() => {
     if (firstNameError || lastNameError || emailError || passwordError || confirmError) {
@@ -504,61 +550,79 @@ function SignUpPanel() {
     }
   }, [firstNameError, lastNameError, emailError, passwordError, confirmError])
   return (
-    <section id="panel-signup" role="tabpanel" aria-labelledby="tab-signup" className="mt-4">
-      <div style={{display:'grid', gap:8}}>
-        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
-          <div>
-            <label className="label" htmlFor="signup-firstname">First name</label>
-            <input id="signup-firstname" data-testid="signup-firstname" data-test-name="signup-firstname" className="input" type="text" placeholder="First name" aria-label="First name" value={firstName} onChange={(e)=>setFirstName(e.target.value)} aria-invalid={firstNameError} />
+    <section id="panel-signup" role="tabpanel" aria-labelledby="tab-signup">
+      <h1>Create your account</h1>
+      <p className="auth-lede">Two minutes now, and your cart follows you everywhere after.</p>
+
+      {error && (
+        <AuthError label="Check the form" message={error} id="signup-error" testId="signup-error" />
+      )}
+
+      <div className="auth-stack">
+        <div className="field-grid">
+          <div className="field">
+            <label className="field-label" htmlFor="signup-firstname">First name</label>
+            <input id="signup-firstname" data-testid="signup-firstname" data-test-name="signup-firstname" className={`input${firstNameError ? ' has-error' : ''}`} type="text" placeholder="Anand" aria-label="First name" value={firstName} onChange={(e)=>setFirstName(e.target.value)} aria-invalid={firstNameError} />
             {firstNameError && (
-              <div id="signup-firstname-error" data-testid="signup-firstname-error" role="alert" style={{color:'var(--color-danger)', marginTop:4}}>Enter a valid first name (letters only)</div>
+              <div id="signup-firstname-error" data-testid="signup-firstname-error" role="alert" className="field-error">Enter a valid first name (letters only)</div>
             )}
           </div>
-          <div>
-            <label className="label" htmlFor="signup-lastname">Last name</label>
-            <input id="signup-lastname" data-testid="signup-lastname" data-test-name="signup-lastname" className="input" type="text" placeholder="Last name" aria-label="Last name" value={lastName} onChange={(e)=>setLastName(e.target.value)} aria-invalid={lastNameError} />
+          <div className="field">
+            <label className="field-label" htmlFor="signup-lastname">Last name</label>
+            <input id="signup-lastname" data-testid="signup-lastname" data-test-name="signup-lastname" className={`input${lastNameError ? ' has-error' : ''}`} type="text" placeholder="Prakash" aria-label="Last name" value={lastName} onChange={(e)=>setLastName(e.target.value)} aria-invalid={lastNameError} />
             {lastNameError && (
-              <div id="signup-lastname-error" data-testid="signup-lastname-error" role="alert" style={{color:'var(--color-danger)', marginTop:4}}>Enter a valid last name (letters only)</div>
+              <div id="signup-lastname-error" data-testid="signup-lastname-error" role="alert" className="field-error">Enter a valid last name (letters only)</div>
             )}
           </div>
         </div>
 
-        <label className="label mt-4" htmlFor="signup-email">Email</label>
-        <input id="signup-email" data-testid="signup-email" data-test-name="signup-email" className="input" type="email" placeholder="you@example.com" aria-label="Email" value={email} onChange={(e)=>setEmail(e.target.value)} aria-invalid={emailError} />
-        {emailError && (
-          <div id="signup-email-error" data-testid="signup-email-error" role="alert" style={{color:'var(--color-danger)', marginTop:4}}>Enter email id</div>
-        )}
+        <div className="field">
+          <label className="field-label" htmlFor="signup-email">Email</label>
+          <input id="signup-email" data-testid="signup-email" data-test-name="signup-email" className={`input${emailError ? ' has-error' : ''}`} type="email" placeholder="you@example.com" aria-label="Email" value={email} onChange={(e)=>setEmail(e.target.value)} aria-invalid={emailError} />
+          {emailError && (
+            <div id="signup-email-error" data-testid="signup-email-error" role="alert" className="field-error">Enter email id</div>
+          )}
+        </div>
 
-        <label className="label mt-4" htmlFor="signup-password">Password</label>
-        <input id="signup-password" data-testid="signup-password" data-test-name="signup-password" className="input" type={showPasswords ? 'text' : 'password'} placeholder="Create a password" aria-label="Password" value={password} onChange={(e)=>setPassword(e.target.value)} aria-invalid={passwordError || (!!error && error.includes('Password'))} />
-        {passwordError && (
-          <div id="signup-password-missing" data-testid="signup-password-missing" role="alert" style={{color:'var(--color-danger)', marginTop:4}}>Enter password</div>
-        )}
+        <div className="field">
+          <label className="field-label" htmlFor="signup-password">Password</label>
+          <input id="signup-password" data-testid="signup-password" data-test-name="signup-password" className={`input${passwordError ? ' has-error' : ''}`} type={showPasswords ? 'text' : 'password'} placeholder="At least 8 characters" aria-label="Password" value={password} onChange={(e)=>setPassword(e.target.value)} aria-invalid={passwordError || (!!error && error.includes('Password'))} />
+          <div className="strength-meter" aria-hidden="true">
+            {[0, 1, 2, 3].map((i) => (
+              <i key={i} className={i < passwordStrength ? 'on' : ''} />
+            ))}
+          </div>
+          <div className="strength-note">{strengthNote}</div>
+          {passwordError && (
+            <div id="signup-password-missing" data-testid="signup-password-missing" role="alert" className="field-error">Enter password</div>
+          )}
+        </div>
 
-        <label className="label mt-4" htmlFor="signup-confirm">Confirm password</label>
-        <input id="signup-confirm" data-testid="signup-confirm" data-test-name="signup-confirm" className="input" type={showPasswords ? 'text' : 'password'} placeholder="Confirm password" aria-label="Confirm password" value={confirm} onChange={(e)=>setConfirm(e.target.value)} aria-invalid={confirmError} />
-        <label className="mt-2" style={{display:'inline-flex', alignItems:'center', gap:8}}>
+        <div className="field">
+          <label className="field-label" htmlFor="signup-confirm">Confirm password</label>
+          <input id="signup-confirm" data-testid="signup-confirm" data-test-name="signup-confirm" className={`input${confirmError ? ' has-error' : ''}`} type={showPasswords ? 'text' : 'password'} placeholder="Type it again" aria-label="Confirm password" value={confirm} onChange={(e)=>setConfirm(e.target.value)} aria-invalid={confirmError} />
+          {confirmError && (
+            <div id="signup-confirm-missing" data-testid="signup-confirm-missing" role="alert" className="field-error">Enter confirm password</div>
+          )}
+        </div>
+
+        <label className="check-row">
           <input id="signup-show-passwords" data-testid="signup-show-passwords" type="checkbox" aria-checked={showPasswords} checked={showPasswords} onChange={(e)=>setShowPasswords(e.target.checked)} />
-          <span className="label">Show password</span>
+          <span>Show password</span>
         </label>
-        {confirmError && (
-          <div id="signup-confirm-missing" data-testid="signup-confirm-missing" role="alert" style={{color:'var(--color-danger)', marginTop:4}}>Enter confirm password</div>
-        )}
 
-        <label className="mt-4" style={{display:'inline-flex', alignItems:'center', gap:8}}>
+        <label className="check-row is-block">
           <input id="signup-terms" data-testid="signup-terms" data-test-name="signup-terms" type="checkbox" aria-checked={accepted} checked={accepted} onChange={(e)=>setAccepted(e.target.checked)} />
-          <span className="label">I agree to the </span>
-          <button type="button" className="btn btn-ghost" id="link-terms" data-testid="link-terms" onClick={() => openDoc('Terms & Conditions', TERMS_BODY)}>Terms</button>
-          <span className="label"> and </span>
-          <button type="button" className="btn btn-ghost" id="link-privacy" data-testid="link-privacy" onClick={() => openDoc('Privacy Policy', PRIVACY_BODY)}>Privacy Policy</button>
+          <span>
+            I agree to the{' '}
+            <button type="button" className="linkish" id="link-terms" data-testid="link-terms" onClick={() => openDoc('Terms & Conditions', TERMS_BODY)}>terms of sale</button>
+            {' '}and the{' '}
+            <button type="button" className="linkish" id="link-privacy" data-testid="link-privacy" onClick={() => openDoc('Privacy Policy', PRIVACY_BODY)}>privacy notice</button>.
+          </span>
         </label>
-
-        {error && (
-          <div id="signup-error" data-testid="signup-error" role="alert" style={{color:'var(--color-danger)'}} className="mt-2">{error}</div>
-        )}
 
         <button
-          className="btn btn-primary mt-4"
+          className="btn btn-primary btn-block"
           id="signup-submit"
           data-testid="signup-submit"
           data-test-name="signup-submit"
@@ -635,11 +699,19 @@ function SignUpPanel() {
             })()
           }}
         >
-          {isLoading ? <LoadingSpinner size="small" text="Creating account..." /> : 'Sign Up'}
+          {isLoading ? <LoadingSpinner size="small" text="Creating account..." /> : 'Create account'}
         </button>
-
-        {/* Success feedback removed per requirement (navigate directly) */}
       </div>
+
+      <hr className="hr" style={{ margin: '22px 0' }} />
+
+      <div style={{ fontSize: 14 }}>
+        Already registered?{' '}
+        <button type="button" className="linkish" onClick={onSwitch}>
+          Sign in
+        </button>
+      </div>
+
       <div className="visually-hidden" role="status" aria-live="polite" id="signup-status" data-testid="signup-status" />
     </section>
   )

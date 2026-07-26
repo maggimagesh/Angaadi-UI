@@ -38,11 +38,10 @@ export default function WebhookLanding() {
           className="card p-6"
           style={{
             background:
-              'radial-gradient(circle at top left, rgba(255, 192, 120, 0.18), transparent 28%), linear-gradient(180deg, #fffdf8 0%, #f7efe2 100%)',
+              'var(--color-bg)',
             border: '1px solid rgba(35, 36, 40, 0.1)',
-            borderRadius: '28px',
-            boxShadow: '0 24px 60px rgba(31, 37, 42, 0.08)',
-          }}
+            borderRadius: 0,
+            }}
         >
           <div style={{ display: 'grid', gap: 18 }}>
             <div>
@@ -82,6 +81,7 @@ export default function WebhookLanding() {
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                 gap: 16,
+                
                 alignItems: 'end',
               }}
             >
@@ -134,7 +134,7 @@ export default function WebhookLanding() {
               <div
                 style={{
                   padding: 16,
-                  borderRadius: 18,
+                  borderRadius: 0,
                   background: 'rgba(255, 238, 210, 0.9)',
                   border: '1px solid rgba(155, 77, 18, 0.2)',
                   color: '#6e3a10',
@@ -156,7 +156,7 @@ export default function WebhookLanding() {
               <div
                 style={{
                   padding: 18,
-                  borderRadius: 20,
+                  borderRadius: 0,
                   background: 'rgba(255,255,255,0.72)',
                   border: '1px solid rgba(35, 36, 40, 0.08)',
                 }}
@@ -167,7 +167,7 @@ export default function WebhookLanding() {
               <div
                 style={{
                   padding: 18,
-                  borderRadius: 20,
+                  borderRadius: 0,
                   background: 'rgba(255,255,255,0.72)',
                   border: '1px solid rgba(35, 36, 40, 0.08)',
                 }}
@@ -180,7 +180,7 @@ export default function WebhookLanding() {
             <div
               style={{
                 padding: 18,
-                borderRadius: 20,
+                borderRadius: 0,
                 background: '#1f252a',
                 color: '#f7efe2',
                 overflowX: 'auto',

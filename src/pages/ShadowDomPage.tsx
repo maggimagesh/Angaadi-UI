@@ -58,7 +58,7 @@ const shadowCSS = `
   }
   .is-product-card {
     background: #fff;
-    border-radius: 12px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: 0 1px 4px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04);
     transition: transform .25s ease, box-shadow .25s ease;
@@ -85,12 +85,12 @@ const shadowCSS = `
   .is-card-badge {
     position: absolute; top: 10px; left: 10px;
     background: linear-gradient(135deg,#ef4444,#dc2626);
-    color: #fff; padding: 4px 10px; border-radius: 6px;
+    color: #fff; padding: 4px 10px; border-radius: 0;
     font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
   }
   .is-card-stock-badge {
     position: absolute; bottom: 10px; right: 10px;
-    padding: 3px 8px; border-radius: 4px;
+    padding: 3px 8px; border-radius: 0;
     font-size: .7rem; font-weight: 600;
   }
   .is-card-stock-badge.in-stock   { background: #dcfce7; color: #166534; }
@@ -106,10 +106,10 @@ const shadowCSS = `
   .is-card-old-price { font-size: .8125rem; color: #94a3b8; text-decoration: line-through; }
   .is-card-delivery { font-size: .75rem; color: #059669; font-weight: 500; }
   .is-sentinel { display: flex; justify-content: center; align-items: center; padding: 2.5rem 0; gap: .75rem; }
-  .is-spinner { width: 28px; height: 28px; border: 3px solid #e2d8f8; border-top-color: #6750a4; border-radius: 50%; animation: spin .7s linear infinite; }
+  .is-spinner { width: 28px; height: 28px; border: 3px solid #e2d8f8; border-top-color: #6750a4; border-radius: 0; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .is-sentinel span { font-size: .9375rem; color: #6750a4; font-weight: 500; }
-  .shadow-badge { display: inline-flex; align-items: center; gap: .375rem; background: rgba(103,80,164,.1); color: #6750a4; padding: .375rem .875rem; border-radius: 999px; font-size: .8125rem; font-weight: 600; margin-bottom: 1.25rem; }
+  .shadow-badge { display: inline-flex; align-items: center; gap: .375rem; background: rgba(103,80,164,.1); color: #6750a4; padding: .375rem .875rem; border-radius: 0; font-size: .8125rem; font-weight: 600; margin-bottom: 1.25rem; }
   @media (max-width: 1200px) { .is-product-grid { grid-template-columns: repeat(3,1fr); } }
   @media (max-width: 768px)  { .is-product-grid { grid-template-columns: repeat(2,1fr); gap: .75rem; } }
   @media (max-width: 480px)  { .is-product-grid { grid-template-columns: 1fr; } }

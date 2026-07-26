@@ -1,29 +1,74 @@
-/* Design tokens and CSS utilities for the Angaadi application */
+/* ─────────────────────────────────────────────────────────────────────────
+   Legacy token bridge.
+
+   The old Material-flavoured palette that used to live here is gone. What is
+   left maps every legacy custom-property name still referenced in the app
+   onto a Modernist token, so inline styles written against the old names
+   render in the new system instead of layering a second theme over it.
+
+   Nothing new should be written against these names — use the Modernist
+   tokens in styles/modernist.css directly.
+   ───────────────────────────────────────────────────────────────────────── */
+
 :root {
-  /* Colors - Modern e-commerce palette */
-  /* Fallback colors for browsers without CSS custom properties */
-  --color-bg: #f7f2f9;
-  --color-surface: #fdf8ff;
-  --color-surface-variant: #e7e0ec;
-  --color-card: #ffffff;
-  --color-border: #d8cfe5;
-  --color-outline: #c4c7cf;
-  --color-muted: #4a4458;
-  --color-text: #1c1b1f;
-  --color-heading: #1c1b1f;
-  --color-primary: #6750a4;
-  --color-primary-container: #eaddff;
-  --color-on-primary: #ffffff;
-  --color-secondary: #625b71;
-  --color-secondary-container: #e8def8;
-  --color-on-secondary: #ffffff;
-  --color-success: #386a20;
-  --color-success-container: #d1e7c6;
-  --color-warning: #b27300;
-  --color-warning-container: #ffe0b5;
-  --color-danger: #b3261e;
-  --color-danger-container: #f9dedc;
-  --color-on-danger: #410e0b;
+  /* Surfaces and ink */
+  --color-background: var(--color-bg);
+  --color-card: var(--color-bg);
+  --color-surface-variant: var(--color-neutral-200);
+  --color-border: var(--color-divider);
+  --color-outline: var(--color-divider);
+  --color-heading: var(--color-text);
+  --color-text-primary: var(--color-text);
+  --color-text-secondary: var(--color-neutral-700);
+  --color-text-tertiary: var(--color-neutral-600);
+  --color-muted: var(--color-neutral-700);
+
+  /* Roles — red is rationed, so the "primary" role is the accent and every
+     status colour resolves to ink or the accent ramp rather than its own hue. */
+  --color-primary: var(--color-accent);
+  --color-primary-container: var(--color-accent-100);
+  --color-on-primary: var(--color-bg);
+  --color-on-primary-container: var(--color-accent-800);
+  --color-secondary: var(--color-neutral-800);
+  --color-secondary-container: var(--color-neutral-200);
+  --color-on-secondary: var(--color-bg);
+  --color-on-secondary-container: var(--color-neutral-900);
+  --color-success: var(--color-neutral-900);
+  --color-success-container: var(--color-neutral-200);
+  --color-warning: var(--color-accent-700);
+  --color-warning-container: var(--color-accent-100);
+  --color-danger: var(--color-accent-700);
+  --color-danger-container: var(--color-accent-100);
+  --color-on-danger: var(--color-accent-900);
+
+  /* Zero radius everywhere — the system draws structure with rules. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-full: 0px;
+
+  /* No drop shadows in the app layer; the three that survive are the
+     system's own, used only for the suggestion panel and dialogs. */
+  --elev-1: none;
+  --elev-2: none;
+  --elev-3: none;
+
+  /* Spacing steps the DS does not define */
+  --space-0: 0;
+  --space-5: 20px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Type scale, mapped onto the Modernist body/heading sizes */
+  --font-xs: 12px;
+  --font-sm: 13px;
+  --font-md: 15px;
+  --font-lg: 20px;
+  --font-xl: 25px;
+  --font-2xl: 32px;
+  --font-3xl: 42px;
+  --font-weight-medium: 600;
 
   /* Motion */
   --motion-duration-short: 120ms;
@@ -33,57 +78,15 @@
   --motion-easing-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
   --motion-easing-accelerate: cubic-bezier(0.3, 0, 1, 1);
 
-  /* Elevation */
-  --elev-1: 0 1px 3px rgba(28,27,31,0.08), 0 1px 2px rgba(28,27,31,0.12);
-  --elev-2: 0 2px 6px rgba(28,27,31,0.12);
-  --elev-3: 0 8px 16px rgba(28,27,31,0.14);
-
-  /* Spacing scale */
-  --space-0: 0;
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-
-  /* Font scale */
-  --font-xs: 12px;
-  --font-sm: 14px;
-  --font-md: 16px;
-  --font-lg: 20px;
-  --font-xl: 24px;
-  --font-2xl: 28px;
-  --font-3xl: 32px;
-
-  /* Radii */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-full: 999px;
+  /* Focus — themed, never the browser default */
+  --focus-ring: 0 0 0 2px var(--color-accent);
 
   /* Breakpoints */
-  --bp-mobile: 375px;
+  --bp-mobile: 390px;
   --bp-tablet: 1024px;
   --bp-desktop: 1440px;
-
-  /* Focus ring */
-  --focus-ring: 0 0 0 3px rgba(103,80,164,0.32);
 }
 
-/* High Contrast Mode Support - Enhance contrast without changing the entire theme */
-@media (prefers-contrast: high) {
-  :root {
-    --color-border: #000000;
-    --focus-ring: 0 0 0 3px #000000;
-  }
-}
-
-/* Reduced Motion Support - Respect user preferences */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -94,189 +97,3 @@
     scroll-behavior: auto !important;
   }
 }
-
-/* Dark mode support - Optional, currently disabled to preserve light theme */
-/* Uncomment this block to enable automatic dark mode based on system preferences
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #1c1b1f;
-    --color-surface: #1c1b1f;
-    --color-surface-variant: #49454f;
-    --color-card: #2b2930;
-    --color-border: #49454f;
-    --color-outline: #938f99;
-    --color-muted: #cac4d0;
-    --color-text: #e6e1e5;
-    --color-heading: #e6e1e5;
-    --color-primary: #d0bcff;
-    --color-primary-container: #4f378b;
-    --color-on-primary: #371e73;
-    --color-secondary: #ccc2dc;
-    --color-secondary-container: #4a4458;
-    --color-on-secondary: #332d41;
-    --color-success: #aed581;
-    --color-success-container: #1b5e20;
-    --color-warning: #ffd54f;
-    --color-warning-container: #ff6f00;
-    --color-danger: #f48fb1;
-    --color-danger-container: #c62828;
-  }
-}
-*/
-
-/* Layout helpers */
-.container {
-  max-width: var(--bp-desktop, 1440px);
-  max-width: 1440px;
-  margin: 0 auto;
-  width: 100%;
-  /* Padding defined in index.css for responsive behavior */
-}
-
-.card {
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--elev-1);
-}
-
-.surface {
-  background: var(--color-surface);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid transparent;
-  background: var(--color-surface-variant);
-  color: var(--color-text);
-  font-size: var(--font-sm);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-}
-
-.btn[disabled] { opacity: 0.6; cursor: not-allowed; }
-.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-.btn:hover:not([disabled]) { box-shadow: var(--elev-1); }
-.btn-primary {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  border-color: transparent;
-}
-.btn-primary:hover:not([disabled]) { background: #7f67be; }
-.btn-secondary {
-  background: var(--color-primary-container);
-  color: var(--color-muted);
-  border-color: transparent;
-}
-.btn-secondary:hover:not([disabled]) { background: #d8c8ff; }
-.btn-ghost {
-  background: var(--color-primary-container);
-  border: 1px solid var(--color-primary-container);
-  color: var(--color-heading);
-}
-.btn-ghost:hover:not([disabled]) { 
-  background: #d8c8ff;
-  border-color: #d8c8ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(103, 80, 164, 0.2);
-}
-
-.input, .select, .textarea {
-  width: 100%;
-  background: var(--color-card);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
-  font-size: var(--font-sm);
-}
-.input:focus-visible, .select:focus-visible, .textarea:focus-visible { outline: none; box-shadow: var(--focus-ring); border-color: var(--color-primary); }
-
-.label { font-size: var(--font-sm); color: var(--color-muted); }
-
-.grid {
-  display: grid;
-  gap: var(--space-4);
-}
-.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-
-@media (max-width: 1024px) {
-  .grid-cols-3, .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 640px) {
-  .grid-cols-2, .grid-cols-3, .grid-cols-4 { grid-template-columns: 1fr; }
-}
-
-.visually-hidden {
-  position: absolute;
-  clip: rect(1px, 1px, 1px, 1px);
-  padding: 0;
-  border: 0;
-  height: 1px;
-  width: 1px;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-/* Focus outline for links and custom components */
-a:focus-visible, [role="button"]:focus-visible, [tabindex]:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.modal-overlay {
-  animation: m3-fade-in var(--motion-duration-medium) var(--motion-easing-decelerate);
-}
-
-.modal-surface {
-  animation: m3-scale-fade-in var(--motion-duration-medium) var(--motion-easing-decelerate);
-  transform-origin: center;
-  will-change: opacity, transform;
-}
-
-.toast-surface {
-  animation: m3-slide-in-top var(--motion-duration-medium) var(--motion-easing-decelerate);
-  will-change: opacity, transform;
-}
-
-@keyframes m3-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes m3-scale-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.94);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes m3-slide-in-top {
-  from {
-    opacity: 0;
-    transform: translateY(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-

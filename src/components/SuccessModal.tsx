@@ -30,14 +30,12 @@ export function SuccessModal() {
         whiteSpace:'nowrap',
         lineHeight:1.3,
         maxWidth:'60vw',
-        borderRadius:'var(--radius-md)',
-        background:'var(--color-primary)',
-        color:'var(--color-on-primary)',
-        border:'1px solid transparent',
-        boxShadow:'var(--elev-2)'
+        background:'var(--color-accent)',
+        color:'#f3f2f2',
+        border:0
       }}
     >
-      <span id="success-title" data-testid="success-title" style={{fontSize:14, fontWeight:600}}>{successMessage}</span>
+      <span id="success-title" data-testid="success-title" style={{fontSize:14, fontFamily:'var(--font-heading)', fontWeight:800}}>{successMessage}</span>
       <button
         aria-label="Close"
         id="success-close"
@@ -51,12 +49,11 @@ export function SuccessModal() {
           display:'inline-flex',
           alignItems:'center',
           justifyContent:'center',
-          background:'var(--color-primary-container)',
-          border:'1px solid transparent',
-          borderRadius:'var(--radius-sm)',
-          color:'var(--color-primary)',
+          background:'#f3f2f2',
+          border:0,
+          color:'var(--color-accent)',
           cursor:'pointer',
-          fontWeight:700
+          fontWeight:800
         }}
       >
         ×

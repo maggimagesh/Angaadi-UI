@@ -1,4 +1,5 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
+import { CloseIcon } from './icons'
 
 interface BaseModalProps {
   open: boolean
@@ -11,12 +12,17 @@ interface BaseModalProps {
   showCloseButton?: boolean
 }
 
-const sizeStyles = {
-  small: { width: 420, maxWidth: '90vw' },
-  medium: { width: 520, maxWidth: '90vw' },
-  large: { width: 700, maxWidth: '90vw' }
+const sizeWidths = {
+  small: 'min(420px, 100%)',
+  medium: 'min(520px, 100%)',
+  large: 'min(700px, 100%)',
 }
 
+/**
+ * The shared dialog shell, on `.dialog-backdrop` / `.dialog`: square corners,
+ * a 2px rule under the title, actions flush right. Focus is trapped inside
+ * while it is open and returns to the trigger on close; Escape closes.
+ */
 export function BaseModal({
   open,
   onClose,
@@ -25,16 +31,50 @@ export function BaseModal({
   footer,
   size = 'medium',
   testIdPrefix = 'modal',
-  showCloseButton = true
+  showCloseButton = true,
 }: BaseModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const returnFocusTo = useRef<HTMLElement | null>(null)
+
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+    if (!open) return
+
+    returnFocusTo.current = document.activeElement as HTMLElement | null
+
+    const focusables = () =>
+      Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        ) ?? []
+      )
+
+    focusables()[0]?.focus()
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab') return
+
+      const items = focusables()
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
     }
 
-    if (open) {
-      document.addEventListener('keydown', handleEscape)
-      return () => document.removeEventListener('keydown', handleEscape)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      returnFocusTo.current?.focus?.()
     }
   }, [open, onClose])
 
@@ -42,107 +82,43 @@ export function BaseModal({
 
   return (
     <div
-      className="modal-overlay"
+      className="dialog-backdrop modal-overlay"
       role="dialog"
       aria-modal="true"
       aria-labelledby={`${testIdPrefix}-title`}
       id={`${testIdPrefix}-modal`}
       data-testid={`${testIdPrefix}-modal`}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 60,
-        padding: '20px'
-      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
       <div
-        className="card modal-surface"
+        className="dialog elev-lg modal-surface"
+        ref={dialogRef}
         data-testid={`${testIdPrefix}-content`}
-        style={{
-          background: 'var(--color-card)',
-          color: 'var(--color-text)',
-          padding: 0,
-          ...sizeStyles[size],
-          position: 'relative',
-          borderRadius: 'var(--radius-lg)',
-          boxShadow: 'var(--elev-3)',
-          overflow: 'hidden',
-          boxSizing: 'border-box'
-        }}
+        style={{ width: sizeWidths[size] }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '16px 20px',
-            background: 'var(--color-surface)',
-            borderTopLeftRadius: 'var(--radius-lg)',
-            borderTopRightRadius: 'var(--radius-lg)',
-            borderBottom: '1px solid var(--color-border)'
-          }}
-        >
-          <h3
-            id={`${testIdPrefix}-title`}
-            data-testid={`${testIdPrefix}-title`}
-            style={{ margin: 0, fontWeight: 800, color: 'var(--color-text)' }}
-          >
+        <div className="dialog-head">
+          <h2 className="dialog-title" id={`${testIdPrefix}-title`} data-testid={`${testIdPrefix}-title`}>
             {title}
-          </h3>
+          </h2>
           {showCloseButton && (
             <button
+              className="dialog-close"
               id={`${testIdPrefix}-close`}
               data-testid={`${testIdPrefix}-close`}
               aria-label="Close"
               onClick={onClose}
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 12,
-                background: 'var(--color-card)',
-                color: 'var(--color-text)',
-                border: '1px solid var(--color-border)',
-                cursor: 'pointer',
-                fontSize: '18px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
             >
-              ×
+              <CloseIcon size={16} />
             </button>
           )}
         </div>
 
-        {/* Content */}
-        <div style={{ padding: 24, background: 'var(--color-card)', boxSizing: 'border-box', overflow: 'hidden' }}>
-          {children}
-        </div>
+        <div className="dialog-body">{children}</div>
 
-        {/* Footer (optional) */}
-        {footer && (
-          <div
-            style={{
-              padding: '16px 24px',
-              background: 'var(--color-surface)',
-              borderTop: '1px solid var(--color-border)',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: 12
-            }}
-          >
-            {footer}
-          </div>
-        )}
+        {footer && <div className="dialog-actions">{footer}</div>}
       </div>
     </div>
   )

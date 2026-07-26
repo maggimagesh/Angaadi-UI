@@ -1,10 +1,19 @@
+import type { ReactNode } from 'react'
+
 type PaginationProps = {
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
+  /** Right-aligned range and per-page note, e.g. "Showing 1–12 of 148 · 12 per page". */
+  meta?: ReactNode
 }
 
-export function PaginationOld({ currentPage, totalPages, onPageChange }: PaginationProps) {
+/**
+ * Square-cell pagination. The current page is an accent fill with #f3f2f2
+ * numerals; every other page is a 1px-bordered cell. The props and the page
+ * windowing are unchanged — only the chrome is new.
+ */
+export function PaginationOld({ currentPage, totalPages, onPageChange, meta }: PaginationProps) {
   const getPageNumbers = () => {
     const pages: (number | string)[] = []
     const maxVisible = 7
@@ -43,50 +52,49 @@ export function PaginationOld({ currentPage, totalPages, onPageChange }: Paginat
   const pages = getPageNumbers()
 
   return (
-    <nav className="pagination-old" aria-label="Pagination">
+    <nav className="pagination" aria-label="Pagination">
       <button
-        className="pagination-btn-old"
+        type="button"
+        className="btn btn-secondary"
+        style={{ padding: '7px 12px' }}
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         aria-label="Previous page"
       >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
         Previous
       </button>
 
-      <div className="pagination-numbers-old">
-        {pages.map((page, index) => (
-          typeof page === 'number' ? (
-            <button
-              key={index}
-              className={`pagination-number-old ${currentPage === page ? 'active' : ''}`}
-              onClick={() => onPageChange(page)}
-              aria-label={`Page ${page}`}
-              aria-current={currentPage === page ? 'page' : undefined}
-            >
-              {page}
-            </button>
-          ) : (
-            <span key={index} className="pagination-ellipsis-old">
-              {page}
-            </span>
-          )
-        ))}
-      </div>
+      {pages.map((page, index) =>
+        typeof page === 'number' ? (
+          <button
+            key={index}
+            type="button"
+            className={`page-cell${currentPage === page ? ' is-current' : ''}`}
+            onClick={() => onPageChange(page)}
+            aria-label={`Page ${page}`}
+            aria-current={currentPage === page ? 'page' : undefined}
+          >
+            {page}
+          </button>
+        ) : (
+          <span key={index} className="page-ellipsis">
+            …
+          </span>
+        )
+      )}
 
       <button
-        className="pagination-btn-old"
+        type="button"
+        className="btn btn-secondary"
+        style={{ padding: '7px 12px' }}
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         aria-label="Next page"
       >
         Next
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
       </button>
+
+      {meta ? <span className="page-meta">{meta}</span> : null}
     </nav>
   )
 }

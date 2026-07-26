@@ -147,7 +147,7 @@ export default function MultiScrollPage() {
       </div>
 
       {/* Extra content to force the external page to be scrollable */}
-      <div style={{ padding: '4rem 2rem', textAlign: 'center', backgroundColor: '#e2e8f0', margin: '2rem 1.5rem', borderRadius: '12px' }}>
+      <div style={{ padding: '4rem 2rem', textAlign: 'center', backgroundColor: '#e2e8f0', margin: '2rem 1.5rem', borderRadius: 0 }}>
         <h2>Extra Page Content</h2>
         <p style={{ color: '#64748b', maxWidth: '600px', margin: '1rem auto' }}>
           This content ensures that the main outer browser window has a vertical scrollbar as requested (1 external scrollbar + 3 internal scrollbars for the boxes).

@@ -99,8 +99,7 @@ export function SignInModal() {
           minWidth: 420,
           maxWidth: '90vw',
           position: 'relative',
-          borderRadius: 'var(--radius-lg)',
-          boxShadow: 'var(--elev-3)',
+          borderRadius: 0,
           overflow: 'hidden'
         }}
         onClick={(e) => e.stopPropagation()}
@@ -128,7 +127,7 @@ export function SignInModal() {
             style={{
               width: 40,
               height: 40,
-              borderRadius: 12,
+              borderRadius: 0,
               background: 'var(--color-card)',
               color: 'var(--color-text)',
               border: '1px solid var(--color-border)',

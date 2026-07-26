@@ -228,7 +228,7 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                   onClick={onClose}
                   className="btn"
                   style={{
-                    borderRadius: 'var(--radius-full)',
+                    borderRadius: 0,
                     padding: '10px 28px',
                   }}
                 >
@@ -240,7 +240,7 @@ export default function HeightWeightModal({ open, onClose, onSave }: HeightWeigh
                   type="submit"
                   className="btn btn-primary"
                   style={{
-                    borderRadius: 'var(--radius-full)',
+                    borderRadius: 0,
                     padding: '10px 28px',
                   }}
                   disabled={isLoading}

@@ -54,10 +54,10 @@
 .mb-2 { margin-bottom: var(--space-2, 8px); }
 
 .nav-links { display: flex; flex-direction: column; gap: var(--space-2, 8px); }
-.nav-link { color: var(--color-heading, #1c1b1f); font-weight: 600; cursor: pointer; padding: var(--space-2, 8px); border-radius: var(--radius-sm, 8px); transition: background-color 0.2s; }
+.nav-link { color: var(--color-heading, #1c1b1f); font-weight: 600; cursor: pointer; padding: var(--space-2, 8px); border-radius: 0; transition: background-color 0.2s; }
 .nav-link:hover { background-color: var(--color-surface-variant, #e7e0ec); color: var(--color-primary, #6750a4); }
 
-.stat-badge { font-size: var(--font-xs, 12px); font-weight: 600; display: inline-block; padding: 2px 6px; border-radius: var(--radius-sm, 8px); margin-bottom: var(--space-2, 8px); }
+.stat-badge { font-size: var(--font-xs, 12px); font-weight: 600; display: inline-block; padding: 2px 6px; border-radius: 0; margin-bottom: var(--space-2, 8px); }
 .stat-red { background-color: var(--color-danger-container, #f9dedc); color: var(--color-danger, #b3261e); }
 .stat-green { background-color: var(--color-success-container, #d1e7c6); color: var(--color-success, #386a20); }
 .divider { height: 8px; border-bottom: 1px solid var(--color-border, #d8cfe5); margin-bottom: var(--space-3, 12px); }
@@ -72,7 +72,7 @@
   flex-direction: column;
   gap: var(--space-2, 8px);
 }
-.footer-link { padding: 4px; border-radius: 4px; }
+.footer-link { padding: 4px; border-radius: 0; }
 .footer-link:hover { background-color: var(--color-surface-variant, #e7e0ec); color: var(--color-primary, #6750a4); cursor: pointer; }
 
 /* Main Content & Columns */
@@ -101,10 +101,9 @@
   background-color: var(--color-surface, #fdf8ff);
   z-index: 10;
   font-weight: 600;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-.tab-item { cursor: pointer; padding: var(--space-2, 8px) var(--space-3, 12px); border-radius: var(--radius-full, 999px); transition: all 0.2s ease; }
+.tab-item { cursor: pointer; padding: var(--space-2, 8px) var(--space-3, 12px); border-radius: 0; transition: all 0.2s ease; }
 .tab-active { color: var(--color-on-primary, #ffffff); background-color: var(--color-primary, #6750a4); }
 .tab-inactive { color: var(--color-muted, #4a4458); }
 .tab-inactive:hover { background-color: var(--color-surface-variant, #e7e0ec); color: var(--color-heading, #1c1b1f); }
@@ -122,12 +121,11 @@
   margin-bottom: var(--space-2, 8px);
   background: var(--color-card, #ffffff);
   border: 1px solid var(--color-border, #d8cfe5);
-  border-radius: var(--radius-md, 12px);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  border-radius: 0;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
-.job-card:hover { transform: translateY(-2px); box-shadow: var(--elev-1, 0 2px 4px rgba(0,0,0,0.1)); border-color: var(--color-primary, #6750a4); }
+.job-card:hover { transform: translateY(-2px);  border-color: var(--color-primary, #6750a4); }
 
 .job-header { display: flex; justify-content: space-between; align-items: flex-start; }
 .job-title { font-weight: 600; color: var(--color-heading, #1c1b1f); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: var(--font-md, 16px); }
@@ -136,9 +134,9 @@
 
 .job-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: var(--space-3, 12px); }
 .job-tags { display: flex; gap: var(--space-2, 8px); align-items: center; }
-.tag-gold { color: var(--color-secondary, #625b71); font-size: var(--font-xs, 12px); font-weight: 600; background: var(--color-surface-variant, #e7e0ec); padding: 2px 8px; border-radius: var(--radius-sm, 8px); }
+.tag-gold { color: var(--color-secondary, #625b71); font-size: var(--font-xs, 12px); font-weight: 600; background: var(--color-surface-variant, #e7e0ec); padding: 2px 8px; border-radius: 0; }
 
-.salary-tag { padding: 4px 8px; border-radius: var(--radius-sm, 8px); font-weight: 600; font-size: var(--font-sm, 14px); }
+.salary-tag { padding: 4px 8px; border-radius: 0; font-weight: 600; font-size: var(--font-sm, 14px); }
 .salary-gray { background-color: var(--color-surface-variant, #e7e0ec); color: var(--color-text, #1c1b1f); }
 .salary-green { background-color: var(--color-success-container, #d1e7c6); color: var(--color-success, #386a20); }
 
@@ -147,5 +145,5 @@
 /* Custom Scrollbar styled for the light theme */
 .custom-scrollbar::-webkit-scrollbar { width: 8px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: var(--color-surface, #fdf8ff); border-left: 1px solid var(--color-border, #d8cfe5); }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-outline, #c4c7cf); border-radius: var(--radius-lg, 18px); }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--color-outline, #c4c7cf); border-radius: 0; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--color-muted, #4a4458); }

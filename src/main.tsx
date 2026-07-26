@@ -4,7 +4,13 @@ import 'regenerator-runtime/runtime'
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+
+// Modernist first: it owns the tokens and the component layer. Everything
+// after it is the app shell and the screen layer, built from those tokens.
+import './styles/modernist.css'
 import './index.css'
+import './styles/app.css'
+
 import App from './App.tsx'
 
 // CSS Variables Ponyfill for IE11 and older browsers
@@ -21,9 +27,9 @@ cssVars({
   preserveVars: false,
   variables: {
     // Fallback values for CSS custom properties
-    '--color-primary': '#6750a4',
-    '--color-bg': '#f7f2f9',
-    '--color-text': '#1c1b1f',
+    '--color-accent': '#ec3013',
+    '--color-bg': '#f3f2f2',
+    '--color-text': '#201e1d',
   },
 })
 

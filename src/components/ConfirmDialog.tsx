@@ -13,13 +13,13 @@ type ConfirmDialogProps = {
 
 export default function ConfirmDialog({
   open,
-  title = 'Are you sure want to clear?',
+  title = 'Clear this?',
   description = null,
   confirmLabel = 'Yes',
   cancelLabel = 'No',
   onConfirm,
   onCancel,
-  testIdPrefix = 'confirm-dialog'
+  testIdPrefix = 'confirm-dialog',
 }: ConfirmDialogProps) {
   if (!open) return null
 
@@ -31,66 +31,35 @@ export default function ConfirmDialog({
 
   return (
     <div
-      className="modal-overlay"
+      className="dialog-backdrop modal-overlay"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
       id={modalId}
       data-testid={modalId}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 70
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onCancel()
       }}
     >
       <div
-        className="card modal-surface"
+        className="dialog elev-lg modal-surface"
         data-testid={contentId}
-        style={{
-          background: 'var(--color-card)',
-          color: 'var(--color-text)',
-          padding: 20,
-          minWidth: 420,
-          position: 'relative',
-          borderRadius: 16,
-          boxShadow: 'var(--elev-3)'
-        }}
+        style={{ width: 'min(440px, 100%)' }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <h3
-          id={titleId}
-          data-testid={titleId}
-          style={{ margin: '0 0 8px 0', fontWeight: 800, color: 'var(--color-text)' }}
-        >
-          {title}
-        </h3>
+        <div className="dialog-head">
+          <h2 className="dialog-title" id={titleId} data-testid={titleId}>
+            {title}
+          </h2>
+        </div>
 
-        {description && (
-          <div style={{ marginBottom: 16, color: 'var(--color-text)', opacity: 0.9 }}>
-            {description}
-          </div>
-        )}
+        {description && <div className="dialog-body">{description}</div>}
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button
-            id={cancelId}
-            data-testid={cancelId}
-            className="btn"
-            onClick={onCancel}
-            style={{ borderRadius: 'var(--radius-full)', height: 36, padding: '0 14px' }}
-          >
+        <div className="dialog-actions">
+          <button id={cancelId} data-testid={cancelId} className="btn btn-secondary" onClick={onCancel}>
             {cancelLabel}
           </button>
-          <button
-            id={confirmId}
-            data-testid={confirmId}
-            className="btn btn-primary"
-            onClick={onConfirm}
-            style={{ borderRadius: 'var(--radius-full)', height: 36, padding: '0 14px' }}
-          >
+          <button id={confirmId} data-testid={confirmId} className="btn btn-primary" onClick={onConfirm}>
             {confirmLabel}
           </button>
         </div>

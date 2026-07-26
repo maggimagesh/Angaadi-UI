@@ -81,7 +81,7 @@ const sidebarStyle: React.CSSProperties = {
 const sidebarBoxStyle: React.CSSProperties = {
   background: 'var(--color-card, #fff)',
   border: '1px solid var(--color-border, #d8cfe5)',
-  borderRadius: '8px',
+  borderRadius: 0,
   padding: '14px 16px',
   boxShadow: 'var(--elev-1, 0 1px 3px rgba(28,27,31,0.08))',
 }

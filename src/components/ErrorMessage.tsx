@@ -14,7 +14,7 @@ export function ErrorMessage({ message, testId = 'error-message' }: ErrorMessage
         backgroundColor: 'var(--color-danger-container)',
         color: 'var(--color-danger)',
         padding: '10px',
-        borderRadius: 'var(--radius-md)',
+        borderRadius: 0,
         marginBottom: '16px'
       }}
     >

@@ -29,14 +29,13 @@ const CookieConsentGallery: React.FC = () => {
                         onClick={() => navigate(`/cookie-consent/${design.id}`)}
                         style={{
                             padding: '32px',
-                            borderRadius: '24px',
+                            borderRadius: 0,
                             border: '1px solid var(--color-border)',
                             background: 'var(--color-surface, #ffffff)',
                             color: 'var(--color-text)',
                             textAlign: 'left',
                             cursor: 'pointer',
                             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                            boxShadow: 'var(--elev-1)',
                             display: 'flex',
                             flexDirection: 'column',
                             gap: '16px',
@@ -63,7 +62,7 @@ const CookieConsentGallery: React.FC = () => {
                             color: 'white',
                             fontSize: '0.7rem',
                             fontWeight: 800,
-                            borderRadius: '0 0 0 16px',
+                            borderRadius: 0,
                             textTransform: 'uppercase'
                         }}>
                             {design.type}

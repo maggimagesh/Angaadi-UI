@@ -295,7 +295,7 @@ function HighlightedText({
         style={{
           background: '#ffe066',
           color: '#1f252a',
-          borderRadius: 2,
+          borderRadius: 0,
           padding: '0 2px',
           fontWeight: 700,
         }}
@@ -527,7 +527,7 @@ function JsonViewer({
         background: '#1f252a',
         color: '#f7efe2',
         padding: 16,
-        borderRadius: 14,
+        borderRadius: 0,
         maxHeight,
         overflow: 'auto',
         minWidth: 0,
@@ -560,7 +560,7 @@ function PlainTextViewer({
       style={{
         margin: 0,
         padding: 16,
-        borderRadius: 14,
+        borderRadius: 0,
         background: '#1f252a',
         color: '#f7efe2',
         maxHeight,
@@ -588,7 +588,7 @@ function BodyLoadingNotice({ storedBody }: BodyLoadingNoticeProps) {
     <div
       style={{
         padding: 14,
-        borderRadius: 14,
+        borderRadius: 0,
         background: 'rgba(255, 247, 235, 0.85)',
         border: '1px solid rgba(35, 36, 40, 0.12)',
         color: '#5e3308',
@@ -621,7 +621,7 @@ function BodyFetchErrorNotice({
     <div
       style={{
         padding: 14,
-        borderRadius: 14,
+        borderRadius: 0,
         background: 'rgba(255, 230, 230, 0.85)',
         border: '1px solid rgba(176, 0, 32, 0.25)',
         color: '#7a1320',
@@ -640,7 +640,7 @@ function BodyFetchErrorNotice({
           onClick={onRetry}
           style={{
             padding: '8px 14px',
-            borderRadius: 10,
+            borderRadius: 0,
             background: '#1f252a',
             color: '#fff7eb',
             border: 'none',
@@ -658,7 +658,7 @@ function BodyFetchErrorNotice({
             display: 'inline-flex',
             alignItems: 'center',
             padding: '8px 14px',
-            borderRadius: 10,
+            borderRadius: 0,
             background: 'rgba(255,255,255,0.7)',
             color: '#1f252a',
             border: '1px solid rgba(35, 36, 40, 0.16)',
@@ -732,7 +732,7 @@ function BodyContentViewer({
             style={{
               width: '100%',
               padding: '8px 12px',
-              borderRadius: 10,
+              borderRadius: 0,
               border: '1px solid rgba(35, 36, 40, 0.16)',
               background: 'rgba(255,255,255,0.85)',
               color: 'inherit',
@@ -760,7 +760,7 @@ function BodyContentViewer({
             style={{
               background: 'rgba(255,255,255,0.7)',
               border: '1px solid rgba(35, 36, 40, 0.12)',
-              borderRadius: 8,
+              borderRadius: 0,
               padding: '6px 10px',
               cursor: 'pointer',
               color: 'inherit',
@@ -805,7 +805,7 @@ function SectionPanel({ title, meta, expanded, onToggle, actions, children }: Se
     <div
       className="card"
       style={{
-        borderRadius: 20,
+        borderRadius: 0,
         padding: 0,
         overflow: 'hidden',
         minWidth: 0,
@@ -849,7 +849,7 @@ function SectionPanel({ title, meta, expanded, onToggle, actions, children }: Se
               justifyContent: 'center',
               width: 22,
               height: 22,
-              borderRadius: 6,
+              borderRadius: 0,
               background: 'rgba(155, 77, 18, 0.12)',
               color: '#9b4d12',
               fontSize: 12,
@@ -910,7 +910,7 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
         gap: 10,
         background: 'rgba(255,255,255,0.7)',
         border: '1px solid rgba(35, 36, 40, 0.12)',
-        borderRadius: 999,
+        borderRadius: 0,
         padding: '6px 12px 6px 8px',
         cursor: 'pointer',
         color: 'inherit',
@@ -924,7 +924,7 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
           position: 'relative',
           width: 34,
           height: 20,
-          borderRadius: 999,
+          borderRadius: 0,
           background: checked ? '#9b4d12' : '#cdc6ba',
           transition: 'background 160ms ease',
           flexShrink: 0,
@@ -937,11 +937,10 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
             left: checked ? 16 : 2,
             width: 16,
             height: 16,
-            borderRadius: '50%',
+            borderRadius: 0,
             background: '#fff',
             transition: 'left 160ms ease',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
-          }}
+            }}
         />
       </span>
       <span>{label}</span>
@@ -983,7 +982,7 @@ function nextGeneratedHeaderName(existingNames: string[]): string {
 const AUTH_INPUT_STYLE: React.CSSProperties = {
   width: '100%',
   padding: '8px 12px',
-  borderRadius: 10,
+  borderRadius: 0,
   border: '1px solid rgba(35, 36, 40, 0.16)',
   background: 'rgba(255,255,255,0.85)',
   color: 'inherit',
@@ -1196,7 +1195,7 @@ function AuthHeadersPanel({ token }: { token: string }) {
                 aria-label="Remove header"
                 style={{
                   padding: '8px 12px',
-                  borderRadius: 10,
+                  borderRadius: 0,
                   border: '1px solid rgba(176, 0, 32, 0.25)',
                   background: 'rgba(255, 230, 230, 0.7)',
                   color: '#7a1320',
@@ -1263,7 +1262,7 @@ function AuthHeadersPanel({ token }: { token: string }) {
           <div
             style={{
               padding: 14,
-              borderRadius: 14,
+              borderRadius: 0,
               background: 'rgba(224, 245, 227, 0.7)',
               border: '1px solid rgba(34, 134, 58, 0.3)',
               display: 'grid',
@@ -1293,7 +1292,7 @@ function AuthHeadersPanel({ token }: { token: string }) {
                 <code
                   style={{
                     padding: '6px 10px',
-                    borderRadius: 8,
+                    borderRadius: 0,
                     background: 'rgba(255,255,255,0.85)',
                     border: '1px solid rgba(34, 134, 58, 0.2)',
                     fontSize: '0.82rem',
@@ -1380,7 +1379,7 @@ function BlockedAttemptsPanel({
           disabled={clearing || blocked.length === 0}
           style={{
             padding: '4px 10px',
-            borderRadius: 8,
+            borderRadius: 0,
             border: '1px solid rgba(35, 36, 40, 0.16)',
             background: 'rgba(255,255,255,0.85)',
             color: 'inherit',
@@ -1400,7 +1399,7 @@ function BlockedAttemptsPanel({
             key={record.id}
             style={{
               padding: 12,
-              borderRadius: 14,
+              borderRadius: 0,
               background: 'rgba(255, 230, 230, 0.5)',
               border: '1px solid rgba(176, 0, 32, 0.2)',
               minWidth: 0,
@@ -1424,7 +1423,7 @@ function BlockedAttemptsPanel({
                   color: '#7a1320',
                   background: 'rgba(176, 0, 32, 0.12)',
                   padding: '2px 8px',
-                  borderRadius: 6,
+                  borderRadius: 0,
                 }}
               >
                 {record.method} · 401 blocked
@@ -1790,10 +1789,9 @@ export default function WebhookInspector() {
           className="card"
           style={{
             background:
-              'radial-gradient(circle at top left, rgba(255, 192, 120, 0.18), transparent 28%), linear-gradient(180deg, #fffdf8 0%, #f7efe2 100%)',
+              'var(--color-bg)',
             border: '1px solid rgba(35, 36, 40, 0.1)',
-            borderRadius: 24,
-            boxShadow: '0 20px 50px rgba(31, 37, 42, 0.08)',
+            borderRadius: 0,
             padding: 0,
             overflow: 'hidden',
             minWidth: 0,
@@ -1886,7 +1884,7 @@ export default function WebhookInspector() {
                 <div
                   style={{
                     padding: 14,
-                    borderRadius: 16,
+                    borderRadius: 0,
                     background: 'rgba(255,255,255,0.72)',
                     border: '1px solid rgba(35, 36, 40, 0.08)',
                     minWidth: 0,
@@ -1982,7 +1980,7 @@ export default function WebhookInspector() {
                 <div
                   style={{
                     padding: 14,
-                    borderRadius: 14,
+                    borderRadius: 0,
                     background: 'rgba(255, 238, 210, 0.9)',
                     border: '1px solid rgba(155, 77, 18, 0.2)',
                     color: '#6e3a10',
@@ -2009,7 +2007,7 @@ export default function WebhookInspector() {
               gap: 12,
               flexWrap: 'wrap',
               padding: '14px 18px',
-              borderRadius: 16,
+              borderRadius: 0,
               background: 'rgba(176, 0, 32, 0.08)',
               border: '1px solid rgba(176, 0, 32, 0.35)',
               color: '#7a1320',
@@ -2033,7 +2031,7 @@ export default function WebhookInspector() {
               style={{
                 flexShrink: 0,
                 padding: '8px 14px',
-                borderRadius: 10,
+                borderRadius: 0,
                 border: '1px solid rgba(176, 0, 32, 0.35)',
                 background: 'rgba(255,255,255,0.8)',
                 color: '#7a1320',
@@ -2069,7 +2067,7 @@ export default function WebhookInspector() {
           <div
             className="card"
             style={{
-              borderRadius: 20,
+              borderRadius: 0,
               padding: 16,
               minWidth: 0,
               position: 'sticky',
@@ -2093,7 +2091,7 @@ export default function WebhookInspector() {
                   fontWeight: 700,
                   color: 'var(--color-text-secondary)',
                   background: 'rgba(155, 77, 18, 0.08)',
-                  borderRadius: 999,
+                  borderRadius: 0,
                   padding: '2px 10px',
                   fontSize: '0.85rem',
                 }}
@@ -2141,7 +2139,7 @@ export default function WebhookInspector() {
                       width: '100%',
                       textAlign: 'left',
                       padding: 12,
-                      borderRadius: 14,
+                      borderRadius: 0,
                       border: isSelected
                         ? '1px solid rgba(155, 77, 18, 0.45)'
                         : '1px solid rgba(35, 36, 40, 0.08)',
@@ -2170,7 +2168,7 @@ export default function WebhookInspector() {
                           color: '#9b4d12',
                           background: 'rgba(155, 77, 18, 0.12)',
                           padding: '2px 8px',
-                          borderRadius: 6,
+                          borderRadius: 0,
                         }}
                       >
                         {request.method}
@@ -2241,7 +2239,7 @@ export default function WebhookInspector() {
                         style={{
                           flexShrink: 0,
                           padding: '4px 10px',
-                          borderRadius: 8,
+                          borderRadius: 0,
                           border: '1px solid rgba(35, 36, 40, 0.16)',
                           background: 'rgba(255,255,255,0.85)',
                           color: 'inherit',
@@ -2266,7 +2264,7 @@ export default function WebhookInspector() {
                 <div
                   className="card"
                   style={{
-                    borderRadius: 20,
+                    borderRadius: 0,
                     padding: 14,
                     display: 'flex',
                     flexWrap: 'wrap',
@@ -2322,7 +2320,7 @@ export default function WebhookInspector() {
                         key={label}
                         style={{
                           padding: 12,
-                          borderRadius: 14,
+                          borderRadius: 0,
                           background: 'rgba(255,255,255,0.72)',
                           border: '1px solid rgba(35, 36, 40, 0.08)',
                           minWidth: 0,
@@ -2454,7 +2452,7 @@ export default function WebhookInspector() {
                     <div
                       style={{
                         padding: 12,
-                        borderRadius: 12,
+                        borderRadius: 0,
                         background: 'rgba(255,255,255,0.72)',
                         border: '1px solid rgba(35, 36, 40, 0.08)',
                       }}
@@ -2480,7 +2478,7 @@ export default function WebhookInspector() {
                     <div
                       style={{
                         padding: 12,
-                        borderRadius: 12,
+                        borderRadius: 0,
                         background: 'rgba(255,255,255,0.72)',
                         border: '1px solid rgba(35, 36, 40, 0.08)',
                       }}
@@ -2535,7 +2533,7 @@ export default function WebhookInspector() {
                         rel="noopener noreferrer"
                         style={{
                           padding: '4px 10px',
-                          borderRadius: 8,
+                          borderRadius: 0,
                           border: '1px solid rgba(35, 36, 40, 0.16)',
                           background: 'rgba(255,255,255,0.85)',
                           color: 'inherit',
@@ -2565,7 +2563,7 @@ export default function WebhookInspector() {
                             key={label}
                             style={{
                               padding: 12,
-                              borderRadius: 14,
+                              borderRadius: 0,
                               background: 'rgba(255,255,255,0.72)',
                               border: '1px solid rgba(35, 36, 40, 0.08)',
                               minWidth: 0,
@@ -2626,7 +2624,7 @@ export default function WebhookInspector() {
                 </SectionPanel>
               </>
             ) : (
-              <div className="card" style={{ borderRadius: 20, padding: 20 }}>
+              <div className="card" style={{ borderRadius: 0, padding: 20 }}>
                 <h2 style={{ marginTop: 0 }}>Inspector ready</h2>
                 <p style={{ margin: 0, color: 'var(--color-text-secondary)' }}>
                   Requests will appear here as soon as they reach the API webhook URL.

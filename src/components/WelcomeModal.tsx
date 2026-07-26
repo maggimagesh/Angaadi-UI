@@ -111,9 +111,9 @@ export function WelcomeModal() {
       return (
         <div style={{ display: 'grid', gap: 20 }}>
           <div style={{ 
-            background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)',
+            background: 'var(--color-accent)',
             padding: '20px',
-            borderRadius: 'var(--radius-md)',
+            borderRadius: 0,
             color: 'white',
             textAlign: 'center'
           }}>
@@ -154,7 +154,7 @@ export function WelcomeModal() {
           background: 'var(--color-success-container)',
           border: '1px solid var(--color-success)',
           padding: 24,
-          borderRadius: 'var(--radius-md)',
+          borderRadius: 0,
           textAlign: 'center',
           display: 'grid',
           gap: 16

@@ -188,7 +188,7 @@ export default function LegacyWebhookInspector() {
   return (
     <main className="app-main" id="legacy-webhook-inspector-page" data-testid="legacy-webhook-inspector-page">
       <section className="container p-6" style={{ display: 'grid', gap: 18 }}>
-        <div className="card p-6" style={{ borderRadius: 28 }}>
+        <div className="card p-6" style={{ borderRadius: 0 }}>
           <div style={{ display: 'grid', gap: 18 }}>
             <div>
               <p
@@ -210,7 +210,7 @@ export default function LegacyWebhookInspector() {
               <div
                 style={{
                   padding: 16,
-                  borderRadius: 18,
+                  borderRadius: 0,
                   background: 'rgba(255, 238, 210, 0.9)',
                   border: '1px solid rgba(155, 77, 18, 0.2)',
                   color: '#6e3a10',
@@ -221,7 +221,7 @@ export default function LegacyWebhookInspector() {
             ) : null}
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-              <div style={{ padding: 18, borderRadius: 20, background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(35, 36, 40, 0.08)' }}>
+              <div style={{ padding: 18, borderRadius: 0, background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(35, 36, 40, 0.08)' }}>
                 <div style={{ fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 800, color: '#6b7d8d' }}>
                   Receive URL
                 </div>
@@ -230,7 +230,7 @@ export default function LegacyWebhookInspector() {
                   {copyState === 'capture' ? 'Copied' : 'Copy Receive URL'}
                 </button>
               </div>
-              <div style={{ padding: 18, borderRadius: 20, background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(35, 36, 40, 0.08)' }}>
+              <div style={{ padding: 18, borderRadius: 0, background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(35, 36, 40, 0.08)' }}>
                 <div style={{ fontSize: '0.78rem', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 800, color: '#6b7d8d' }}>
                   Viewer URL
                 </div>
@@ -258,7 +258,7 @@ export default function LegacyWebhookInspector() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 360px) minmax(0, 1fr)', gap: 18, alignItems: 'start' }}>
-          <div className="card p-4" style={{ borderRadius: 24 }}>
+          <div className="card p-4" style={{ borderRadius: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 14 }}>
               <h2 style={{ margin: 0 }}>Requests</h2>
               <span style={{ fontWeight: 700, color: 'var(--color-text-secondary)' }}>{payload.requests.length}</span>
@@ -280,7 +280,7 @@ export default function LegacyWebhookInspector() {
                     width: '100%',
                     textAlign: 'left',
                     padding: 14,
-                    borderRadius: 18,
+                    borderRadius: 0,
                     border: selectedRequest?.id === request.id ? '1px solid rgba(155, 77, 18, 0.45)' : '1px solid rgba(35, 36, 40, 0.08)',
                     background: selectedRequest?.id === request.id ? 'rgba(255, 225, 182, 0.45)' : 'rgba(255,255,255,0.72)',
                     cursor: 'pointer',
@@ -302,7 +302,7 @@ export default function LegacyWebhookInspector() {
           <div style={{ display: 'grid', gap: 18 }}>
             {selectedRequest ? (
               <>
-                <div className="card p-4" style={{ borderRadius: 24 }}>
+                <div className="card p-4" style={{ borderRadius: 0 }}>
                   <h2>Overview</h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
                     {[
@@ -316,7 +316,7 @@ export default function LegacyWebhookInspector() {
                         key={label}
                         style={{
                           padding: 14,
-                          borderRadius: 18,
+                          borderRadius: 0,
                           background: 'rgba(255,255,255,0.72)',
                           border: '1px solid rgba(35, 36, 40, 0.08)',
                         }}
@@ -337,7 +337,7 @@ export default function LegacyWebhookInspector() {
                   ['Cookies', renderValue(selectedRequest.cookies), `${Object.keys(selectedRequest.cookies).length}`],
                   ['Response Body', getResponseBodyText(selectedRequest), `${selectedRequest.response.statusCode}`],
                 ].map(([title, value, meta]) => (
-                  <div key={title} className="card p-4" style={{ borderRadius: 24 }}>
+                  <div key={title} className="card p-4" style={{ borderRadius: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                       <h2 style={{ margin: 0 }}>{title}</h2>
                       <span style={{ color: 'var(--color-text-secondary)', fontWeight: 700 }}>{meta}</span>
@@ -346,7 +346,7 @@ export default function LegacyWebhookInspector() {
                       style={{
                         margin: 0,
                         padding: 16,
-                        borderRadius: 18,
+                        borderRadius: 0,
                         background: '#1f252a',
                         color: '#f7efe2',
                         overflowX: 'auto',
@@ -360,7 +360,7 @@ export default function LegacyWebhookInspector() {
                 ))}
               </>
             ) : (
-              <div className="card p-6" style={{ borderRadius: 24 }}>
+              <div className="card p-6" style={{ borderRadius: 0 }}>
                 <h2>Inspector ready</h2>
                 <p style={{ margin: 0, color: 'var(--color-text-secondary)' }}>
                   Requests will appear here as soon as they reach the API webhook URL.

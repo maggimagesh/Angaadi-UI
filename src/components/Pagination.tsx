@@ -45,7 +45,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
   return (
     <nav className="pagination" aria-label="Pagination">
       <button
-        className="pagination-btn"
+        className="btn btn-secondary" style={{ padding: '7px 12px' }}
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         aria-label="Previous page"
@@ -56,12 +56,12 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         Previous
       </button>
 
-      <div className="pagination-numbers">
+      <>
         {pages.map((page, index) => (
           typeof page === 'number' ? (
             <button
               key={index}
-              className={`pagination-number ${currentPage === page ? 'active' : ''}`}
+              className={`page-cell${currentPage === page ? ' is-current' : ''}`}
               onClick={() => onPageChange(page)}
               aria-label={`Page ${page}`}
               aria-current={currentPage === page ? 'page' : undefined}
@@ -69,15 +69,15 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
               {page}
             </button>
           ) : (
-            <span key={index} className="pagination-ellipsis">
+            <span key={index} className="page-ellipsis">
               {page}
             </span>
           )
         ))}
-      </div>
+      </>
 
       <button
-        className="pagination-btn"
+        className="btn btn-secondary" style={{ padding: '7px 12px' }}
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         aria-label="Next page"
