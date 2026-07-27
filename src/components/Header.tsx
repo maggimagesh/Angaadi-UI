@@ -242,7 +242,7 @@ export function Header() {
         <div className="utility-bar">
           <span>Free delivery over ₹499 · Delivering to 19,000+ pin codes</span>
           <div className="utility-links">
-            <Link to="/profile">Track order</Link>
+            <Link to="/orders">Track order</Link>
             <Link to="/health">Help centre</Link>
             <Link to="/crawlableDocuments">Sell on Angaadi</Link>
           </div>
