@@ -155,16 +155,16 @@ export default function OrderDetailsPage() {
                 <tbody>
                   <tr>
                     <td style={{ width: '40%', color: 'var(--color-neutral-700)' }}>Method</td>
-                    <td>PayPal</td>
+                    <td>Razorpay</td>
                   </tr>
                   <tr>
                     <td style={{ color: 'var(--color-neutral-700)' }}>Status</td>
                     <td>{tag.label}</td>
                   </tr>
-                  {order.paypalCaptureId ? (
+                  {order.gatewayPaymentId ? (
                     <tr>
-                      <td style={{ color: 'var(--color-neutral-700)' }}>PayPal capture ID</td>
-                      <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{order.paypalCaptureId}</td>
+                      <td style={{ color: 'var(--color-neutral-700)' }}>Razorpay payment ID</td>
+                      <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{order.gatewayPaymentId}</td>
                     </tr>
                   ) : null}
                 </tbody>

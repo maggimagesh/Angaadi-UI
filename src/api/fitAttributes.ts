@@ -1,4 +1,4 @@
-import { secureFetch } from '../lib/secureClient'
+import { buildApiUrl } from '../lib/api'
 import { getAuthTokenCookie } from '../utils/token'
 
 export interface FitAttribute {
@@ -74,7 +74,7 @@ export async function fetchAllFitAttributes(): Promise<{
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch('/fit-attributes', {
+    const response = await fetch(buildApiUrl('/fit-attributes'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ export async function fetchUserFitAttributes(userId: string): Promise<{
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch(`/fit-attributes/${userId}`, {
+    const response = await fetch(buildApiUrl(`/fit-attributes/${userId}`), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -227,7 +227,7 @@ export async function saveFitAttribute(
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch('/fit-attributes', {
+    const response = await fetch(buildApiUrl('/fit-attributes'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -319,7 +319,7 @@ export async function batchSaveFitAttributes(
       }
     }
 
-    const response = await secureFetch('/fit-attributes', {
+    const response = await fetch(buildApiUrl('/fit-attributes'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -370,7 +370,7 @@ export async function removeFitAttribute(
       return { success: false, error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch(`/fit-attributes/${userId}?fitAttributeId=${fitAttributeId}`, {
+    const response = await fetch(buildApiUrl(`/fit-attributes/${userId}?fitAttributeId=${fitAttributeId}`), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -415,7 +415,7 @@ export async function removeAllFitAttributes(userId: string): Promise<{
       return { success: false, error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch(`/fit-attributes/${userId}`, {
+    const response = await fetch(buildApiUrl(`/fit-attributes/${userId}`), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

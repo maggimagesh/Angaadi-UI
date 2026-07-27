@@ -1,4 +1,4 @@
-import { secureFetch } from '../lib/secureClient'
+import { buildApiUrl } from '../lib/api'
 
 export interface Category {
   id: number
@@ -62,7 +62,7 @@ interface ApiResponse<T> {
 // Public endpoint: Fetch all product categories
 export async function fetchCategories(): Promise<ApiResponse<Category[]>> {
   try {
-    const response = await secureFetch('/products', {
+    const response = await fetch(buildApiUrl('/products'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export async function fetchProductsByCategory(
     // Convert categoryId to number if it's a string
     const numericCategoryId = typeof categoryId === 'string' ? parseInt(categoryId, 10) : categoryId
     
-    const response = await secureFetch('/products/by-category', {
+    const response = await fetch(buildApiUrl('/products/by-category'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ export async function fetchProductById(
     const numericCategoryId = typeof categoryId === 'string' ? parseInt(categoryId, 10) : categoryId
     const numericProductId = typeof productId === 'string' ? parseInt(productId, 10) : productId
     
-    const response = await secureFetch('/products/by-ids', {
+    const response = await fetch(buildApiUrl('/products/by-ids'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

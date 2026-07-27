@@ -1,4 +1,4 @@
-import { secureFetch } from '../lib/secureClient'
+import { buildApiUrl } from '../lib/api'
 import { getAuthTokenCookie } from '../utils/token'
 
 export type CartApiProduct = {
@@ -63,7 +63,7 @@ function toNumber(v?: string): number { const n = v ? parseFloat(v) : NaN; retur
 
 export async function getCart(): Promise<ApiResult<CartApiResponse>> {
   try {
-    const res = await secureFetch('/cart', { method: 'GET', headers: getAuthHeaders() })
+    const res = await fetch(buildApiUrl('/cart'), { method: 'GET', headers: getAuthHeaders() })
     const json = await res.json()
     if (!res.ok) return { error: { message: json?.message || 'Failed to fetch cart' } }
     return { data: json as CartApiResponse }
@@ -76,7 +76,7 @@ export async function getCart(): Promise<ApiResult<CartApiResponse>> {
 
 export async function addCartItem(payload: { productId: number; quantity: number; fallback?: Partial<CartApiProduct> }): Promise<ApiResult<CartApiResponse>> {
   try {
-    const res = await secureFetch('/cart', {
+    const res = await fetch(buildApiUrl('/cart'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ productId: payload.productId, quantity: payload.quantity })
@@ -133,7 +133,7 @@ export async function addCartItem(payload: { productId: number; quantity: number
 
 export async function deleteCartItem(productId: number): Promise<ApiResult<CartApiResponse>> {
   try {
-    const res = await secureFetch('/cart', {
+    const res = await fetch(buildApiUrl('/cart'), {
       method: 'DELETE',
       headers: getAuthHeaders(),
       body: JSON.stringify({ productId })

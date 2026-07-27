@@ -8,7 +8,7 @@ import { getOrder, type Order } from '../api/orders'
 /**
  * `/checkout/confirmation`.
  *
- * Checkout hands over `{ orderId }` in router state once PayPal capture
+ * Checkout hands over `{ orderId }` in router state once Razorpay verification
  * succeeds; this page re-fetches the order from the API rather than trusting
  * the navigation state alone, so a refresh or a shared link still resolves.
  */
@@ -120,7 +120,7 @@ export default function CheckoutConfirmation() {
           <div className="kicker kicker-accent">Order placed</div>
           <h1 data-testid="confirmation-order-number">{order.orderNumber}</h1>
           <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--color-neutral-800)' }}>
-            Paid by PayPal
+            Paid by Razorpay
           </p>
 
           <table className="table">

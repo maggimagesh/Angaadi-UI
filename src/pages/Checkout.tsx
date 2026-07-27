@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
+import { loadRazorpayCheckout, type RazorpayHandlerResponse } from '../lib/razorpay'
 import { useCartStore } from '../store/cart'
 import { useAuthStore } from '../store/auth'
 import { Footer } from '../components/Footer'
@@ -10,7 +10,12 @@ import { formatINR } from '../utils/currency'
 import { placeholderFor } from '../data/catalog'
 import { listAddresses, createAddress, type Address, type AddressInput } from '../api/address'
 import { createOrder, type Order } from '../api/orders'
-import { createPaypalOrder, capturePaypalOrder, cancelPaypalOrder } from '../api/payments'
+import {
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+  cancelRazorpayOrder,
+  type RazorpaySession,
+} from '../api/payments'
 
 const GST_RATE = 0.18
 
@@ -31,8 +36,6 @@ const EMPTY_ADDRESS: AddressInput = {
   state: '',
   pincode: '',
 }
-
-const PAYPAL_CLIENT_ID: string = import.meta.env.VITE_PAYPAL_CLIENT_ID || 'sb'
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
@@ -61,8 +64,8 @@ export default function CheckoutPage() {
 
   /* ── order + payment ──────────────────────────────────────────────── */
   const [pendingOrder, setPendingOrder] = useState<Order | null>(null)
-  const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null)
-  const [paypalDemo, setPaypalDemo] = useState(false)
+  const [razorpaySession, setRazorpaySession] = useState<RazorpaySession | null>(null)
+  const [gatewayFallbackReason, setGatewayFallbackReason] = useState<string | null>(null)
   const [placingOrder, setPlacingOrder] = useState(false)
   const [orderError, setOrderError] = useState<string | null>(null)
   const [paymentFailed, setPaymentFailed] = useState(false)
@@ -161,7 +164,7 @@ export default function CheckoutPage() {
     [items]
   )
 
-  /* ── payment step: create the order, then start a PayPal session ───── */
+  /* ── payment step: create the order, then start a Razorpay session ─── */
   const beginPayment = async () => {
     if (!selectedAddress) return
     setPlacingOrder(true)
@@ -185,14 +188,13 @@ export default function CheckoutPage() {
       setPendingOrder(order)
     }
 
-    const pp = await createPaypalOrder(order.id)
-    if (pp.error || !pp.data) {
-      setOrderError(pp.error?.message || 'Could not start PayPal checkout')
+    const session = await createRazorpayOrder(order.id)
+    if (session.error || !session.data) {
+      setOrderError(session.error?.message || 'Could not start Razorpay checkout')
       setPlacingOrder(false)
       return
     }
-    setPaypalOrderId(pp.data.paypalOrderId)
-    setPaypalDemo(pp.data.demo)
+    setRazorpaySession(session.data)
     setPlacingOrder(false)
   }
 
@@ -209,10 +211,16 @@ export default function CheckoutPage() {
     navigate('/checkout/confirmation', { state: { orderId: capturedOrder.id } })
   }
 
-  const handleCapture = async (paypalOrderIdFromSdk: string) => {
+  /** Hands the gateway's reported payment to the API, which re-checks its signature. */
+  const handleVerify = async (result: RazorpayHandlerResponse) => {
     if (!pendingOrder) return
     setCapturing(true)
-    const res = await capturePaypalOrder(pendingOrder.id, paypalOrderIdFromSdk)
+    const res = await verifyRazorpayPayment(
+      pendingOrder.id,
+      result.razorpay_order_id,
+      result.razorpay_payment_id,
+      result.razorpay_signature
+    )
     setCapturing(false)
     if (res.error || !res.data) {
       setPaymentFailed(true)
@@ -222,9 +230,85 @@ export default function CheckoutPage() {
     await finishPayment(res.data)
   }
 
+  /**
+   * The Razorpay checkout script failed to load, or the modal errored before a
+   * payment happened. Swap the live test order for a fabricated DEMO- one so
+   * checkout stays exercisable — a real test order id can never be verified
+   * without a buyer-completed payment.
+   */
+  const fallbackToDemo = async (reason: string) => {
+    if (razorpaySession?.demo || !pendingOrder) return
+    const session = await createRazorpayOrder(pendingOrder.id, true)
+    if (session.error || !session.data) {
+      await handlePaymentCancelled(reason)
+      return
+    }
+    setRazorpaySession(session.data)
+    setGatewayFallbackReason(reason)
+  }
+
+  /**
+   * Opens Razorpay's hosted modal — the UPI / cards / netbanking / wallet /
+   * pay-later menu. Amount and currency come from the server-created order, so
+   * the buyer cannot alter what is charged.
+   */
+  const openRazorpayCheckout = async () => {
+    if (!razorpaySession || razorpaySession.demo || !razorpaySession.keyId) return
+
+    const ready = await loadRazorpayCheckout()
+    if (!ready || !window.Razorpay) {
+      await fallbackToDemo('The Razorpay checkout could not be loaded.')
+      return
+    }
+
+    const checkout = new window.Razorpay({
+      key: razorpaySession.keyId,
+      amount: razorpaySession.amount,
+      currency: razorpaySession.currency,
+      name: 'Angaadi',
+      description: `Order ${razorpaySession.orderNumber}`,
+      order_id: razorpaySession.razorpayOrderId,
+      prefill: {
+        name: [user?.firstName, user?.lastName].filter(Boolean).join(' ') || undefined,
+        email: user?.emailId,
+        contact: selectedAddress?.phone,
+      },
+      notes: { orderNumber: razorpaySession.orderNumber },
+      theme: { color: '#c8102e' },
+      handler: (response: RazorpayHandlerResponse) => {
+        void handleVerify(response)
+      },
+      modal: {
+        ondismiss: () => {
+          void handlePaymentCancelled('Payment was cancelled before it completed.')
+        },
+      },
+    })
+
+    checkout.on('payment.failed', () => {
+      void handlePaymentCancelled('The payment attempt was declined.')
+    })
+
+    checkout.open()
+  }
+
+  /** Demo mode has no gateway to talk to; the API accepts DEMO- ids unsigned. */
+  const handleDemoOutcome = async (succeeded: boolean) => {
+    if (!razorpaySession) return
+    if (!succeeded) {
+      await handlePaymentCancelled('Simulated payment decline.')
+      return
+    }
+    await handleVerify({
+      razorpay_order_id: razorpaySession.razorpayOrderId,
+      razorpay_payment_id: `DEMO-PAY-${razorpaySession.orderNumber}`,
+      razorpay_signature: '',
+    })
+  }
+
   const handlePaymentCancelled = async (reason: string) => {
     if (pendingOrder) {
-      await cancelPaypalOrder(pendingOrder.id).catch(() => null)
+      await cancelRazorpayOrder(pendingOrder.id).catch(() => null)
     }
     setPaymentFailed(true)
     setPaymentFailedReason(reason)
@@ -233,8 +317,8 @@ export default function CheckoutPage() {
   const retryPayment = () => {
     setPaymentFailed(false)
     setPaymentFailedReason(null)
-    setPaypalOrderId(null)
-    setPaypalDemo(false)
+    setRazorpaySession(null)
+    setGatewayFallbackReason(null)
     setAttempt((n) => n + 1)
     void beginPayment()
   }
@@ -335,9 +419,9 @@ export default function CheckoutPage() {
         >
           <span className="step-num">3</span>
           <span>
-            <span className="step-title">3 · Pay with PayPal</span>
+            <span className="step-title">3 · Pay with Razorpay</span>
             <span className="step-note" style={{ display: 'block' }}>
-              {pendingOrder?.status === 'paid' ? 'Paid' : 'PayPal sandbox'}
+              {pendingOrder?.status === 'paid' ? 'Paid' : 'Razorpay test'}
             </span>
           </span>
         </button>
@@ -585,16 +669,16 @@ export default function CheckoutPage() {
             </div>
           </section>
 
-          {/* ── 3 · PayPal payment ────────────────────────────────────── */}
+          {/* ── 3 · Razorpay payment ──────────────────────────────────── */}
           <section
             className={`checkout-section${slot ? '' : ' is-locked'}`}
             aria-labelledby="checkout-payment-title"
             id="checkout-payment-section"
             data-testid="checkout-payment-section"
           >
-            <h2 id="checkout-payment-title">3 · Pay with PayPal</h2>
+            <h2 id="checkout-payment-title">3 · Pay with Razorpay</h2>
             <p className="checkout-hint">
-              {slot ? 'Complete payment with a PayPal sandbox (demo) account.' : 'Unlocks once a slot is chosen.'}
+              {slot ? 'Complete payment with Razorpay test mode — UPI, netbanking, cards.' : 'Unlocks once a slot is chosen.'}
             </p>
 
             {slot ? (
@@ -626,7 +710,7 @@ export default function CheckoutPage() {
                   <div className="state-block state-error" style={{ marginBottom: 16, padding: 14 }}>
                     <div className="state-label">Payment not completed</div>
                     <p style={{ margin: '0 0 10px', fontSize: 13 }}>
-                      {paymentFailedReason || 'The PayPal payment was cancelled or declined.'}
+                      {paymentFailedReason || 'The payment was cancelled or declined.'}
                     </p>
                     <button type="button" className="btn btn-primary" onClick={retryPayment} disabled={placingOrder}>
                       Try payment again
@@ -634,56 +718,58 @@ export default function CheckoutPage() {
                   </div>
                 ) : null}
 
-                {!placingOrder && !orderError && !paymentFailed && pendingOrder?.status !== 'paid' && paypalOrderId ? (
-                  paypalDemo ? (
-                    <div className="state-block" style={{ padding: 14 }} data-testid="paypal-demo-panel">
-                      <div className="state-label">PayPal sandbox · demo mode</div>
-                      <p style={{ margin: '0 0 14px', fontSize: 13 }}>
-                        No PayPal sandbox app is configured on the API yet, so this simulates the two outcomes a real
-                        PayPal demo account can produce. Set <code>PAYPAL_CLIENT_ID</code> /{' '}
-                        <code>PAYPAL_CLIENT_SECRET</code> on the API to use a real sandbox buyer account here instead.
-                      </p>
+                {!placingOrder && !orderError && !paymentFailed && pendingOrder?.status !== 'paid' && razorpaySession ? (
+                  razorpaySession.demo ? (
+                    <div className="state-block" style={{ padding: 14 }} data-testid="razorpay-demo-panel">
+                      <div className="state-label">Razorpay test mode · demo</div>
+                      {gatewayFallbackReason ? (
+                        <p style={{ margin: '0 0 14px', fontSize: 13 }}>
+                          {gatewayFallbackReason} Falling back to demo mode, which simulates the two outcomes a real
+                          Razorpay test payment can produce.
+                        </p>
+                      ) : (
+                        <p style={{ margin: '0 0 14px', fontSize: 13 }}>
+                          No Razorpay keys are configured on the API yet, so this simulates the two outcomes a real test
+                          payment can produce. Set <code>RAZORPAY_KEY_ID</code> / <code>RAZORPAY_KEY_SECRET</code> on the
+                          API to get the real UPI / netbanking / cards checkout here instead.
+                        </p>
+                      )}
                       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                         <button
                           type="button"
                           className="btn btn-primary"
-                          data-testid="paypal-demo-success"
+                          data-testid="razorpay-demo-success"
                           disabled={capturing}
-                          onClick={() => handleCapture(paypalOrderId)}
+                          onClick={() => void handleDemoOutcome(true)}
                         >
                           {capturing ? 'Processing…' : 'Simulate successful payment'}
                         </button>
                         <button
                           type="button"
                           className="btn btn-secondary"
-                          data-testid="paypal-demo-fail"
+                          data-testid="razorpay-demo-fail"
                           disabled={capturing}
-                          onClick={() => handlePaymentCancelled('Simulated PayPal decline.')}
+                          onClick={() => void handleDemoOutcome(false)}
                         >
                           Simulate failed payment
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <PayPalScriptProvider
-                      options={{ clientId: PAYPAL_CLIENT_ID, currency: 'USD', intent: 'capture' }}
-                    >
-                      <PayPalButtons
-                        key={attempt}
-                        style={{ layout: 'vertical', label: 'pay' }}
-                        forceReRender={[paypalOrderId]}
-                        createOrder={async () => paypalOrderId}
-                        onApprove={async (data) => {
-                          await handleCapture(data.orderID)
-                        }}
-                        onCancel={async () => {
-                          await handlePaymentCancelled('Payment was cancelled before it completed.')
-                        }}
-                        onError={async () => {
-                          await handlePaymentCancelled('PayPal reported an error before the payment could complete.')
-                        }}
-                      />
-                    </PayPalScriptProvider>
+                    <div key={attempt}>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-block"
+                        data-testid="razorpay-pay"
+                        disabled={capturing}
+                        onClick={() => void openRazorpayCheckout()}
+                      >
+                        {capturing ? 'Verifying payment…' : `Pay ${formatINR(total)}`}
+                      </button>
+                      <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--color-neutral-700)' }}>
+                        Opens Razorpay test checkout — UPI, cards, netbanking, wallets and pay-later.
+                      </p>
+                    </div>
                   )
                 ) : null}
 
@@ -707,7 +793,7 @@ export default function CheckoutPage() {
                       </tr>
                       <tr>
                         <td style={{ color: 'var(--color-neutral-700)' }}>Paying by</td>
-                        <td>PayPal</td>
+                        <td>Razorpay</td>
                       </tr>
                       <tr>
                         <td style={{ color: 'var(--color-neutral-700)' }}>To pay</td>

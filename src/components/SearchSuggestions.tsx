@@ -118,7 +118,7 @@ export function SearchSuggestions({
   const [active, setActive] = useState(-1)
   const [recent, setRecent] = useState<string[]>([])
 
-  // Each keystroke supersedes the last. `secureFetch` takes no AbortSignal, so
+  // Each keystroke supersedes the last. The API helpers take no AbortSignal, so
   // the request itself cannot be cancelled at the transport — instead the
   // controller marks the older run stale and its result is discarded.
   const runRef = useRef<AbortController | null>(null)

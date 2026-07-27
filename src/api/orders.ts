@@ -1,4 +1,4 @@
-import { secureFetch } from '../lib/secureClient'
+import { buildApiUrl } from '../lib/api'
 import { getAuthTokenCookie } from '../utils/token'
 import type { Address } from './address'
 
@@ -23,8 +23,8 @@ export type Order = {
   deliverySlot: string | null
   paymentMethod: string
   paymentStatus: 'pending' | 'completed' | 'failed' | string
-  paypalOrderId: string | null
-  paypalCaptureId: string | null
+  gatewayOrderId: string | null
+  gatewayPaymentId: string | null
   created_at: string
   updated_at?: string | null
   items: OrderItem[]
@@ -47,7 +47,7 @@ export async function createOrder(input: {
   deliveryFee?: number
 }): Promise<ApiResult<Order>> {
   try {
-    const res = await secureFetch('/orders', {
+    const res = await fetch(buildApiUrl('/orders'), {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(input),
@@ -62,7 +62,7 @@ export async function createOrder(input: {
 
 export async function listOrders(): Promise<ApiResult<Order[]>> {
   try {
-    const res = await secureFetch('/orders', { method: 'GET', headers: getAuthHeaders() })
+    const res = await fetch(buildApiUrl('/orders'), { method: 'GET', headers: getAuthHeaders() })
     const json = await res.json()
     if (!res.ok) return { error: { message: json?.error || 'Failed to load orders' } }
     return { data: (json?.orders || []) as Order[] }
@@ -73,7 +73,7 @@ export async function listOrders(): Promise<ApiResult<Order[]>> {
 
 export async function getOrder(orderId: string): Promise<ApiResult<Order>> {
   try {
-    const res = await secureFetch(`/orders/${orderId}`, { method: 'GET', headers: getAuthHeaders() })
+    const res = await fetch(buildApiUrl(`/orders/${orderId}`), { method: 'GET', headers: getAuthHeaders() })
     const json = await res.json()
     if (!res.ok) return { error: { message: json?.error || 'Failed to load order' } }
     return { data: json.order as Order }

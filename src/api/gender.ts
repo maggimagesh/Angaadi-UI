@@ -1,4 +1,4 @@
-import { secureFetch } from '../lib/secureClient'
+import { buildApiUrl } from '../lib/api'
 import { getAuthTokenCookie } from '../utils/token'
 
 interface GenderOption {
@@ -37,7 +37,7 @@ export async function fetchGenderOptions(): Promise<{ options?: GenderOption[]; 
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch('/gender', {
+    const response = await fetch(buildApiUrl('/gender'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export async function setPreferredDepartment(userId: string, genderId: string): 
       genderId
     }
 
-    const response = await secureFetch('/preferred-department', {
+    const response = await fetch(buildApiUrl('/preferred-department'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export async function fetchPreferredDepartment(userId: string): Promise<{ prefer
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch(`/preferred-department/${userId}`, {
+    const response = await fetch(buildApiUrl(`/preferred-department/${userId}`), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ export async function deactivatePreferredDepartment(userId: string): Promise<{ s
       return { success: false, error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch(`/preferred-department/${userId}`, {
+    const response = await fetch(buildApiUrl(`/preferred-department/${userId}`), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
