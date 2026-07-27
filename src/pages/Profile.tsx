@@ -564,6 +564,7 @@ export default function ProfilePage() {
 
           <nav className="profile-nav">
             <span className="profile-nav-item is-active" aria-current="page">Profile &amp; fit</span>
+            <Link className="profile-nav-item" to="/orders">Your orders</Link>
             <Link className="profile-nav-item" to="/wishlist">Wishlist</Link>
             <Link className="profile-nav-item" to="/compare">Compare</Link>
             <Link className="profile-nav-item" to="/cart">Cart</Link>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { loadRazorpayCheckout, type RazorpayHandlerResponse } from '../lib/razorpay'
 import { useCartStore } from '../store/cart'
 import { useAuthStore } from '../store/auth'
 import { Footer } from '../components/Footer'
@@ -7,16 +8,14 @@ import { EmptyState } from '../components/States'
 import { CheckIcon } from '../components/icons'
 import { formatINR } from '../utils/currency'
 import { placeholderFor } from '../data/catalog'
-
-/**
- * Checkout — three steps on one page.
- *
- * IMPORTANT: the API exposes no order endpoint. `/api/v1/cart` supports GET,
- * POST and DELETE and nothing else, so there is nowhere to submit an order to.
- * Rather than invent a route or fake a POST, the final action is rendered
- * disabled with the reason stated on the page. Wire the real call at the one
- * place marked PLACE-ORDER below and the rest of the flow works unchanged.
- */
+import { listAddresses, createAddress, type Address, type AddressInput } from '../api/address'
+import { createOrder, type Order } from '../api/orders'
+import {
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+  cancelRazorpayOrder,
+  type RazorpaySession,
+} from '../api/payments'
 
 const GST_RATE = 0.18
 
@@ -28,23 +27,7 @@ const SLOTS: Slot[] = [
   { id: 'priority', day: 'Monday', window: 'before 12:00', note: 'Next-day, priority handling', fee: 120 },
 ]
 
-const PAYMENT_METHODS = [
-  { id: 'upi', label: 'UPI', note: 'Pay from any UPI app' },
-  { id: 'card', label: 'Card', note: 'Credit, debit or EMI' },
-  { id: 'cod', label: 'Cash on delivery', note: 'Pay the courier at the door' },
-]
-
-type Address = {
-  fullName: string
-  phone: string
-  line1: string
-  line2: string
-  city: string
-  state: string
-  pincode: string
-}
-
-const EMPTY_ADDRESS: Address = {
+const EMPTY_ADDRESS: AddressInput = {
   fullName: '',
   phone: '',
   line1: '',
@@ -52,18 +35,6 @@ const EMPTY_ADDRESS: Address = {
   city: '',
   state: '',
   pincode: '',
-}
-
-/** Saved addresses live on the device — there is no address endpoint either. */
-const ADDRESS_KEY = 'demo.checkout.address.v1'
-
-function readSavedAddress(): Address | null {
-  try {
-    const raw = localStorage.getItem(ADDRESS_KEY)
-    return raw ? (JSON.parse(raw) as Address) : null
-  } catch {
-    return null
-  }
 }
 
 export default function CheckoutPage() {
@@ -75,43 +46,101 @@ export default function CheckoutPage() {
   const summary = useCartStore((s) => s.summary)
   const totalItems = useCartStore((s) => s.totalItems)()
   const user = useAuthStore((s) => s.user)
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
 
   const [step, setStep] = useState<1 | 2 | 3>(1)
-  const [address, setAddress] = useState<Address>(() => readSavedAddress() ?? EMPTY_ADDRESS)
-  const [addressSaved, setAddressSaved] = useState(() => readSavedAddress() !== null)
-  const [addressErrors, setAddressErrors] = useState<Partial<Record<keyof Address, string>>>({})
+
+  /* ── addresses ─────────────────────────────────────────────────────── */
+  const [addresses, setAddresses] = useState<Address[]>([])
+  const [addressesLoading, setAddressesLoading] = useState(true)
+  const [addressesError, setAddressesError] = useState<string | null>(null)
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null)
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [form, setForm] = useState<AddressInput>(EMPTY_ADDRESS)
+  const [formErrors, setFormErrors] = useState<Partial<Record<keyof AddressInput, string>>>({})
+  const [savingAddress, setSavingAddress] = useState(false)
+
   const [slot, setSlot] = useState<string | null>(null)
-  const [payment, setPayment] = useState<string | null>(null)
+
+  /* ── order + payment ──────────────────────────────────────────────── */
+  const [pendingOrder, setPendingOrder] = useState<Order | null>(null)
+  const [razorpaySession, setRazorpaySession] = useState<RazorpaySession | null>(null)
+  const [gatewayFallbackReason, setGatewayFallbackReason] = useState<string | null>(null)
+  const [placingOrder, setPlacingOrder] = useState(false)
+  const [orderError, setOrderError] = useState<string | null>(null)
+  const [paymentFailed, setPaymentFailed] = useState(false)
+  const [paymentFailedReason, setPaymentFailedReason] = useState<string | null>(null)
+  const [capturing, setCapturing] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     void fetchServerCart()
   }, [fetchServerCart])
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setAddressesLoading(false)
+      return
+    }
+    let cancelled = false
+    setAddressesLoading(true)
+    listAddresses().then((res) => {
+      if (cancelled) return
+      if (res.error) {
+        setAddressesError(res.error.message)
+      } else {
+        const list = res.data || []
+        setAddresses(list)
+        const preferred = list.find((a) => a.isDefault) ?? list[0]
+        if (preferred) setSelectedAddressId(preferred.id)
+        else setShowAddForm(true)
+      }
+      setAddressesLoading(false)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [isAuthenticated])
 
   const chosenSlot = SLOTS.find((s) => s.id === slot)
   const deliveryFee = chosenSlot?.fee ?? 0
   const tax = summary.tax ?? Math.round(subtotal * GST_RATE)
   const total = subtotal + tax + deliveryFee
 
-  const validateAddress = (): boolean => {
-    const errors: Partial<Record<keyof Address, string>> = {}
-    if (!address.fullName.trim()) errors.fullName = 'Enter the name on the door.'
-    if (!/^\+?[\d\s-]{10,15}$/.test(address.phone.trim())) errors.phone = 'Enter a 10-digit mobile number.'
-    if (!address.line1.trim()) errors.line1 = 'Enter the flat and street.'
-    if (!address.city.trim()) errors.city = 'Enter the city.'
-    if (!address.state.trim()) errors.state = 'Enter the state.'
-    if (!/^\d{6}$/.test(address.pincode.trim())) errors.pincode = 'A pin code is six digits.'
-    setAddressErrors(errors)
+  const selectedAddress = addresses.find((a) => a.id === selectedAddressId) ?? null
+  const addressSaved = !!selectedAddress
+
+  const validateForm = (): boolean => {
+    const errors: Partial<Record<keyof AddressInput, string>> = {}
+    if (!form.fullName.trim()) errors.fullName = 'Enter the name on the door.'
+    if (!/^\+?[\d\s-]{10,15}$/.test(form.phone.trim())) errors.phone = 'Enter a 10-digit mobile number.'
+    if (!form.line1.trim()) errors.line1 = 'Enter the flat and street.'
+    if (!form.city.trim()) errors.city = 'Enter the city.'
+    if (!form.state.trim()) errors.state = 'Enter the state.'
+    if (!/^\d{6}$/.test(form.pincode.trim())) errors.pincode = 'A pin code is six digits.'
+    setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
 
-  const saveAddress = () => {
-    if (!validateAddress()) return
-    try {
-      localStorage.setItem(ADDRESS_KEY, JSON.stringify(address))
-    } catch {
-      /* ignore */
+  const saveNewAddress = async () => {
+    if (!validateForm()) return
+    setSavingAddress(true)
+    setAddressesError(null)
+    const res = await createAddress(form)
+    setSavingAddress(false)
+    if (res.error || !res.data) {
+      setAddressesError(res.error?.message || 'Failed to save address')
+      return
     }
-    setAddressSaved(true)
+    setAddresses((prev) => [res.data!, ...prev.map((a) => ({ ...a, isDefault: false }))])
+    setSelectedAddressId(res.data.id)
+    setShowAddForm(false)
+    setForm(EMPTY_ADDRESS)
+    setStep(2)
+  }
+
+  const useSelectedAddress = () => {
+    if (!selectedAddress) return
     setStep(2)
   }
 
@@ -119,7 +148,7 @@ export default function CheckoutPage() {
     if (n === step) return 'is-current'
     if (n === 1 && addressSaved) return 'is-done'
     if (n === 2 && slot) return 'is-done'
-    if (n === 3 && payment) return 'is-done'
+    if (n === 3 && pendingOrder?.status === 'paid') return 'is-done'
     return ''
   }
 
@@ -134,6 +163,187 @@ export default function CheckoutPage() {
       })),
     [items]
   )
+
+  /* ── payment step: create the order, then start a Razorpay session ─── */
+  const beginPayment = async () => {
+    if (!selectedAddress) return
+    setPlacingOrder(true)
+    setOrderError(null)
+    setPaymentFailed(false)
+    setPaymentFailedReason(null)
+
+    let order = pendingOrder
+    if (!order) {
+      const res = await createOrder({
+        addressId: selectedAddress.id,
+        deliverySlot: chosenSlot ? `${chosenSlot.day} ${chosenSlot.window}` : undefined,
+        deliveryFee,
+      })
+      if (res.error || !res.data) {
+        setOrderError(res.error?.message || 'Could not place the order')
+        setPlacingOrder(false)
+        return
+      }
+      order = res.data
+      setPendingOrder(order)
+    }
+
+    const session = await createRazorpayOrder(order.id)
+    if (session.error || !session.data) {
+      setOrderError(session.error?.message || 'Could not start Razorpay checkout')
+      setPlacingOrder(false)
+      return
+    }
+    setRazorpaySession(session.data)
+    setPlacingOrder(false)
+  }
+
+  useEffect(() => {
+    if (step === 3 && selectedAddress && !pendingOrder && !placingOrder) {
+      void beginPayment()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, selectedAddress])
+
+  const finishPayment = async (capturedOrder: Order) => {
+    setPendingOrder(capturedOrder)
+    await fetchServerCart()
+    navigate('/checkout/confirmation', { state: { orderId: capturedOrder.id } })
+  }
+
+  /** Hands the gateway's reported payment to the API, which re-checks its signature. */
+  const handleVerify = async (result: RazorpayHandlerResponse) => {
+    if (!pendingOrder) return
+    setCapturing(true)
+    const res = await verifyRazorpayPayment(
+      pendingOrder.id,
+      result.razorpay_order_id,
+      result.razorpay_payment_id,
+      result.razorpay_signature
+    )
+    setCapturing(false)
+    if (res.error || !res.data) {
+      setPaymentFailed(true)
+      setPaymentFailedReason(res.error?.message || 'Payment was declined.')
+      return
+    }
+    await finishPayment(res.data)
+  }
+
+  /**
+   * The Razorpay checkout script failed to load, or the modal errored before a
+   * payment happened. Swap the live test order for a fabricated DEMO- one so
+   * checkout stays exercisable — a real test order id can never be verified
+   * without a buyer-completed payment.
+   */
+  const fallbackToDemo = async (reason: string) => {
+    if (razorpaySession?.demo || !pendingOrder) return
+    const session = await createRazorpayOrder(pendingOrder.id, true)
+    if (session.error || !session.data) {
+      await handlePaymentCancelled(reason)
+      return
+    }
+    setRazorpaySession(session.data)
+    setGatewayFallbackReason(reason)
+  }
+
+  /**
+   * Opens Razorpay's hosted modal — the UPI / cards / netbanking / wallet /
+   * pay-later menu. Amount and currency come from the server-created order, so
+   * the buyer cannot alter what is charged.
+   */
+  const openRazorpayCheckout = async () => {
+    if (!razorpaySession || razorpaySession.demo || !razorpaySession.keyId) return
+
+    const ready = await loadRazorpayCheckout()
+    if (!ready || !window.Razorpay) {
+      await fallbackToDemo('The Razorpay checkout could not be loaded.')
+      return
+    }
+
+    const checkout = new window.Razorpay({
+      key: razorpaySession.keyId,
+      amount: razorpaySession.amount,
+      currency: razorpaySession.currency,
+      name: 'Angaadi',
+      description: `Order ${razorpaySession.orderNumber}`,
+      order_id: razorpaySession.razorpayOrderId,
+      prefill: {
+        name: [user?.firstName, user?.lastName].filter(Boolean).join(' ') || undefined,
+        email: user?.emailId,
+        contact: selectedAddress?.phone,
+      },
+      notes: { orderNumber: razorpaySession.orderNumber },
+      theme: { color: '#c8102e' },
+      handler: (response: RazorpayHandlerResponse) => {
+        void handleVerify(response)
+      },
+      modal: {
+        ondismiss: () => {
+          void handlePaymentCancelled('Payment was cancelled before it completed.')
+        },
+      },
+    })
+
+    checkout.on('payment.failed', () => {
+      void handlePaymentCancelled('The payment attempt was declined.')
+    })
+
+    checkout.open()
+  }
+
+  /** Demo mode has no gateway to talk to; the API accepts DEMO- ids unsigned. */
+  const handleDemoOutcome = async (succeeded: boolean) => {
+    if (!razorpaySession) return
+    if (!succeeded) {
+      await handlePaymentCancelled('Simulated payment decline.')
+      return
+    }
+    await handleVerify({
+      razorpay_order_id: razorpaySession.razorpayOrderId,
+      razorpay_payment_id: `DEMO-PAY-${razorpaySession.orderNumber}`,
+      razorpay_signature: '',
+    })
+  }
+
+  const handlePaymentCancelled = async (reason: string) => {
+    if (pendingOrder) {
+      await cancelRazorpayOrder(pendingOrder.id).catch(() => null)
+    }
+    setPaymentFailed(true)
+    setPaymentFailedReason(reason)
+  }
+
+  const retryPayment = () => {
+    setPaymentFailed(false)
+    setPaymentFailedReason(null)
+    setRazorpaySession(null)
+    setGatewayFallbackReason(null)
+    setAttempt((n) => n + 1)
+    void beginPayment()
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <main className="app-main">
+        <div className="checkout-bar">
+          <span className="brand">ANGAADI</span>
+          <span style={{ color: 'var(--color-neutral-700)' }}>Secure checkout</span>
+        </div>
+        <div style={{ padding: '28px 40px 48px' }}>
+          <EmptyState
+            title="Sign in to check out."
+            body="Your saved addresses and orders live on your account, so checkout needs you signed in first."
+            actions={[
+              { label: 'Sign in', variant: 'primary', href: '/login' },
+              { label: 'Back to cart', href: '/cart' },
+            ]}
+          />
+        </div>
+        <Footer />
+      </main>
+    )
+  }
 
   if (items.length === 0) {
     return (
@@ -179,7 +389,7 @@ export default function CheckoutPage() {
           <span>
             <span className="step-title">1 · Delivery address</span>
             <span className="step-note" style={{ display: 'block' }}>
-              {addressSaved ? `${address.fullName}, ${address.pincode} ${address.city}` : 'Where it goes'}
+              {addressSaved ? `${selectedAddress!.fullName}, ${selectedAddress!.pincode} ${selectedAddress!.city}` : 'Where it goes'}
             </span>
           </span>
         </button>
@@ -209,9 +419,9 @@ export default function CheckoutPage() {
         >
           <span className="step-num">3</span>
           <span>
-            <span className="step-title">3 · Payment</span>
+            <span className="step-title">3 · Pay with Razorpay</span>
             <span className="step-note" style={{ display: 'block' }}>
-              {payment ? PAYMENT_METHODS.find((m) => m.id === payment)?.label : 'Card, UPI or cash'}
+              {pendingOrder?.status === 'paid' ? 'Paid' : 'Razorpay test'}
             </span>
           </span>
         </button>
@@ -231,115 +441,188 @@ export default function CheckoutPage() {
             </div>
 
             {step === 1 ? (
-              <>
-                <p className="checkout-hint">
-                  Saved on this device only. There is no address book on the server yet.
-                </p>
-                <div className="field-grid">
-                  <div className="field">
-                    <label className="field-label" htmlFor="checkout-name">Full name</label>
-                    <input
-                      className={`input${addressErrors.fullName ? ' has-error' : ''}`}
-                      id="checkout-name"
-                      data-testid="checkout-name"
-                      value={address.fullName}
-                      onChange={(e) => setAddress({ ...address, fullName: e.target.value })}
-                    />
-                    {addressErrors.fullName ? <div className="field-error">{addressErrors.fullName}</div> : null}
-                  </div>
+              addressesLoading ? (
+                <p className="checkout-hint">Loading your saved addresses…</p>
+              ) : (
+                <>
+                  {addressesError ? (
+                    <div className="state-block state-error" style={{ marginBottom: 16, padding: 14 }}>
+                      <p style={{ margin: 0, fontSize: 13 }}>{addressesError}</p>
+                    </div>
+                  ) : null}
 
-                  <div className="field">
-                    <label className="field-label" htmlFor="checkout-phone">Phone</label>
-                    <input
-                      className={`input${addressErrors.phone ? ' has-error' : ''}`}
-                      id="checkout-phone"
-                      data-testid="checkout-phone"
-                      inputMode="tel"
-                      value={address.phone}
-                      onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-                    />
-                    {addressErrors.phone ? <div className="field-error">{addressErrors.phone}</div> : null}
-                  </div>
+                  {!showAddForm && addresses.length > 0 ? (
+                    <>
+                      <div className="radio-stack" style={{ marginBottom: 16 }}>
+                        {addresses.map((a) => (
+                          <label
+                            key={a.id}
+                            className={`radio-row${selectedAddressId === a.id ? ' is-selected' : ''}`}
+                            data-testid={`checkout-address-${a.id}`}
+                          >
+                            <input
+                              type="radio"
+                              name="delivery-address"
+                              checked={selectedAddressId === a.id}
+                              onChange={() => setSelectedAddressId(a.id)}
+                            />
+                            <span>
+                              <span className="t" style={{ display: 'block' }}>
+                                {a.fullName} · {a.phone} {a.isDefault ? '· Default' : ''}
+                              </span>
+                              <span className="d">
+                                {a.line1}
+                                {a.line2 ? `, ${a.line2}` : ''}, {a.city} {a.pincode}, {a.state}
+                              </span>
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          style={{ padding: '11px 18px' }}
+                          onClick={useSelectedAddress}
+                          disabled={!selectedAddressId}
+                          data-testid="checkout-address-save"
+                        >
+                          Deliver here
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{ padding: '11px 18px' }}
+                          onClick={() => setShowAddForm(true)}
+                        >
+                          + Add a new address
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="checkout-hint">Saved securely to your account.</p>
+                      <div className="field-grid">
+                        <div className="field">
+                          <label className="field-label" htmlFor="checkout-name">Full name</label>
+                          <input
+                            className={`input${formErrors.fullName ? ' has-error' : ''}`}
+                            id="checkout-name"
+                            data-testid="checkout-name"
+                            value={form.fullName}
+                            onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                          />
+                          {formErrors.fullName ? <div className="field-error">{formErrors.fullName}</div> : null}
+                        </div>
 
-                  <div className="field span-2">
-                    <label className="field-label" htmlFor="checkout-line1">Flat and street</label>
-                    <input
-                      className={`input${addressErrors.line1 ? ' has-error' : ''}`}
-                      id="checkout-line1"
-                      data-testid="checkout-line1"
-                      value={address.line1}
-                      onChange={(e) => setAddress({ ...address, line1: e.target.value })}
-                    />
-                    {addressErrors.line1 ? <div className="field-error">{addressErrors.line1}</div> : null}
-                  </div>
+                        <div className="field">
+                          <label className="field-label" htmlFor="checkout-phone">Phone</label>
+                          <input
+                            className={`input${formErrors.phone ? ' has-error' : ''}`}
+                            id="checkout-phone"
+                            data-testid="checkout-phone"
+                            inputMode="tel"
+                            value={form.phone}
+                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                          />
+                          {formErrors.phone ? <div className="field-error">{formErrors.phone}</div> : null}
+                        </div>
 
-                  <div className="field span-2">
-                    <label className="field-label" htmlFor="checkout-line2">Area or landmark</label>
-                    <input
-                      className="input"
-                      id="checkout-line2"
-                      data-testid="checkout-line2"
-                      value={address.line2}
-                      onChange={(e) => setAddress({ ...address, line2: e.target.value })}
-                    />
-                  </div>
+                        <div className="field span-2">
+                          <label className="field-label" htmlFor="checkout-line1">Flat and street</label>
+                          <input
+                            className={`input${formErrors.line1 ? ' has-error' : ''}`}
+                            id="checkout-line1"
+                            data-testid="checkout-line1"
+                            value={form.line1}
+                            onChange={(e) => setForm({ ...form, line1: e.target.value })}
+                          />
+                          {formErrors.line1 ? <div className="field-error">{formErrors.line1}</div> : null}
+                        </div>
 
-                  <div className="field">
-                    <label className="field-label" htmlFor="checkout-city">City</label>
-                    <input
-                      className={`input${addressErrors.city ? ' has-error' : ''}`}
-                      id="checkout-city"
-                      data-testid="checkout-city"
-                      value={address.city}
-                      onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                    />
-                    {addressErrors.city ? <div className="field-error">{addressErrors.city}</div> : null}
-                  </div>
+                        <div className="field span-2">
+                          <label className="field-label" htmlFor="checkout-line2">Area or landmark</label>
+                          <input
+                            className="input"
+                            id="checkout-line2"
+                            data-testid="checkout-line2"
+                            value={form.line2 ?? ''}
+                            onChange={(e) => setForm({ ...form, line2: e.target.value })}
+                          />
+                        </div>
 
-                  <div className="field">
-                    <label className="field-label" htmlFor="checkout-state">State</label>
-                    <input
-                      className={`input${addressErrors.state ? ' has-error' : ''}`}
-                      id="checkout-state"
-                      data-testid="checkout-state"
-                      value={address.state}
-                      onChange={(e) => setAddress({ ...address, state: e.target.value })}
-                    />
-                    {addressErrors.state ? <div className="field-error">{addressErrors.state}</div> : null}
-                  </div>
+                        <div className="field">
+                          <label className="field-label" htmlFor="checkout-city">City</label>
+                          <input
+                            className={`input${formErrors.city ? ' has-error' : ''}`}
+                            id="checkout-city"
+                            data-testid="checkout-city"
+                            value={form.city}
+                            onChange={(e) => setForm({ ...form, city: e.target.value })}
+                          />
+                          {formErrors.city ? <div className="field-error">{formErrors.city}</div> : null}
+                        </div>
 
-                  <div className="field">
-                    <label className="field-label" htmlFor="checkout-pincode">Pin code</label>
-                    <input
-                      className={`input${addressErrors.pincode ? ' has-error' : ''}`}
-                      id="checkout-pincode"
-                      data-testid="checkout-pincode"
-                      inputMode="numeric"
-                      value={address.pincode}
-                      onChange={(e) => setAddress({ ...address, pincode: e.target.value })}
-                    />
-                    {addressErrors.pincode ? <div className="field-error">{addressErrors.pincode}</div> : null}
-                  </div>
-                </div>
+                        <div className="field">
+                          <label className="field-label" htmlFor="checkout-state">State</label>
+                          <input
+                            className={`input${formErrors.state ? ' has-error' : ''}`}
+                            id="checkout-state"
+                            data-testid="checkout-state"
+                            value={form.state}
+                            onChange={(e) => setForm({ ...form, state: e.target.value })}
+                          />
+                          {formErrors.state ? <div className="field-error">{formErrors.state}</div> : null}
+                        </div>
 
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  style={{ marginTop: 16, padding: '11px 18px' }}
-                  onClick={saveAddress}
-                  data-testid="checkout-address-save"
-                >
-                  Use this address
-                </button>
-              </>
+                        <div className="field">
+                          <label className="field-label" htmlFor="checkout-pincode">Pin code</label>
+                          <input
+                            className={`input${formErrors.pincode ? ' has-error' : ''}`}
+                            id="checkout-pincode"
+                            data-testid="checkout-pincode"
+                            inputMode="numeric"
+                            value={form.pincode}
+                            onChange={(e) => setForm({ ...form, pincode: e.target.value })}
+                          />
+                          {formErrors.pincode ? <div className="field-error">{formErrors.pincode}</div> : null}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          style={{ padding: '11px 18px' }}
+                          onClick={saveNewAddress}
+                          disabled={savingAddress}
+                          data-testid="checkout-address-save"
+                        >
+                          {savingAddress ? 'Saving…' : 'Use this address'}
+                        </button>
+                        {addresses.length > 0 ? (
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            style={{ padding: '11px 18px' }}
+                            onClick={() => setShowAddForm(false)}
+                          >
+                            Use a saved address
+                          </button>
+                        ) : null}
+                      </div>
+                    </>
+                  )}
+                </>
+              )
             ) : (
               <div style={{ fontSize: 14, marginTop: 10, lineHeight: 1.6, color: 'var(--color-neutral-800)' }}>
-                {address.fullName} · {address.phone}
+                {selectedAddress?.fullName} · {selectedAddress?.phone}
                 <br />
-                {address.line1}
-                {address.line2 ? `, ${address.line2}` : ''}
+                {selectedAddress?.line1}
+                {selectedAddress?.line2 ? `, ${selectedAddress.line2}` : ''}
                 <br />
-                {address.city} {address.pincode}, {address.state}
+                {selectedAddress?.city} {selectedAddress?.pincode}, {selectedAddress?.state}
               </div>
             )}
           </section>
@@ -386,70 +669,140 @@ export default function CheckoutPage() {
             </div>
           </section>
 
-          {/* ── 3 · payment and review ────────────────────────────────── */}
+          {/* ── 3 · Razorpay payment ──────────────────────────────────── */}
           <section
             className={`checkout-section${slot ? '' : ' is-locked'}`}
             aria-labelledby="checkout-payment-title"
+            id="checkout-payment-section"
+            data-testid="checkout-payment-section"
           >
-            <h2 id="checkout-payment-title">3 · Payment</h2>
+            <h2 id="checkout-payment-title">3 · Pay with Razorpay</h2>
             <p className="checkout-hint">
-              {slot ? 'Nothing is charged until you confirm.' : 'Unlocks once a slot is chosen.'}
+              {slot ? 'Complete payment with Razorpay test mode — UPI, netbanking, cards.' : 'Unlocks once a slot is chosen.'}
             </p>
 
-            <div className="radio-stack">
-              {PAYMENT_METHODS.map((m) => (
-                <label
-                  key={m.id}
-                  className={`radio-row${payment === m.id ? ' is-selected' : ''}`}
-                  data-testid={`checkout-payment-${m.id}`}
-                  style={{ gridTemplateColumns: '22px 1fr' }}
-                >
-                  <input
-                    type="radio"
-                    name="payment-method"
-                    value={m.id}
-                    checked={payment === m.id}
-                    disabled={!slot}
-                    onChange={() => setPayment(m.id)}
-                  />
-                  <span>
-                    <span className="t" style={{ display: 'block' }}>{m.label}</span>
-                    <span className="d">{m.note}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
+            {slot ? (
+              <>
+                {orderError ? (
+                  <div className="state-block state-error" style={{ marginBottom: 16, padding: 14 }}>
+                    <div className="state-label">Payment setup failed</div>
+                    <p style={{ margin: '0 0 10px', fontSize: 13 }}>{orderError}</p>
+                    <button type="button" className="btn btn-secondary" onClick={retryPayment}>
+                      Try again
+                    </button>
+                  </div>
+                ) : null}
 
-            {payment ? (
-              <div className="state-block" style={{ marginTop: 20 }}>
-                <h2 style={{ fontSize: 18 }}>Review</h2>
-                <table className="table">
-                  <tbody>
-                    <tr>
-                      <td style={{ width: '40%', color: 'var(--color-neutral-700)' }}>Delivering to</td>
-                      <td>
-                        {address.line1}, {address.city} {address.pincode}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ color: 'var(--color-neutral-700)' }}>Arriving</td>
-                      <td>
-                        <strong>
-                          {chosenSlot?.day}, {chosenSlot?.window}
-                        </strong>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ color: 'var(--color-neutral-700)' }}>Paying by</td>
-                      <td>{PAYMENT_METHODS.find((m) => m.id === payment)?.label}</td>
-                    </tr>
-                    <tr>
-                      <td style={{ color: 'var(--color-neutral-700)' }}>To pay</td>
-                      <td className="num">{formatINR(total)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                {placingOrder && !orderError ? (
+                  <p className="checkout-hint">Preparing your order…</p>
+                ) : null}
+
+                {pendingOrder?.status === 'paid' ? (
+                  <div className="state-block" style={{ padding: 14 }}>
+                    <div className="state-label">Payment received</div>
+                    <p style={{ margin: 0, fontSize: 13 }}>
+                      Order {pendingOrder.orderNumber} is paid. Redirecting to your confirmation…
+                    </p>
+                  </div>
+                ) : null}
+
+                {paymentFailed && pendingOrder?.status !== 'paid' ? (
+                  <div className="state-block state-error" style={{ marginBottom: 16, padding: 14 }}>
+                    <div className="state-label">Payment not completed</div>
+                    <p style={{ margin: '0 0 10px', fontSize: 13 }}>
+                      {paymentFailedReason || 'The payment was cancelled or declined.'}
+                    </p>
+                    <button type="button" className="btn btn-primary" onClick={retryPayment} disabled={placingOrder}>
+                      Try payment again
+                    </button>
+                  </div>
+                ) : null}
+
+                {!placingOrder && !orderError && !paymentFailed && pendingOrder?.status !== 'paid' && razorpaySession ? (
+                  razorpaySession.demo ? (
+                    <div className="state-block" style={{ padding: 14 }} data-testid="razorpay-demo-panel">
+                      <div className="state-label">Razorpay test mode · demo</div>
+                      {gatewayFallbackReason ? (
+                        <p style={{ margin: '0 0 14px', fontSize: 13 }}>
+                          {gatewayFallbackReason} Falling back to demo mode, which simulates the two outcomes a real
+                          Razorpay test payment can produce.
+                        </p>
+                      ) : (
+                        <p style={{ margin: '0 0 14px', fontSize: 13 }}>
+                          No Razorpay keys are configured on the API yet, so this simulates the two outcomes a real test
+                          payment can produce. Set <code>RAZORPAY_KEY_ID</code> / <code>RAZORPAY_KEY_SECRET</code> on the
+                          API to get the real UPI / netbanking / cards checkout here instead.
+                        </p>
+                      )}
+                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          data-testid="razorpay-demo-success"
+                          disabled={capturing}
+                          onClick={() => void handleDemoOutcome(true)}
+                        >
+                          {capturing ? 'Processing…' : 'Simulate successful payment'}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          data-testid="razorpay-demo-fail"
+                          disabled={capturing}
+                          onClick={() => void handleDemoOutcome(false)}
+                        >
+                          Simulate failed payment
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={attempt}>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-block"
+                        data-testid="razorpay-pay"
+                        disabled={capturing}
+                        onClick={() => void openRazorpayCheckout()}
+                      >
+                        {capturing ? 'Verifying payment…' : `Pay ${formatINR(total)}`}
+                      </button>
+                      <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--color-neutral-700)' }}>
+                        Opens Razorpay test checkout — UPI, cards, netbanking, wallets and pay-later.
+                      </p>
+                    </div>
+                  )
+                ) : null}
+
+                <div className="state-block" style={{ marginTop: 20 }}>
+                  <h2 style={{ fontSize: 18 }}>Review</h2>
+                  <table className="table">
+                    <tbody>
+                      <tr>
+                        <td style={{ width: '40%', color: 'var(--color-neutral-700)' }}>Delivering to</td>
+                        <td>
+                          {selectedAddress?.line1}, {selectedAddress?.city} {selectedAddress?.pincode}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ color: 'var(--color-neutral-700)' }}>Arriving</td>
+                        <td>
+                          <strong>
+                            {chosenSlot?.day}, {chosenSlot?.window}
+                          </strong>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ color: 'var(--color-neutral-700)' }}>Paying by</td>
+                        <td>Razorpay</td>
+                      </tr>
+                      <tr>
+                        <td style={{ color: 'var(--color-neutral-700)' }}>To pay</td>
+                        <td className="num">{formatINR(pendingOrder ? Number(pendingOrder.total) : total)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </>
             ) : null}
           </section>
         </div>
@@ -496,31 +849,7 @@ export default function CheckoutPage() {
 
             <div className="summary-total">
               <span className="k">To pay</span>
-              <span className="v">{formatINR(total)}</span>
-            </div>
-
-            {/* PLACE-ORDER: there is no order endpoint on the API, so this stays
-                disabled rather than faking a POST. Add the call here once
-                `/api/v1/orders` exists, then route to /checkout/confirmation
-                with the real order number. */}
-            <button
-              type="button"
-              className="btn btn-primary btn-block"
-              id="checkout-place-order"
-              data-testid="checkout-place-order"
-              disabled
-              aria-describedby="checkout-place-order-note"
-              onClick={() => navigate('/checkout/confirmation')}
-            >
-              Place order
-            </button>
-
-            <div className="state-block state-error" style={{ marginTop: 16, padding: 14 }}>
-              <div className="state-label">Not wired · no order endpoint</div>
-              <p style={{ margin: 0, fontSize: 13 }} id="checkout-place-order-note">
-                The API exposes <code>/cart</code> only — there is nowhere to submit an order to
-                yet. The button stays disabled rather than pretending the order went through.
-              </p>
+              <span className="v">{formatINR(pendingOrder ? Number(pendingOrder.total) : total)}</span>
             </div>
 
             <div className="summary-note">

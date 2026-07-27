@@ -10,6 +10,8 @@ import ProductDetails from './pages/ProductDetails'
 import CartPage from './pages/Cart'
 import CheckoutPage from './pages/Checkout'
 import CheckoutConfirmation from './pages/CheckoutConfirmation'
+import OrdersPage from './pages/Orders'
+import OrderDetailsPage from './pages/OrderDetails'
 import WishlistPage from './pages/Wishlist'
 import ComparePage from './pages/Compare'
 import PlaygroundPage from './pages/Playground'
@@ -92,6 +94,8 @@ export const APP_ROUTES: AppRoute[] = [
   { path: '/cart', element: <CartPage /> },
   { path: '/checkout', element: <CheckoutPage /> },
   { path: '/checkout/confirmation', element: <CheckoutConfirmation /> },
+  { path: '/orders', element: <OrdersPage /> },
+  { path: '/orders/:orderId', element: <OrderDetailsPage /> },
   { path: '/wishlist', element: <WishlistPage /> },
   { path: '/compare', element: <ComparePage /> },
   { path: '/playground', element: <PlaygroundPage /> },

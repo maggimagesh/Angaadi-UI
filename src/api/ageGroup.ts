@@ -1,4 +1,4 @@
-import { secureFetch } from '../lib/secureClient'
+import { buildApiUrl } from '../lib/api'
 import { getAuthTokenCookie } from '../utils/token'
 
 export interface AgeGroup {
@@ -31,7 +31,7 @@ export async function fetchAllAgeGroups(): Promise<{
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch('/age-group', {
+    const response = await fetch(buildApiUrl('/age-group'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ export async function fetchUserAgeGroup(userId: string): Promise<{
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch(`/age-group/${userId}`, {
+    const response = await fetch(buildApiUrl(`/age-group/${userId}`), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ export async function saveUserAgeGroup(userId: string, ageGroupId: string): Prom
       return { error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch('/age-group', {
+    const response = await fetch(buildApiUrl('/age-group'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ export async function removeUserAgeGroup(userId: string): Promise<{
       return { success: false, error: { message: 'Authentication required' } }
     }
 
-    const response = await secureFetch(`/age-group/${userId}`, {
+    const response = await fetch(buildApiUrl(`/age-group/${userId}`), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
