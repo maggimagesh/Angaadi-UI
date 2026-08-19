@@ -131,7 +131,7 @@ export default function InfiniteHeavyScrollPage() {
         <h1 style={{ fontSize: '3rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '4px' }}>
           DOM Bloat Generator
         </h1>
-        <p style={{ color: '#aaa', fontSize: '1.2rem', maxWidth: '800px', margin: '0 auto' }}>
+        <p style={{ color: 'var(--color-neutral-500)', fontSize: '1.2rem', maxWidth: '800px', margin: '0 auto' }}>
           This page intentionally renders gigantic, deeply nested DOM nodes, excessive CSS gradients/shadows, massive SVGs, and 4 high-res images per block. Open DevTools Element inspector and watch the HTML footprint explode into the Megabytes on scroll.
         </p>
       </div>
@@ -144,17 +144,17 @@ export default function InfiniteHeavyScrollPage() {
         <div ref={sentinelRef} className="blog-sentinel" style={{ padding: '6rem 0' }}>
           {loading && (
             <>
-              <div className="blog-spinner" style={{ borderColor: '#333', borderTopColor: '#ff00cc', width: 48, height: 48, borderWidth: 4 }}></div>
-              <span style={{ color: '#ff00cc', marginTop: '1rem', letterSpacing: '2px' }}>CONSTRUCTING HEAVY DOM...</span>
+              <div className="blog-spinner" style={{ borderColor: 'var(--color-neutral-800)', borderTopColor: 'var(--color-accent-2-600)', width: 48, height: 48, borderWidth: 4 }}></div>
+              <span style={{ color: 'var(--color-accent-2-600)', marginTop: '1rem', letterSpacing: '2px' }}>CONSTRUCTING HEAVY DOM...</span>
             </>
           )}
         </div>
       </div>
 
       <div className="blog-stats-overlay">
-        <div>Loaded Fat Blocks: <span style={{ color: '#ff00cc' }}>{blockIndexes.length}</span></div>
-        <div>Total SVG Paths: <span style={{ color: '#ff00cc' }}>{(blockIndexes.length * 50).toLocaleString('en-US')}</span></div>
-        <div>Total Random Images: <span style={{ color: '#ff00cc' }}>{(blockIndexes.length * 4).toLocaleString('en-US')}</span></div>
+        <div>Loaded Fat Blocks: <span style={{ color: 'var(--color-accent-2-600)' }}>{blockIndexes.length}</span></div>
+        <div>Total SVG Paths: <span style={{ color: 'var(--color-accent-2-600)' }}>{(blockIndexes.length * 50).toLocaleString('en-US')}</span></div>
+        <div>Total Random Images: <span style={{ color: 'var(--color-accent-2-600)' }}>{(blockIndexes.length * 4).toLocaleString('en-US')}</span></div>
       </div>
     </main>
   )

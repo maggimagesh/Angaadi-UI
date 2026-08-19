@@ -3,55 +3,59 @@
 
    The old Material-flavoured palette that used to live here is gone. What is
    left maps every legacy custom-property name still referenced in the app
-   onto a Modernist token, so inline styles written against the old names
-   render in the new system instead of layering a second theme over it.
+   onto a Pastel Premium token, so inline styles written against the old
+   names render in the new system instead of layering a second theme over it.
 
-   Nothing new should be written against these names — use the Modernist
+   Nothing new should be written against these names — use the design-system
    tokens in styles/modernist.css directly.
    ───────────────────────────────────────────────────────────────────────── */
 
 :root {
   /* Surfaces and ink */
   --color-background: var(--color-bg);
-  --color-card: var(--color-bg);
+  --color-card: var(--color-surface-raised);
   --color-surface-variant: var(--color-neutral-200);
   --color-border: var(--color-divider);
-  --color-outline: var(--color-divider);
+  --color-outline: var(--color-divider-strong);
   --color-heading: var(--color-text);
   --color-text-primary: var(--color-text);
   --color-text-secondary: var(--color-neutral-700);
   --color-text-tertiary: var(--color-neutral-600);
   --color-muted: var(--color-neutral-700);
 
-  /* Roles — red is rationed, so the "primary" role is the accent and every
-     status colour resolves to ink or the accent ramp rather than its own hue. */
+  /* Roles — the palette is five pastels, so every status role resolves onto
+     one of them: pastel dark blue for primary and informational weight,
+     pastel sky for the quiet highlight, pastel yellow for warning and for
+     the one warm emphasis the system allows. */
   --color-primary: var(--color-accent);
   --color-primary-container: var(--color-accent-100);
-  --color-on-primary: var(--color-bg);
+  --color-on-primary: var(--color-on-dark);
   --color-on-primary-container: var(--color-accent-800);
-  --color-secondary: var(--color-neutral-800);
-  --color-secondary-container: var(--color-neutral-200);
-  --color-on-secondary: var(--color-bg);
-  --color-on-secondary-container: var(--color-neutral-900);
-  --color-success: var(--color-neutral-900);
-  --color-success-container: var(--color-neutral-200);
-  --color-warning: var(--color-accent-700);
-  --color-warning-container: var(--color-accent-100);
-  --color-danger: var(--color-accent-700);
-  --color-danger-container: var(--color-accent-100);
-  --color-on-danger: var(--color-accent-900);
+  --color-secondary: var(--color-sky-700);
+  --color-secondary-container: var(--color-sky-200);
+  --color-on-secondary: var(--color-on-dark);
+  --color-on-secondary-container: var(--color-sky-900);
+  --color-success: var(--color-accent-700);
+  --color-success-container: var(--color-sky-200);
+  --color-warning: var(--color-accent-2-700);
+  --color-warning-container: var(--color-accent-2-200);
+  --color-danger: var(--color-accent-2-700);
+  --color-danger-container: var(--color-accent-2-200);
+  --color-on-danger: var(--color-accent-2-900);
+  --color-accent-soft: var(--color-sky-200);
 
-  /* Zero radius everywhere — the system draws structure with rules. */
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-full: 0px;
+  /* Soft corners everywhere — structure is still drawn with rules, but the
+     premium register asks for curve rather than the old hard edge. */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
 
-  /* No drop shadows in the app layer; the three that survive are the
-     system's own, used only for the suggestion panel and dialogs. */
-  --elev-1: none;
-  --elev-2: none;
-  --elev-3: none;
+  /* Elevation is real again, but kept low and ink-tinted so panels lift off
+     the pearl ground without ever looking like drop-shadowed boxes. */
+  --elev-1: var(--shadow-sm);
+  --elev-2: var(--shadow-md);
+  --elev-3: var(--shadow-lg);
 
   /* Spacing steps the DS does not define */
   --space-0: 0;
@@ -69,6 +73,7 @@
   --font-2xl: 32px;
   --font-3xl: 42px;
   --font-weight-medium: 600;
+  --font-weight-bold: 700;
 
   /* Motion */
   --motion-duration-short: 120ms;
@@ -79,7 +84,7 @@
   --motion-easing-accelerate: cubic-bezier(0.3, 0, 1, 1);
 
   /* Focus — themed, never the browser default */
-  --focus-ring: 0 0 0 2px var(--color-accent);
+  --focus-ring: 0 0 0 3px var(--color-sky-300);
 
   /* Breakpoints */
   --bp-mobile: 390px;

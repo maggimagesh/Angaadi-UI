@@ -38,8 +38,8 @@ export default function LegacyWebhookLanding() {
           style={{
             background:
               'var(--color-bg)',
-            border: '1px solid rgba(35, 36, 40, 0.1)',
-            borderRadius: 0,
+            border: '1px solid color-mix(in srgb, var(--color-text) 10%, transparent)',
+            borderRadius: 'var(--radius-md)',
             }}
         >
           <div style={{ display: 'grid', gap: 18 }}>
@@ -51,7 +51,7 @@ export default function LegacyWebhookLanding() {
                   letterSpacing: '0.16em',
                   textTransform: 'uppercase',
                   fontWeight: 800,
-                  color: '#9b4d12',
+                  color: 'var(--color-accent-2-700)',
                 }}
               >
                 Webhook Inspector
@@ -119,10 +119,10 @@ export default function LegacyWebhookLanding() {
               <div
                 style={{
                   padding: 16,
-                  borderRadius: 0,
-                  background: 'rgba(255, 238, 210, 0.9)',
-                  border: '1px solid rgba(155, 77, 18, 0.2)',
-                  color: '#6e3a10',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'color-mix(in srgb, var(--color-accent-2-100) 90%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--color-accent-2-700) 20%, transparent)',
+                  color: 'var(--color-accent-2-800)',
                 }}
               >
                 External webhook providers cannot reach <code>{publicApiOrigin}</code>. This page is
@@ -141,9 +141,9 @@ export default function LegacyWebhookLanding() {
               <div
                 style={{
                   padding: 18,
-                  borderRadius: 0,
-                  background: 'rgba(255,255,255,0.72)',
-                  border: '1px solid rgba(35, 36, 40, 0.08)',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'color-mix(in srgb, var(--color-surface-raised) 72%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
                 }}
               >
                 <h2 style={{ marginBottom: 10 }}>UI path</h2>
@@ -152,9 +152,9 @@ export default function LegacyWebhookLanding() {
               <div
                 style={{
                   padding: 18,
-                  borderRadius: 0,
-                  background: 'rgba(255,255,255,0.72)',
-                  border: '1px solid rgba(35, 36, 40, 0.08)',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'color-mix(in srgb, var(--color-surface-raised) 72%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
                 }}
               >
                 <h2 style={{ marginBottom: 10 }}>Receive URL shape</h2>

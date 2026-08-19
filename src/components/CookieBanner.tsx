@@ -81,10 +81,11 @@ export function CookieBanner() {
           <div
             className="cookie-banner-mini"
             style={{
-              background: 'var(--color-surface)',
+              background: 'var(--color-surface-raised)',
               color: 'var(--color-text)',
               padding: 'var(--space-3) var(--space-5)',
-              borderRadius: 0,
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-lg)',
               display: 'flex',
               alignItems: 'center',
               gap: 'var(--space-4)',
@@ -119,8 +120,7 @@ export function CookieBanner() {
                   height: '32px',
                   padding: '0 var(--space-4)',
                   fontSize: 'var(--font-xs)',
-                  minWidth: 'auto',
-                  borderRadius: 0
+                  minWidth: 'auto'
                 }}
               >
                 Accept
@@ -153,7 +153,8 @@ export function CookieBanner() {
             style={{
               position: 'fixed',
               inset: 0,
-              background: 'rgba(0,0,0,0.4)',
+              background: 'color-mix(in srgb, var(--color-neutral-900) 42%, transparent)',
+              backdropFilter: 'blur(3px)',
               zIndex: 101,
               animation: 'fadeIn 300ms ease-out'
             }}
@@ -173,9 +174,10 @@ export function CookieBanner() {
             <div
               className="cookie-manage-screen"
               style={{
-                background: 'var(--color-card)',
+                background: 'var(--color-surface-raised)',
                 color: 'var(--color-text)',
-                borderRadius: 0,
+                borderRadius: 'var(--radius-lg)',
+                boxShadow: 'var(--shadow-lg)',
                 maxWidth: '600px',
                 width: '100%',
                 padding: '40px',
@@ -213,17 +215,17 @@ export function CookieBanner() {
               <h2 style={{ margin: '0 0 24px 0', fontSize: '20px', fontWeight: 600 }}>Cookie Preferences</h2>
 
               <div style={{ marginBottom: '32px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', marginBottom: '12px', background: 'var(--color-bg)', borderRadius: 0, border: '1px solid var(--color-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', marginBottom: '12px', background: 'var(--color-surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
                   <div>
                     <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 600 }}>Mandatory Cookies</p>
                     <p style={{ margin: 0, fontSize: '13px', opacity: 0.7 }}>Required for site functionality and security</p>
                   </div>
-                  <div style={{ width: '44px', height: '28px', borderRadius: 0, background: 'var(--color-primary)', position: 'relative', opacity: 0.6 }}>
-                    <div style={{ width: '24px', height: '24px', borderRadius: 0, background: 'white', position: 'absolute', top: '2px', right: '2px' }} />
+                  <div style={{ width: '44px', height: '28px', borderRadius: 'var(--radius-full)', background: 'var(--color-primary)', position: 'relative', opacity: 0.6 }}>
+                    <div style={{ width: '24px', height: '24px', borderRadius: 'var(--radius-full)', background: 'var(--color-on-dark)', position: 'absolute', top: '2px', right: '2px' }} />
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'var(--color-bg)', borderRadius: 0, border: '1px solid var(--color-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'var(--color-surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
                   <div>
                     <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 600 }}>Optional & Analytics Cookies</p>
                     <p style={{ margin: 0, fontSize: '13px', opacity: 0.7 }}>Help us improve your experience</p>
@@ -233,21 +235,21 @@ export function CookieBanner() {
                     style={{
                       width: '44px',
                       height: '28px',
-                      borderRadius: 0,
-                      background: optionalCookies ? 'var(--color-primary)' : '#ccc',
+                      borderRadius: 'var(--radius-full)',
+                      background: optionalCookies ? 'var(--color-primary)' : 'var(--color-neutral-400)',
                       border: 'none',
                       position: 'relative',
                       cursor: 'pointer'
                     }}
                   >
-                    <div style={{ width: '24px', height: '24px', borderRadius: 0, background: 'white', position: 'absolute', top: '2px', left: optionalCookies ? 'auto' : '2px', right: optionalCookies ? '2px' : 'auto', transition: 'all 200ms' }} />
+                    <div style={{ width: '24px', height: '24px', borderRadius: 'var(--radius-full)', background: 'var(--color-on-dark)', position: 'absolute', top: '2px', left: optionalCookies ? 'auto' : '2px', right: optionalCookies ? '2px' : 'auto', transition: 'all 200ms' }} />
                   </button>
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={() => setShowManage(false)} style={{ flex: 1, padding: '12px', borderRadius: 0, border: '2px solid var(--color-primary)', background: 'transparent', color: 'var(--color-primary)', fontWeight: 600, cursor: 'pointer' }}>Back</button>
-                <button onClick={handleManageOk} style={{ flex: 1, padding: '12px', borderRadius: 0, border: 'none', background: 'var(--color-primary)', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>OK</button>
+                <button onClick={() => setShowManage(false)} style={{ flex: 1, padding: '12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-primary)', background: 'transparent', color: 'var(--color-primary)', fontWeight: 600, cursor: 'pointer' }}>Back</button>
+                <button onClick={handleManageOk} style={{ flex: 1, padding: '12px', borderRadius: 'var(--radius-md)', border: 'none', background: 'var(--color-primary)', color: 'var(--color-on-dark)', fontWeight: 600, cursor: 'pointer' }}>OK</button>
               </div>
             </div>
           </div>

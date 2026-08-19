@@ -127,7 +127,8 @@ export default function FitAttributesModal({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.5)',
+        background: 'color-mix(in srgb, var(--color-neutral-900) 42%, transparent)',
+        backdropFilter: 'blur(3px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -145,7 +146,7 @@ export default function FitAttributesModal({
           minWidth: 700,
           maxWidth: '90vw',
           position: 'relative',
-          borderRadius: 0,
+          borderRadius: 'var(--radius-md)',
           overflow: 'hidden'
         }}
       >
@@ -171,7 +172,7 @@ export default function FitAttributesModal({
             style={{
               width: 40,
               height: 40,
-              borderRadius: 0,
+              borderRadius: 'var(--radius-md)',
               background: 'var(--color-card)',
               color: 'var(--color-text)',
               border: '1px solid var(--color-border)',
@@ -206,7 +207,7 @@ export default function FitAttributesModal({
               backgroundColor: 'var(--color-danger-container)', 
               color: 'var(--color-danger)', 
               padding: '10px', 
-              borderRadius: 0, 
+              borderRadius: 'var(--radius-md)', 
               marginBottom: '16px' 
             }}>
               {error}
@@ -246,7 +247,7 @@ export default function FitAttributesModal({
                         display: 'grid',
                         gridTemplateColumns: 'repeat(3, 1fr)',
                         border: '1px solid var(--color-border)',
-                        borderRadius: 0,
+                        borderRadius: 'var(--radius-md)',
                         overflow: 'hidden',
                         background: 'var(--color-surface)'
                       }}>
@@ -294,7 +295,7 @@ export default function FitAttributesModal({
                   disabled={!isDirty || isSaving}
                   className="btn btn-primary"
                   style={{
-                    borderRadius: 0,
+                    borderRadius: 'var(--radius-md)',
                     padding: '12px 32px',
                     cursor: (isDirty && !isSaving) ? 'pointer' : 'not-allowed',
                     opacity: (isDirty && !isSaving) ? 1 : 0.6,

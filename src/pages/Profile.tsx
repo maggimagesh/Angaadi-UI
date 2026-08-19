@@ -1363,7 +1363,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
   }, [options, current, choice])
   const isDirty = choice !== null && (choice?.label !== current)
   return (
-    <div role="dialog" aria-modal="true" aria-label="Preferred Department" id="dept-picker-modal" data-testid="dept-picker-modal" style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:60, padding:20}}>
+    <div role="dialog" aria-modal="true" aria-label="Preferred Department" id="dept-picker-modal" data-testid="dept-picker-modal" style={{position:'fixed', inset:0, background:'color-mix(in srgb, var(--color-text) 50%, transparent)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:60, padding:20}}>
       <div
         className="card"
         data-testid="dept-picker-modal-content"
@@ -1374,7 +1374,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
           minWidth:520,
           maxWidth:'90vw',
           position:'relative',
-          borderRadius: 0,
+          borderRadius: 'var(--radius-md)',
           overflow:'hidden'
         }}
       >
@@ -1388,7 +1388,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
             style={{
               width:40,
               height:40,
-              borderRadius: 0,
+              borderRadius: 'var(--radius-md)',
               background:'var(--color-card)',
               color:'var(--color-text)',
               border:'1px solid var(--color-border)',
@@ -1419,7 +1419,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
                     data-testid={`dept-option-${opt.id}`}
                     onClick={() => setChoice(opt)}
                     style={{
-                      borderRadius: 0,
+                      borderRadius: 'var(--radius-md)',
                       padding:'12px 20px',
                       background: isSelected ? 'var(--color-primary)' : 'var(--color-surface)',
                       color: isSelected ? 'var(--color-on-primary)' : 'var(--color-text)',
@@ -1442,7 +1442,7 @@ function DeptPickerModal({ current, options, loading, error, onClose, onSave }: 
               disabled={!isDirty}
               className="btn btn-primary"
               style={{
-                borderRadius: 0,
+                borderRadius: 'var(--radius-md)',
                 padding:'10px 28px',
                 cursor: isDirty ? 'pointer' : 'not-allowed',
                 opacity: isDirty ? 1 : 0.6,

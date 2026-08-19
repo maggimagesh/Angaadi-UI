@@ -1,6 +1,8 @@
 export function buildPlaceholderDataUri(label: string, width = 600, height = 600): string {
-  const bg = '#e5e7eb'
-  const fg = '#111827'
+  // Pastel sky well with pastel-dark-blue ink, matching --color-sky-200 /
+  // --color-text. Inlined because this string is baked into a data: URI.
+  const bg = '#e3f1fb'
+  const fg = '#24344e'
   const raw = label.length > 24 ? label.slice(0, 24) + '…' : label
   const safe = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   const svg = `<?xml version="1.0" encoding="UTF-8"?>

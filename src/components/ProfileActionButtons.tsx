@@ -31,7 +31,7 @@ export default function ProfileActionButtons({
         data-testid={updateId}
         className="btn btn-primary"
         onClick={onUpdate}
-        style={{ borderRadius: 0, height: 32, padding: '0 12px', fontSize: 14 }}
+        style={{ borderRadius: 'var(--radius-md)', height: 32, padding: '0 12px', fontSize: 14 }}
         disabled={disableUpdate}
       >
         {updateLabel}
@@ -41,7 +41,7 @@ export default function ProfileActionButtons({
         data-testid={clearId}
         className="btn"
         onClick={onClear}
-        style={{ borderRadius: 0, height: 32, padding: '0 12px', fontSize: 14 }}
+        style={{ borderRadius: 'var(--radius-md)', height: 32, padding: '0 12px', fontSize: 14 }}
         disabled={disableClear}
       >
         {clearLabel}

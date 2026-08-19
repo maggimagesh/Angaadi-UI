@@ -113,7 +113,7 @@ export function WelcomeModal() {
           <div style={{ 
             background: 'var(--color-accent)',
             padding: '20px',
-            borderRadius: 0,
+            borderRadius: 'var(--radius-md)',
             color: 'white',
             textAlign: 'center'
           }}>
@@ -154,7 +154,7 @@ export function WelcomeModal() {
           background: 'var(--color-success-container)',
           border: '1px solid var(--color-success)',
           padding: 24,
-          borderRadius: 0,
+          borderRadius: 'var(--radius-md)',
           textAlign: 'center',
           display: 'grid',
           gap: 16

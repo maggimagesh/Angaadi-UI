@@ -79,7 +79,8 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.5)',
+        background: 'color-mix(in srgb, var(--color-neutral-900) 42%, transparent)',
+        backdropFilter: 'blur(3px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -96,7 +97,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
           padding: 0,
           minWidth: 640,
           maxWidth: '96vw',
-          borderRadius: 0,
+          borderRadius: 'var(--radius-md)',
           overflow: 'hidden',
           position: 'relative'
         }}
@@ -122,7 +123,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
             style={{
               width: 40,
               height: 40,
-              borderRadius: 0,
+              borderRadius: 'var(--radius-md)',
               border: '1px solid var(--color-border)',
               background: 'var(--color-card)',
               color: 'var(--color-text)',
@@ -148,7 +149,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
               backgroundColor: 'var(--color-danger-container)', 
               color: 'var(--color-danger)', 
               padding: '10px', 
-              borderRadius: 0, 
+              borderRadius: 'var(--radius-md)', 
               marginBottom: '16px' 
             }}>
               {error}
@@ -194,7 +195,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
                               data-testid={`shoe-size-${normalizedTestId}`}
                               onClick={() => setSelectedSize(size)}
                               style={{
-                                borderRadius: 0,
+                                borderRadius: 'var(--radius-md)',
                                 padding: '12px 0',
                                 border: `1px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-outline)'}`,
                                 background: isSelected ? 'var(--color-primary)' : 'var(--color-primary-container)',
@@ -214,7 +215,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
                     ) : (
                       <div style={{ 
                         padding: '12px 16px', 
-                        borderRadius: 0, 
+                        borderRadius: 'var(--radius-md)', 
                         border: '1px solid var(--color-border)', 
                         color: 'var(--color-text)', 
                         opacity: 0.7 
@@ -243,7 +244,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
                               data-testid={`shoe-width-${width.toLowerCase()}`}
                               onClick={() => setSelectedWidth(width)}
                               style={{
-                                borderRadius: 0,
+                                borderRadius: 'var(--radius-md)',
                                 padding: '10px 20px',
                                 border: `1px solid ${isSelected ? 'var(--color-primary)' : 'var(--color-outline)'}`,
                                 background: isSelected ? 'var(--color-primary)' : 'var(--color-primary-container)',
@@ -263,7 +264,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
                     ) : (
                       <div style={{ 
                         padding: '12px 16px', 
-                        borderRadius: 0, 
+                        borderRadius: 'var(--radius-md)', 
                         border: '1px solid var(--color-border)', 
                         color: 'var(--color-text)', 
                         opacity: 0.7 
@@ -279,7 +280,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
                 <div style={{ 
                   padding: '12px 16px', 
                   background: 'var(--color-surface)', 
-                  borderRadius: 0,
+                  borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--color-border)'
                 }}>
                   <strong>Selected:</strong> Size {selectedSize} ({selectedWidth})
@@ -298,7 +299,7 @@ export default function ShoesModal({ open, onClose, onSave, initialValue = null,
                   disabled={!canSave}
                   className="btn btn-primary"
                   style={{
-                    borderRadius: 0,
+                    borderRadius: 'var(--radius-md)',
                     padding: '10px 28px',
                     cursor: canSave ? 'pointer' : 'not-allowed',
                     opacity: canSave ? 1 : 0.6

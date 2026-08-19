@@ -17,7 +17,7 @@ export function LoadingSpinner({ size = 'medium', text, className = '' }: Loadin
     ...sizeStyles[size],
     border: `${sizeStyles[size].borderWidth} solid var(--color-border)`,
     borderTop: `${sizeStyles[size].borderWidth} solid var(--color-primary)`,
-    borderRadius: 0,
+    borderRadius: 'var(--radius-full)',
     animation: 'spin 1s linear infinite',
     display: 'inline-block'
   }

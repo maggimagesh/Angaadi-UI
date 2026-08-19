@@ -29,9 +29,9 @@ const CookieConsentGallery: React.FC = () => {
                         onClick={() => navigate(`/cookie-consent/${design.id}`)}
                         style={{
                             padding: '32px',
-                            borderRadius: 0,
+                            borderRadius: 'var(--radius-md)',
                             border: '1px solid var(--color-border)',
-                            background: 'var(--color-surface, #ffffff)',
+                            background: 'var(--color-surface, var(--color-surface-raised))',
                             color: 'var(--color-text)',
                             textAlign: 'left',
                             cursor: 'pointer',
@@ -62,7 +62,7 @@ const CookieConsentGallery: React.FC = () => {
                             color: 'white',
                             fontSize: '0.7rem',
                             fontWeight: 800,
-                            borderRadius: 0,
+                            borderRadius: 'var(--radius-md)',
                             textTransform: 'uppercase'
                         }}>
                             {design.type}

@@ -54,7 +54,7 @@ export const CookieDesignRenderer: React.FC<CookieDesignRendererProps> = ({ desi
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'rgba(0, 0, 0, 0.4)',
+        background: 'color-mix(in srgb, var(--color-neutral-900) 42%, transparent)',
         backdropFilter: 'blur(4px)',
         zIndex: 9998,
     } : {};

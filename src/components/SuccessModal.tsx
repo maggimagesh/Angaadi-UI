@@ -31,7 +31,7 @@ export function SuccessModal() {
         lineHeight:1.3,
         maxWidth:'60vw',
         background:'var(--color-accent)',
-        color:'#f3f2f2',
+        color:'var(--color-on-dark)',
         border:0
       }}
     >
@@ -49,7 +49,7 @@ export function SuccessModal() {
           display:'inline-flex',
           alignItems:'center',
           justifyContent:'center',
-          background:'#f3f2f2',
+          background:'var(--color-on-dark)',
           border:0,
           color:'var(--color-accent)',
           cursor:'pointer',

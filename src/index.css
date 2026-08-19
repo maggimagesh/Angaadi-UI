@@ -38,7 +38,7 @@ body {
 a {
   color: var(--color-accent);
   text-decoration: none;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   transition: color var(--motion-duration-short) var(--motion-easing-standard),
     background var(--motion-duration-short) var(--motion-easing-standard);
 }
@@ -90,9 +90,17 @@ a:hover {
   }
 }
 
-/* A "surface" is no longer a tinted panel — it is just the ground. */
+/* A "surface" is the pearl-white ground; panels that need to lift off it
+   take .surface-raised instead. */
 .surface {
   background: var(--color-bg);
+}
+
+.surface-raised {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ── form controls the DS does not ship ──────────────────────────────── */
@@ -105,20 +113,24 @@ a:hover {
   font: inherit;
   font-size: 14px;
   color: var(--color-text);
-  background: var(--color-surface);
+  background: var(--color-surface-raised);
   border: 1px solid var(--color-divider);
-  border-radius: 0;
+  border-radius: var(--radius-md);
+  transition: border-color var(--motion-duration-short) var(--motion-easing-standard),
+    box-shadow var(--motion-duration-short) var(--motion-easing-standard);
 }
 
 .select:hover,
 .textarea:hover {
-  border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  border-color: var(--color-divider-strong);
 }
 
 .select:focus-visible,
 .textarea:focus-visible {
   border-color: var(--color-accent);
+  outline: none;
   outline-offset: 0;
+  box-shadow: var(--focus-ring);
 }
 
 /* Native checkboxes and radios take the accent rather than browser blue. */
@@ -188,8 +200,9 @@ input[type='radio'] {
   left: 0;
   z-index: 100;
   padding: var(--space-2) var(--space-4);
+  border-radius: 0 0 var(--radius-md) 0;
   background: var(--color-accent);
-  color: var(--color-bg);
+  color: var(--color-on-dark);
   font-family: var(--font-heading);
   font-weight: var(--font-heading-weight);
   font-size: 14px;
@@ -198,7 +211,7 @@ input[type='radio'] {
 
 .skip-to-main:focus {
   top: 0;
-  color: var(--color-bg);
+  color: var(--color-on-dark);
   text-decoration: none;
 }
 
