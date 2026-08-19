@@ -6,6 +6,26 @@ interface CookieDesignRendererProps {
     onClose: () => void;
 }
 
+/** Designs whose ground is dark, so the accept button inverts to pearl. */
+const DARK_GROUND = new Set([
+    'modern-banner-dark',
+    'dark-transparent-sidebar',
+    'cyberpunk-neon',
+    'fullscreen-takeover',
+    'luxury-gold-accent',
+]);
+
+/**
+ * The accept button has to read on whatever ground its design sets, so it
+ * takes the accent on light grounds, pearl-on-ink on dark ones, and keeps the
+ * maximum-contrast pair on the accessibility fixture.
+ */
+function acceptColours(id: string): { background: string; color: string } {
+    if (id === 'high-contrast-accessibility') return { background: '#000000', color: '#ffffff' };
+    if (DARK_GROUND.has(id)) return { background: 'var(--color-on-dark)', color: 'var(--color-accent-900)' };
+    return { background: 'var(--color-accent)', color: 'var(--color-on-dark)' };
+}
+
 export const CookieDesignRenderer: React.FC<CookieDesignRendererProps> = ({ design, onClose }) => {
     const [isVisible, setIsVisible] = React.useState(design.id !== 'delayed-slow-slide');
     const { style, content, position, type } = design;
@@ -89,8 +109,7 @@ export const CookieDesignRenderer: React.FC<CookieDesignRendererProps> = ({ desi
                                 padding: '10px 20px',
                                 borderRadius: '8px',
                                 border: 'none',
-                                background: design.id.includes('dark') || design.id.includes('black') ? '#ffffff' : '#000000',
-                                color: design.id.includes('dark') || design.id.includes('black') ? '#000000' : '#ffffff',
+                                ...acceptColours(design.id),
                                 fontWeight: 600,
                                 cursor: 'pointer',
                                 transition: 'transform 0.2s',

@@ -14,6 +14,16 @@ export interface CookieDesign {
     detailedDescription: string;
 }
 
+/*
+ * The gallery of consent-banner treatments.
+ *
+ * Each entry keeps the structure that makes it recognisable — the glass blur,
+ * the brutalist offset shadow, the Windows 95 bevel, the terminal monospace —
+ * but every colour now resolves to a Pastel Premium token and the type sits on
+ * the app's Fraunces/Manrope pairing. The two exceptions are called out where
+ * they occur: the accessibility fixture keeps its maximum-contrast pair, and
+ * the monospace and cursive faces are the identity of their designs.
+ */
 export const cookieDesigns: CookieDesign[] = [
     {
         id: 'modern-banner-dark',
@@ -21,13 +31,14 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'banner',
         position: 'bottom',
         style: {
-            background: 'rgba(18, 18, 18, 0.95)',
-            color: '#ffffff',
+            background: 'color-mix(in srgb, var(--color-neutral-900) 95%, transparent)',
+            color: 'var(--color-on-dark)',
+            fontFamily: 'var(--font-body)',
             backdropFilter: 'blur(10px)',
-            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            borderTop: '1px solid color-mix(in srgb, var(--color-on-dark) 14%, transparent)',
             padding: '24px',
             borderRadius: '24px 24px 0 0',
-            boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.5)',
+            boxShadow: '0 -10px 40px color-mix(in srgb, var(--color-neutral-900) 45%, transparent)',
         },
         content: {
             title: 'Our Cookie Policy',
@@ -44,13 +55,14 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'popup',
         position: 'center',
         style: {
-            background: 'rgba(255, 255, 255, 0.15)',
+            background: 'color-mix(in srgb, var(--color-surface-raised) 22%, transparent)',
             backdropFilter: 'blur(20px)',
-            color: '#1a1a1a',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
+            color: 'var(--color-text)',
+            fontFamily: 'var(--font-body)',
+            border: '1px solid color-mix(in srgb, var(--color-surface-raised) 40%, transparent)',
             padding: '40px',
             borderRadius: '32px',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
+            boxShadow: '0 20px 60px color-mix(in srgb, var(--color-text) 18%, transparent)',
             maxWidth: '500px',
             width: '90%',
         },
@@ -68,10 +80,11 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'banner',
         position: 'top',
         style: {
-            background: '#ffffff',
-            color: '#333333',
+            background: 'var(--color-surface-raised)',
+            color: 'var(--color-neutral-800)',
+            fontFamily: 'var(--font-body)',
             padding: '12px 24px',
-            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
+            boxShadow: '0 2px 10px color-mix(in srgb, var(--color-text) 8%, transparent)',
             fontSize: '14px',
             display: 'flex',
             alignItems: 'center',
@@ -90,14 +103,15 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'sidebar',
         position: 'bottom-right',
         style: {
-            background: '#f8fafc',
-            color: '#1e293b',
+            background: 'var(--color-surface)',
+            color: 'var(--color-text)',
+            fontFamily: 'var(--font-body)',
             padding: '32px',
             borderRadius: '20px',
             margin: '24px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+            boxShadow: '0 10px 30px color-mix(in srgb, var(--color-text) 10%, transparent)',
             maxWidth: '380px',
-            border: '1px solid #e2e8f0',
+            border: '1px solid var(--color-divider)',
         },
         content: {
             title: 'Cookie Preferences',
@@ -114,12 +128,13 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'popup',
         position: 'center',
         style: {
-            background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-            color: '#ffffff',
+            background: 'linear-gradient(135deg, var(--color-accent-700) 0%, var(--color-sky-600) 100%)',
+            color: 'var(--color-on-dark)',
+            fontFamily: 'var(--font-body)',
             padding: '32px',
             borderRadius: '0px',
-            border: '4px solid #000000',
-            boxShadow: '8px 8px 0px #000000',
+            border: '4px solid var(--color-text)',
+            boxShadow: '8px 8px 0px var(--color-text)',
             maxWidth: '450px',
         },
         content: {
@@ -136,13 +151,14 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'popup',
         position: 'bottom-right',
         style: {
-            background: '#000000',
-            color: '#00ff41',
+            background: 'var(--color-accent-900)',
+            color: 'var(--color-sky-400)',
             padding: '24px',
-            border: '2px solid #00ff41',
-            boxShadow: '0 0 15px #00ff41',
+            border: '2px solid var(--color-sky-400)',
+            boxShadow: '0 0 15px color-mix(in srgb, var(--color-sky-400) 60%, transparent)',
             margin: '20px',
-            fontFamily: 'monospace',
+            // Monospace is this design's whole point, so it keeps its own face.
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
         },
         content: {
             title: '> INIT_COOKIE_CONSENT',
@@ -158,12 +174,13 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'banner',
         position: 'bottom',
         style: {
-            background: '#fff5f5',
-            color: '#ff6b6b',
+            background: 'var(--color-accent-2-100)',
+            color: 'var(--color-accent-2-900)',
+            fontFamily: 'var(--font-body)',
             padding: '20px',
             borderRadius: '20px 20px 0 0',
-            boxShadow: '0 -4px 15px rgba(255, 107, 107, 0.1)',
-            borderTop: '2px solid #ffa8a8',
+            boxShadow: '0 -4px 15px color-mix(in srgb, var(--color-accent-2-500) 22%, transparent)',
+            borderTop: '2px solid var(--color-accent-2-400)',
         },
         content: {
             title: 'Cookie Treat?',
@@ -179,15 +196,17 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'popup',
         position: 'center',
         style: {
-            background: '#ffffff',
-            color: '#1a1a1a',
+            background: 'var(--color-surface-raised)',
+            color: 'var(--color-text)',
             padding: '48px',
             borderRadius: '0',
-            border: '1px solid #d1d5db',
-            fontFamily: 'serif',
+            border: '1px solid var(--color-divider-strong)',
+            // The luxury register this design is after is exactly what the
+            // system's display serif is for.
+            fontFamily: 'var(--font-display)',
             textAlign: 'center',
             maxWidth: '600px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            boxShadow: '0 25px 50px -12px color-mix(in srgb, var(--color-text) 28%, transparent)',
         },
         content: {
             title: 'A Moment for Cookies',
@@ -203,12 +222,13 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'popup',
         position: 'center',
         style: {
-            background: '#c0c0c0',
-            color: '#000000',
-            borderTop: '2px solid #ffffff',
-            borderLeft: '2px solid #ffffff',
-            borderRight: '2px solid #808080',
-            borderBottom: '2px solid #808080',
+            background: 'var(--color-neutral-300)',
+            color: 'var(--color-text)',
+            fontFamily: 'var(--font-body)',
+            borderTop: '2px solid var(--color-neutral-100)',
+            borderLeft: '2px solid var(--color-neutral-100)',
+            borderRight: '2px solid var(--color-neutral-600)',
+            borderBottom: '2px solid var(--color-neutral-600)',
             padding: '4px',
             maxWidth: '400px',
         },
@@ -226,10 +246,14 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'banner',
         position: 'bottom',
         style: {
+            // Deliberately NOT themed. This fixture exists to demonstrate a
+            // maximum-contrast pair (19.6:1); pastel yellow on pastel dark blue
+            // would drop it to roughly 8:1 and defeat the point of the design.
             background: '#ffff00',
             color: '#000000',
             padding: '24px',
             border: '4px solid #000000',
+            fontFamily: 'var(--font-body)',
             fontWeight: '900',
             fontSize: '18px',
         },
@@ -246,16 +270,17 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'minimal',
         position: 'bottom-right',
         style: {
-            background: '#ffffff',
-            color: '#1e293b',
+            background: 'var(--color-surface-raised)',
+            color: 'var(--color-text)',
+            fontFamily: 'var(--font-body)',
             padding: '12px 20px',
             borderRadius: '100px',
             margin: '24px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 20px color-mix(in srgb, var(--color-text) 12%, transparent)',
             display: 'flex',
             alignItems: 'center',
             gap: '16px',
-            border: '1px solid #e2e8f0',
+            border: '1px solid var(--color-divider)',
         },
         content: {
             title: '',
@@ -271,10 +296,11 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'banner',
         position: 'bottom',
         style: {
-            background: 'linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%)',
-            color: '#ffffff',
+            background: 'linear-gradient(90deg, var(--color-accent-900) 0%, var(--color-sky-600) 100%)',
+            color: 'var(--color-on-dark)',
+            fontFamily: 'var(--font-body)',
             padding: '30px',
-            boxShadow: '0 -10px 30px rgba(59, 130, 246, 0.3)',
+            boxShadow: '0 -10px 30px color-mix(in srgb, var(--color-sky-600) 34%, transparent)',
         },
         content: {
             title: 'Enhance Your Cookies Experience',
@@ -290,12 +316,13 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'sidebar',
         position: 'bottom-left',
         style: {
-            background: 'rgba(0, 0, 0, 0.7)',
+            background: 'color-mix(in srgb, var(--color-neutral-900) 78%, transparent)',
             backdropFilter: 'blur(12px)',
-            color: '#cbd5e1',
+            color: 'var(--color-neutral-400)',
+            fontFamily: 'var(--font-body)',
             padding: '24px',
             borderRadius: '0 20px 20px 0',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            border: '1px solid color-mix(in srgb, var(--color-on-dark) 14%, transparent)',
             maxWidth: '320px',
         },
         content: {
@@ -312,14 +339,15 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'popup',
         position: 'center',
         style: {
-            background: '#fffdf2',
-            color: '#2d3436',
+            background: 'var(--color-accent-2-100)',
+            color: 'var(--color-text)',
             padding: '32px',
             borderRadius: '15px 50px 30px 5px',
-            border: '3px solid #000000',
+            border: '3px solid var(--color-text)',
+            // The hand-drawn face is this design's identity, so it stays.
             fontFamily: 'cursive',
             maxWidth: '450px',
-            boxShadow: '10px 10px 0px rgba(0,0,0,0.1)',
+            boxShadow: '10px 10px 0px color-mix(in srgb, var(--color-text) 12%, transparent)',
         },
         content: {
             title: 'Cookie crumbs?',
@@ -335,10 +363,11 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'banner',
         position: 'bottom',
         style: {
-            background: '#f1f5f9',
-            color: '#334155',
+            background: 'var(--color-neutral-200)',
+            color: 'var(--color-neutral-800)',
+            fontFamily: 'var(--font-body)',
             padding: '16px 40px',
-            borderTop: '3px solid #2563eb',
+            borderTop: '3px solid var(--color-accent)',
             fontSize: '13px',
         },
         content: {
@@ -355,13 +384,14 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'minimal',
         position: 'bottom-left',
         style: {
-            background: '#faf5ff',
-            color: '#7e22ce',
+            background: 'var(--color-sky-100)',
+            color: 'var(--color-sky-800)',
+            fontFamily: 'var(--font-body)',
             padding: '20px',
             borderRadius: '30px',
             margin: '20px',
-            border: '2px dashed #a855f7',
-            boxShadow: '0 8px 30px rgba(168, 85, 247, 0.15)',
+            border: '2px dashed var(--color-sky-500)',
+            boxShadow: '0 8px 30px color-mix(in srgb, var(--color-sky-600) 22%, transparent)',
         },
         content: {
             title: 'Cookie Time! 🍪',
@@ -376,8 +406,9 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'full-screen',
         position: 'center',
         style: {
-            background: '#000000',
-            color: '#ffffff',
+            background: 'var(--color-accent-900)',
+            color: 'var(--color-on-dark)',
+            fontFamily: 'var(--font-body)',
             padding: '60px',
             textAlign: 'center',
             display: 'flex',
@@ -405,12 +436,14 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'sidebar',
         position: 'bottom-right',
         style: {
-            background: '#1a1a1a',
-            color: '#d4af37',
+            background: 'var(--color-neutral-900)',
+            color: 'var(--color-accent-2-400)',
+            // Luxury reads as the display serif here, not a second gold.
+            fontFamily: 'var(--font-display)',
             padding: '30px',
-            borderLeft: '2px solid #d4af37',
+            borderLeft: '2px solid var(--color-accent-2-400)',
             borderRadius: '8px 0 0 8px',
-            boxShadow: '0 0 40px rgba(0,0,0,0.8)',
+            boxShadow: '0 0 40px color-mix(in srgb, var(--color-neutral-900) 70%, transparent)',
         },
         content: {
             title: 'Bespoke Cookies Experience',
@@ -426,11 +459,12 @@ export const cookieDesigns: CookieDesign[] = [
         type: 'banner',
         position: 'bottom',
         style: {
-            background: '#ffffff',
-            color: '#000000',
+            background: 'var(--color-surface-raised)',
+            color: 'var(--color-text)',
+            fontFamily: 'var(--font-body)',
             padding: '24px',
-            borderTop: '1px solid #e2e8f0',
-            boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.05)',
+            borderTop: '1px solid var(--color-divider)',
+            boxShadow: '0 -4px 20px color-mix(in srgb, var(--color-text) 8%, transparent)',
             animation: 'slowSlideUp 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
         },
         content: {
