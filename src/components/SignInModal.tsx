@@ -79,7 +79,8 @@ export function SignInModal() {
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.5)',
+        background: 'color-mix(in srgb, var(--color-neutral-900) 42%, transparent)',
+        backdropFilter: 'blur(3px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -99,7 +100,7 @@ export function SignInModal() {
           minWidth: 420,
           maxWidth: '90vw',
           position: 'relative',
-          borderRadius: 0,
+          borderRadius: 'var(--radius-md)',
           overflow: 'hidden'
         }}
         onClick={(e) => e.stopPropagation()}
@@ -127,7 +128,7 @@ export function SignInModal() {
             style={{
               width: 40,
               height: 40,
-              borderRadius: 0,
+              borderRadius: 'var(--radius-md)',
               background: 'var(--color-card)',
               color: 'var(--color-text)',
               border: '1px solid var(--color-border)',

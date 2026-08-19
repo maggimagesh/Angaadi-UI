@@ -1,49 +1,81 @@
-/* Modernist — design-system tokens and component classes. This file is the source of truth for the system's look; retune it here and see readme.md. */
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap');
+/* Pastel Premium — design-system tokens and component classes. This file is the source of truth for the system's look; retune it here and see readme.md. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+/* ─────────────────────────────────────────────────────────────────────────
+   The palette is five pastels and nothing else:
+
+     pearl white      the ground every screen is painted on
+     pastel grey      panels, wells, dividers, disabled ink
+     pastel sky blue  the soft highlight — selected rows, quiet banners
+     pastel dark blue the ink, and the primary action
+     pastel yellow    the one warm note: sale tags, ratings, emphasis
+
+   Each is expressed as a nine-step ramp on one shared lightness scale, so
+   the same step of any role matches the others in visual value.
+   ───────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --color-bg: #f3f2f2;
-  --color-surface: #eae9e9;
-  --color-text: #201e1d;
-  --color-accent: #ec3013;
-  --color-accent-2: #e15b47;
-  --color-divider: color-mix(in srgb, #201e1d 40%, transparent);
+  --color-bg: #fbfaf7;          /* pearl white */
+  --color-surface: #f2f4f7;     /* pastel grey panel */
+  --color-surface-raised: #ffffff;
+  --color-text: #24344e;        /* pastel dark blue ink */
+  --color-accent: #47709f;      /* pastel dark blue — the primary action */
+  --color-accent-2: #efcb5b;    /* pastel yellow — the warm note */
+  --color-sky: #a6d4f0;         /* pastel sky blue — the soft highlight */
+  --color-divider: color-mix(in srgb, #24344e 16%, transparent);
+  --color-divider-strong: color-mix(in srgb, #24344e 28%, transparent);
 
-  /* Tonal ramps — generated in OKLCH on one shared lightness scale, so the
-     same step of any role matches the others in visual value. */
-  --color-neutral-100: #f8f4f4;
-  --color-neutral-200: #eae7e7;
-  --color-neutral-300: #d7d3d3;
-  --color-neutral-400: #bab6b6;
-  --color-neutral-500: #9b9797;
-  --color-neutral-600: #7d7979;
-  --color-neutral-700: #605d5d;
-  --color-neutral-800: #444141;
-  --color-neutral-900: #2d2b2b;
+  /* Pearl white → pastel grey → pastel dark blue */
+  --color-neutral-100: #fcfbf8;
+  --color-neutral-200: #f3f4f6;
+  --color-neutral-300: #e6e9ed;
+  --color-neutral-400: #d5dae1;
+  --color-neutral-500: #b8c0cb;
+  --color-neutral-600: #949dab;
+  --color-neutral-700: #6e7889;
+  --color-neutral-800: #4a5568;
+  --color-neutral-900: #2c3a52;
 
-  --color-accent-100: #fff2ef;
-  --color-accent-200: #ffe0d9;
-  --color-accent-300: #ffc4b8;
-  --color-accent-400: #ff9783;
-  --color-accent-500: #ff563c;
-  --color-accent-600: #dd2b0f;
-  --color-accent-700: #ae1800;
-  --color-accent-800: #7c1405;
-  --color-accent-900: #4d170e;
+  /* Pastel dark blue */
+  --color-accent-100: #f0f5fa;
+  --color-accent-200: #dde9f3;
+  --color-accent-300: #c3d7e9;
+  --color-accent-400: #9fbbd7;
+  --color-accent-500: #6f94bc;
+  --color-accent-600: #47709f;
+  --color-accent-700: #3a5c84;
+  --color-accent-800: #2c4664;
+  --color-accent-900: #1e3046;
 
-  --color-accent-2-100: #fff2ef;
-  --color-accent-2-200: #ffe0da;
-  --color-accent-2-300: #ffc4b9;
-  --color-accent-2-400: #ff9784;
-  --color-accent-2-500: #ef6853;
-  --color-accent-2-600: #c94b39;
-  --color-accent-2-700: #9e3526;
-  --color-accent-2-800: #71261b;
-  --color-accent-2-900: #471d16;
+  /* Pastel yellow */
+  --color-accent-2-100: #fdf7e2;
+  --color-accent-2-200: #fbeec0;
+  --color-accent-2-300: #f7e096;
+  --color-accent-2-400: #efcb5b;
+  --color-accent-2-500: #ddb139;
+  --color-accent-2-600: #bd932b;
+  --color-accent-2-700: #977422;
+  --color-accent-2-800: #71581c;
+  --color-accent-2-900: #4c3c15;
 
-  --font-heading: "Archivo", system-ui, sans-serif;
-  --font-heading-weight: 800;
-  --font-body: "Archivo", system-ui, sans-serif;
+  /* Pastel sky blue */
+  --color-sky-100: #f3f9fe;
+  --color-sky-200: #e3f1fb;
+  --color-sky-300: #cbe6f7;
+  --color-sky-400: #a6d4f0;
+  --color-sky-500: #7fbee4;
+  --color-sky-600: #559fce;
+  --color-sky-700: #3f7fa9;
+  --color-sky-800: #305f7e;
+  --color-sky-900: #223f54;
+
+  /* Ink that sits on a filled pastel-dark-blue or ink surface. */
+  --color-on-dark: #fbfaf7;
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-heading: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-heading-weight: 700;
+  --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --space-1: 4.0px;
   --space-2: 8.0px;
@@ -52,15 +84,20 @@
   --space-6: 24.0px;
   --space-8: 32.0px;
 
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
+  /* Softened corners — the premium register asks for curve, not the old
+     zero-radius edge. */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
 
-  /* Elevation — derived from the ground: soft ink-tinted shadows on a
-     light theme, a hairline edge + ambient darkness on a dark one. */
-  --shadow-sm: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);
-  --shadow-md: 0 3px 10px color-mix(in srgb, #2d2b2b 16%, transparent);
-  --shadow-lg: 0 12px 32px color-mix(in srgb, #2d2b2b 22%, transparent);
+  /* Elevation — the shadow is tinted with the ink so it reads as depth in
+     the pastel ground rather than as grey haze. */
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #24344e 7%, transparent),
+    0 1px 3px color-mix(in srgb, #24344e 5%, transparent);
+  --shadow-md: 0 6px 18px color-mix(in srgb, #24344e 9%, transparent),
+    0 2px 6px color-mix(in srgb, #24344e 5%, transparent);
+  --shadow-lg: 0 18px 48px color-mix(in srgb, #24344e 14%, transparent),
+    0 4px 12px color-mix(in srgb, #24344e 6%, transparent);
 }
 
 body {
@@ -68,7 +105,8 @@ body {
   color: var(--color-text);
   font-family: var(--font-body);
 }
-h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: var(--font-heading-weight); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; }
+h4, h5, h6 { font-family: var(--font-heading); font-weight: var(--font-heading-weight); }
 
 .grayscale{filter:none}
 
@@ -79,10 +117,17 @@ h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: var(--font-headi
    ══════════════════════════════════════════════════════════════════════ */
 
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; font-size: 15px; line-height: 1.55; font-weight: 400; }
+body { margin: 0; font-size: 15px; line-height: 1.6; font-weight: 400; letter-spacing: 0.002em; }
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading); font-weight: var(--font-heading-weight);
-  line-height: 1.12; letter-spacing: -0.015em; margin: 0 0 var(--space-2);
+  line-height: 1.15; letter-spacing: -0.015em; margin: 0 0 var(--space-2);
+}
+/* The display serif carries the page-level voice; every smaller heading, and
+   every piece of UI chrome, stays on the sans so buttons and cards read as
+   interface rather than as editorial. */
+h1, h2, h3 {
+  font-family: var(--font-display); font-weight: 600;
+  letter-spacing: -0.02em; line-height: 1.14;
 }
 h1 { font-size: 42px; }
 h2 { font-size: 32px; }
@@ -102,11 +147,11 @@ figcaption {
 .text-muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
 :focus { outline: none; }
 :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
+::selection { background: var(--color-sky-300); color: var(--color-text); }
 
 /* — rules — */
 .hr {
-  height: 2px; border: 0; margin: var(--space-4) 0;
+  height: 1px; border: 0; margin: var(--space-4) 0;
   background: var(--color-divider);
 }
 
@@ -122,17 +167,23 @@ figcaption {
   border-radius: var(--radius-md);
 }
 .btn svg { display: block; }
+.btn {
+  transition: background 160ms cubic-bezier(0.2, 0, 0, 1),
+    color 160ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 160ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0, 0, 1);
+}
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.btn-primary { background: var(--color-accent); color: var(--color-bg); }
-.btn-primary:hover { background: var(--color-accent-600); }
-.btn-primary:active { background: var(--color-accent-700); }
-.btn-secondary { border-color: var(--color-divider); }
+.btn-primary { background: var(--color-accent); color: var(--color-on-dark); box-shadow: var(--shadow-sm); }
+.btn-primary:hover { background: var(--color-accent-700); }
+.btn-primary:active { background: var(--color-accent-800); box-shadow: none; }
+.btn-secondary { border-color: var(--color-divider-strong); background: var(--color-surface-raised); }
 .btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
 .btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
 .btn-ghost { color: var(--color-accent); padding-inline: var(--space-1); }
 .btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
 .btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
-.btn-icon { width: 36px; height: 36px; padding: 0; }
+.btn-icon { width: 36px; height: 36px; padding: 0; border-radius: var(--radius-sm); }
 .btn-block { width: 100%; margin-top: var(--space-2); justify-content: flex-start; text-align: left; }
 
 /* — forms — */
@@ -146,8 +197,17 @@ figcaption {
   background: var(--color-surface);
   border: 1px solid var(--color-divider); border-radius: var(--radius-md);
 }
-.input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
-.input:focus-visible { border-color: var(--color-accent); outline-offset: 0; }
+.input {
+  background: var(--color-surface-raised);
+  transition: border-color 160ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+.input:hover { border-color: var(--color-divider-strong); }
+.input:focus-visible {
+  border-color: var(--color-accent); outline: none; outline-offset: 0;
+  box-shadow: 0 0 0 3px var(--color-sky-300);
+}
+.input::placeholder { color: var(--color-neutral-600); }
 textarea.input { min-height: 90px; resize: vertical; }
 .radio { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
 .radio input, .seg-opt input {
@@ -164,27 +224,30 @@ textarea.input { min-height: 90px; resize: vertical; }
 }
 .radio input:focus-visible + .dot { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 .seg {
-  display: inline-flex; overflow: hidden;
-  border: 1px solid var(--color-divider); border-radius: var(--radius-md);
+  display: inline-flex; overflow: hidden; background: var(--color-surface-raised);
+  border: 1px solid var(--color-divider-strong); border-radius: var(--radius-md);
 }
 .seg-opt {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 7px 12px; font-size: 13px; cursor: pointer;
 }
 .seg-opt + .seg-opt { border-left: 1px solid var(--color-divider); }
-.seg-opt:has(input:checked) { background: var(--color-accent); color: var(--color-bg); }
-.seg-opt:not(:has(input:checked)):hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.seg-opt:has(input:checked) { background: var(--color-accent); color: var(--color-on-dark); }
+.seg-opt:not(:has(input:checked)):hover { background: var(--color-sky-200); }
 .seg-opt:has(input:focus-visible) { outline: 2px solid var(--color-accent); outline-offset: -2px; }
 
 /* — cards — */
 .card {
   display: flex; flex-direction: column; gap: var(--space-2);
-  padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface);
+  padding: var(--space-4); border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-divider);
+  box-shadow: var(--shadow-sm);
 }
 .card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); }
 .card-title {
   font-family: var(--font-heading); font-weight: var(--font-heading-weight);
-  font-size: 17px; line-height: 1.2;
+  font-size: 17px; line-height: 1.25; letter-spacing: -0.01em;
 }
 .card-body { margin: 0; font-size: 13px; opacity: 0.8; flex: 1; }
 .card-meta {
@@ -197,20 +260,21 @@ textarea.input { min-height: 90px; resize: vertical; }
 
 /* — tags — */
 .tag {
-  display: inline-flex; align-items: center; font-size: 11px;
+  display: inline-flex; align-items: center; font-size: 11px; font-weight: 600;
   letter-spacing: 0.02em; padding: 3px 10px;
-  border-radius: calc(var(--radius-md) * 0.75);
+  border-radius: 999px;
 }
 .tag-accent { background: var(--color-accent-100); color: var(--color-accent-800); }
 .tag-accent-2 { background: var(--color-accent-2-100); color: var(--color-accent-2-800); }
-.tag-neutral { background: var(--color-neutral-100); color: var(--color-neutral-800); }
+.tag-neutral { background: var(--color-neutral-200); color: var(--color-neutral-800); }
+.tag-sky { background: var(--color-sky-200); color: var(--color-sky-900); }
 .tag-outline { border: 1px solid var(--color-accent); color: var(--color-accent); }
 
 /* — navigation — */
 .nav {
   display: flex; align-items: center; gap: var(--space-4);
   padding: var(--space-3) var(--space-4);
-  border-bottom: 2px solid var(--color-divider);
+  border-bottom: 1px solid var(--color-divider);
 }
 .nav-brand {
   font-family: var(--font-heading); font-weight: var(--font-heading-weight);
@@ -224,28 +288,30 @@ textarea.input { min-height: 90px; resize: vertical; }
 .table th {
   text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
   color: color-mix(in srgb, var(--color-text) 60%, transparent);
-  padding: var(--space-2); border-bottom: 2px solid var(--color-divider);
+  padding: var(--space-2); border-bottom: 1px solid var(--color-divider-strong);
 }
 .table td {
   padding: var(--space-2);
   border-bottom: 1px solid var(--color-divider);
 }
-.table tbody tr:hover { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
+.table tbody tr:hover { background: var(--color-sky-100); }
 
 /* — dialog — */
 .dialog-backdrop {
   position: fixed; inset: 0; display: grid; place-items: center;
   padding: var(--space-4);
-  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+  background: color-mix(in srgb, var(--color-neutral-900) 42%, transparent);
+  backdrop-filter: blur(3px);
 }
 .dialog {
   width: min(440px, 100%); display: flex; flex-direction: column; gap: var(--space-3);
-  padding: var(--space-4); border-radius: var(--radius-lg);
-  background: var(--color-surface); box-shadow: var(--shadow-lg);
+  padding: var(--space-6); border-radius: var(--radius-lg);
+  background: var(--color-surface-raised); box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-divider);
 }
 .dialog-title {
-  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
-  font-size: 20px;
+  font-family: var(--font-display); font-weight: 600;
+  font-size: 22px; letter-spacing: -0.015em;
 }
 .dialog-body { font-size: 14px; opacity: 0.85; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }

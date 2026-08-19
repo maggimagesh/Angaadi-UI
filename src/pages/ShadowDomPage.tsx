@@ -57,22 +57,22 @@ const shadowCSS = `
     gap: 1.25rem;
   }
   .is-product-card {
-    background: #fff;
+    background: var(--color-surface-raised);
     border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04);
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--color-text) 80%, transparent), 0 0 0 1px color-mix(in srgb, var(--color-text) 40%, transparent);
     transition: transform .25s ease, box-shadow .25s ease;
     display: flex;
     flex-direction: column;
   }
   .is-product-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(103,80,164,.12), 0 0 0 1px rgba(103,80,164,.08);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--color-accent) 12%, transparent), 0 0 0 1px color-mix(in srgb, var(--color-accent) 8%, transparent);
   }
   .is-card-image {
     position: relative;
     aspect-ratio: 1;
-    background: #f8f8fa;
+    background: var(--color-neutral-200);
     overflow: hidden;
   }
   .is-card-image img {
@@ -84,8 +84,8 @@ const shadowCSS = `
   .is-product-card:hover .is-card-image img { transform: scale(1.05); }
   .is-card-badge {
     position: absolute; top: 10px; left: 10px;
-    background: linear-gradient(135deg,#ef4444,#dc2626);
-    color: #fff; padding: 4px 10px; border-radius: 0;
+    background: linear-gradient(135deg,var(--color-accent-2-600),var(--color-accent-2-700));
+    color: var(--color-surface-raised); padding: 4px 10px; border-radius: 0;
     font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
   }
   .is-card-stock-badge {
@@ -93,23 +93,23 @@ const shadowCSS = `
     padding: 3px 8px; border-radius: 0;
     font-size: .7rem; font-weight: 600;
   }
-  .is-card-stock-badge.in-stock   { background: #dcfce7; color: #166534; }
-  .is-card-stock-badge.out-of-stock{ background: #fee2e2; color: #991b1b; }
+  .is-card-stock-badge.in-stock   { background: var(--color-sky-200); color: var(--color-sky-900); }
+  .is-card-stock-badge.out-of-stock{ background: var(--color-accent-2-200); color: var(--color-accent-2-900); }
   .is-card-body { padding: 1rem; display: flex; flex-direction: column; gap: .375rem; flex: 1; }
-  .is-card-brand { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #6750a4; margin: 0; }
-  .is-card-title { font-size: .9375rem; font-weight: 600; color: #1a1a2e; margin: 0; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .is-card-brand { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--color-accent); margin: 0; }
+  .is-card-title { font-size: .9375rem; font-weight: 600; color: var(--color-text); margin: 0; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .is-card-rating { display: flex; align-items: center; gap: .375rem; font-size: .8125rem; }
-  .is-card-rating .stars { color: #f59e0b; letter-spacing: -1px; }
-  .is-card-rating .count { color: #94a3b8; font-size: .75rem; }
+  .is-card-rating .stars { color: var(--color-accent-2-500); letter-spacing: -1px; }
+  .is-card-rating .count { color: var(--color-neutral-600); font-size: .75rem; }
   .is-card-pricing { display: flex; align-items: baseline; gap: .5rem; margin-top: auto; padding-top: .5rem; }
-  .is-card-price { font-size: 1.25rem; font-weight: 800; color: #1a1a2e; }
-  .is-card-old-price { font-size: .8125rem; color: #94a3b8; text-decoration: line-through; }
-  .is-card-delivery { font-size: .75rem; color: #059669; font-weight: 500; }
+  .is-card-price { font-size: 1.25rem; font-weight: 800; color: var(--color-text); }
+  .is-card-old-price { font-size: .8125rem; color: var(--color-neutral-600); text-decoration: line-through; }
+  .is-card-delivery { font-size: .75rem; color: var(--color-sky-700); font-weight: 500; }
   .is-sentinel { display: flex; justify-content: center; align-items: center; padding: 2.5rem 0; gap: .75rem; }
-  .is-spinner { width: 28px; height: 28px; border: 3px solid #e2d8f8; border-top-color: #6750a4; border-radius: 0; animation: spin .7s linear infinite; }
+  .is-spinner { width: 28px; height: 28px; border: 3px solid var(--color-accent-200); border-top-color: var(--color-accent); border-radius: 0; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .is-sentinel span { font-size: .9375rem; color: #6750a4; font-weight: 500; }
-  .shadow-badge { display: inline-flex; align-items: center; gap: .375rem; background: rgba(103,80,164,.1); color: #6750a4; padding: .375rem .875rem; border-radius: 0; font-size: .8125rem; font-weight: 600; margin-bottom: 1.25rem; }
+  .is-sentinel span { font-size: .9375rem; color: var(--color-accent); font-weight: 500; }
+  .shadow-badge { display: inline-flex; align-items: center; gap: .375rem; background: color-mix(in srgb, var(--color-accent) 10%, transparent); color: var(--color-accent); padding: .375rem .875rem; border-radius: 0; font-size: .8125rem; font-weight: 600; margin-bottom: 1.25rem; }
   @media (max-width: 1200px) { .is-product-grid { grid-template-columns: repeat(3,1fr); } }
   @media (max-width: 768px)  { .is-product-grid { grid-template-columns: repeat(2,1fr); gap: .75rem; } }
   @media (max-width: 480px)  { .is-product-grid { grid-template-columns: 1fr; } }

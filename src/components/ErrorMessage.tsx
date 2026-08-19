@@ -12,9 +12,10 @@ export function ErrorMessage({ message, testId = 'error-message' }: ErrorMessage
       data-testid={testId}
       style={{
         backgroundColor: 'var(--color-danger-container)',
-        color: 'var(--color-danger)',
-        padding: '10px',
-        borderRadius: 0,
+        color: 'var(--color-on-danger)',
+        padding: '10px 14px',
+        border: '1px solid var(--color-danger)',
+        borderRadius: 'var(--radius-md)',
         marginBottom: '16px'
       }}
     >

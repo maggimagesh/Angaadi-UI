@@ -28,14 +28,14 @@
   margin: 0 0 var(--space-2, 8px);
   font-size: clamp(1.6rem, 5vw, 2.25rem);
   line-height: 1.15;
-  color: var(--color-heading, #1c1b1f);
+  color: var(--color-heading, var(--color-text));
   font-weight: 700;
 }
 
 .ts-subtitle {
   margin: 0 auto;
   max-width: 52ch;
-  color: var(--color-muted, #4a4458);
+  color: var(--color-muted, var(--color-neutral-800));
   font-size: clamp(0.9rem, 2.6vw, 1rem);
   line-height: 1.5;
 }
@@ -55,7 +55,7 @@
 
 .ts-label {
   font-weight: 600;
-  color: var(--color-heading, #1c1b1f);
+  color: var(--color-heading, var(--color-text));
 }
 
 /* Input row: stacks on narrow screens, inline once there's room */
@@ -79,7 +79,7 @@
 .ts-hint {
   margin: 0;
   font-size: var(--font-xs, 12px);
-  color: var(--color-muted, #4a4458);
+  color: var(--color-muted, var(--color-neutral-800));
 }
 
 /* Players list */
@@ -99,7 +99,7 @@
 .ts-count {
   font-size: var(--font-sm, 14px);
   font-weight: 600;
-  color: var(--color-heading, #1c1b1f);
+  color: var(--color-heading, var(--color-text));
 }
 
 .ts-clear {
@@ -108,16 +108,16 @@
   border: none;
   padding: 6px 8px;
   min-height: 44px;
-  color: var(--color-primary, #6750a4);
+  color: var(--color-primary, var(--color-accent));
   font-size: var(--font-sm, 14px);
   font-weight: 600;
   cursor: pointer;
-  border-radius: 0;
+  border-radius: var(--radius-md);
 
 }
 
 .ts-clear:hover {
-  background: rgba(103, 80, 164, 0.1);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
 }
 
 .ts-clear:focus-visible {
@@ -126,7 +126,7 @@
 
 .ts-empty {
   margin: 0;
-  color: var(--color-muted, #4a4458);
+  color: var(--color-muted, var(--color-neutral-800));
   font-size: var(--font-sm, 14px);
 }
 
@@ -145,9 +145,9 @@
   gap: 4px;
   max-width: 100%;
   padding: 6px 6px 6px 12px;
-  background: var(--color-primary-container, #eaddff);
-  color: var(--color-heading, #1c1b1f);
-  border-radius: 0;
+  background: var(--color-primary-container, var(--color-accent-200));
+  color: var(--color-heading, var(--color-text));
+  border-radius: var(--radius-md);
 
   font-size: var(--font-sm, 14px);
 }
@@ -167,10 +167,10 @@
   width: 24px;
   height: 24px;
   border: none;
-  border-radius: 0;
+  border-radius: var(--radius-md);
 
-  background: rgba(28, 27, 31, 0.08);
-  color: var(--color-heading, #1c1b1f);
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  color: var(--color-heading, var(--color-text));
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
@@ -178,7 +178,7 @@
 }
 
 .ts-chip-remove:hover {
-  background: rgba(28, 27, 31, 0.18);
+  background: color-mix(in srgb, var(--color-text) 18%, transparent);
 }
 
 .ts-chip-remove:focus-visible {
@@ -200,11 +200,11 @@
 .ts-stepper {
   display: inline-flex;
   align-items: stretch;
-  border: 1px solid var(--color-border, #d8cfe5);
-  border-radius: 0;
+  border: 1px solid var(--color-border, var(--color-accent-300));
+  border-radius: var(--radius-md);
 
   overflow: hidden;
-  background: var(--color-card, #fff);
+  background: var(--color-card, var(--color-surface-raised));
   width: max-content;
 }
 
@@ -213,8 +213,8 @@
   width: 44px;
   min-height: 44px;
   border: none;
-  background: var(--color-surface-variant, #e7e0ec);
-  color: var(--color-heading, #1c1b1f);
+  background: var(--color-surface-variant, var(--color-neutral-300));
+  color: var(--color-heading, var(--color-text));
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
@@ -222,7 +222,7 @@
 }
 
 .ts-step-btn:hover:not([disabled]) {
-  background: #d8c8ff;
+  background: var(--color-accent-300);
 }
 
 .ts-step-btn:focus-visible {
@@ -241,8 +241,8 @@
   text-align: center;
   font-size: var(--font-md, 16px);
   font-weight: 700;
-  color: var(--color-heading, #1c1b1f);
-  background: var(--color-card, #fff);
+  color: var(--color-heading, var(--color-text));
+  background: var(--color-card, var(--color-surface-raised));
   -moz-appearance: textfield;
   appearance: textfield;
 }
@@ -268,7 +268,7 @@
 .ts-helper {
   margin: 0;
   font-size: var(--font-sm, 14px);
-  color: var(--color-muted, #4a4458);
+  color: var(--color-muted, var(--color-neutral-800));
   text-align: center;
 }
 
@@ -298,7 +298,7 @@
 .ts-results-title {
   margin: 0;
   font-size: clamp(1.2rem, 3.5vw, 1.5rem);
-  color: var(--color-heading, #1c1b1f);
+  color: var(--color-heading, var(--color-text));
 }
 
 .ts-copy {
@@ -322,16 +322,16 @@
 .ts-team-name {
   margin: 0;
   font-size: var(--font-lg, 20px);
-  color: var(--color-primary, #6750a4);
+  color: var(--color-primary, var(--color-accent));
 }
 
 .ts-joker-card {
-  background: var(--color-warning-container, #ffe0b5);
-  border-color: var(--color-warning, #b27300);
+  background: var(--color-warning-container, var(--color-accent-2-200));
+  border-color: var(--color-warning, var(--color-accent-2-700));
 }
 
 .ts-joker-card .ts-team-name {
-  color: var(--color-warning, #b27300);
+  color: var(--color-warning, var(--color-accent-2-700));
 }
 
 .ts-team-list {
@@ -345,17 +345,17 @@
 
 .ts-team-player {
   padding: 8px 12px;
-  background: var(--color-surface, #fdf8ff);
-  border: 1px solid var(--color-border, #d8cfe5);
-  border-radius: 0;
+  background: var(--color-surface, var(--color-neutral-100));
+  border: 1px solid var(--color-border, var(--color-accent-300));
+  border-radius: var(--radius-md);
 
   font-size: var(--font-sm, 14px);
   word-break: break-word;
 }
 
 .ts-joker-card .ts-team-player {
-  background: rgba(255, 255, 255, 0.6);
-  border-color: rgba(178, 115, 0, 0.4);
+  background: rgba(251, 250, 247, 0.6);
+  border-color: color-mix(in srgb, var(--color-accent-2-700) 45%, transparent);
 }
 
 @keyframes ts-deal {

@@ -30,7 +30,7 @@ function RegularScrollColumn() {
       </div>
       <div className="scroll-column-content">
         {displayProducts.map((p, i) => <CompactCard key={`reg-${i}`} product={p} />)}
-        <div style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.875rem' }}>
+        <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-neutral-600)', fontSize: '0.875rem' }}>
           End of list
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function MultiScrollPage() {
       <div className="multi-page-header">
         <h1>Multi-Scroll Comparison</h1>
         <p>Compare standard scroll, fast infinite scroll, and a slow (3G) infinite scroll side-by-side.</p>
-        <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#cbd5e1' }}>
+        <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: 'var(--color-neutral-400)' }}>
           Each box has its own internal scrollbar. Scroll down the main page to see more page content.
         </p>
       </div>
@@ -147,9 +147,9 @@ export default function MultiScrollPage() {
       </div>
 
       {/* Extra content to force the external page to be scrollable */}
-      <div style={{ padding: '4rem 2rem', textAlign: 'center', backgroundColor: '#e2e8f0', margin: '2rem 1.5rem', borderRadius: 0 }}>
+      <div style={{ padding: '4rem 2rem', textAlign: 'center', backgroundColor: 'var(--color-neutral-300)', margin: '2rem 1.5rem', borderRadius: 'var(--radius-md)' }}>
         <h2>Extra Page Content</h2>
-        <p style={{ color: '#64748b', maxWidth: '600px', margin: '1rem auto' }}>
+        <p style={{ color: 'var(--color-neutral-700)', maxWidth: '600px', margin: '1rem auto' }}>
           This content ensures that the main outer browser window has a vertical scrollbar as requested (1 external scrollbar + 3 internal scrollbars for the boxes).
         </p>
         <div style={{ height: '500px' }}></div>

@@ -28,7 +28,7 @@ export default function IframeFullPage() {
   }, [])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: '100vh', background: '#f0f4ff' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: '100vh', background: 'var(--color-sky-100)' }}>
       <iframe
         ref={iframeRef}
         src="/iframe-content"

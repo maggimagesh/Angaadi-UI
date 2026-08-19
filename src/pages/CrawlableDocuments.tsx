@@ -18,17 +18,17 @@
 import React from 'react'
 
 const pageStyle: React.CSSProperties = {
-  background: 'var(--color-bg, #f7f2f9)',
+  background: 'var(--color-bg, var(--color-neutral-200))',
   minHeight: '100vh',
   fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-  color: 'var(--color-text, #1c1b1f)',
+  color: 'var(--color-text, var(--color-text))',
   fontSize: '14px',
   lineHeight: '1.6',
 }
 
 const headerBandStyle: React.CSSProperties = {
-  background: 'var(--color-primary, #6750a4)',
-  color: '#fff',
+  background: 'var(--color-primary, var(--color-accent))',
+  color: 'var(--color-surface-raised)',
   padding: '8px 0',
   fontSize: '13px',
   textAlign: 'center',
@@ -44,20 +44,20 @@ const wrapperStyle: React.CSSProperties = {
 const titleStyle: React.CSSProperties = {
   fontSize: '22px',
   fontWeight: 700,
-  color: 'var(--color-heading, #1c1b1f)',
+  color: 'var(--color-heading, var(--color-text))',
   marginBottom: '4px',
   lineHeight: '1.3',
 }
 
 const metaStyle: React.CSSProperties = {
-  color: 'var(--color-muted, #4a4458)',
+  color: 'var(--color-muted, var(--color-neutral-800))',
   fontSize: '13px',
   marginBottom: '4px',
 }
 
 const dividerStyle: React.CSSProperties = {
   border: 'none',
-  borderTop: '1px solid var(--color-border, #d8cfe5)',
+  borderTop: '1px solid var(--color-border, var(--color-accent-300))',
   margin: '12px 0',
 }
 
@@ -79,11 +79,11 @@ const sidebarStyle: React.CSSProperties = {
 }
 
 const sidebarBoxStyle: React.CSSProperties = {
-  background: 'var(--color-card, #fff)',
-  border: '1px solid var(--color-border, #d8cfe5)',
-  borderRadius: 0,
+  background: 'var(--color-card, var(--color-surface-raised))',
+  border: '1px solid var(--color-border, var(--color-accent-300))',
+  borderRadius: 'var(--radius-md)',
   padding: '14px 16px',
-  boxShadow: 'var(--elev-1, 0 1px 3px rgba(28,27,31,0.08))',
+  boxShadow: 'var(--elev-1, 0 1px 3px color-mix(in srgb, var(--color-text) 8%, transparent))',
 }
 
 const sidebarTitleStyle: React.CSSProperties = {
@@ -91,7 +91,7 @@ const sidebarTitleStyle: React.CSSProperties = {
   fontWeight: 700,
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
-  color: 'var(--color-muted, #4a4458)',
+  color: 'var(--color-muted, var(--color-neutral-800))',
   marginBottom: '10px',
 }
 
@@ -100,25 +100,25 @@ const sidebarLinkStyle: React.CSSProperties = {
   padding: '5px 0',
   fontSize: '13px',
   fontWeight: 600,
-  color: 'var(--color-primary, #6750a4)',
-  borderBottom: '1px solid var(--color-border, #d8cfe5)',
+  color: 'var(--color-primary, var(--color-accent))',
+  borderBottom: '1px solid var(--color-border, var(--color-accent-300))',
   textDecoration: 'none',
 }
 
 const sectionHeadingStyle: React.CSSProperties = {
   fontSize: '16px',
   fontWeight: 700,
-  color: 'var(--color-heading, #1c1b1f)',
+  color: 'var(--color-heading, var(--color-text))',
   marginTop: '24px',
   marginBottom: '8px',
   paddingBottom: '3px',
-  borderBottom: '2px solid var(--color-primary-container, #eaddff)',
+  borderBottom: '2px solid var(--color-primary-container, var(--color-accent-200))',
 }
 
 const subHeadingStyle: React.CSSProperties = {
   fontSize: '14px',
   fontWeight: 600,
-  color: 'var(--color-secondary, #625b71)',
+  color: 'var(--color-secondary, var(--color-neutral-700))',
   marginTop: '16px',
   marginBottom: '6px',
 }
@@ -135,13 +135,13 @@ const liStyle: React.CSSProperties = {
 
 const noteStyle: React.CSSProperties = {
   fontSize: '12px',
-  color: 'var(--color-muted, #4a4458)',
+  color: 'var(--color-muted, var(--color-neutral-800))',
   fontStyle: 'italic',
   marginLeft: '6px',
 }
 
 const inlineLink = (href: string, label: string) => (
-  <a href={href} style={{ color: 'var(--color-primary, #6750a4)', fontWeight: 600 }}>
+  <a href={href} style={{ color: 'var(--color-primary, var(--color-accent))', fontWeight: 600 }}>
     {label}
   </a>
 )
@@ -492,7 +492,7 @@ export default function CrawlableDocuments() {
               </a>
             </div>
 
-            <div style={{ ...sidebarBoxStyle, marginTop: '16px', fontSize: '12px', color: 'var(--color-muted, #4a4458)' }}>
+            <div style={{ ...sidebarBoxStyle, marginTop: '16px', fontSize: '12px', color: 'var(--color-muted, var(--color-neutral-800))' }}>
               <strong>Fixture metadata</strong>
               <p style={{ marginTop: '6px', marginBottom: 0 }}>
                 Route: <code>/crawlableDocuments</code>

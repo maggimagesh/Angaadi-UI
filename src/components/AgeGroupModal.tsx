@@ -81,7 +81,7 @@ export default function AgeGroupModal({
                       data-testid={`age-group-option-${ageGroup.id}`}
                       onClick={() => setSelectedAgeGroupId(ageGroup.id)}
                       style={{
-                        borderRadius: 0,
+                        borderRadius: 'var(--radius-md)',
                         padding: '12px 20px',
                         background: isSelected ? 'var(--color-primary)' : 'var(--color-primary-container)',
                         color: isSelected ? 'var(--color-on-primary)' : 'var(--color-text)',
@@ -108,7 +108,7 @@ export default function AgeGroupModal({
               disabled={!isDirty}
               className="btn btn-primary"
               style={{
-                borderRadius: 0,
+                borderRadius: 'var(--radius-md)',
                 padding: '10px 28px',
                 cursor: isDirty ? 'pointer' : 'not-allowed',
                 opacity: isDirty ? 1 : 0.6,

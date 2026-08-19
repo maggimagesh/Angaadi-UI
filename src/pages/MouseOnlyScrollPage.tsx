@@ -78,11 +78,11 @@ export default function MouseOnlyScrollPage() {
   }, []);
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-[#fdf8ff] text-[#1c1b1f] font-sans p-8 overflow-hidden">
+    <div className="absolute inset-0 z-50 flex flex-col bg-[var(--color-neutral-100)] text-[var(--color-text)] font-sans p-8 overflow-hidden">
       
       <div className="mb-6 shrink-0 text-center">
-        <h1 className="text-3xl font-bold text-[#6750a4] mb-2">Mouse-Only Infinite Scroll</h1>
-        <p className="text-[#4a4458] max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold text-[var(--color-accent)] mb-2">Mouse-Only Infinite Scroll</h1>
+        <p className="text-[var(--color-neutral-800)] max-w-2xl mx-auto">
           This container only responds to mouse wheel and trackpad scroll actions. 
           Try pressing <kbd className="bg-gray-200 px-1 rounded text-gray-800">ArrowDown</kbd>, 
           <kbd className="bg-gray-200 px-1 rounded text-gray-800">PageDown</kbd>, or 
@@ -92,27 +92,27 @@ export default function MouseOnlyScrollPage() {
 
       {/* Main Scroll Container */}
       <div 
-        className="flex-1 w-full max-w-4xl mx-auto bg-white rounded-xl shadow-md border border-[#d8cfe5] overflow-y-auto outline-none p-6 flex flex-col gap-4"
+        className="flex-1 w-full max-w-4xl mx-auto bg-white rounded-xl shadow-md border border-[var(--color-accent-300)] overflow-y-auto outline-none p-6 flex flex-col gap-4"
         tabIndex={0} // Make focusable to capture local keyboard events if needed, though window capture handles most
       >
         {products.map((product) => (
           <div 
             key={product.id} 
-            className="p-5 rounded-lg border border-[#e7e0ec] bg-[#fdf8ff] hover:shadow-md transition-shadow flex justify-between items-center"
+            className="p-5 rounded-lg border border-[var(--color-neutral-300)] bg-[var(--color-neutral-100)] hover:shadow-md transition-shadow flex justify-between items-center"
           >
             <div className="flex-1 pr-6">
               <div className="flex items-center gap-3 mb-2">
-                <h3 className="font-bold text-lg text-[#1c1b1f]">{product.title}</h3>
-                <span className="text-xs font-semibold px-2 py-1 rounded bg-[#eaddff] text-[#4f378b]">
+                <h3 className="font-bold text-lg text-[var(--color-text)]">{product.title}</h3>
+                <span className="text-xs font-semibold px-2 py-1 rounded bg-[var(--color-accent-200)] text-[var(--color-accent-800)]">
                   {product.category}
                 </span>
               </div>
-              <p className="text-[#4a4458] text-sm">{product.description}</p>
+              <p className="text-[var(--color-neutral-800)] text-sm">{product.description}</p>
             </div>
             
-            <div className="flex flex-col items-end shrink-0 pl-6 border-l border-[#e7e0ec]">
-              <div className="text-xl font-bold text-[#386a20] mb-1">{product.price}</div>
-              <div className="text-sm font-medium flex items-center gap-1 text-[#b27300]">
+            <div className="flex flex-col items-end shrink-0 pl-6 border-l border-[var(--color-neutral-300)]">
+              <div className="text-xl font-bold text-[var(--color-sky-800)] mb-1">{product.price}</div>
+              <div className="text-sm font-medium flex items-center gap-1 text-[var(--color-accent-2-700)]">
                 ★ {product.rating}
               </div>
             </div>
@@ -123,8 +123,8 @@ export default function MouseOnlyScrollPage() {
         <div ref={sentinelRef} className="py-2 w-full">
           {loading && (
             <div className="py-4 flex justify-center items-center gap-3">
-              <div className="w-5 h-5 rounded-full border-2 border-[#6750a4] border-t-transparent animate-spin"></div>
-              <span className="text-[#6750a4] font-semibold">Loading more products...</span>
+              <div className="w-5 h-5 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin"></div>
+              <span className="text-[var(--color-accent)] font-semibold">Loading more products...</span>
             </div>
           )}
         </div>

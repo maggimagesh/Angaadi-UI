@@ -293,9 +293,9 @@ function HighlightedText({
       <mark
         key={key++}
         style={{
-          background: '#ffe066',
-          color: '#1f252a',
-          borderRadius: 0,
+          background: 'var(--color-accent-2-300)',
+          color: 'var(--color-text)',
+          borderRadius: 'var(--radius-md)',
           padding: '0 2px',
           fontWeight: 700,
         }}
@@ -314,25 +314,25 @@ function HighlightedText({
 
 function PrimitiveValue({ value, searchQuery }: { value: unknown; searchQuery: string }) {
   if (value === null) {
-    return <span style={{ color: '#a39a8c' }}>null</span>
+    return <span style={{ color: 'var(--color-neutral-600)' }}>null</span>
   }
   if (typeof value === 'boolean') {
     return (
-      <span style={{ color: '#9b4d12', fontWeight: 700 }}>
+      <span style={{ color: 'var(--color-accent-2-700)', fontWeight: 700 }}>
         <HighlightedText text={String(value)} query={searchQuery} />
       </span>
     )
   }
   if (typeof value === 'number') {
     return (
-      <span style={{ color: '#1f6feb' }}>
+      <span style={{ color: 'var(--color-sky-700)' }}>
         <HighlightedText text={String(value)} query={searchQuery} />
       </span>
     )
   }
   if (typeof value === 'string') {
     return (
-      <span style={{ color: '#22863a', wordBreak: 'break-all' }}>
+      <span style={{ color: 'var(--color-sky-800)', wordBreak: 'break-all' }}>
         &quot;<HighlightedText text={value} query={searchQuery} />&quot;
       </span>
     )
@@ -368,10 +368,10 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
 
   const keyLabel = keyName !== undefined ? (
     <>
-      <span style={{ color: '#a06b1d' }}>
+      <span style={{ color: 'var(--color-accent-2-700)' }}>
         &quot;<HighlightedText text={keyName} query={searchQuery} />&quot;
       </span>
-      <span style={{ color: '#888' }}>: </span>
+      <span style={{ color: 'var(--color-neutral-600)' }}>: </span>
     </>
   ) : null
 
@@ -413,7 +413,7 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
         }}
       >
         {keyLabel}
-        <span style={{ color: '#666' }}>
+        <span style={{ color: 'var(--color-neutral-700)' }}>
           {open}
           {close}
         </span>
@@ -455,7 +455,7 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
           style={{
             display: 'inline-block',
             width: 12,
-            color: '#9b4d12',
+            color: 'var(--color-accent-2-700)',
             transform: effectivelyExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform 120ms ease',
           }}
@@ -463,14 +463,14 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
           ▶
         </span>
         {keyLabel}
-        <span style={{ color: '#666' }}>{open}</span>
+        <span style={{ color: 'var(--color-neutral-700)' }}>{open}</span>
         {!effectivelyExpanded ? (
           <>
-            <span style={{ color: '#a39a8c', marginLeft: 6, fontStyle: 'italic' }}>
+            <span style={{ color: 'var(--color-neutral-600)', marginLeft: 6, fontStyle: 'italic' }}>
               {count} {isArray ? 'item' : 'key'}
               {count === 1 ? '' : 's'}
             </span>
-            <span style={{ color: '#666' }}>{close}</span>
+            <span style={{ color: 'var(--color-neutral-700)' }}>{close}</span>
           </>
         ) : null}
       </button>
@@ -495,7 +495,7 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
               fontFamily: '"JetBrains Mono", ui-monospace, monospace',
               fontSize: 13,
               lineHeight: '1.7',
-              color: '#666',
+              color: 'var(--color-neutral-700)',
             }}
           >
             {close}
@@ -524,10 +524,10 @@ function JsonViewer({
   return (
     <div
       style={{
-        background: '#1f252a',
-        color: '#f7efe2',
+        background: 'var(--color-text)',
+        color: 'var(--color-accent-2-100)',
         padding: 16,
-        borderRadius: 0,
+        borderRadius: 'var(--radius-md)',
         maxHeight,
         overflow: 'auto',
         minWidth: 0,
@@ -560,9 +560,9 @@ function PlainTextViewer({
       style={{
         margin: 0,
         padding: 16,
-        borderRadius: 0,
-        background: '#1f252a',
-        color: '#f7efe2',
+        borderRadius: 'var(--radius-md)',
+        background: 'var(--color-text)',
+        color: 'var(--color-accent-2-100)',
         maxHeight,
         overflow: 'auto',
         whiteSpace: 'pre-wrap',
@@ -588,10 +588,10 @@ function BodyLoadingNotice({ storedBody }: BodyLoadingNoticeProps) {
     <div
       style={{
         padding: 14,
-        borderRadius: 0,
-        background: 'rgba(255, 247, 235, 0.85)',
-        border: '1px solid rgba(35, 36, 40, 0.12)',
-        color: '#5e3308',
+        borderRadius: 'var(--radius-md)',
+        background: 'color-mix(in srgb, var(--color-accent-2-100) 85%, transparent)',
+        border: '1px solid color-mix(in srgb, var(--color-text) 12%, transparent)',
+        color: 'var(--color-accent-2-900)',
         fontSize: '0.92rem',
         lineHeight: 1.55,
       }}
@@ -621,10 +621,10 @@ function BodyFetchErrorNotice({
     <div
       style={{
         padding: 14,
-        borderRadius: 0,
-        background: 'rgba(255, 230, 230, 0.85)',
-        border: '1px solid rgba(176, 0, 32, 0.25)',
-        color: '#7a1320',
+        borderRadius: 'var(--radius-md)',
+        background: 'color-mix(in srgb, var(--color-accent-2-200) 85%, transparent)',
+        border: '1px solid color-mix(in srgb, var(--color-accent-2-700) 25%, transparent)',
+        color: 'var(--color-accent-800)',
         fontSize: '0.92rem',
         lineHeight: 1.55,
         display: 'grid',
@@ -640,9 +640,9 @@ function BodyFetchErrorNotice({
           onClick={onRetry}
           style={{
             padding: '8px 14px',
-            borderRadius: 0,
-            background: '#1f252a',
-            color: '#fff7eb',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--color-text)',
+            color: 'var(--color-accent-2-100)',
             border: 'none',
             fontWeight: 700,
             cursor: 'pointer',
@@ -658,10 +658,10 @@ function BodyFetchErrorNotice({
             display: 'inline-flex',
             alignItems: 'center',
             padding: '8px 14px',
-            borderRadius: 0,
-            background: 'rgba(255,255,255,0.7)',
-            color: '#1f252a',
-            border: '1px solid rgba(35, 36, 40, 0.16)',
+            borderRadius: 'var(--radius-md)',
+            background: 'color-mix(in srgb, var(--color-surface-raised) 70%, transparent)',
+            color: 'var(--color-text)',
+            border: '1px solid color-mix(in srgb, var(--color-text) 16%, transparent)',
             fontWeight: 700,
             textDecoration: 'none',
           }}
@@ -732,9 +732,9 @@ function BodyContentViewer({
             style={{
               width: '100%',
               padding: '8px 12px',
-              borderRadius: 0,
-              border: '1px solid rgba(35, 36, 40, 0.16)',
-              background: 'rgba(255,255,255,0.85)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid color-mix(in srgb, var(--color-text) 16%, transparent)',
+              background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
               color: 'inherit',
               fontSize: '0.9rem',
               boxSizing: 'border-box',
@@ -745,7 +745,7 @@ function BodyContentViewer({
           <span
             style={{
               fontSize: '0.82rem',
-              color: matchCount > 0 ? '#22863a' : 'var(--color-danger)',
+              color: matchCount > 0 ? 'var(--color-sky-800)' : 'var(--color-danger)',
               fontWeight: 700,
               whiteSpace: 'nowrap',
             }}
@@ -758,9 +758,9 @@ function BodyContentViewer({
             type="button"
             onClick={() => setSearchQuery('')}
             style={{
-              background: 'rgba(255,255,255,0.7)',
-              border: '1px solid rgba(35, 36, 40, 0.12)',
-              borderRadius: 0,
+              background: 'color-mix(in srgb, var(--color-surface-raised) 70%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-text) 12%, transparent)',
+              borderRadius: 'var(--radius-md)',
               padding: '6px 10px',
               cursor: 'pointer',
               color: 'inherit',
@@ -805,7 +805,7 @@ function SectionPanel({ title, meta, expanded, onToggle, actions, children }: Se
     <div
       className="card"
       style={{
-        borderRadius: 0,
+        borderRadius: 'var(--radius-md)',
         padding: 0,
         overflow: 'hidden',
         minWidth: 0,
@@ -818,8 +818,8 @@ function SectionPanel({ title, meta, expanded, onToggle, actions, children }: Se
           justifyContent: 'space-between',
           gap: 12,
           padding: '14px 18px',
-          borderBottom: expanded ? '1px solid rgba(35, 36, 40, 0.08)' : 'none',
-          background: 'rgba(255, 247, 232, 0.5)',
+          borderBottom: expanded ? '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)' : 'none',
+          background: 'color-mix(in srgb, var(--color-accent-2-100) 60%, transparent)',
         }}
       >
         <button
@@ -849,9 +849,9 @@ function SectionPanel({ title, meta, expanded, onToggle, actions, children }: Se
               justifyContent: 'center',
               width: 22,
               height: 22,
-              borderRadius: 0,
-              background: 'rgba(155, 77, 18, 0.12)',
-              color: '#9b4d12',
+              borderRadius: 'var(--radius-md)',
+              background: 'color-mix(in srgb, var(--color-accent-2-700) 12%, transparent)',
+              color: 'var(--color-accent-2-700)',
               fontSize: 12,
               transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
               transition: 'transform 140ms ease',
@@ -908,9 +908,9 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
         display: 'inline-flex',
         alignItems: 'center',
         gap: 10,
-        background: 'rgba(255,255,255,0.7)',
-        border: '1px solid rgba(35, 36, 40, 0.12)',
-        borderRadius: 0,
+        background: 'color-mix(in srgb, var(--color-surface-raised) 70%, transparent)',
+        border: '1px solid color-mix(in srgb, var(--color-text) 12%, transparent)',
+        borderRadius: 'var(--radius-md)',
         padding: '6px 12px 6px 8px',
         cursor: 'pointer',
         color: 'inherit',
@@ -924,8 +924,8 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
           position: 'relative',
           width: 34,
           height: 20,
-          borderRadius: 0,
-          background: checked ? '#9b4d12' : '#cdc6ba',
+          borderRadius: 'var(--radius-md)',
+          background: checked ? 'var(--color-accent-2-700)' : 'var(--color-neutral-400)',
           transition: 'background 160ms ease',
           flexShrink: 0,
         }}
@@ -937,8 +937,8 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
             left: checked ? 16 : 2,
             width: 16,
             height: 16,
-            borderRadius: 0,
-            background: '#fff',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--color-surface-raised)',
             transition: 'left 160ms ease',
             }}
         />
@@ -982,9 +982,9 @@ function nextGeneratedHeaderName(existingNames: string[]): string {
 const AUTH_INPUT_STYLE: React.CSSProperties = {
   width: '100%',
   padding: '8px 12px',
-  borderRadius: 0,
-  border: '1px solid rgba(35, 36, 40, 0.16)',
-  background: 'rgba(255,255,255,0.85)',
+  borderRadius: 'var(--radius-md)',
+  border: '1px solid color-mix(in srgb, var(--color-text) 16%, transparent)',
+  background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
   color: 'inherit',
   fontSize: '0.88rem',
   fontFamily: '"JetBrains Mono", ui-monospace, monospace',
@@ -1195,10 +1195,10 @@ function AuthHeadersPanel({ token }: { token: string }) {
                 aria-label="Remove header"
                 style={{
                   padding: '8px 12px',
-                  borderRadius: 0,
-                  border: '1px solid rgba(176, 0, 32, 0.25)',
-                  background: 'rgba(255, 230, 230, 0.7)',
-                  color: '#7a1320',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid color-mix(in srgb, var(--color-accent-2-700) 25%, transparent)',
+                  background: 'color-mix(in srgb, var(--color-accent-2-200) 70%, transparent)',
+                  color: 'var(--color-accent-800)',
                   cursor: 'pointer',
                   fontWeight: 700,
                 }}
@@ -1250,7 +1250,7 @@ function AuthHeadersPanel({ token }: { token: string }) {
               margin: 0,
               fontWeight: 700,
               fontSize: '0.88rem',
-              color: message.kind === 'ok' ? '#22863a' : 'var(--color-danger)',
+              color: message.kind === 'ok' ? 'var(--color-sky-800)' : 'var(--color-danger)',
               overflowWrap: 'anywhere',
             }}
           >
@@ -1262,18 +1262,18 @@ function AuthHeadersPanel({ token }: { token: string }) {
           <div
             style={{
               padding: 14,
-              borderRadius: 0,
-              background: 'rgba(224, 245, 227, 0.7)',
-              border: '1px solid rgba(34, 134, 58, 0.3)',
+              borderRadius: 'var(--radius-md)',
+              background: 'color-mix(in srgb, var(--color-sky-200) 70%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-sky-700) 35%, transparent)',
               display: 'grid',
               gap: 10,
               minWidth: 0,
             }}
           >
-            <div style={{ fontWeight: 800, color: '#1a5c2c', fontSize: '0.92rem' }}>
+            <div style={{ fontWeight: 800, color: 'var(--color-sky-900)', fontSize: '0.92rem' }}>
               ✅ Give these headers to the user
             </div>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: '#2c5138', lineHeight: 1.5 }}>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-sky-900)', lineHeight: 1.5 }}>
               The sender must add each one as a custom request header (&quot;Header Key&quot; /
               &quot;Header Value&quot;) in their application. Callbacks that include them are
               received; everything else is rejected with 401 and you get a blocked-attempt alert.
@@ -1292,9 +1292,9 @@ function AuthHeadersPanel({ token }: { token: string }) {
                 <code
                   style={{
                     padding: '6px 10px',
-                    borderRadius: 0,
-                    background: 'rgba(255,255,255,0.85)',
-                    border: '1px solid rgba(34, 134, 58, 0.2)',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--color-sky-700) 25%, transparent)',
                     fontSize: '0.82rem',
                     overflowWrap: 'anywhere',
                     wordBreak: 'break-all',
@@ -1379,9 +1379,9 @@ function BlockedAttemptsPanel({
           disabled={clearing || blocked.length === 0}
           style={{
             padding: '4px 10px',
-            borderRadius: 0,
-            border: '1px solid rgba(35, 36, 40, 0.16)',
-            background: 'rgba(255,255,255,0.85)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid color-mix(in srgb, var(--color-text) 16%, transparent)',
+            background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
             color: 'inherit',
             cursor: 'pointer',
             fontSize: '0.75rem',
@@ -1399,9 +1399,9 @@ function BlockedAttemptsPanel({
             key={record.id}
             style={{
               padding: 12,
-              borderRadius: 0,
-              background: 'rgba(255, 230, 230, 0.5)',
-              border: '1px solid rgba(176, 0, 32, 0.2)',
+              borderRadius: 'var(--radius-md)',
+              background: 'color-mix(in srgb, var(--color-accent-2-200) 50%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-accent-2-700) 20%, transparent)',
               minWidth: 0,
             }}
           >
@@ -1420,10 +1420,10 @@ function BlockedAttemptsPanel({
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   fontWeight: 800,
-                  color: '#7a1320',
-                  background: 'rgba(176, 0, 32, 0.12)',
+                  color: 'var(--color-accent-800)',
+                  background: 'color-mix(in srgb, var(--color-accent-2-700) 12%, transparent)',
                   padding: '2px 8px',
-                  borderRadius: 0,
+                  borderRadius: 'var(--radius-md)',
                 }}
               >
                 {record.method} · 401 blocked
@@ -1790,8 +1790,8 @@ export default function WebhookInspector() {
           style={{
             background:
               'var(--color-bg)',
-            border: '1px solid rgba(35, 36, 40, 0.1)',
-            borderRadius: 0,
+            border: '1px solid color-mix(in srgb, var(--color-text) 10%, transparent)',
+            borderRadius: 'var(--radius-md)',
             padding: 0,
             overflow: 'hidden',
             minWidth: 0,
@@ -1815,7 +1815,7 @@ export default function WebhookInspector() {
                   letterSpacing: '0.16em',
                   textTransform: 'uppercase',
                   fontWeight: 800,
-                  color: '#9b4d12',
+                  color: 'var(--color-accent-2-700)',
                 }}
               >
                 Live Webhook Inbox
@@ -1863,7 +1863,7 @@ export default function WebhookInspector() {
               <p
                 style={{
                   margin: 0,
-                  color: '#9b4d12',
+                  color: 'var(--color-accent-2-700)',
                   fontSize: '0.85rem',
                   fontWeight: 700,
                 }}
@@ -1884,9 +1884,9 @@ export default function WebhookInspector() {
                 <div
                   style={{
                     padding: 14,
-                    borderRadius: 0,
-                    background: 'rgba(255,255,255,0.72)',
-                    border: '1px solid rgba(35, 36, 40, 0.08)',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'color-mix(in srgb, var(--color-surface-raised) 72%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
                     minWidth: 0,
                   }}
                 >
@@ -1896,7 +1896,7 @@ export default function WebhookInspector() {
                       letterSpacing: '0.12em',
                       textTransform: 'uppercase',
                       fontWeight: 800,
-                      color: '#6b7d8d',
+                      color: 'var(--color-neutral-700)',
                     }}
                   >
                     Receive URL
@@ -1980,10 +1980,10 @@ export default function WebhookInspector() {
                 <div
                   style={{
                     padding: 14,
-                    borderRadius: 0,
-                    background: 'rgba(255, 238, 210, 0.9)',
-                    border: '1px solid rgba(155, 77, 18, 0.2)',
-                    color: '#6e3a10',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'color-mix(in srgb, var(--color-accent-2-100) 90%, transparent)',
+                    border: '1px solid color-mix(in srgb, var(--color-accent-2-700) 20%, transparent)',
+                    color: 'var(--color-accent-2-800)',
                     fontSize: '0.9rem',
                     overflowWrap: 'anywhere',
                   }}
@@ -2007,10 +2007,10 @@ export default function WebhookInspector() {
               gap: 12,
               flexWrap: 'wrap',
               padding: '14px 18px',
-              borderRadius: 0,
-              background: 'rgba(176, 0, 32, 0.08)',
-              border: '1px solid rgba(176, 0, 32, 0.35)',
-              color: '#7a1320',
+              borderRadius: 'var(--radius-md)',
+              background: 'color-mix(in srgb, var(--color-accent-2-700) 8%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-accent-2-700) 35%, transparent)',
+              color: 'var(--color-accent-800)',
             }}
           >
             <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
@@ -2031,10 +2031,10 @@ export default function WebhookInspector() {
               style={{
                 flexShrink: 0,
                 padding: '8px 14px',
-                borderRadius: 0,
-                border: '1px solid rgba(176, 0, 32, 0.35)',
-                background: 'rgba(255,255,255,0.8)',
-                color: '#7a1320',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid color-mix(in srgb, var(--color-accent-2-700) 35%, transparent)',
+                background: 'color-mix(in srgb, var(--color-surface-raised) 80%, transparent)',
+                color: 'var(--color-accent-800)',
                 cursor: 'pointer',
                 fontWeight: 700,
               }}
@@ -2067,7 +2067,7 @@ export default function WebhookInspector() {
           <div
             className="card"
             style={{
-              borderRadius: 0,
+              borderRadius: 'var(--radius-md)',
               padding: 16,
               minWidth: 0,
               position: 'sticky',
@@ -2090,8 +2090,8 @@ export default function WebhookInspector() {
                 style={{
                   fontWeight: 700,
                   color: 'var(--color-text-secondary)',
-                  background: 'rgba(155, 77, 18, 0.08)',
-                  borderRadius: 0,
+                  background: 'color-mix(in srgb, var(--color-accent-2-700) 8%, transparent)',
+                  borderRadius: 'var(--radius-md)',
                   padding: '2px 10px',
                   fontSize: '0.85rem',
                 }}
@@ -2139,13 +2139,13 @@ export default function WebhookInspector() {
                       width: '100%',
                       textAlign: 'left',
                       padding: 12,
-                      borderRadius: 0,
+                      borderRadius: 'var(--radius-md)',
                       border: isSelected
-                        ? '1px solid rgba(155, 77, 18, 0.45)'
-                        : '1px solid rgba(35, 36, 40, 0.08)',
+                        ? '1px solid color-mix(in srgb, var(--color-accent-2-700) 45%, transparent)'
+                        : '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
                       background: isSelected
-                        ? 'rgba(255, 225, 182, 0.5)'
-                        : 'rgba(255,255,255,0.72)',
+                        ? 'color-mix(in srgb, var(--color-accent-2-200) 55%, transparent)'
+                        : 'color-mix(in srgb, var(--color-surface-raised) 72%, transparent)',
                       cursor: 'pointer',
                       color: 'inherit',
                       minWidth: 0,
@@ -2165,10 +2165,10 @@ export default function WebhookInspector() {
                           textTransform: 'uppercase',
                           letterSpacing: '0.08em',
                           fontWeight: 800,
-                          color: '#9b4d12',
-                          background: 'rgba(155, 77, 18, 0.12)',
+                          color: 'var(--color-accent-2-700)',
+                          background: 'color-mix(in srgb, var(--color-accent-2-700) 12%, transparent)',
                           padding: '2px 8px',
-                          borderRadius: 0,
+                          borderRadius: 'var(--radius-md)',
                         }}
                       >
                         {request.method}
@@ -2178,7 +2178,7 @@ export default function WebhookInspector() {
                           fontSize: '0.75rem',
                           fontWeight: 700,
                           color:
-                            request.response.statusCode >= 400 ? '#c44a3c' : '#22863a',
+                            request.response.statusCode >= 400 ? 'var(--color-accent-2-700)' : 'var(--color-sky-800)',
                         }}
                       >
                         {request.response.statusCode}
@@ -2239,9 +2239,9 @@ export default function WebhookInspector() {
                         style={{
                           flexShrink: 0,
                           padding: '4px 10px',
-                          borderRadius: 0,
-                          border: '1px solid rgba(35, 36, 40, 0.16)',
-                          background: 'rgba(255,255,255,0.85)',
+                          borderRadius: 'var(--radius-md)',
+                          border: '1px solid color-mix(in srgb, var(--color-text) 16%, transparent)',
+                          background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
                           color: 'inherit',
                           cursor: 'pointer',
                           fontSize: '0.72rem',
@@ -2264,7 +2264,7 @@ export default function WebhookInspector() {
                 <div
                   className="card"
                   style={{
-                    borderRadius: 0,
+                    borderRadius: 'var(--radius-md)',
                     padding: 14,
                     display: 'flex',
                     flexWrap: 'wrap',
@@ -2320,9 +2320,9 @@ export default function WebhookInspector() {
                         key={label}
                         style={{
                           padding: 12,
-                          borderRadius: 0,
-                          background: 'rgba(255,255,255,0.72)',
-                          border: '1px solid rgba(35, 36, 40, 0.08)',
+                          borderRadius: 'var(--radius-md)',
+                          background: 'color-mix(in srgb, var(--color-surface-raised) 72%, transparent)',
+                          border: '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
                           minWidth: 0,
                         }}
                       >
@@ -2332,7 +2332,7 @@ export default function WebhookInspector() {
                             textTransform: 'uppercase',
                             letterSpacing: '0.08em',
                             fontWeight: 800,
-                            color: '#6b7d8d',
+                            color: 'var(--color-neutral-700)',
                           }}
                         >
                           {label}
@@ -2452,9 +2452,9 @@ export default function WebhookInspector() {
                     <div
                       style={{
                         padding: 12,
-                        borderRadius: 0,
-                        background: 'rgba(255,255,255,0.72)',
-                        border: '1px solid rgba(35, 36, 40, 0.08)',
+                        borderRadius: 'var(--radius-md)',
+                        background: 'color-mix(in srgb, var(--color-surface-raised) 72%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
                       }}
                     >
                       <div
@@ -2463,7 +2463,7 @@ export default function WebhookInspector() {
                           textTransform: 'uppercase',
                           letterSpacing: '0.08em',
                           fontWeight: 800,
-                          color: '#6b7d8d',
+                          color: 'var(--color-neutral-700)',
                           marginBottom: 6,
                         }}
                       >
@@ -2478,9 +2478,9 @@ export default function WebhookInspector() {
                     <div
                       style={{
                         padding: 12,
-                        borderRadius: 0,
-                        background: 'rgba(255,255,255,0.72)',
-                        border: '1px solid rgba(35, 36, 40, 0.08)',
+                        borderRadius: 'var(--radius-md)',
+                        background: 'color-mix(in srgb, var(--color-surface-raised) 72%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
                       }}
                     >
                       <div
@@ -2489,7 +2489,7 @@ export default function WebhookInspector() {
                           textTransform: 'uppercase',
                           letterSpacing: '0.08em',
                           fontWeight: 800,
-                          color: '#6b7d8d',
+                          color: 'var(--color-neutral-700)',
                           marginBottom: 6,
                         }}
                       >
@@ -2533,9 +2533,9 @@ export default function WebhookInspector() {
                         rel="noopener noreferrer"
                         style={{
                           padding: '4px 10px',
-                          borderRadius: 0,
-                          border: '1px solid rgba(35, 36, 40, 0.16)',
-                          background: 'rgba(255,255,255,0.85)',
+                          borderRadius: 'var(--radius-md)',
+                          border: '1px solid color-mix(in srgb, var(--color-text) 16%, transparent)',
+                          background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
                           color: 'inherit',
                           fontSize: '0.75rem',
                           fontWeight: 700,
@@ -2563,9 +2563,9 @@ export default function WebhookInspector() {
                             key={label}
                             style={{
                               padding: 12,
-                              borderRadius: 0,
-                              background: 'rgba(255,255,255,0.72)',
-                              border: '1px solid rgba(35, 36, 40, 0.08)',
+                              borderRadius: 'var(--radius-md)',
+                              background: 'color-mix(in srgb, var(--color-surface-raised) 72%, transparent)',
+                              border: '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
                               minWidth: 0,
                             }}
                           >
@@ -2575,7 +2575,7 @@ export default function WebhookInspector() {
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.08em',
                                 fontWeight: 800,
-                                color: '#6b7d8d',
+                                color: 'var(--color-neutral-700)',
                               }}
                             >
                               {label}
@@ -2601,7 +2601,7 @@ export default function WebhookInspector() {
                             textTransform: 'uppercase',
                             letterSpacing: '0.08em',
                             fontWeight: 800,
-                            color: '#6b7d8d',
+                            color: 'var(--color-neutral-700)',
                             marginBottom: 6,
                           }}
                         >
@@ -2624,7 +2624,7 @@ export default function WebhookInspector() {
                 </SectionPanel>
               </>
             ) : (
-              <div className="card" style={{ borderRadius: 0, padding: 20 }}>
+              <div className="card" style={{ borderRadius: 'var(--radius-md)', padding: 20 }}>
                 <h2 style={{ marginTop: 0 }}>Inspector ready</h2>
                 <p style={{ margin: 0, color: 'var(--color-text-secondary)' }}>
                   Requests will appear here as soon as they reach the API webhook URL.

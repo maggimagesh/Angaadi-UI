@@ -201,7 +201,7 @@ export default function DualScrollPage() {
               </div>
             ))}
             {loading && (
-              <div className="p-4 text-center text-[#5c9ccc] font-bold">
+              <div className="p-4 text-center text-[var(--color-sky-600)] font-bold">
                 Loading more items...
               </div>
             )}
