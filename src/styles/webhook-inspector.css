@@ -76,19 +76,29 @@
   color: var(--color-neutral-700);
 }
 
-/* A retention warning is the one place the yellow ramp carries meaning. */
-.wi-warn {
+/* Two tones of callout, and the difference is whether the reader has to act.
+   Standing housekeeping (retention, quotas) is informational and takes the
+   sky ramp; a conditional, actionable problem (a receive URL nothing can
+   reach) takes the yellow one. Keeping those apart means yellow on this page
+   always means "this needs you". */
+.wi-callout {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   margin: 0;
   padding: 11px 14px;
   border-radius: var(--radius-md);
-  background: var(--color-accent-2-100);
-  border: 1px solid var(--color-accent-2-300);
-  color: var(--color-accent-2-900);
+  background: var(--color-sky-100);
+  border: 1px solid var(--color-sky-300);
+  color: var(--color-accent-900);
   font-size: 13px;
   line-height: 1.55;
+}
+
+.wi-callout.is-warning {
+  background: var(--color-accent-2-100);
+  border-color: var(--color-accent-2-300);
+  color: var(--color-accent-2-900);
 }
 
 /* ── the request log ──────────────────────────────────────────────────── */
@@ -235,7 +245,8 @@
 }
 
 .wi-code-bar .wi-code-sep {
-  color: color-mix(in srgb, var(--code-chrome) 55%, transparent);
+  /* 55% dropped this to 2.9:1; 80% keeps it a quiet divider and still reads. */
+  color: color-mix(in srgb, var(--code-chrome) 80%, transparent);
 }
 
 .wi-code-scroll {

@@ -32,7 +32,7 @@
   --color-neutral-400: #d5dae1;
   --color-neutral-500: #b8c0cb;
   --color-neutral-600: #949dab;
-  --color-neutral-700: #6e7889;
+  --color-neutral-700: #656f7e;
   --color-neutral-800: #4a5568;
   --color-neutral-900: #2c3a52;
 
@@ -54,7 +54,7 @@
   --color-accent-2-400: #efcb5b;
   --color-accent-2-500: #ddb139;
   --color-accent-2-600: #bd932b;
-  --color-accent-2-700: #977422;
+  --color-accent-2-700: #89691f;
   --color-accent-2-800: #71581c;
   --color-accent-2-900: #4c3c15;
 
@@ -73,22 +73,26 @@
   --color-on-dark: #fbfaf7;
 
   /* ── code surfaces ────────────────────────────────────────────────────
-     Payload viewers invert the app: pastel-dark-blue ground, light type. The
-     syntax colours are therefore taken from the LIGHT steps of the ramps —
-     using the dark steps here (as a light-surface palette would) drops
-     strings to 1.8:1 and is what makes a viewer look blurred rather than
-     dark. Every token below clears 4.5:1 on --code-bg. */
-  --code-bg: #1b2942;
-  --code-bg-raised: #22314d;
-  --code-fg: #e9eff7;
-  --code-key: #f7e096;
-  --code-string: #a6d4f0;
-  --code-number: #cbe6f7;
+     Payload viewers invert the app: a black ground with light type, so a
+     dump of JSON reads as a terminal rather than as another tinted panel.
+     The ground is a hair off pure black — at 13px, white-on-#000 haloes and
+     smears, and #0e0f11 measures the same legibility without it.
+
+     The syntax colours are the pastel ramps' LIGHT steps. Taking the dark
+     steps here (as a light-surface palette would) is what drops strings to
+     1.8:1 and makes a viewer look blurred rather than dark. Every token
+     below clears 4.5:1 on its own ground; worst is punctuation at 5.0:1. */
+  --code-bg: #0e0f11;
+  --code-bg-raised: #17181c;
+  --code-fg: #e6e8ec;
+  --code-key: #f2d071;
+  --code-string: #9ecbe8;
+  --code-number: #c3e0f5;
   --code-boolean: #efcb5b;
-  --code-null: #95a5bd;
-  --code-punct: #8496b1;
-  --code-chrome: #8a9cb8;
-  --code-rule: color-mix(in srgb, #e9eff7 14%, transparent);
+  --code-null: #8b8f98;
+  --code-punct: #7e838d;
+  --code-chrome: #9aa0ab;
+  --code-rule: color-mix(in srgb, #e6e8ec 13%, transparent);
   --code-mark: #efcb5b;
 
   --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
@@ -310,7 +314,7 @@ textarea.input { min-height: 90px; resize: vertical; }
 .table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .table th {
   text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  color: var(--color-neutral-700);
   padding: var(--space-2); border-bottom: 1px solid var(--color-divider-strong);
 }
 .table td {

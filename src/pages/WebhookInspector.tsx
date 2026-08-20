@@ -839,10 +839,10 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
         display: 'inline-flex',
         alignItems: 'center',
         gap: 10,
-        background: 'color-mix(in srgb, var(--color-surface-raised) 70%, transparent)',
-        border: '1px solid color-mix(in srgb, var(--color-text) 12%, transparent)',
-        borderRadius: 'var(--radius-md)',
-        padding: '6px 12px 6px 8px',
+        background: 'var(--color-surface-raised)',
+        border: '1px solid var(--color-divider-strong)',
+        borderRadius: 'var(--radius-full)',
+        padding: '6px 14px 6px 8px',
         cursor: 'pointer',
         color: 'inherit',
         font: 'inherit',
@@ -855,9 +855,11 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
           position: 'relative',
           width: 34,
           height: 20,
-          borderRadius: 'var(--radius-md)',
-          background: checked ? 'var(--color-accent-2-700)' : 'var(--color-neutral-400)',
-          transition: 'background 160ms ease',
+          /* A switch is a primary control, so its on-state is the accent.
+             The yellow ramp stays reserved for the warm note. */
+          borderRadius: 'var(--radius-full)',
+          background: checked ? 'var(--color-accent)' : 'var(--color-neutral-400)',
+          transition: 'background 160ms var(--motion-easing-standard)',
           flexShrink: 0,
         }}
       >
@@ -868,9 +870,10 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
             left: checked ? 16 : 2,
             width: 16,
             height: 16,
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--color-surface-raised)',
-            transition: 'left 160ms ease',
+            borderRadius: 'var(--radius-full)',
+            background: 'var(--color-on-dark)',
+            boxShadow: 'var(--shadow-sm)',
+            transition: 'left 160ms var(--motion-easing-standard)',
             }}
         />
       </span>
@@ -1737,8 +1740,8 @@ export default function WebhookInspector() {
                 Send payloads to the public webhook URL below. The inspector polls every 2.5s and
                 renders every captured request.
               </p>
-              <p className="wi-warn">
-                <span aria-hidden="true">⚠</span>
+              <p className="wi-callout">
+                <span aria-hidden="true">🕒</span>
                 <span>
                   Requests and their bodies are deleted after{' '}
                   {payload.retentionHours ?? DEFAULT_WEBHOOK_RETENTION_HOURS} hours. Download
@@ -1850,20 +1853,14 @@ export default function WebhookInspector() {
               ) : null}
 
               {showPublicUrlWarning ? (
-                <div
-                  style={{
-                    padding: 14,
-                    borderRadius: 'var(--radius-md)',
-                    background: 'color-mix(in srgb, var(--color-accent-2-100) 90%, transparent)',
-                    border: '1px solid color-mix(in srgb, var(--color-accent-2-700) 20%, transparent)',
-                    color: 'var(--color-accent-2-800)',
-                    fontSize: '0.9rem',
-                    overflowWrap: 'anywhere',
-                  }}
-                >
+                <div className="wi-callout is-warning" style={{ overflowWrap: 'anywhere' }}>
+                  <span aria-hidden="true">⚠</span>
+                  <span>
                   The receive URL currently points to <code>{publicApiOrigin}</code>. External
                   webhook providers cannot call that address. Set
-                  <code> VITE_WEBHOOK_PUBLIC_API_ORIGIN</code> to your public production API origin.
+                  <code> VITE_WEBHOOK_PUBLIC_API_ORIGIN</code> to your public production API
+                  origin.
+                  </span>
                 </div>
               ) : null}
             </div>
@@ -1881,9 +1878,9 @@ export default function WebhookInspector() {
               flexWrap: 'wrap',
               padding: '14px 18px',
               borderRadius: 'var(--radius-md)',
-              background: 'color-mix(in srgb, var(--color-accent-2-700) 8%, transparent)',
-              border: '1px solid color-mix(in srgb, var(--color-accent-2-700) 35%, transparent)',
-              color: 'var(--color-accent-800)',
+              background: 'var(--color-accent-2-100)',
+              border: '1px solid var(--color-accent-2-300)',
+              color: 'var(--color-accent-2-900)',
             }}
           >
             <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
@@ -1962,11 +1959,12 @@ export default function WebhookInspector() {
               <span
                 style={{
                   fontWeight: 700,
-                  color: 'var(--color-text-secondary)',
-                  background: 'color-mix(in srgb, var(--color-accent-2-700) 8%, transparent)',
-                  borderRadius: 'var(--radius-md)',
+                  color: 'var(--color-accent-900)',
+                  background: 'var(--color-sky-200)',
+                  borderRadius: 'var(--radius-full)',
                   padding: '2px 10px',
                   fontSize: '0.85rem',
+                  fontVariantNumeric: 'tabular-nums',
                 }}
               >
                 {payload.requests.length}
