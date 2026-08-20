@@ -19,7 +19,7 @@
   --color-surface: #f2f4f7;     /* pastel grey panel */
   --color-surface-raised: #ffffff;
   --color-text: #24344e;        /* pastel dark blue ink */
-  --color-accent: #47709f;      /* pastel dark blue — the primary action */
+  --color-accent: #2a6ab4;      /* pastel dark blue — the primary action */
   --color-accent-2: #efcb5b;    /* pastel yellow — the warm note */
   --color-sky: #a6d4f0;         /* pastel sky blue — the soft highlight */
   --color-divider: color-mix(in srgb, #24344e 16%, transparent);
@@ -36,16 +36,19 @@
   --color-neutral-800: #4a5568;
   --color-neutral-900: #2c3a52;
 
-  /* Pastel dark blue */
-  --color-accent-100: #f0f5fa;
-  --color-accent-200: #dde9f3;
-  --color-accent-300: #c3d7e9;
-  --color-accent-400: #9fbbd7;
-  --color-accent-500: #6f94bc;
-  --color-accent-600: #47709f;
-  --color-accent-700: #3a5c84;
-  --color-accent-800: #2c4664;
-  --color-accent-900: #1e3046;
+  /* Pastel dark blue. Hue and the lightness stops are unchanged from the
+     first pass — only saturation is up (38% -> 62% at the 600 step), because
+     at 38% the accent read as slate grey rather than as blue. Values hold,
+     so nothing shifts in weight; the colour just stops being muddy. */
+  --color-accent-100: #f1f6fd;
+  --color-accent-200: #d5e6f8;
+  --color-accent-300: #b7d2f2;
+  --color-accent-400: #8fb8e8;
+  --color-accent-500: #5692d7;
+  --color-accent-600: #2a6ab4;
+  --color-accent-700: #225590;
+  --color-accent-800: #1b426d;
+  --color-accent-900: #142f4d;
 
   /* Pastel yellow */
   --color-accent-2-100: #fdf7e2;
@@ -86,8 +89,8 @@
   --code-bg-raised: #17181c;
   --code-fg: #e6e8ec;
   --code-key: #f2d071;
-  --code-string: #9ecbe8;
-  --code-number: #c3e0f5;
+  --code-string: #7cc6f2;
+  --code-number: #a8dcff;
   --code-boolean: #efcb5b;
   --code-null: #8b8f98;
   --code-punct: #7e838d;

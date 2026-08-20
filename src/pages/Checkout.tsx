@@ -274,7 +274,7 @@ export default function CheckoutPage() {
         contact: selectedAddress?.phone,
       },
       notes: { orderNumber: razorpaySession.orderNumber },
-      theme: { color: '#47709f' }, // --color-accent; Razorpay's widget can't read CSS vars
+      theme: { color: '#2a6ab4' }, // --color-accent; Razorpay's widget can't read CSS vars
       handler: (response: RazorpayHandlerResponse) => {
         void handleVerify(response)
       },

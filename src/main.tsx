@@ -27,7 +27,7 @@ cssVars({
   preserveVars: false,
   variables: {
     // Fallback values for CSS custom properties
-    '--color-accent': '#47709f',
+    '--color-accent': '#2a6ab4',
     '--color-bg': '#fbfaf7',
     '--color-text': '#24344e',
   },
