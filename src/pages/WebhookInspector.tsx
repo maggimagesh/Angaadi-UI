@@ -2054,27 +2054,8 @@ export default function WebhookInspector() {
           <div style={{ display: 'grid', gap: 14, minWidth: 0 }}>
             {selectedRequest ? (
               <>
-                <div
-                  className="card"
-                  style={{
-                    borderRadius: 'var(--radius-md)',
-                    padding: 14,
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 10,
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    minWidth: 0,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: 10,
-                      alignItems: 'center',
-                    }}
-                  >
+                <div className="wi-toolbar">
+                  <div className="wi-toolbar-group">
                     <ToggleSwitch
                       checked={allSectionsExpanded}
                       onChange={setAllSections}
