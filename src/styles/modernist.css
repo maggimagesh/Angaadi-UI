@@ -1,5 +1,5 @@
 /* Pastel Premium — design-system tokens and component classes. This file is the source of truth for the system's look; retune it here and see readme.md. */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 /* ─────────────────────────────────────────────────────────────────────────
    The palette is five pastels and nothing else:
@@ -72,10 +72,33 @@
   /* Ink that sits on a filled pastel-dark-blue or ink surface. */
   --color-on-dark: #fbfaf7;
 
+  /* ── code surfaces ────────────────────────────────────────────────────
+     Payload viewers invert the app: pastel-dark-blue ground, light type. The
+     syntax colours are therefore taken from the LIGHT steps of the ramps —
+     using the dark steps here (as a light-surface palette would) drops
+     strings to 1.8:1 and is what makes a viewer look blurred rather than
+     dark. Every token below clears 4.5:1 on --code-bg. */
+  --code-bg: #1b2942;
+  --code-bg-raised: #22314d;
+  --code-fg: #e9eff7;
+  --code-key: #f7e096;
+  --code-string: #a6d4f0;
+  --code-number: #cbe6f7;
+  --code-boolean: #efcb5b;
+  --code-null: #95a5bd;
+  --code-punct: #8496b1;
+  --code-chrome: #8a9cb8;
+  --code-rule: color-mix(in srgb, #e9eff7 14%, transparent);
+  --code-mark: #efcb5b;
+
   --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
   --font-heading: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-heading-weight: 700;
   --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* One mono face for every payload, header dump and route table. It is
+     actually loaded above — before this it was named in a dozen places and
+     silently fell back to whatever the OS offered. */
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --space-1: 4.0px;
   --space-2: 8.0px;

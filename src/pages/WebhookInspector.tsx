@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import '../styles/webhook-inspector.css'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   buildWebhookBodyDownloadUrl,
@@ -290,16 +291,7 @@ function HighlightedText({
       parts.push(<span key={key++}>{text.slice(lastIndex, idx)}</span>)
     }
     parts.push(
-      <mark
-        key={key++}
-        style={{
-          background: 'var(--color-accent-2-300)',
-          color: 'var(--color-text)',
-          borderRadius: 'var(--radius-md)',
-          padding: '0 2px',
-          fontWeight: 700,
-        }}
-      >
+      <mark key={key++} className="wi-mark">
         {text.slice(idx, idx + query.length)}
       </mark>
     )
@@ -314,25 +306,25 @@ function HighlightedText({
 
 function PrimitiveValue({ value, searchQuery }: { value: unknown; searchQuery: string }) {
   if (value === null) {
-    return <span style={{ color: 'var(--color-neutral-600)' }}>null</span>
+    return <span className="wi-tok-null">null</span>
   }
   if (typeof value === 'boolean') {
     return (
-      <span style={{ color: 'var(--color-accent-2-700)', fontWeight: 700 }}>
+      <span className="wi-tok-boolean">
         <HighlightedText text={String(value)} query={searchQuery} />
       </span>
     )
   }
   if (typeof value === 'number') {
     return (
-      <span style={{ color: 'var(--color-sky-700)' }}>
+      <span className="wi-tok-number">
         <HighlightedText text={String(value)} query={searchQuery} />
       </span>
     )
   }
   if (typeof value === 'string') {
     return (
-      <span style={{ color: 'var(--color-sky-800)', wordBreak: 'break-all' }}>
+      <span className="wi-tok-string">
         &quot;<HighlightedText text={value} query={searchQuery} />&quot;
       </span>
     )
@@ -368,27 +360,16 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
 
   const keyLabel = keyName !== undefined ? (
     <>
-      <span style={{ color: 'var(--color-accent-2-700)' }}>
+      <span className="wi-tok-key">
         &quot;<HighlightedText text={keyName} query={searchQuery} />&quot;
       </span>
-      <span style={{ color: 'var(--color-neutral-600)' }}>: </span>
+      <span className="wi-tok-punct">: </span>
     </>
   ) : null
 
   if (!isObject) {
     return (
-      <div
-        style={{
-          paddingLeft: indent,
-          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
-          fontSize: 13,
-          lineHeight: '1.7',
-          whiteSpace: 'pre-wrap',
-          overflowWrap: 'anywhere',
-          wordBreak: 'break-word',
-          minWidth: 0,
-        }}
-      >
+      <div className="wi-node" style={{ paddingLeft: indent }}>
         {keyLabel}
         <PrimitiveValue value={value} searchQuery={searchQuery} />
       </div>
@@ -404,16 +385,9 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
 
   if (count === 0) {
     return (
-      <div
-        style={{
-          paddingLeft: indent,
-          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
-          fontSize: 13,
-          lineHeight: '1.7',
-        }}
-      >
+      <div className="wi-node" style={{ paddingLeft: indent }}>
         {keyLabel}
-        <span style={{ color: 'var(--color-neutral-700)' }}>
+        <span className="wi-tok-punct">
           {open}
           {close}
         </span>
@@ -428,49 +402,18 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: 'inherit',
-          padding: 0,
-          margin: 0,
-          font: 'inherit',
-          textAlign: 'left',
-          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
-          fontSize: 13,
-          lineHeight: '1.7',
-          display: 'flex',
-          alignItems: 'flex-start',
-          flexWrap: 'wrap',
-          gap: 4,
-          width: '100%',
-          minWidth: 0,
-          whiteSpace: 'pre-wrap',
-          overflowWrap: 'anywhere',
-          wordBreak: 'break-word',
-        }}
+        className="wi-node wi-node-toggle"
       >
-        <span
-          style={{
-            display: 'inline-block',
-            width: 12,
-            color: 'var(--color-accent-2-700)',
-            transform: effectivelyExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-            transition: 'transform 120ms ease',
-          }}
-        >
-          ▶
-        </span>
+        <span className={effectivelyExpanded ? 'wi-caret is-open' : 'wi-caret'}>▶</span>
         {keyLabel}
-        <span style={{ color: 'var(--color-neutral-700)' }}>{open}</span>
+        <span className="wi-tok-punct">{open}</span>
         {!effectivelyExpanded ? (
           <>
-            <span style={{ color: 'var(--color-neutral-600)', marginLeft: 6, fontStyle: 'italic' }}>
+            <span className="wi-count" style={{ marginLeft: 6 }}>
               {count} {isArray ? 'item' : 'key'}
               {count === 1 ? '' : 's'}
             </span>
-            <span style={{ color: 'var(--color-neutral-700)' }}>{close}</span>
+            <span className="wi-tok-punct">{close}</span>
           </>
         ) : null}
       </button>
@@ -489,15 +432,7 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
               />
             ))}
           </div>
-          <div
-            style={{
-              paddingLeft: indent,
-              fontFamily: '"JetBrains Mono", ui-monospace, monospace',
-              fontSize: 13,
-              lineHeight: '1.7',
-              color: 'var(--color-neutral-700)',
-            }}
-          >
+          <div className="wi-node wi-tok-punct" style={{ paddingLeft: indent }}>
             {close}
           </div>
         </>
@@ -514,6 +449,15 @@ interface JsonViewerProps {
   maxHeight?: number | string
 }
 
+function describeShape(value: unknown): string {
+  if (Array.isArray(value)) return `array · ${value.length} item${value.length === 1 ? '' : 's'}`
+  if (value !== null && typeof value === 'object') {
+    const n = Object.keys(value as Record<string, unknown>).length
+    return `object · ${n} key${n === 1 ? '' : 's'}`
+  }
+  return typeof value
+}
+
 function JsonViewer({
   value,
   expandSignal,
@@ -521,26 +465,35 @@ function JsonViewer({
   searchQuery = '',
   maxHeight = 480,
 }: JsonViewerProps) {
+  const bytes = useMemo(() => {
+    try {
+      return new TextEncoder().encode(JSON.stringify(value) ?? '').length
+    } catch {
+      return null
+    }
+  }, [value])
+
   return (
-    <div
-      style={{
-        background: 'var(--color-text)',
-        color: 'var(--color-accent-2-100)',
-        padding: 16,
-        borderRadius: 'var(--radius-md)',
-        maxHeight,
-        overflow: 'auto',
-        minWidth: 0,
-        resize: 'vertical',
-      }}
-    >
-      <JsonNode
-        value={value}
-        depth={0}
-        expandSignal={expandSignal}
-        defaultExpanded={defaultExpanded}
-        searchQuery={searchQuery}
-      />
+    <div className="wi-code">
+      <div className="wi-code-bar">
+        <span className="wi-code-badge">JSON</span>
+        <span>{describeShape(value)}</span>
+        {bytes !== null ? (
+          <>
+            <span className="wi-code-sep">/</span>
+            <span>{formatBytes(bytes)}</span>
+          </>
+        ) : null}
+      </div>
+      <div className="wi-code-scroll" style={{ maxHeight }}>
+        <JsonNode
+          value={value}
+          depth={0}
+          expandSignal={expandSignal}
+          defaultExpanded={defaultExpanded}
+          searchQuery={searchQuery}
+        />
+      </div>
     </div>
   )
 }
@@ -555,27 +508,31 @@ function PlainTextViewer({
   maxHeight?: number | string
 }) {
   const text = value || '(empty)'
+  const lines = text.split('\n').length
   return (
-    <pre
-      style={{
-        margin: 0,
-        padding: 16,
-        borderRadius: 'var(--radius-md)',
-        background: 'var(--color-text)',
-        color: 'var(--color-accent-2-100)',
-        maxHeight,
-        overflow: 'auto',
-        whiteSpace: 'pre-wrap',
-        wordBreak: 'break-word',
-        overflowWrap: 'anywhere',
-        fontFamily: '"JetBrains Mono", ui-monospace, monospace',
-        fontSize: 13,
-        lineHeight: '1.7',
-        resize: 'vertical',
-      }}
-    >
-      <HighlightedText text={text} query={searchQuery} />
-    </pre>
+    <div className="wi-code">
+      <div className="wi-code-bar">
+        <span className="wi-code-badge">TEXT</span>
+        <span>
+          {lines} line{lines === 1 ? '' : 's'}
+        </span>
+        <span className="wi-code-sep">/</span>
+        <span>{formatBytes(new TextEncoder().encode(text).length)}</span>
+      </div>
+      <div className="wi-code-scroll" style={{ maxHeight }}>
+        <pre
+          style={{
+            margin: 0,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            overflowWrap: 'anywhere',
+            font: 'inherit',
+          }}
+        >
+          <HighlightedText text={text} query={searchQuery} />
+        </pre>
+      </div>
+    </div>
   )
 }
 
@@ -641,8 +598,8 @@ function BodyFetchErrorNotice({
           style={{
             padding: '8px 14px',
             borderRadius: 'var(--radius-md)',
-            background: 'var(--color-text)',
-            color: 'var(--color-accent-2-100)',
+            background: 'var(--color-accent)',
+            color: 'var(--color-on-dark)',
             border: 'none',
             fontWeight: 700,
             cursor: 'pointer',
@@ -729,16 +686,7 @@ function BodyContentViewer({
             aria-label={`Search in ${storageKey}`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid color-mix(in srgb, var(--color-text) 16%, transparent)',
-              background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
-              color: 'inherit',
-              fontSize: '0.9rem',
-              boxSizing: 'border-box',
-            }}
+            className="wi-search"
           />
         </div>
         {searchQuery ? (
@@ -802,26 +750,8 @@ interface SectionPanelProps {
 
 function SectionPanel({ title, meta, expanded, onToggle, actions, children }: SectionPanelProps) {
   return (
-    <div
-      className="card"
-      style={{
-        borderRadius: 'var(--radius-md)',
-        padding: 0,
-        overflow: 'hidden',
-        minWidth: 0,
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          padding: '14px 18px',
-          borderBottom: expanded ? '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)' : 'none',
-          background: 'color-mix(in srgb, var(--color-accent-2-100) 60%, transparent)',
-        }}
-      >
+    <div className="wi-panel">
+      <div className={expanded ? 'wi-panel-head' : 'wi-panel-head is-plain'}>
         <button
           type="button"
           onClick={onToggle}
@@ -849,12 +779,13 @@ function SectionPanel({ title, meta, expanded, onToggle, actions, children }: Se
               justifyContent: 'center',
               width: 22,
               height: 22,
-              borderRadius: 'var(--radius-md)',
-              background: 'color-mix(in srgb, var(--color-accent-2-700) 12%, transparent)',
-              color: 'var(--color-accent-2-700)',
-              fontSize: 12,
+              flex: 'none',
+              borderRadius: 'var(--radius-full)',
+              background: 'var(--color-sky-200)',
+              color: 'var(--color-accent-800)',
+              fontSize: 10,
               transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-              transition: 'transform 140ms ease',
+              transition: 'transform 140ms var(--motion-easing-standard)',
             }}
           >
             ▶
@@ -886,7 +817,7 @@ function SectionPanel({ title, meta, expanded, onToggle, actions, children }: Se
         </button>
         {actions ? <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>{actions}</div> : null}
       </div>
-      {expanded ? <div style={{ padding: 16, minWidth: 0 }}>{children}</div> : null}
+      {expanded ? <div className="wi-panel-body">{children}</div> : null}
     </div>
   )
 }
@@ -987,7 +918,7 @@ const AUTH_INPUT_STYLE: React.CSSProperties = {
   background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
   color: 'inherit',
   fontSize: '0.88rem',
-  fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+  fontFamily: 'var(--font-mono)',
   boxSizing: 'border-box',
 }
 
@@ -1776,7 +1707,7 @@ export default function WebhookInspector() {
 
   return (
     <main
-      className="app-main"
+      className="app-main wi-page"
       id="webhook-inspector-page"
       data-testid="webhook-inspector-page"
       style={{ minWidth: 0 }}
@@ -1785,52 +1716,11 @@ export default function WebhookInspector() {
         className="container p-6"
         style={{ display: 'grid', gap: 16, minWidth: 0, maxWidth: '100%' }}
       >
-        <div
-          className="card"
-          style={{
-            background:
-              'var(--color-bg)',
-            border: '1px solid color-mix(in srgb, var(--color-text) 10%, transparent)',
-            borderRadius: 'var(--radius-md)',
-            padding: 0,
-            overflow: 'hidden',
-            minWidth: 0,
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-              padding: '14px 20px',
-              flexWrap: 'wrap',
-            }}
-          >
+        <div className="wi-panel">
+          <div className="wi-panel-head">
             <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: '0.72rem',
-                  letterSpacing: '0.16em',
-                  textTransform: 'uppercase',
-                  fontWeight: 800,
-                  color: 'var(--color-accent-2-700)',
-                }}
-              >
-                Live Webhook Inbox
-              </p>
-              <h1
-                style={{
-                  marginTop: 6,
-                  marginBottom: 0,
-                  fontSize: '1.4rem',
-                  overflowWrap: 'anywhere',
-                  wordBreak: 'break-all',
-                }}
-              >
-                {token}
-              </h1>
+              <p className="wi-eyebrow">Live webhook inbox</p>
+              <h1 className="wi-title">{token}</h1>
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <ToggleSwitch
@@ -1842,35 +1732,18 @@ export default function WebhookInspector() {
           </div>
 
           {!headerCollapsed ? (
-            <div
-              style={{
-                padding: '0 20px 20px',
-                display: 'grid',
-                gap: 14,
-                minWidth: 0,
-              }}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  color: 'var(--color-text-secondary)',
-                  fontSize: '0.92rem',
-                }}
-              >
+            <div className="wi-panel-body" style={{ display: 'grid', gap: 14, minWidth: 0 }}>
+              <p className="wi-note">
                 Send payloads to the public webhook URL below. The inspector polls every 2.5s and
                 renders every captured request.
               </p>
-              <p
-                style={{
-                  margin: 0,
-                  color: 'var(--color-accent-2-700)',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                }}
-              >
-                Data retention: {payload.retentionHours ?? DEFAULT_WEBHOOK_RETENTION_HOURS} hours.
-                Captured requests and their bodies are permanently deleted after that — download
-                anything you need to keep.
+              <p className="wi-warn">
+                <span aria-hidden="true">⚠</span>
+                <span>
+                  Requests and their bodies are deleted after{' '}
+                  {payload.retentionHours ?? DEFAULT_WEBHOOK_RETENTION_HOURS} hours. Download
+                  anything you need to keep.
+                </span>
               </p>
 
               <div
@@ -2106,22 +1979,22 @@ export default function WebhookInspector() {
               </p>
             ) : null}
             {!loading && payload.requests.length === 0 ? (
-              <p
-                style={{
-                  margin: 0,
-                  color: 'var(--color-text-secondary)',
-                  fontSize: '0.9rem',
-                  overflowWrap: 'anywhere',
-                }}
-              >
-                No requests yet. Send data to <code>{payload.captureUrl}</code>.
+              <p className="wi-empty">
+                Nothing captured yet. Send a request to <code>{payload.captureUrl}</code> and it
+                will appear here within 2.5s.
               </p>
             ) : null}
 
-            <div style={{ display: 'grid', gap: 8 }}>
+            <div className="wi-log">
               {payload.requests.map((request) => {
                 const isSelected = selectedRequest?.id === request.id
                 const selectRow = () => setSelectedRequestId(request.id)
+                const senderLabel =
+                  request.sender?.callbackSenderIp ||
+                  request.callbackSenderIp ||
+                  request.sender?.ip ||
+                  request.ip ||
+                  null
                 return (
                   <div
                     key={request.id}
@@ -2135,101 +2008,29 @@ export default function WebhookInspector() {
                         selectRow()
                       }
                     }}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: 12,
-                      borderRadius: 'var(--radius-md)',
-                      border: isSelected
-                        ? '1px solid color-mix(in srgb, var(--color-accent-2-700) 45%, transparent)'
-                        : '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
-                      background: isSelected
-                        ? 'color-mix(in srgb, var(--color-accent-2-200) 55%, transparent)'
-                        : 'color-mix(in srgb, var(--color-surface-raised) 72%, transparent)',
-                      cursor: 'pointer',
-                      color: 'inherit',
-                      minWidth: 0,
-                    }}
+                    className={isSelected ? 'wi-row is-selected' : 'wi-row'}
                   >
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 8,
-                      }}
+                    <span className="wi-method" data-method={request.method}>
+                      {request.method}
+                    </span>
+                    <span className="wi-row-spacer" />
+                    <span
+                      className="wi-status"
+                      data-class={request.response.statusCode >= 400 ? 'error' : 'ok'}
                     >
-                      <span
-                        style={{
-                          fontSize: '0.7rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.08em',
-                          fontWeight: 800,
-                          color: 'var(--color-accent-2-700)',
-                          background: 'color-mix(in srgb, var(--color-accent-2-700) 12%, transparent)',
-                          padding: '2px 8px',
-                          borderRadius: 'var(--radius-md)',
-                        }}
-                      >
-                        {request.method}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          color:
-                            request.response.statusCode >= 400 ? 'var(--color-accent-2-700)' : 'var(--color-sky-800)',
-                        }}
-                      >
-                        {request.response.statusCode}
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        fontWeight: 700,
-                        marginTop: 6,
-                        overflowWrap: 'anywhere',
-                        wordBreak: 'break-all',
-                        fontSize: '0.9rem',
-                      }}
-                    >
-                      {request.path}
-                    </div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 8,
-                        marginTop: 6,
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: '0.78rem',
-                          color: 'var(--color-text-secondary)',
-                          overflowWrap: 'anywhere',
-                          minWidth: 0,
-                        }}
-                      >
-                        {formatDateTime(request.receivedAt)} · {formatBytes(request.body.sizeBytes)}
-                        {(request.sender?.callbackSenderIp ||
-                          request.callbackSenderIp ||
-                          request.sender?.ip ||
-                          request.ip) ? (
-                          <>
-                            <br />
-                            from{' '}
-                            {request.sender?.callbackSenderIp ||
-                              request.callbackSenderIp ||
-                              request.sender?.ip ||
-                              request.ip}
-                            {request.sender?.clientApp ? ` · ${request.sender.clientApp}` : ''}
-                          </>
-                        ) : null}
-                      </div>
+                      {request.response.statusCode}
+                    </span>
+
+                    <span className="wi-row-path">{request.path}</span>
+
+                    <span className="wi-row-meta">
+                      <span>{formatDateTime(request.receivedAt)}</span>
+                      <span>{formatBytes(request.body.sizeBytes)}</span>
+                      {senderLabel ? <code>{senderLabel}</code> : null}
+                      {request.sender?.clientApp ? <span>{request.sender.clientApp}</span> : null}
                       <button
                         type="button"
+                        className="btn btn-secondary"
                         onClick={(event) => {
                           event.stopPropagation()
                           handleDownloadRequest(request)
@@ -2237,21 +2038,15 @@ export default function WebhookInspector() {
                         title="Download this request body"
                         aria-label="Download this request body"
                         style={{
-                          flexShrink: 0,
-                          padding: '4px 10px',
-                          borderRadius: 'var(--radius-md)',
-                          border: '1px solid color-mix(in srgb, var(--color-text) 16%, transparent)',
-                          background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
-                          color: 'inherit',
-                          cursor: 'pointer',
-                          fontSize: '0.72rem',
-                          fontWeight: 700,
-                          letterSpacing: '0.04em',
+                          marginLeft: 'auto',
+                          padding: '2px 10px',
+                          fontSize: 11,
+                          minHeight: 0,
                         }}
                       >
                         ↓ Body
                       </button>
-                    </div>
+                    </span>
                   </div>
                 )
               })}

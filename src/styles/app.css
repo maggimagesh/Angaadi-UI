@@ -2270,7 +2270,7 @@
 .pg-table th:first-child, .pg-table td:first-child { width: 280px; padding-left: 40px; }
 .pg-table th:nth-child(3), .pg-table td:nth-child(3) { width: 190px; color: var(--color-neutral-700); font-size: 13px; }
 .pg-table th:last-child, .pg-table td:last-child { width: 110px; padding-right: 40px; }
-.pg-route { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+.pg-route { font-family: var(--font-mono); font-size: 13px; }
 
 .pg-open {
   font-size: 13px;
