@@ -347,11 +347,15 @@ export default function LegacyWebhookInspector() {
                         margin: 0,
                         padding: 16,
                         borderRadius: 'var(--radius-md)',
-                        background: 'var(--color-text)',
-                        color: 'var(--color-accent-2-100)',
+                        background: 'var(--code-bg)',
+                        color: 'var(--code-fg)',
+                        border: '1px solid var(--code-rule)',
                         overflowX: 'auto',
                         whiteSpace: 'pre-wrap',
-                        fontFamily: '"JetBrains Mono", monospace',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: 13,
+                        lineHeight: 1.65,
+                        WebkitFontSmoothing: 'subpixel-antialiased',
                       }}
                     >
                       {value}

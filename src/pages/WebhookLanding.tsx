@@ -181,15 +181,17 @@ export default function WebhookLanding() {
               style={{
                 padding: 18,
                 borderRadius: 'var(--radius-md)',
-                background: 'var(--color-text)',
-                color: 'var(--color-accent-2-100)',
+                background: 'var(--code-bg)',
+                color: 'var(--code-fg)',
+                border: '1px solid var(--code-rule)',
                 overflowX: 'auto',
+                WebkitFontSmoothing: 'subpixel-antialiased',
               }}
             >
               <div style={{ fontSize: '0.78rem', letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.8 }}>
                 Quick test
               </div>
-              <pre style={{ margin: '12px 0 0', whiteSpace: 'pre-wrap', fontFamily: '"JetBrains Mono", monospace' }}>{`curl -X POST \\
+              <pre style={{ margin: '12px 0 0', whiteSpace: 'pre-wrap', fontFamily: 'var(--font-mono)' }}>{`curl -X POST \\
   -H "Content-Type: application/json" \\
   -d '{"message":"hello"}' \\
   ${publicApiOrigin}/valid-webhooks/<token>`}</pre>

@@ -1,5 +1,5 @@
 /* Pastel Premium — design-system tokens and component classes. This file is the source of truth for the system's look; retune it here and see readme.md. */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 /* ─────────────────────────────────────────────────────────────────────────
    The palette is five pastels and nothing else:
@@ -19,7 +19,7 @@
   --color-surface: #f2f4f7;     /* pastel grey panel */
   --color-surface-raised: #ffffff;
   --color-text: #24344e;        /* pastel dark blue ink */
-  --color-accent: #47709f;      /* pastel dark blue — the primary action */
+  --color-accent: #2a6ab4;      /* pastel dark blue — the primary action */
   --color-accent-2: #efcb5b;    /* pastel yellow — the warm note */
   --color-sky: #a6d4f0;         /* pastel sky blue — the soft highlight */
   --color-divider: color-mix(in srgb, #24344e 16%, transparent);
@@ -32,20 +32,23 @@
   --color-neutral-400: #d5dae1;
   --color-neutral-500: #b8c0cb;
   --color-neutral-600: #949dab;
-  --color-neutral-700: #6e7889;
+  --color-neutral-700: #656f7e;
   --color-neutral-800: #4a5568;
   --color-neutral-900: #2c3a52;
 
-  /* Pastel dark blue */
-  --color-accent-100: #f0f5fa;
-  --color-accent-200: #dde9f3;
-  --color-accent-300: #c3d7e9;
-  --color-accent-400: #9fbbd7;
-  --color-accent-500: #6f94bc;
-  --color-accent-600: #47709f;
-  --color-accent-700: #3a5c84;
-  --color-accent-800: #2c4664;
-  --color-accent-900: #1e3046;
+  /* Pastel dark blue. Hue and the lightness stops are unchanged from the
+     first pass — only saturation is up (38% -> 62% at the 600 step), because
+     at 38% the accent read as slate grey rather than as blue. Values hold,
+     so nothing shifts in weight; the colour just stops being muddy. */
+  --color-accent-100: #f1f6fd;
+  --color-accent-200: #d5e6f8;
+  --color-accent-300: #b7d2f2;
+  --color-accent-400: #8fb8e8;
+  --color-accent-500: #5692d7;
+  --color-accent-600: #2a6ab4;
+  --color-accent-700: #225590;
+  --color-accent-800: #1b426d;
+  --color-accent-900: #142f4d;
 
   /* Pastel yellow */
   --color-accent-2-100: #fdf7e2;
@@ -54,7 +57,7 @@
   --color-accent-2-400: #efcb5b;
   --color-accent-2-500: #ddb139;
   --color-accent-2-600: #bd932b;
-  --color-accent-2-700: #977422;
+  --color-accent-2-700: #89691f;
   --color-accent-2-800: #71581c;
   --color-accent-2-900: #4c3c15;
 
@@ -72,10 +75,37 @@
   /* Ink that sits on a filled pastel-dark-blue or ink surface. */
   --color-on-dark: #fbfaf7;
 
+  /* ── code surfaces ────────────────────────────────────────────────────
+     Payload viewers invert the app: a black ground with light type, so a
+     dump of JSON reads as a terminal rather than as another tinted panel.
+     The ground is a hair off pure black — at 13px, white-on-#000 haloes and
+     smears, and #0e0f11 measures the same legibility without it.
+
+     The syntax colours are the pastel ramps' LIGHT steps. Taking the dark
+     steps here (as a light-surface palette would) is what drops strings to
+     1.8:1 and makes a viewer look blurred rather than dark. Every token
+     below clears 4.5:1 on its own ground; worst is punctuation at 5.0:1. */
+  --code-bg: #0e0f11;
+  --code-bg-raised: #17181c;
+  --code-fg: #e6e8ec;
+  --code-key: #f2d071;
+  --code-string: #7cc6f2;
+  --code-number: #a8dcff;
+  --code-boolean: #efcb5b;
+  --code-null: #8b8f98;
+  --code-punct: #7e838d;
+  --code-chrome: #9aa0ab;
+  --code-rule: color-mix(in srgb, #e6e8ec 13%, transparent);
+  --code-mark: #efcb5b;
+
   --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
   --font-heading: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-heading-weight: 700;
   --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* One mono face for every payload, header dump and route table. It is
+     actually loaded above — before this it was named in a dozen places and
+     silently fell back to whatever the OS offered. */
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --space-1: 4.0px;
   --space-2: 8.0px;
@@ -287,7 +317,7 @@ textarea.input { min-height: 90px; resize: vertical; }
 .table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .table th {
   text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+  color: var(--color-neutral-700);
   padding: var(--space-2); border-bottom: 1px solid var(--color-divider-strong);
 }
 .table td {

@@ -1,0 +1,455 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Webhook inspector.
+
+   The inspector is an instrument, not a document: it is read at a glance
+   while traffic arrives, so it is built as a console rather than a stack of
+   cards. Three surfaces carry the whole screen —
+
+     .wi-panel    pearl chrome: headers, rails, section wrappers
+     .wi-row      one captured request, a log line with a method chip
+     .wi-code     the payload viewer, a pastel-dark-blue editor ground
+
+   The code surface is the reason this file exists. It inverts the app's
+   palette, so it takes the --code-* tokens (light syntax steps on a dark
+   ground) instead of the ordinary ink tokens; see styles/modernist.css.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.wi-page {
+  --wi-gap: 14px;
+  min-width: 0;
+}
+
+/* ── chrome panels ────────────────────────────────────────────────────── */
+
+.wi-panel {
+  min-width: 0;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.wi-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-divider);
+  flex-wrap: wrap;
+}
+
+.wi-panel-head.is-plain {
+  background: transparent;
+  border-bottom: 0;
+}
+
+.wi-panel-body {
+  padding: 16px 18px 18px;
+  min-width: 0;
+}
+
+.wi-eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.wi-title {
+  margin: 6px 0 0;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
+.wi-note {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-neutral-700);
+}
+
+/* Two tones of callout, and the difference is whether the reader has to act.
+   Standing housekeeping (retention, quotas) is informational and takes the
+   sky ramp; a conditional, actionable problem (a receive URL nothing can
+   reach) takes the yellow one. Keeping those apart means yellow on this page
+   always means "this needs you". */
+.wi-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-sky-100);
+  border: 1px solid var(--color-sky-300);
+  color: var(--color-accent-900);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.wi-callout.is-warning {
+  background: var(--color-accent-2-100);
+  border-color: var(--color-accent-2-300);
+  color: var(--color-accent-2-900);
+}
+
+/* ── payload toolbar ──────────────────────────────────────────────────── */
+
+/* One row: view toggles on the left, the download action on the right. It is
+   deliberately not a .card — that class sets flex-direction: column, which
+   silently stacked this into two centred rows. */
+.wi-toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 7px 8px 7px 10px;
+  min-width: 0;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+}
+
+.wi-toolbar-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wi-toolbar .btn {
+  padding: 7px 16px;
+  min-height: 0;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+/* ── the request log ──────────────────────────────────────────────────── */
+
+.wi-log {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wi-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  color: inherit;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-divider);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  min-width: 0;
+  transition:
+    background 140ms var(--motion-easing-standard),
+    border-color 140ms var(--motion-easing-standard);
+}
+
+.wi-row:hover {
+  background: var(--color-sky-100);
+  border-color: var(--color-sky-300);
+}
+
+.wi-row.is-selected {
+  background: var(--color-sky-100);
+  border-color: var(--color-sky-400);
+  border-left-color: var(--color-accent);
+}
+
+.wi-row:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.wi-row-path {
+  grid-column: 1 / -1;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  min-width: 0;
+}
+
+.wi-row-meta {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 11.5px;
+  /* 11.5px sits under the large-text threshold, so this needs the 800 step to
+     clear 4.5:1 against the selected row's sky wash. */
+  color: var(--color-neutral-800);
+  font-variant-numeric: tabular-nums;
+}
+
+.wi-row-meta code {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+/* method chip — the verb is the first thing scanned, so it is the only
+   coloured element in a resting row */
+.wi-method {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: var(--color-neutral-200);
+  color: var(--color-neutral-800);
+}
+
+.wi-method[data-method='GET'] { background: var(--color-sky-200); color: var(--color-sky-900); }
+.wi-method[data-method='POST'] { background: var(--color-accent-200); color: var(--color-accent-900); }
+.wi-method[data-method='PUT'],
+.wi-method[data-method='PATCH'] { background: var(--color-accent-2-200); color: var(--color-accent-2-900); }
+.wi-method[data-method='DELETE'] { background: var(--color-accent-2-300); color: var(--color-accent-2-900); }
+
+/* status pill — 2xx quiet, 4xx/5xx take the warm note */
+.wi-status {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-sky-800);
+}
+
+.wi-status[data-class='error'] { color: var(--color-accent-2-800); }
+
+.wi-row-spacer { min-width: 0; }
+
+/* ── the payload console ──────────────────────────────────────────────── */
+
+.wi-code {
+  min-width: 0;
+  border-radius: var(--radius-md);
+  background: var(--code-bg);
+  border: 1px solid var(--code-rule);
+  overflow: hidden;
+}
+
+.wi-code-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  background: var(--code-bg-raised);
+  border-bottom: 1px solid var(--code-rule);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--code-chrome);
+  font-variant-numeric: tabular-nums;
+}
+
+.wi-code-bar .wi-code-badge {
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--code-string) 20%, transparent);
+  color: var(--code-string);
+  font-weight: 700;
+}
+
+.wi-code-bar .wi-code-sep {
+  /* 55% dropped this to 2.9:1; 80% keeps it a quiet divider and still reads. */
+  color: color-mix(in srgb, var(--code-chrome) 80%, transparent);
+}
+
+.wi-code-scroll {
+  padding: 14px 16px;
+  overflow: auto;
+  min-width: 0;
+  resize: vertical;
+  color: var(--code-fg);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.65;
+  font-variant-ligatures: none;
+  /* Light type on a dark ground renders thin and soft under the app's
+     global `antialiased` smoothing; subpixel rendering keeps the payload
+     crisp, which is the whole job of this panel. */
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+}
+
+.wi-code-scroll::-webkit-scrollbar { width: 12px; height: 12px; }
+.wi-code-scroll::-webkit-scrollbar-track { background: transparent; }
+.wi-code-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--code-fg) 20%, transparent);
+  border: 3px solid var(--code-bg);
+  border-radius: var(--radius-full);
+}
+.wi-code-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--code-fg) 32%, transparent);
+}
+
+.wi-code-scroll pre { margin: 0; }
+
+/* syntax roles */
+.wi-tok-key { color: var(--code-key); }
+.wi-tok-string { color: var(--code-string); word-break: break-all; }
+.wi-tok-number { color: var(--code-number); }
+.wi-tok-boolean { color: var(--code-boolean); font-weight: 700; }
+.wi-tok-null { color: var(--code-null); font-style: italic; }
+.wi-tok-punct { color: var(--code-punct); }
+
+/* one row of the tree */
+.wi-node {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.wi-node-toggle {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.wi-node-toggle:hover { background: color-mix(in srgb, var(--code-fg) 7%, transparent); }
+.wi-node-toggle:focus-visible { outline: 2px solid var(--code-string); outline-offset: 1px; }
+
+.wi-caret {
+  display: inline-block;
+  width: 12px;
+  flex: none;
+  color: var(--code-chrome);
+  transition: transform 120ms var(--motion-easing-standard);
+}
+
+.wi-caret.is-open { transform: rotate(90deg); }
+
+.wi-count {
+  color: var(--code-chrome);
+  font-size: 11.5px;
+}
+
+/* search hit inside a payload */
+.wi-code mark,
+mark.wi-mark {
+  background: var(--code-mark);
+  color: var(--code-bg);
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 700;
+}
+
+/* ── search field over the payload ────────────────────────────────────── */
+
+.wi-search {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 14px;
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-divider-strong);
+  border-radius: var(--radius-full);
+  transition:
+    border-color 160ms var(--motion-easing-standard),
+    box-shadow 160ms var(--motion-easing-standard);
+}
+
+.wi-search::placeholder { color: var(--color-neutral-600); }
+
+.wi-search:focus-visible {
+  border-color: var(--color-accent);
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ── small pieces ─────────────────────────────────────────────────────── */
+
+.wi-kv {
+  display: grid;
+  grid-template-columns: minmax(120px, auto) minmax(0, 1fr);
+  gap: 6px 16px;
+  font-size: 13px;
+  min-width: 0;
+}
+
+.wi-kv dt {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-neutral-700);
+}
+
+.wi-kv dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.wi-empty {
+  margin: 0;
+  padding: 22px 4px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--color-neutral-700);
+}
+
+.wi-empty code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .wi-panel-body { padding: 14px; }
+  .wi-panel-head { padding: 12px 14px; }
+}
