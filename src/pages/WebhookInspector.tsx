@@ -381,11 +381,23 @@ interface JsonNodeProps {
   searchQuery: string
 }
 
+// A fully expanded array/object renders one JsonNode per entry with no
+// windowing. A large capture (tens or hundreds of thousands of items) built
+// that many DOM nodes in one synchronous render and froze the tab — which
+// looked identical to the body being stuck loading, since the browser
+// couldn't repaint until the render finished. Capping entries rendered per
+// level (independently at every depth, so nested large collections are
+// bounded too) keeps the initial render cheap; "Show more" reveals the rest
+// in the same page-sized batches on demand.
+const JSON_ENTRY_PAGE_SIZE = 300
+
 function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, searchQuery }: JsonNodeProps) {
   const [expanded, setExpanded] = useState(defaultExpanded)
+  const [visibleCount, setVisibleCount] = useState(JSON_ENTRY_PAGE_SIZE)
 
   useEffect(() => {
     setExpanded(defaultExpanded)
+    setVisibleCount(JSON_ENTRY_PAGE_SIZE)
   }, [expandSignal, defaultExpanded])
 
   const hasSearchMatch = useMemo(() => {
@@ -460,7 +472,7 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
       {effectivelyExpanded ? (
         <>
           <div>
-            {entries.map(([k, v]) => (
+            {entries.slice(0, visibleCount).map(([k, v]) => (
               <JsonNode
                 key={k}
                 keyName={isArray ? undefined : k}
@@ -472,6 +484,19 @@ function JsonNode({ keyName, value, depth, expandSignal, defaultExpanded, search
               />
             ))}
           </div>
+          {count > visibleCount ? (
+            <button
+              type="button"
+              className="wi-node wi-node-toggle"
+              style={{ paddingLeft: indent + 14 }}
+              onClick={() => setVisibleCount((prev) => prev + JSON_ENTRY_PAGE_SIZE)}
+            >
+              <span className="wi-count">
+                Show {Math.min(JSON_ENTRY_PAGE_SIZE, count - visibleCount)} more of{' '}
+                {count - visibleCount} remaining…
+              </span>
+            </button>
+          ) : null}
           <div className="wi-node wi-tok-punct" style={{ paddingLeft: indent }}>
             {close}
           </div>
@@ -1489,6 +1514,10 @@ export default function WebhookInspector() {
   const [bodyFetchTick, setBodyFetchTick] = useState(0)
   const fetchedBodyIdsRef = useRef<Set<string>>(new Set())
   const cancelledRef = useRef(false)
+  // The 2.5s inbox poll competes with an in-flight body transfer for the
+  // browser's connections to the same origin, so it pauses while one is
+  // loading (mirrors the same pause in the API's own webhook inspector page).
+  const bodyLoadingRef = useRef(false)
   const [blockedDismissedAt, setBlockedDismissedAt] = useState<string | null>(null)
   const [clearingBlocked, setClearingBlocked] = useState(false)
 
@@ -1603,6 +1632,9 @@ export default function WebhookInspector() {
     void loadRequests(true)
 
     const intervalId = window.setInterval(() => {
+      if (bodyLoadingRef.current) {
+        return
+      }
       void loadRequests(false)
     }, 2500)
 
@@ -1612,6 +1644,13 @@ export default function WebhookInspector() {
     }
   }, [token, loadRequests])
 
+  // Deliberately keyed on the request id (not the `selectedRequest` object):
+  // the 2.5s poll replaces `payload` wholesale, so `selectedRequest` gets a
+  // new object identity every tick even when nothing about it changed. Depending
+  // on the object itself re-ran this effect on every poll, whose cleanup
+  // cancelled the in-flight transfer without restarting it (guarded by
+  // fetchedBodyIdsRef) — the loading notice then froze at whatever progress
+  // it last reported instead of ever completing.
   useEffect(() => {
     if (!selectedRequest || !token || !selectedRequest.body.truncated) {
       return
@@ -1624,6 +1663,7 @@ export default function WebhookInspector() {
 
     let cancelled = false
     const totalBytes = selectedRequest.body.sizeBytes
+    bodyLoadingRef.current = true
     setFullBodyCache((prev) => ({
       ...prev,
       [requestId]: { status: 'loading', loadedBytes: 0, totalBytes },
@@ -1653,11 +1693,17 @@ export default function WebhookInspector() {
         }))
         fetchedBodyIdsRef.current.delete(requestId)
       })
+      .finally(() => {
+        if (!cancelled) {
+          bodyLoadingRef.current = false
+        }
+      })
 
     return () => {
       cancelled = true
     }
-  }, [selectedRequest, token, bodyFetchTick])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRequest?.id, selectedRequest?.body.truncated, token, bodyFetchTick])
 
   const retryFullBodyFetch = useCallback((requestId: string) => {
     fetchedBodyIdsRef.current.delete(requestId)
