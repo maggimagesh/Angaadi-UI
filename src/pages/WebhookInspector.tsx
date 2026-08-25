@@ -177,32 +177,72 @@ function getRequestBodyValue(record: WebhookCaptureRecord): { value: unknown; is
 type FullBodyValue = { value: unknown; isJson: boolean }
 
 type BodyFetchState =
-  | { status: 'loading' }
+  | { status: 'loading'; loadedBytes: number; totalBytes: number }
   | { status: 'success'; body: FullBodyValue }
   | { status: 'error'; error: string }
+
+// The download endpoint serves the body in slices via `?offset=&limit=` (see
+// pages/api/webhook/[token]/[requestId]/body.ts) so a large capture never has
+// to round-trip as a single response. A plain single-shot fetch used to be
+// used here, which silently stalled the "Loading full payload…" notice for
+// bodies past ~10 MB instead of erroring or completing.
+const BODY_CHUNK_BYTES = 8 * 1024 * 1024
 
 async function fetchFullRequestBody(
   token: string,
   requestId: string,
-  body: WebhookStoredBody
+  body: WebhookStoredBody,
+  onProgress?: (loadedBytes: number, totalBytes: number) => void
 ): Promise<FullBodyValue> {
   const url = buildWebhookBodyDownloadUrl(token, requestId, body.downloadUrl)
-  const response = await fetch(url, { headers: { Accept: '*/*' } })
-  if (!response.ok) {
-    throw new Error(`Failed to load full body (status ${response.status})`)
-  }
+  const totalBytes = body.sizeBytes
+
   if (body.format === 'binary') {
-    const buffer = await response.arrayBuffer()
-    const bytes = new Uint8Array(buffer)
+    const chunks: Uint8Array[] = []
+    let offset = 0
+    while (offset < totalBytes) {
+      const limit = Math.min(BODY_CHUNK_BYTES, totalBytes - offset)
+      const response = await fetch(`${url}?offset=${offset}&limit=${limit}`, {
+        headers: { Accept: '*/*' },
+      })
+      if (!response.ok) {
+        throw new Error(`Failed to load full body (status ${response.status})`)
+      }
+      chunks.push(new Uint8Array(await response.arrayBuffer()))
+      offset += limit
+      onProgress?.(offset, totalBytes)
+    }
+    const bytes = new Uint8Array(offset)
+    let position = 0
+    for (const chunk of chunks) {
+      bytes.set(chunk, position)
+      position += chunk.length
+    }
     let binary = ''
     const chunkSize = 0x8000
     for (let i = 0; i < bytes.length; i += chunkSize) {
-      const slice = bytes.subarray(i, i + chunkSize)
-      binary += String.fromCharCode(...slice)
+      binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize))
     }
     return { value: btoa(binary), isJson: false }
   }
-  const text = await response.text()
+
+  const decoder = new TextDecoder('utf-8')
+  let text = ''
+  let offset = 0
+  while (offset < totalBytes) {
+    const limit = Math.min(BODY_CHUNK_BYTES, totalBytes - offset)
+    const response = await fetch(`${url}?offset=${offset}&limit=${limit}`, {
+      headers: { Accept: '*/*' },
+    })
+    if (!response.ok) {
+      throw new Error(`Failed to load full body (status ${response.status})`)
+    }
+    text += decoder.decode(await response.arrayBuffer(), { stream: true })
+    offset += limit
+    onProgress?.(offset, totalBytes)
+  }
+  text += decoder.decode()
+
   if (body.format === 'json') {
     try {
       return { value: JSON.parse(text), isJson: true }
@@ -538,9 +578,12 @@ function PlainTextViewer({
 
 interface BodyLoadingNoticeProps {
   storedBody: WebhookStoredBody
+  loadedBytes: number
 }
 
-function BodyLoadingNotice({ storedBody }: BodyLoadingNoticeProps) {
+function BodyLoadingNotice({ storedBody, loadedBytes }: BodyLoadingNoticeProps) {
+  const totalBytes = storedBody.sizeBytes
+  const pct = totalBytes > 0 ? Math.min(100, Math.round((loadedBytes / totalBytes) * 100)) : 0
   return (
     <div
       style={{
@@ -551,10 +594,31 @@ function BodyLoadingNotice({ storedBody }: BodyLoadingNoticeProps) {
         color: 'var(--color-accent-2-900)',
         fontSize: '0.92rem',
         lineHeight: 1.55,
+        display: 'grid',
+        gap: 8,
       }}
     >
-      Loading full payload ({formatBytes(storedBody.sizeBytes)})
-      {storedBody.contentType ? <> · <code>{storedBody.contentType}</code></> : null}…
+      <div>
+        Loading full payload ({formatBytes(loadedBytes)} / {formatBytes(totalBytes)})
+        {storedBody.contentType ? <> · <code>{storedBody.contentType}</code></> : null}…
+      </div>
+      <div
+        style={{
+          height: 6,
+          borderRadius: 999,
+          background: 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            height: '100%',
+            width: `${pct}%`,
+            background: 'var(--color-accent-2-900)',
+            transition: 'width 150ms ease',
+          }}
+        />
+      </div>
     </div>
   )
 }
@@ -1559,9 +1623,19 @@ export default function WebhookInspector() {
     fetchedBodyIdsRef.current.add(requestId)
 
     let cancelled = false
-    setFullBodyCache((prev) => ({ ...prev, [requestId]: { status: 'loading' } }))
+    const totalBytes = selectedRequest.body.sizeBytes
+    setFullBodyCache((prev) => ({
+      ...prev,
+      [requestId]: { status: 'loading', loadedBytes: 0, totalBytes },
+    }))
 
-    fetchFullRequestBody(token, requestId, selectedRequest.body)
+    fetchFullRequestBody(token, requestId, selectedRequest.body, (loadedBytes) => {
+      if (cancelled) return
+      setFullBodyCache((prev) => ({
+        ...prev,
+        [requestId]: { status: 'loading', loadedBytes, totalBytes },
+      }))
+    })
       .then((body) => {
         if (cancelled) return
         setFullBodyCache((prev) => ({
@@ -2137,7 +2211,12 @@ export default function WebhookInspector() {
                     if (selectedRequest.body.truncated) {
                       const cached = fullBodyCache[selectedRequest.id]
                       if (!cached || cached.status === 'loading') {
-                        return <BodyLoadingNotice storedBody={selectedRequest.body} />
+                        return (
+                          <BodyLoadingNotice
+                            storedBody={selectedRequest.body}
+                            loadedBytes={cached?.status === 'loading' ? cached.loadedBytes : 0}
+                          />
+                        )
                       }
                       if (cached.status === 'error') {
                         return (
