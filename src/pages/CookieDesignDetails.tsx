@@ -86,7 +86,7 @@ const CookieDesignDetails: React.FC = () => {
 
                 <section style={{
                     background: 'var(--color-surface)',
-                    padding: '40px',
+                    padding: '28px',
                     borderRadius: 'var(--radius-md)',
                     border: '1px solid var(--color-border)',
                     marginBottom: '60px'

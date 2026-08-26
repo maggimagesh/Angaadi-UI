@@ -11,7 +11,7 @@
 
    The code surface is the reason this file exists. It inverts the app's
    palette, so it takes the --code-* tokens (light syntax steps on a dark
-   ground) instead of the ordinary ink tokens; see styles/modernist.css.
+   ground) instead of the ordinary ink tokens; see styles/design-system.css.
    ───────────────────────────────────────────────────────────────────────── */
 
 .wi-page {

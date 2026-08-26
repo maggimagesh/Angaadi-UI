@@ -38,7 +38,7 @@ export default function WishlistPage() {
 
   return (
     <main className="app-main" id="wishlist-page" data-testid="wishlist-page">
-      <section style={{ borderBottom: '2px solid var(--color-divider)' }}>
+      <section className="shelf">
         <div className="section-head">
           <div>
             <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Wishlist</h1>
@@ -70,7 +70,7 @@ export default function WishlistPage() {
         </div>
 
         {items.length === 0 ? (
-          <div style={{ padding: '0 40px 40px' }}>
+          <div style={{ padding: '0 20px 24px' }}>
             <EmptyState
               title="Nothing saved yet."
               body="Tap the heart on any product to keep it here and get told when the price moves."

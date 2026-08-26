@@ -53,11 +53,11 @@ export default function OrdersPage() {
   if (!isAuthenticated) {
     return (
       <main className="app-main" id="orders-page" data-testid="orders-page">
-        <section style={{ borderBottom: '2px solid var(--color-divider)' }}>
+        <section className="shelf">
           <div className="section-head">
             <h1 style={{ margin: 0, fontSize: 28 }}>Your orders</h1>
           </div>
-          <div style={{ padding: '0 40px 40px' }}>
+          <div style={{ padding: '0 20px 24px' }}>
             <EmptyState
               title="Sign in to see your orders."
               body="Orders are tied to your account."
@@ -72,7 +72,7 @@ export default function OrdersPage() {
 
   return (
     <main className="app-main" id="orders-page" data-testid="orders-page">
-      <section style={{ borderBottom: '2px solid var(--color-divider)' }}>
+      <section className="shelf">
         <div className="section-head">
           <div>
             <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Your orders</h1>
@@ -82,7 +82,7 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        <div style={{ padding: '0 40px 40px' }}>
+        <div style={{ padding: '0 20px 24px' }}>
           {loading ? (
             <p style={{ color: 'var(--color-neutral-700)' }}>Loading your orders…</p>
           ) : error ? (

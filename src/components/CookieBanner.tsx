@@ -180,7 +180,7 @@ export function CookieBanner() {
                 boxShadow: 'var(--shadow-lg)',
                 maxWidth: '600px',
                 width: '100%',
-                padding: '40px',
+                padding: '28px',
                 position: 'relative',
                 boxSizing: 'border-box',
                 animation: 'slideUp 400ms ease-out'

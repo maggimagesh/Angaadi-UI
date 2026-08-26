@@ -1,13 +1,13 @@
 /* ─────────────────────────────────────────────────────────────────────────
    Legacy token bridge.
 
-   The old Material-flavoured palette that used to live here is gone. What is
-   left maps every legacy custom-property name still referenced in the app
-   onto a Pastel Premium token, so inline styles written against the old
-   names render in the new system instead of layering a second theme over it.
+   Every custom-property name the app still references by its old Material
+   name is mapped here onto the Amazon design-system token that replaces it,
+   so inline styles written against the old names render in the new system
+   instead of layering a second theme over it.
 
    Nothing new should be written against these names — use the design-system
-   tokens in styles/modernist.css directly.
+   tokens in styles/design-system.css directly.
    ───────────────────────────────────────────────────────────────────────── */
 
 :root {
@@ -23,36 +23,30 @@
   --color-text-tertiary: var(--color-neutral-600);
   --color-muted: var(--color-neutral-700);
 
-  /* Roles — the palette is five pastels, so every status role resolves onto
-     one of them: pastel dark blue for primary and informational weight,
-     pastel sky for the quiet highlight, pastel yellow for warning and for
-     the one warm emphasis the system allows. */
+  /* Roles. Amazon keeps its warm colours for buying and its teal for links,
+     so the status roles resolve onto the ramps rather than onto the chrome:
+     teal for primary and informational weight, gold for warning and for the
+     one warm emphasis the system allows, the price red for danger. */
   --color-primary: var(--color-accent);
   --color-primary-container: var(--color-accent-100);
   --color-on-primary: var(--color-on-dark);
   --color-on-primary-container: var(--color-accent-800);
-  --color-secondary: var(--color-sky-700);
-  --color-secondary-container: var(--color-sky-200);
+  --color-secondary: var(--color-neutral-800);
+  --color-secondary-container: var(--color-neutral-200);
   --color-on-secondary: var(--color-on-dark);
-  --color-on-secondary-container: var(--color-sky-900);
-  --color-success: var(--color-accent-700);
+  --color-on-secondary-container: var(--color-neutral-900);
   --color-success-container: var(--color-sky-200);
   --color-warning: var(--color-accent-2-700);
-  --color-warning-container: var(--color-accent-2-200);
-  --color-danger: var(--color-accent-2-700);
-  --color-danger-container: var(--color-accent-2-200);
-  --color-on-danger: var(--color-accent-2-900);
-  --color-accent-soft: var(--color-sky-200);
+  --color-warning-container: var(--color-accent-2-100);
+  --color-danger-container: #fff0ef;
+  --color-on-danger: var(--color-danger);
+  --color-accent-soft: var(--color-sky-300);
 
-  /* Soft corners everywhere — structure is still drawn with rules, but the
-     premium register asks for curve rather than the old hard edge. */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-full: 999px;
+  /* Corners. Amazon's are all but square — 4px on most surfaces, 8px on the
+     buy buttons and the cards that carry them. */
+  --radius-full: 100px;
 
-  /* Elevation is real again, but kept low and ink-tinted so panels lift off
-     the pearl ground without ever looking like drop-shadowed boxes. */
+  /* Elevation */
   --elev-1: var(--shadow-sm);
   --elev-2: var(--shadow-md);
   --elev-3: var(--shadow-lg);
@@ -64,32 +58,33 @@
   --space-12: 48px;
   --space-16: 64px;
 
-  /* Type scale, mapped onto the Modernist body/heading sizes */
-  --font-xs: 12px;
-  --font-sm: 13px;
-  --font-md: 15px;
-  --font-lg: 20px;
-  --font-xl: 25px;
-  --font-2xl: 32px;
-  --font-3xl: 42px;
+  /* Type scale */
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-md: 14px;
+  --font-lg: 18px;
+  --font-xl: 21px;
+  --font-2xl: 28px;
+  --font-3xl: 34px;
   --font-weight-medium: 600;
   --font-weight-bold: 700;
 
-  /* Motion */
-  --motion-duration-short: 120ms;
-  --motion-duration-medium: 220ms;
-  --motion-duration-long: 400ms;
-  --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
-  --motion-easing-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
-  --motion-easing-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  /* Motion — Amazon's transitions are short and linear; nothing eases in
+     from off-screen. */
+  --motion-duration-short: 90ms;
+  --motion-duration-medium: 160ms;
+  --motion-duration-long: 260ms;
+  --motion-easing-standard: linear;
+  --motion-easing-decelerate: ease-out;
+  --motion-easing-accelerate: ease-in;
 
-  /* Focus — themed, never the browser default */
-  --focus-ring: 0 0 0 3px var(--color-sky-300);
+  /* Focus — the orange glow, never the browser default */
+  --focus-ring: var(--focus-glow);
 
   /* Breakpoints */
   --bp-mobile: 390px;
   --bp-tablet: 1024px;
-  --bp-desktop: 1440px;
+  --bp-desktop: 1500px;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -141,3 +141,77 @@ export const TrashIcon = (p: IconProps) => (
     <path d="M3 6h18M9 6V4h6v2M6 6l1 14h10l1-14" />
   </Svg>
 )
+
+export const ChevronDown = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m6 9 6 6 6-6" />
+  </Svg>
+)
+
+export const LocationIcon = (p: IconProps) => (
+  <svg
+    width={p.size ?? 16}
+    height={p.size ?? 16}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={p.className}
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
+  </svg>
+)
+
+export const LockIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="4" y="10" width="16" height="10" rx="2" />
+    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+  </Svg>
+)
+
+export const TruckIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z" />
+    <circle cx="7" cy="18" r="1.6" />
+    <circle cx="17.5" cy="18" r="1.6" />
+  </Svg>
+)
+
+export const ReturnIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 10h11a4 4 0 0 1 0 8H9" />
+    <path d="m8 6-4 4 4 4" />
+  </Svg>
+)
+
+export const ShieldIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 3l7 3v5c0 4.4-3 8-7 10-4-2-7-5.6-7-10V6z" />
+    <path d="m9 12 2 2 4-4" />
+  </Svg>
+)
+
+export const ArrowUpIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 19V5M6 11l6-6 6 6" />
+  </Svg>
+)
+
+/**
+ * The five-star rating row.
+ *
+ * Amazon draws a partial star for a fractional average rather than rounding
+ * to the nearest half, so the fill is a percentage width over a full row of
+ * grey stars — see `.stars` in styles/app.css.
+ */
+export function Stars({ rating, size = 14 }: { rating: number; size?: number }) {
+  const clamped = Math.max(0, Math.min(5, rating))
+  return (
+    <span
+      className="stars"
+      style={{ ['--pct' as string]: `${(clamped / 5) * 100}%`, fontSize: size }}
+      role="img"
+      aria-label={`${clamped.toFixed(1)} out of 5 stars`}
+    />
+  )
+}

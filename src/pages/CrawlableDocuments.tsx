@@ -20,14 +20,16 @@ import React from 'react'
 const pageStyle: React.CSSProperties = {
   background: 'var(--color-bg, var(--color-neutral-200))',
   minHeight: '100vh',
-  fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+  fontFamily: 'var(--font-body, Inter, ui-sans-serif, system-ui, sans-serif)',
   color: 'var(--color-text, var(--color-text))',
   fontSize: '14px',
   lineHeight: '1.6',
 }
 
 const headerBandStyle: React.CSSProperties = {
-  background: 'var(--color-primary, var(--color-accent))',
+  // The sub-navigation navy, so the portal band reads as part of the site
+  // chrome rather than as a second accent colour.
+  background: 'var(--color-navy-2, #232f3e)',
   color: 'var(--color-surface-raised)',
   padding: '8px 0',
   fontSize: '13px',

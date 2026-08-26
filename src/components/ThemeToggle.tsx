@@ -2,7 +2,7 @@ import { useTheme } from '../theme/useTheme'
 import { THEME_LABELS, nextTheme } from '../theme/theme'
 
 /**
- * The single control that swaps the app between Modernist and Liquid Glass.
+ * The single control that swaps the app between Storefront and Liquid Glass.
  *
  * It is a floating capsule pinned to the top-right corner of the viewport so
  * it is reachable from every route — including the fixture pages that never
@@ -53,7 +53,7 @@ function GlassGlyph() {
   )
 }
 
-/* A ruled grid — the Modernist state. */
+/* A ruled grid — the Storefront state. */
 function SquareGlyph() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">

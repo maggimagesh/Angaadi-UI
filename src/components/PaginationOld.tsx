@@ -9,7 +9,7 @@ type PaginationProps = {
 }
 
 /**
- * Softened-cell pagination. The current page is an accent fill with pearl-white
+ * Pagination. The current page is filled in the sub-navigation navy with white
  * numerals; every other page is a 1px-bordered cell. The props and the page
  * windowing are unchanged — only the chrome is new.
  */

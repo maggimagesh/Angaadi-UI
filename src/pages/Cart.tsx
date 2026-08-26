@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cart'
 import { useWishlistStore } from '../store/wishlist'
 import { Footer } from '../components/Footer'
+import { PriceTag } from '../components/PriceTag'
+import { deliveryDate } from '../utils/delivery'
 import { EmptyState } from '../components/States'
 import { formatINR } from '../utils/currency'
 import { placeholderFor } from '../data/catalog'
@@ -39,18 +41,20 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <main className="app-main">
-        <div className="cart-head">
-          <h1>Your cart</h1>
-        </div>
-        <div style={{ padding: '28px 40px 48px' }}>
-          <EmptyState
+        <div className="cart-lines" style={{ margin: '20px 0' }}>
+          <div className="cart-head">
+            <h1>Shopping Cart</h1>
+          </div>
+          <div style={{ paddingTop: 20 }}>
+            <EmptyState
             title="Your cart is empty."
             body="Anything you add stays here for 30 days, on this device. Two places worth starting:"
             actions={[
               { label: "Browse today's price drops", variant: 'primary', href: '/' },
               { label: `Open your wishlist (${wishCount})`, href: '/wishlist' },
             ]}
-          />
+            />
+          </div>
         </div>
         <Footer />
       </main>
@@ -62,10 +66,8 @@ export default function CartPage() {
       <div className="cart-layout">
         <div className="cart-lines">
           <div className="cart-head">
-            <h1>Your cart</h1>
-            <span className="meta">
-              {totalItems} item{totalItems === 1 ? '' : 's'}
-            </span>
+            <h1>Shopping Cart</h1>
+            <span className="meta">Price</span>
           </div>
 
           {items.map((item) => (
@@ -87,7 +89,10 @@ export default function CartPage() {
                     {[item.options?.storage, item.options?.color].filter(Boolean).join(' · ')}
                   </div>
                 ) : null}
-                <div className="cart-line-stock">In stock · free delivery</div>
+                <div className="cart-line-stock">In stock</div>
+                <div className="cart-line-unit" style={{ marginTop: 2 }}>
+                  Eligible for FREE delivery {deliveryDate(2)}
+                </div>
 
                 <div className="cart-line-tools">
                   <div className="qty-stepper is-small">
@@ -115,7 +120,7 @@ export default function CartPage() {
                     aria-label={`Remove ${item.name} from cart`}
                     onClick={() => void removeItem(item.id)}
                   >
-                    Remove
+                    Delete
                   </button>
 
                   <button
@@ -134,20 +139,19 @@ export default function CartPage() {
                       void removeItem(item.id)
                     }}
                   >
-                    Move to wishlist
+                    Save for later
                   </button>
                 </div>
               </div>
 
-              <div className="cart-line-total">{formatINR(item.price * item.qty)}</div>
+              <PriceTag value={item.price * item.qty} className="cart-line-total" />
             </article>
           ))}
 
-          <div className="cart-foot">
+          <div className="cart-line-tools" style={{ paddingTop: 14 }}>
             <button
               type="button"
               className="linkish"
-              style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 14 }}
               onClick={() => navigate('/products?category=all')}
             >
               ← Continue shopping
@@ -156,10 +160,29 @@ export default function CartPage() {
               Clear cart
             </button>
           </div>
+
+          <div className="cart-foot">
+            <span>
+              Subtotal ({totalItems} item{totalItems === 1 ? '' : 's'}):
+            </span>
+            <strong>{formatINR(summary.subtotal || subtotal)}</strong>
+          </div>
         </div>
 
         <aside className="summary-aside" aria-label="Order summary">
           <div className="summary-sticky">
+            <div className="cart-foot" style={{ padding: '0 0 12px', justifyContent: 'flex-start' }}>
+              <span>
+                Subtotal ({totalItems} item{totalItems === 1 ? '' : 's'}):
+              </span>
+              <strong>{formatINR(summary.subtotal || subtotal)}</strong>
+            </div>
+
+            <label className="check-row" style={{ marginBottom: 12 }}>
+              <input type="checkbox" id="cart-gift" data-testid="cart-gift" />
+              This order contains a gift
+            </label>
+
             <h2>Order summary</h2>
 
             <div className="summary-lines">
@@ -167,7 +190,7 @@ export default function CartPage() {
                 <span className="k">
                   Subtotal ({totalItems} item{totalItems === 1 ? '' : 's'})
                 </span>
-                <span>{formatINR(summary.subtotal || subtotal)}</span>
+                <PriceTag value={summary.subtotal || subtotal} />
               </div>
               <div className="summary-row">
                 <span className="k">Delivery</span>
@@ -186,12 +209,12 @@ export default function CartPage() {
             </div>
 
             <div className="summary-total">
-              <span className="k">Total</span>
-              <span className="v">{formatINR(total)}</span>
+              <span className="k">Order total</span>
+              <PriceTag value={total} className="v" />
             </div>
 
             <Link className="btn btn-primary btn-block" to="/checkout">
-              Proceed to checkout
+              Proceed to Buy
             </Link>
             <Link className="btn btn-secondary btn-block" to="/products?category=all">
               Continue shopping
