@@ -5,11 +5,10 @@ import type { Category, ProductItem } from '../api/products'
 import { ProductCard, ProductGridSkeleton, type CardProduct } from '../components/ProductCard'
 import { Footer } from '../components/Footer'
 import { EmptyState, ErrorState } from '../components/States'
-import { ChevronLeft, ChevronRight } from '../components/icons'
+import { ChevronLeft, ChevronRight, Stars } from '../components/icons'
 import { storeCategoryInfo } from '../utils/categoryStorage'
 import { formatINR } from '../utils/currency'
 import {
-  ALL_DEPARTMENT_COUNT,
   DEPARTMENTS,
   artUrl,
   placeholderFor,
@@ -195,7 +194,7 @@ export default function HomePage() {
 
   return (
     <main className="app-main" id="home-page" data-testid="home-page">
-      {/* ── hero: two cells split by a 2px rule ─────────────────────────── */}
+      {/* ── the hero band ──────────────────────────────────────────────── */}
       <section
         className="home-hero"
         role="region"
@@ -203,67 +202,62 @@ export default function HomePage() {
         id="hero-banner"
         data-testid="hero-banner"
       >
-        <div className="hero-copy">
-          <div className="hero-label">
-            <span className="tag tag-outline">Monsoon Electronics Week</span>
-            <span style={{ fontSize: 12, color: 'var(--color-neutral-700)' }}>Ends 06:00 daily</span>
+        <div className="hero-inner">
+          <div className="hero-copy">
+            <div className="hero-label">
+              <span className="tag tag-outline">Monsoon Electronics Week</span>
+              <span style={{ fontSize: 12, color: '#ccd2d8' }}>Ends 06:00 daily</span>
+            </div>
+
+            <h1 className="hero-title">Specs, not spin.</h1>
+
+            <p className="hero-lede">
+              Every listing shows the real landed price, the stock count and the delivery date
+              before you click. No countdown theatre.
+            </p>
+
+            <div className="hero-actions">
+              <Link className="btn btn-primary" to={productsHref(1, 'mobiles-tablets')}>
+                Shop the week
+              </Link>
+              <Link className="btn btn-secondary" to="/compare">
+                Compare top phones
+              </Link>
+            </div>
+
+            <div className="hero-stats">
+              <div className="hero-stat">
+                <div className="hero-stat-value">4.2L</div>
+                <div className="hero-stat-label">products listed</div>
+              </div>
+              <div className="hero-stat">
+                <div className="hero-stat-value">48h</div>
+                <div className="hero-stat-label">median delivery</div>
+              </div>
+              <div className="hero-stat">
+                <div className="hero-stat-value">7 days</div>
+                <div className="hero-stat-label">no-question returns</div>
+              </div>
+            </div>
           </div>
 
-          <h1 className="hero-title">Specs, not spin.</h1>
-
-          <p className="hero-lede">
-            Every listing shows the real landed price, the stock count and the delivery date
-            before you click. No countdown theatre.
-          </p>
-
-          <div className="hero-actions">
-            <Link className="btn btn-primary" to={productsHref(1, 'mobiles-tablets')}>
-              Shop the week
-            </Link>
-            <Link className="btn btn-secondary" to="/compare">
-              Compare top phones
-            </Link>
+          <div className="grayscale hero-figure">
+            <img
+              src={featured ? (featured.image || placeholderFor({ name: featured.title })) : artUrl('smartphone')}
+              alt={featured ? featured.title : 'Featured product'}
+            />
           </div>
-
-          <div className="hero-stats">
-            <div className="hero-stat">
-              <div className="hero-stat-value">4.2L</div>
-              <div className="hero-stat-label">products listed</div>
-            </div>
-            <div className="hero-stat">
-              <div className="hero-stat-value">48h</div>
-              <div className="hero-stat-label">median delivery</div>
-            </div>
-            <div className="hero-stat">
-              <div className="hero-stat-value">7 days</div>
-              <div className="hero-stat-label">no-question returns</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grayscale hero-figure">
-          <img
-            src={featured ? (featured.image || placeholderFor({ name: featured.title })) : artUrl('smartphone')}
-            alt={featured ? featured.title : 'Featured product'}
-          />
         </div>
       </section>
 
-      {/* ── departments ─────────────────────────────────────────────────── */}
-      <section
-        aria-labelledby="home-categories-title"
-        data-testid="home-categories"
-        style={{ borderBottom: '2px solid var(--color-divider)' }}
-      >
-        <div className="section-head">
-          <h2 id="home-categories-title">Shop by department</h2>
-          <Link className="section-link" to="/products?category=all">
-            All {ALL_DEPARTMENT_COUNT} departments →
-          </Link>
-        </div>
+      {/* ── the card row that overlaps the hero ────────────────────────── */}
+      <section aria-labelledby="home-categories-title" data-testid="home-categories">
+        <h2 id="home-categories-title" className="visually-hidden">
+          Shop by department
+        </h2>
 
         {departmentsError ? (
-          <div style={{ padding: '0 40px 28px' }}>
+          <div className="dept-grid" style={{ gridTemplateColumns: '1fr', marginTop: 20 }}>
             <ErrorState
               operation="/products"
               title="We couldn't load the departments."
@@ -271,52 +265,46 @@ export default function HomePage() {
               actions={[{ label: 'Retry', variant: 'primary', onClick: () => void loadDepartments() }]}
             />
           </div>
-        ) : null}
-
-        <div className="dept-grid">
-          {departmentsLoading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div className="dept-cell sk-cell" key={i} style={{ animationDelay: `${i * 0.2}s` }} aria-hidden="true">
-                  <div className="sk" style={{ height: 92 }} />
-                  <div>
-                    <div className="sk" style={{ height: 15, width: '80%' }} />
-                    <div className="sk" style={{ height: 12, width: '45%', marginTop: 6 }} />
+        ) : (
+          <div className="dept-grid">
+            {departmentsLoading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                  <div className="dept-cell sk-cell" key={i} style={{ animationDelay: `${i * 0.2}s` }} aria-hidden="true">
+                    <div className="sk" style={{ height: 170 }} />
+                    <div>
+                      <div className="sk" style={{ height: 17, width: '80%' }} />
+                      <div className="sk" style={{ height: 13, width: '45%', marginTop: 6 }} />
+                    </div>
                   </div>
-                </div>
-              ))
-            : departments.map((d) => (
-                <button
-                  type="button"
-                  className="dept-cell"
-                  key={`${d.slug}-${d.id}`}
-                  onClick={() => openDepartment(d.id, d.slug)}
-                  aria-label={`Shop ${d.name}`}
-                >
-                  <span className="grayscale dept-icon">
-                    <img src={d.art} alt="" loading="lazy" />
-                  </span>
-                  <span>
-                    <span className="dept-name" style={{ display: 'block' }}>{d.name}</span>
-                    <span className="dept-count">
-                      {d.count > 0 ? `${d.count.toLocaleString('en-IN')} items` : 'Browse department'}
+                ))
+              : departments.slice(0, 4).map((d) => (
+                  <button
+                    type="button"
+                    className="dept-cell"
+                    key={`${d.slug}-${d.id}`}
+                    onClick={() => openDepartment(d.id, d.slug)}
+                    aria-label={`Shop ${d.name}`}
+                  >
+                    <span className="dept-name">{d.name}</span>
+                    <span className="grayscale dept-icon">
+                      <img src={d.art} alt="" loading="lazy" />
                     </span>
-                  </span>
-                </button>
-              ))}
-        </div>
+                    <span className="dept-count">
+                      {d.count > 0 ? `Shop all ${d.count.toLocaleString('en-IN')} items` : 'Shop now'}
+                    </span>
+                  </button>
+                ))}
+          </div>
+        )}
       </section>
 
-      {/* ── today's price drops ─────────────────────────────────────────── */}
-      <section
-        aria-labelledby="home-deals-title"
-        data-testid="deals-of-day"
-        style={{ borderBottom: '2px solid var(--color-divider)' }}
-      >
+      {/* ── today's price drops ────────────────────────────────────────── */}
+      <section className="shelf" aria-labelledby="home-deals-title" data-testid="deals-of-day">
         <div className="section-head">
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
             <h2 id="home-deals-title">Today&rsquo;s price drops</h2>
             <span className="countdown">
-              ends in
+              Ends in
               <span className="unit">{countdown.h}</span>
               <span className="unit">{countdown.m}</span>
               <span className="unit">{countdown.s}</span>
@@ -347,7 +335,7 @@ export default function HomePage() {
         {dealsLoading ? (
           <ProductGridSkeleton count={4} />
         ) : dealsError ? (
-          <div style={{ padding: '0 40px 28px' }}>
+          <div style={{ padding: '0 20px 20px' }}>
             <ErrorState
               operation="/products/by-category"
               title="We couldn't load today's price drops."
@@ -367,7 +355,7 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* ── two editorial cells ─────────────────────────────────────────── */}
+      {/* ── two editorial cards ────────────────────────────────────────── */}
       <section
         aria-labelledby="home-spotlight-title"
         data-testid="seasonal-spotlights"
@@ -402,12 +390,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── recommendations ─────────────────────────────────────────────── */}
-      <section
-        aria-labelledby="home-recommendations-title"
-        data-testid="recommended-products"
-        style={{ borderBottom: '2px solid var(--color-divider)' }}
-      >
+      {/* ── recommendations ────────────────────────────────────────────── */}
+      <section className="shelf" aria-labelledby="home-recommendations-title" data-testid="recommended-products">
         <div className="section-head">
           <h2 id="home-recommendations-title">Picked from your last visit</h2>
           <Link className="section-link" to="/profile">
@@ -416,7 +400,7 @@ export default function HomePage() {
         </div>
 
         {!picksLoading && picks.length === 0 ? (
-          <div style={{ padding: '0 40px 28px' }}>
+          <div style={{ padding: '0 20px 20px' }}>
             <EmptyState
               title="No recommendations yet."
               body="We build these from what you have looked at. Open a few products and they will show up here."
@@ -430,7 +414,7 @@ export default function HomePage() {
           {picksLoading
             ? Array.from({ length: 4 }).map((_, i) => (
                 <div className="pskel sk-cell" key={i} style={{ animationDelay: `${i * 0.2}s` }} aria-hidden="true">
-                  <div className="sk sk-well" style={{ marginTop: 0, height: 118 }} />
+                  <div className="sk sk-well" style={{ marginTop: 0, height: 140 }} />
                   <div className="sk sk-title" />
                   <div className="sk sk-price" />
                 </div>
@@ -451,8 +435,8 @@ export default function HomePage() {
                   <h3>{p.title}</h3>
                   <span className="compact-price">{formatINR(p.price)}</span>
                   <span className="compact-meta">
-                    {p.rating ? `${p.rating.toFixed(1)} ★` : 'Not yet rated'}
-                    {p.ratingsCount ? ` · ${p.ratingsCount.toLocaleString('en-IN')}` : ''}
+                    {p.rating ? <Stars rating={p.rating} size={12} /> : 'Not yet rated'}
+                    {p.ratingsCount ? ` ${p.ratingsCount.toLocaleString('en-IN')}` : ''}
                   </span>
                 </Link>
               ))}
@@ -460,7 +444,7 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* ── trust row ───────────────────────────────────────────────────── */}
+      {/* ── the trust row ──────────────────────────────────────────────── */}
       <section
         aria-labelledby="home-trust-title"
         data-testid="trust-highlights"
@@ -484,7 +468,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── the one red field on the page ───────────────────────────────── */}
+      {/* ── the price-alert panel ──────────────────────────────────────── */}
       <section aria-labelledby="home-cta-title" data-testid="home-footer-cta" className="poster">
         <div className="poster-grid">
           <div>

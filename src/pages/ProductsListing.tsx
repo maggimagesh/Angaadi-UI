@@ -486,7 +486,7 @@ export default function ProductsListing() {
           {filterGroups}
         </aside>
 
-        <div>
+        <div className="results-col">
           <div className="results-head">
             <div>
               <h1>{searchQuery ? `“${searchQuery}”` : categoryName}</h1>
@@ -540,7 +540,7 @@ export default function ProductsListing() {
           </div>
 
           {usingFallback && loadError ? (
-            <div style={{ padding: '20px 40px 0' }}>
+            <div style={{ padding: '0 20px' }}>
               <ErrorState
                 operation="/products/by-category"
                 title="We couldn't load this category."
@@ -560,7 +560,7 @@ export default function ProductsListing() {
               ))}
             </div>
           ) : results.length === 0 ? (
-            <div style={{ padding: '28px 40px 40px' }}>
+            <div style={{ padding: '20px' }}>
               {allProducts.length === 0 ? (
                 <EmptyState
                   title="Nothing is listed in this department yet."

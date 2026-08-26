@@ -5,9 +5,10 @@ import 'regenerator-runtime/runtime'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
-// Modernist first: it owns the tokens and the component layer. Everything
-// after it is the app shell and the screen layer, built from those tokens.
-import './styles/modernist.css'
+// The design system first: it owns the tokens and the component layer.
+// Everything after it is the app shell and the screen layer, built on those
+// tokens.
+import './styles/design-system.css'
 import './index.css'
 import './styles/app.css'
 
@@ -27,9 +28,9 @@ cssVars({
   preserveVars: false,
   variables: {
     // Fallback values for CSS custom properties
-    '--color-accent': '#2a6ab4',
-    '--color-bg': '#fbfaf7',
-    '--color-text': '#24344e',
+    '--color-accent': '#007185',
+    '--color-bg': '#eaeded',
+    '--color-text': '#0f1111',
   },
 })
 

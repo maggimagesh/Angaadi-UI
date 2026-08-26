@@ -3,16 +3,17 @@
 
    Two themes ship with the app:
 
-     'modernist'    — the original ruled, square-cornered, red-accented
-                      system. It is the default and it is expressed by
-                      styles/modernist.css + index.css + styles/app.css
-                      exactly as before; nothing about it is conditional.
+     'storefront'   — the Amazon-style retail system the app ships in: navy
+                      chrome, a grey ground, white cards, teal links and the
+                      two warm buy buttons. It is the default and it is
+                      expressed by styles/design-system.css + index.css +
+                      styles/app.css; nothing about it is conditional.
 
      'liquid-glass' — Apple's Liquid Glass material language, expressed by
                       styles/liquid-glass.css. Every rule in that file is
                       scoped under [data-theme='liquid-glass'], so the theme
                       is additive: it can only ever apply when the attribute
-                      is set, and removing the attribute restores Modernist
+                      is set, and removing the attribute restores Storefront
                       byte for byte.
 
    The attribute lives on <html> so CSS can reach it from any subtree and so
@@ -20,17 +21,17 @@
    inline bootstrap in index.html).
    ───────────────────────────────────────────────────────────────────────── */
 
-export const THEMES = ['modernist', 'liquid-glass'] as const
+export const THEMES = ['storefront', 'liquid-glass'] as const
 
 export type Theme = (typeof THEMES)[number]
 
-export const DEFAULT_THEME: Theme = 'modernist'
+export const DEFAULT_THEME: Theme = 'storefront'
 
 export const THEME_STORAGE_KEY = 'angaadi:theme'
 
 /** Human-readable names, used by the toggle's label and its a11y announcement. */
 export const THEME_LABELS: Record<Theme, string> = {
-  modernist: 'Modernist',
+  storefront: 'Storefront',
   'liquid-glass': 'Liquid Glass',
 }
 
@@ -53,7 +54,7 @@ export function readStoredTheme(): Theme {
  * Write the theme to <html> and persist it.
  *
  * The default theme removes the attribute rather than setting
- * data-theme="modernist", so the DOM in the default case is identical to
+ * data-theme="storefront", so the DOM in the default case is identical to
  * what it was before theming existed.
  */
 export function applyTheme(theme: Theme): void {
@@ -76,5 +77,5 @@ export function applyTheme(theme: Theme): void {
 }
 
 export function nextTheme(current: Theme): Theme {
-  return current === 'liquid-glass' ? 'modernist' : 'liquid-glass'
+  return current === 'liquid-glass' ? 'storefront' : 'liquid-glass'
 }

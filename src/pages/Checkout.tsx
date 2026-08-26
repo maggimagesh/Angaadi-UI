@@ -274,7 +274,7 @@ export default function CheckoutPage() {
         contact: selectedAddress?.phone,
       },
       notes: { orderNumber: razorpaySession.orderNumber },
-      theme: { color: '#2a6ab4' }, // --color-accent; Razorpay's widget can't read CSS vars
+      theme: { color: '#232f3e' }, // the sub-nav navy; Razorpay's widget can't read CSS vars
       handler: (response: RazorpayHandlerResponse) => {
         void handleVerify(response)
       },
@@ -327,10 +327,10 @@ export default function CheckoutPage() {
     return (
       <main className="app-main">
         <div className="checkout-bar">
-          <span className="brand">ANGAADI</span>
+          <span className="brand">angaadi</span>
           <span style={{ color: 'var(--color-neutral-700)' }}>Secure checkout</span>
         </div>
-        <div style={{ padding: '28px 40px 48px' }}>
+        <div style={{ padding: '24px 0 40px' }}>
           <EmptyState
             title="Sign in to check out."
             body="Your saved addresses and orders live on your account, so checkout needs you signed in first."
@@ -349,10 +349,10 @@ export default function CheckoutPage() {
     return (
       <main className="app-main">
         <div className="checkout-bar">
-          <span className="brand">ANGAADI</span>
+          <span className="brand">angaadi</span>
           <span style={{ color: 'var(--color-neutral-700)' }}>Secure checkout</span>
         </div>
-        <div style={{ padding: '28px 40px 48px' }}>
+        <div style={{ padding: '24px 0 40px' }}>
           <EmptyState
             title="There is nothing to check out."
             body="Your cart is empty, so there is no order to place yet."
@@ -370,8 +370,8 @@ export default function CheckoutPage() {
   return (
     <main className="app-main" id="checkout-page" data-testid="checkout-page">
       <div className="checkout-bar">
-        <Link to="/" className="brand" style={{ color: 'var(--color-text)' }}>
-          ANGAADI
+        <Link to="/" className="brand" style={{ color: 'var(--color-navy)' }}>
+          angaadi
         </Link>
         <span style={{ color: 'var(--color-neutral-700)' }}>
           Secure checkout · nothing is charged until you confirm

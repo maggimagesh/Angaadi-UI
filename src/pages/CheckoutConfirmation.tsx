@@ -43,12 +43,12 @@ export default function CheckoutConfirmation() {
     return (
       <main className="app-main">
         <div className="checkout-bar">
-          <Link to="/" className="brand" style={{ color: 'var(--color-text)' }}>
-            ANGAADI
+          <Link to="/" className="brand" style={{ color: 'var(--color-navy)' }}>
+            angaadi
           </Link>
           <span style={{ color: 'var(--color-neutral-700)' }}>Order confirmation</span>
         </div>
-        <div style={{ padding: '28px 40px 48px' }}>
+        <div style={{ padding: '24px 0 40px' }}>
           <EmptyState
             title="There is no order to show."
             body="You reach this page after placing an order. Nothing has been placed in this session."
@@ -67,12 +67,12 @@ export default function CheckoutConfirmation() {
     return (
       <main className="app-main">
         <div className="checkout-bar">
-          <Link to="/" className="brand" style={{ color: 'var(--color-text)' }}>
-            ANGAADI
+          <Link to="/" className="brand" style={{ color: 'var(--color-navy)' }}>
+            angaadi
           </Link>
           <span style={{ color: 'var(--color-neutral-700)' }}>Order confirmation</span>
         </div>
-        <div style={{ padding: '28px 40px 48px' }}>
+        <div style={{ padding: '24px 0 40px' }}>
           <p style={{ color: 'var(--color-neutral-700)' }}>Loading your order…</p>
         </div>
         <Footer />
@@ -84,12 +84,12 @@ export default function CheckoutConfirmation() {
     return (
       <main className="app-main">
         <div className="checkout-bar">
-          <Link to="/" className="brand" style={{ color: 'var(--color-text)' }}>
-            ANGAADI
+          <Link to="/" className="brand" style={{ color: 'var(--color-navy)' }}>
+            angaadi
           </Link>
           <span style={{ color: 'var(--color-neutral-700)' }}>Order confirmation</span>
         </div>
-        <div style={{ padding: '28px 40px 48px' }}>
+        <div style={{ padding: '24px 0 40px' }}>
           <EmptyState
             title="Couldn't load that order."
             body={error || 'Something went wrong.'}
@@ -109,8 +109,8 @@ export default function CheckoutConfirmation() {
   return (
     <main className="app-main" id="checkout-confirmation" data-testid="checkout-confirmation">
       <div className="checkout-bar">
-        <Link to="/" className="brand" style={{ color: 'var(--color-text)' }}>
-          ANGAADI
+        <Link to="/" className="brand" style={{ color: 'var(--color-navy)' }}>
+          angaadi
         </Link>
         <span style={{ color: 'var(--color-neutral-700)' }}>Order confirmation</span>
       </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { isStrongPassword } from '../utils/password'
 import { useUIStore } from '../store/ui'
 import { isLettersOnly } from '../utils/name'
@@ -33,6 +33,11 @@ export default function AuthPage() {
     <main className="app-main">
       <section className="auth-page" aria-label="Authentication">
         <div className="auth-column">
+          <Link to="/" className="auth-logo" aria-label="Angaadi Home">
+            angaadi<span>.in</span>
+          </Link>
+
+          <div className="auth-card">
           <nav aria-label="Auth tabs" className="auth-tabs" role="tablist">
             <button
               id="tab-signin"
@@ -63,6 +68,27 @@ export default function AuthPage() {
           ) : (
             <SignUpPanel onSwitch={() => setTab('signin')} />
           )}
+          </div>
+
+          <div className="auth-divider">
+            {tab === 'signin' ? 'New to Angaadi?' : 'Already shopping with us?'}
+          </div>
+
+          <button
+            type="button"
+            className="btn btn-secondary btn-block"
+            id="auth-switch"
+            data-testid="auth-switch"
+            onClick={() => setTab(tab === 'signin' ? 'signup' : 'signin')}
+          >
+            {tab === 'signin' ? 'Create your Angaadi account' : 'Sign in to your account'}
+          </button>
+
+          <p className="auth-fine">
+            By continuing, you agree to Angaadi&rsquo;s{' '}
+            <Link to="/crawlableDocuments">Conditions of Use</Link> and{' '}
+            <Link to="/crawlableDocuments">Privacy Notice</Link>.
+          </p>
         </div>
       </section>
       <Footer />

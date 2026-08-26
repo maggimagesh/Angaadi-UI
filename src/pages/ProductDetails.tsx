@@ -8,7 +8,17 @@ import { useWishlistStore } from '../store/wishlist'
 import { useCompareStore } from '../store/compare'
 import { Footer } from '../components/Footer'
 import { ErrorState } from '../components/States'
-import { HeartIcon, CompareIcon } from '../components/icons'
+import { PriceTag } from '../components/PriceTag'
+import { deliveryDate } from '../utils/delivery'
+import {
+  HeartIcon,
+  CompareIcon,
+  Stars,
+  TruckIcon,
+  ReturnIcon,
+  ShieldIcon,
+  LockIcon,
+} from '../components/icons'
 import { formatINR } from '../utils/currency'
 import { placeholderFor } from '../data/catalog'
 import { storeCategoryInfo, getCategoryInfo } from '../utils/categoryStorage'
@@ -208,7 +218,7 @@ export default function ProductDetails() {
   if (error || !product) {
     return (
       <main className="app-main">
-        <div style={{ padding: '40px' }}>
+        <div style={{ padding: '24px 0' }}>
           <ErrorState
             operation="/products/by-ids"
             title={error ? "We couldn't load this product." : 'This product is no longer listed.'}
@@ -280,39 +290,40 @@ export default function ProductDetails() {
         </div>
 
         <div className="pdp-info">
-          <div className="kicker">
-            {product.brand}
-            {product.categories?.description ? ` · ${product.categories.description}` : ''}
-          </div>
-
           <h1 className="pdp-title">{product.productname}</h1>
+
+          <a className="pdp-byline" href="#specifications">
+            Visit the {product.brand} Store
+            {product.categories?.description ? ` · ${product.categories.description}` : ''}
+          </a>
 
           {rating > 0 ? (
             <div className="pdp-ratingline">
-              <span className="rating-chip">{rating.toFixed(1)} ★</span>
-              <span>{ratingsCount.toLocaleString('en-IN')} ratings</span>
+              <span className="rating-chip">{rating.toFixed(1)}</span>
+              <Stars rating={rating} size={16} />
+              <a href="#reviews" className="rating-count">
+                {ratingsCount.toLocaleString('en-IN')} ratings
+              </a>
             </div>
           ) : null}
 
           <div className="pdp-price-block">
             <div className="pdp-price-row">
-              <span className="pdp-price">{formatINR(price)}</span>
-              {savings > 0 ? <span className="strike" style={{ fontSize: 15 }}>{formatINR(oldPrice)}</span> : null}
               {savings > 0 ? (
-                <span className="tag tag-accent">
-                  Save {formatINR(savings)} · {product.discountpercent || Math.round((savings / oldPrice) * 100)}%
+                <span className="pdp-discount">
+                  -{product.discountpercent || Math.round((savings / oldPrice) * 100)}%
                 </span>
               ) : null}
+              <PriceTag value={price} className="pdp-price" />
             </div>
+            {savings > 0 ? (
+              <div className="pdp-price-note">
+                M.R.P: <span className="strike">{formatINR(oldPrice)}</span> · you save{' '}
+                {formatINR(savings)}
+              </div>
+            ) : null}
             <div className="pdp-price-note">
-              Inclusive of GST{product.freedelivery ? ' · no delivery charge on this item' : ''}
-            </div>
-            <div className={`pdp-stock${lowStock ? '' : ' is-ok'}`}>
-              {inStock
-                ? lowStock
-                  ? `Only ${product.stock} left in stock`
-                  : `In stock · ${product.stock} units available`
-                : 'Out of stock · we will mail you when it returns'}
+              Inclusive of all taxes{product.freedelivery ? ' · no delivery charge on this item' : ''}
             </div>
           </div>
 
@@ -352,41 +363,82 @@ export default function ProductDetails() {
               </div>
             </div>
 
-            <div className="pdp-buy">
-              <div>
-                <div className="kicker" style={{ marginBottom: 8 }}>Quantity</div>
-                <div className="qty-stepper">
-                  <button
-                    type="button"
-                    aria-label="Decrease quantity"
-                    disabled={quantity <= 1}
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  >
-                    −
-                  </button>
-                  <span className="value" aria-live="polite">{quantity}</span>
-                  <button
-                    type="button"
-                    aria-label="Increase quantity"
-                    onClick={() => setQuantity((q) => q + 1)}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
+          </div>
 
+        </div>
+
+        {/* ── the buy box ───────────────────────────────────────────────── */}
+        <aside className="pdp-buybox" aria-label="Buying options">
+          <PriceTag value={price} className="bb-price" />
+
+          <div className="bb-delivery">
+            {product.freedelivery ? (
+              <>
+                <strong>FREE delivery</strong> {deliveryDate(2)}
+              </>
+            ) : (
+              <>Delivery by {deliveryDate(4)}</>
+            )}
+          </div>
+          <div className="bb-note">Order within 6 hrs 12 mins · Deliver to Chennai 600001</div>
+
+          <div className={`bb-stock${inStock ? '' : ' is-out'}`}>
+            {inStock ? 'In stock' : 'Currently unavailable'}
+          </div>
+          {inStock && lowStock ? (
+            <div className="bb-note" style={{ color: 'var(--color-price)', fontWeight: 700 }}>
+              Only {product.stock} left — order soon
+            </div>
+          ) : null}
+
+          <div>
+            <div className="kicker" style={{ marginBottom: 6 }}>Quantity</div>
+            <div className="qty-stepper is-small">
               <button
                 type="button"
-                className="btn btn-primary"
-                disabled={!inStock}
-                onClick={addToCart}
+                aria-label="Decrease quantity"
+                disabled={quantity <= 1}
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
               >
-                {inStock ? 'Add to cart' : 'Out of stock'}
+                −
               </button>
-
+              <span className="value" aria-live="polite">{quantity}</span>
               <button
                 type="button"
-                className={`btn btn-secondary btn-icon${wishlisted ? ' is-on' : ''}`}
+                aria-label="Increase quantity"
+                onClick={() => setQuantity((q) => q + 1)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div className="pdp-buy">
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={!inStock}
+              onClick={addToCart}
+            >
+              {inStock ? 'Add to Cart' : 'Out of stock'}
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-buy"
+              disabled={!inStock}
+              onClick={() => {
+                addToCart()
+                navigate('/cart')
+              }}
+            >
+              Buy Now
+            </button>
+
+            <div className="pdp-buy-row">
+              <button
+                type="button"
+                className={`btn btn-secondary${wishlisted ? ' is-on' : ''}`}
                 aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                 aria-pressed={wishlisted}
                 onClick={() =>
@@ -402,12 +454,13 @@ export default function ProductDetails() {
                   })
                 }
               >
-                <HeartIcon size={18} filled={wishlisted} />
+                <HeartIcon size={16} filled={wishlisted} />
+                {wishlisted ? 'Saved' : 'Save'}
               </button>
 
               <button
                 type="button"
-                className={`btn btn-secondary btn-icon${comparing ? ' is-on' : ''}`}
+                className={`btn btn-secondary${comparing ? ' is-on' : ''}`}
                 aria-label="Add to compare"
                 aria-pressed={comparing}
                 onClick={() => {
@@ -428,30 +481,40 @@ export default function ProductDetails() {
                   if (!ok) openSuccess('Compare holds four products. Remove one first.')
                 }}
               >
-                <CompareIcon size={18} />
+                <CompareIcon size={16} />
+                Compare
               </button>
             </div>
           </div>
 
-          <div className="pdp-assurance">
-            <div>
-              <div className="t">7-day returns</div>
-              <div className="d">Door pickup</div>
-            </div>
-            <div>
-              <div className="t">1-year warranty</div>
-              <div className="d">{product.brand} India</div>
-            </div>
-            <div>
-              <div className="t">Cash on delivery</div>
-              <div className="d">Available at 600001</div>
-            </div>
+          <div className="bb-secure">
+            <LockIcon size={13} />
+            Secure transaction
+          </div>
+          <div className="bb-note">Sold by Angaadi Retail · Dispatched from Chennai</div>
+        </aside>
+
+        <div className="pdp-assurance">
+          <div>
+            <ReturnIcon size={22} />
+            <div className="t">7-day returns</div>
+            <div className="d">Door pickup</div>
+          </div>
+          <div>
+            <ShieldIcon size={22} />
+            <div className="t">1-year warranty</div>
+            <div className="d">{product.brand} India</div>
+          </div>
+          <div>
+            <TruckIcon size={22} />
+            <div className="t">Cash on delivery</div>
+            <div className="d">Available at 600001</div>
           </div>
         </div>
       </div>
 
       <div className="pdp-lower">
-        <div className="pdp-specs">
+        <div className="pdp-specs" id="specifications">
           <h2>Specifications</h2>
           {specRows.length > 0 ? (
             <table className="table">
@@ -489,7 +552,7 @@ export default function ProductDetails() {
           ) : null}
         </div>
 
-        <div className="pdp-reviews">
+        <div className="pdp-reviews" id="reviews">
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 16 }}>
             <h2>Reviews</h2>
           </div>
@@ -529,7 +592,7 @@ export default function ProductDetails() {
           {mockReviews.map((review) => (
             <div className="review-item" key={review.id}>
               <div className="review-head">
-                <span className="rating-chip">{review.rating} ★</span>
+                <Stars rating={review.rating} size={13} />
                 <strong style={{ fontSize: 14 }}>{review.headline}</strong>
               </div>
               <p>{review.body}</p>
@@ -543,7 +606,7 @@ export default function ProductDetails() {
       </div>
 
       {related.length > 0 ? (
-        <section style={{ borderBottom: '2px solid var(--color-divider)' }}>
+        <section className="shelf">
           <div className="section-head">
             <h2>Compared with these</h2>
             <Link className="section-link" to="/compare">

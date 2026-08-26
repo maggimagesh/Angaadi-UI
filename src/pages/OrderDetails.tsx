@@ -50,12 +50,12 @@ export default function OrderDetailsPage() {
     return (
       <main className="app-main" id="order-details-page" data-testid="order-details-page">
         <div className="checkout-bar">
-          <Link to="/" className="brand" style={{ color: 'var(--color-text)' }}>
-            ANGAADI
+          <Link to="/" className="brand" style={{ color: 'var(--color-navy)' }}>
+            angaadi
           </Link>
           <span style={{ color: 'var(--color-neutral-700)' }}>Order details</span>
         </div>
-        <div style={{ padding: '28px 40px 48px' }}>
+        <div style={{ padding: '24px 0 40px' }}>
           <p style={{ color: 'var(--color-neutral-700)' }}>Loading order…</p>
         </div>
         <Footer />
@@ -67,12 +67,12 @@ export default function OrderDetailsPage() {
     return (
       <main className="app-main" id="order-details-page" data-testid="order-details-page">
         <div className="checkout-bar">
-          <Link to="/" className="brand" style={{ color: 'var(--color-text)' }}>
-            ANGAADI
+          <Link to="/" className="brand" style={{ color: 'var(--color-navy)' }}>
+            angaadi
           </Link>
           <span style={{ color: 'var(--color-neutral-700)' }}>Order details</span>
         </div>
-        <div style={{ padding: '28px 40px 48px' }}>
+        <div style={{ padding: '24px 0 40px' }}>
           <EmptyState
             title="Couldn't find that order."
             body={error || 'It may belong to a different account.'}
@@ -90,13 +90,13 @@ export default function OrderDetailsPage() {
   return (
     <main className="app-main" id="order-details-page" data-testid="order-details-page">
       <div className="checkout-bar">
-        <Link to="/" className="brand" style={{ color: 'var(--color-text)' }}>
-          ANGAADI
+        <Link to="/" className="brand" style={{ color: 'var(--color-navy)' }}>
+          angaadi
         </Link>
         <span style={{ color: 'var(--color-neutral-700)' }}>Order details</span>
       </div>
 
-      <div style={{ padding: '28px 40px 48px' }}>
+      <div style={{ padding: '24px 0 40px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
           <div>
             <div className="kicker kicker-accent">Order</div>
@@ -144,7 +144,7 @@ export default function OrderDetailsPage() {
               )}
               {order.deliverySlot ? (
                 <p style={{ fontSize: 13, color: 'var(--color-neutral-700)', marginTop: 12 }}>
-                  Arriving: <strong style={{ color: 'var(--color-text)' }}>{order.deliverySlot}</strong>
+                  Arriving: <strong style={{ color: 'var(--color-navy)' }}>{order.deliverySlot}</strong>
                 </p>
               ) : null}
             </section>

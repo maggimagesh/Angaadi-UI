@@ -15,7 +15,16 @@ import {
   artUrl,
   productsHref,
 } from '../data/catalog'
-import { SearchIcon, MenuIcon, CartIcon, UserIcon, CompareIcon, ChevronRight } from './icons'
+import {
+  SearchIcon,
+  MenuIcon,
+  CartIcon,
+  UserIcon,
+  CompareIcon,
+  ChevronRight,
+  ChevronDown,
+  LocationIcon,
+} from './icons'
 import SearchSuggestions, { pushRecentSearch, type SuggestionsHandle } from './SearchSuggestions'
 import type { ProductItem } from '../api/products'
 
@@ -238,23 +247,21 @@ export function Header() {
   return (
     <>
       <header className="site-header" ref={headerRef}>
-        {/* 1 · utility bar */}
-        <div className="utility-bar">
-          <span>Free delivery over ₹499 · Delivering to 19,000+ pin codes</span>
-          <div className="utility-links">
-            <Link to="/orders">Track order</Link>
-            <Link to="/health">Help centre</Link>
-            <Link to="/crawlableDocuments">Sell on Angaadi</Link>
-          </div>
-        </div>
-
-        {/* 2 · logo, search, actions */}
+        {/* 1 · the navy belt — logo, deliver-to, search, account, cart */}
         <nav className="header-main" aria-label="Top Navigation">
           <Link to="/" aria-label="Angaadi Home" id="logo" data-testid="logo" className="header-logo">
             <img src="/logo/Angaadi.png" alt="Angaadi" />
             <span className="header-logo-text">
-              <span className="header-wordmark">ANGAADI</span>
-              <span className="header-tagline">Your Global Market</span>
+              <span className="header-wordmark">angaadi</span>
+              <span className="header-tagline">.in</span>
+            </span>
+          </Link>
+
+          <Link to="/profile" className="header-deliver hide-on-mobile" onClick={handleProfileClick}>
+            <LocationIcon size={15} />
+            <span className="stack">
+              <span className="l1">Deliver to</span>
+              <span className="l2">Chennai 600001</span>
             </span>
           </Link>
 
@@ -289,7 +296,7 @@ export function Header() {
                 className="search-input"
                 ref={inputRef}
                 role="searchbox"
-                placeholder="Search products — model, brand, spec"
+                placeholder="Search Angaadi.in"
                 aria-label="Search electronics, models, brands"
                 autoComplete="off"
                 aria-expanded={suggestOpen}
@@ -308,10 +315,10 @@ export function Header() {
                 type="submit"
                 id="search-submit"
                 data-testid="search-submit"
-                className="btn btn-primary search-submit"
+                className="btn search-submit"
                 aria-label="Search"
               >
-                <SearchIcon size={16} />
+                <SearchIcon size={20} />
                 <span className="hide-on-mobile">Search</span>
               </button>
             </form>
@@ -329,15 +336,45 @@ export function Header() {
 
           <div className="header-actions">
             <Link
+              to="/profile"
+              id="nav-profile"
+              data-testid="nav-profile"
+              className="header-action"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              onClick={handleProfileClick}
+            >
+              <span className="l1">{isAuthenticated ? 'Hello again' : 'Hello, sign in'}</span>
+              <span className="l2">
+                <UserIcon size={14} className="show-on-mobile" />
+                Account &amp; Lists
+                <ChevronDown size={12} strokeWidth={3} />
+              </span>
+            </Link>
+
+            <Link
+              to="/orders"
+              id="nav-orders"
+              data-testid="nav-orders"
+              className="header-action hide-on-mobile"
+            >
+              <span className="l1">Returns</span>
+              <span className="l2">&amp; Orders</span>
+            </Link>
+
+            <Link
               to="/compare"
               id="nav-compare"
               data-testid="nav-compare"
               className="header-action hide-on-mobile"
               aria-label="Compare"
             >
-              <CompareIcon size={16} />
-              Compare
-              {compareCount > 0 ? <span className="num">{compareCount}</span> : null}
+              <span className="l1">Side by side</span>
+              <span className="l2">
+                <CompareIcon size={14} />
+                Compare
+                {compareCount > 0 ? <span className="num">{compareCount}</span> : null}
+              </span>
             </Link>
 
             <Link
@@ -347,35 +384,36 @@ export function Header() {
               className="header-action hide-on-mobile"
               aria-label="Team Split"
             >
-              Team Split
-            </Link>
-
-            <Link to="/cart" id="nav-cart" data-testid="nav-cart" className="header-action" aria-label="Cart">
-              <CartIcon size={17} />
-              <span className="hide-on-mobile">Cart</span>
-              <span id="nav-cart-count" data-testid="nav-cart-count" aria-label="Items in cart" className="count-badge">
-                {cartCount}
-              </span>
+              <span className="l1">Split the</span>
+              <span className="l2">Team</span>
             </Link>
 
             <Link
-              to="/profile"
-              id="nav-profile"
-              data-testid="nav-profile"
-              className="header-action"
-              aria-haspopup="menu"
-              aria-expanded="false"
-              onClick={handleProfileClick}
+              to="/cart"
+              id="nav-cart"
+              data-testid="nav-cart"
+              className="header-action header-cart"
+              aria-label="Cart"
             >
-              <UserIcon size={17} />
-              <span className="hide-on-mobile">Profile</span>
+              <span className="cart-glyph">
+                <CartIcon size={26} strokeWidth={1.8} />
+                <span
+                  id="nav-cart-count"
+                  data-testid="nav-cart-count"
+                  aria-label="Items in cart"
+                  className="count-badge"
+                >
+                  {cartCount}
+                </span>
+              </span>
+              <span className="l2 hide-on-mobile">Cart</span>
             </Link>
 
             {isAuthenticated ? (
               <button
                 id="nav-signout"
                 data-testid="nav-signout"
-                className="btn btn-primary header-signin"
+                className="btn header-signin"
                 onClick={handleSignOut}
               >
                 Sign out
@@ -385,7 +423,7 @@ export function Header() {
                 to="/login"
                 id="nav-signin"
                 data-testid="nav-signin"
-                className="btn btn-primary header-signin"
+                className="btn header-signin"
               >
                 Sign in
               </Link>
@@ -393,55 +431,69 @@ export function Header() {
           </div>
         </nav>
 
-        {/* 3 · departments */}
-        <div
-          className="category-row"
-          role="list"
-          aria-label="Categories"
-          onMouseLeave={closeMega}
-        >
-          <button
-            type="button"
-            className="category-trigger"
-            ref={triggerRef}
-            aria-expanded={megaOpen}
-            aria-controls="mega-menu"
-            aria-haspopup="true"
-            id="all-categories-trigger"
-            data-testid="all-categories-trigger"
-            onMouseEnter={scheduleOpen}
-            onClick={toggleMega}
-            onKeyDown={(e) => {
-              // Opening on focus alone would race the click that produced the
-              // focus, so the keyboard path is explicit instead.
-              if (e.key === 'ArrowDown') {
-                e.preventDefault()
-                openMega()
-              }
-            }}
+        {/* 2 · the sub-nav — "All" plus the department chips */}
+        <div className="category-band">
+          <div
+            className="category-row"
+            role="list"
+            aria-label="Categories"
+            onMouseLeave={closeMega}
           >
-            <MenuIcon size={15} />
-            All categories
-          </button>
-
-          {HEADER_CATEGORIES.map((category) => (
             <button
-              key={category.id}
               type="button"
-              className={`category-chip${activeCategoryId === String(category.id) ? ' is-active' : ''}`}
-              id={category.testId}
-              data-testid={category.testId}
-              role="listitem"
-              onClick={() => {
-                storeCategoryInfo(category.id, category.slug)
-                navigate(productsHref(category.id, category.slug))
+              className="category-trigger"
+              ref={triggerRef}
+              aria-expanded={megaOpen}
+              aria-controls="mega-menu"
+              aria-haspopup="true"
+              id="all-categories-trigger"
+              data-testid="all-categories-trigger"
+              onMouseEnter={scheduleOpen}
+              onClick={toggleMega}
+              onKeyDown={(e) => {
+                // Opening on focus alone would race the click that produced the
+                // focus, so the keyboard path is explicit instead.
+                if (e.key === 'ArrowDown') {
+                  e.preventDefault()
+                  openMega()
+                }
               }}
             >
-              {category.name}
+              <MenuIcon size={16} />
+              All
             </button>
-          ))}
 
-          <span className="category-note hide-on-mobile">Deals refresh 06:00 IST</span>
+            {HEADER_CATEGORIES.map((category) => (
+              <button
+                key={category.id}
+                type="button"
+                className={`category-chip${activeCategoryId === String(category.id) ? ' is-active' : ''}`}
+                id={category.testId}
+                data-testid={category.testId}
+                role="listitem"
+                onClick={() => {
+                  storeCategoryInfo(category.id, category.slug)
+                  navigate(productsHref(category.id, category.slug))
+                }}
+              >
+                {category.name}
+              </button>
+            ))}
+
+            <span className="category-note hide-on-mobile">Deals refresh 06:00 IST</span>
+          </div>
+        </div>
+
+        {/* 3 · the promotional strip */}
+        <div className="utility-band">
+          <div className="utility-bar">
+            <span>Free delivery over ₹499 · Delivering to 19,000+ pin codes</span>
+            <div className="utility-links">
+              <Link to="/orders">Track order</Link>
+              <Link to="/health">Help centre</Link>
+              <Link to="/crawlableDocuments">Sell on Angaadi</Link>
+            </div>
+          </div>
         </div>
 
         {megaOpen ? (
@@ -466,7 +518,7 @@ export function Header() {
                     onClick={() => goToDepartment(d.id, d.slug)}
                   >
                     {d.name}
-                    {d.id === activeDept.id ? <ChevronRight size={16} strokeWidth={2.5} /> : null}
+                    <ChevronRight size={15} strokeWidth={2.5} />
                   </button>
                 ))}
                 <Link to="/products?category=all" className="mega-dept mega-dept-all">
@@ -502,7 +554,7 @@ export function Header() {
                   </span>
                   <Link
                     to={productsHref(activeDept.id, activeDept.slug)}
-                    style={{ fontFamily: 'var(--font-heading)', fontWeight: 800 }}
+                    style={{ fontWeight: 700 }}
                   >
                     Best of {activeDept.name}
                   </Link>

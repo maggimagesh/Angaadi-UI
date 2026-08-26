@@ -19,9 +19,10 @@ const sizeWidths = {
 }
 
 /**
- * The shared dialog shell, on `.dialog-backdrop` / `.dialog`: square corners,
- * a 2px rule under the title, actions flush right. Focus is trapped inside
- * while it is open and returns to the trigger on close; Escape closes.
+ * The shared dialog shell, on `.dialog-backdrop` / `.dialog`: white paper on
+ * a dimmed page, a tinted title bar with a hairline under it, and the actions
+ * on a matching bar at the foot. Focus is trapped inside while it is open and
+ * returns to the trigger on close; Escape closes.
  */
 export function BaseModal({
   open,

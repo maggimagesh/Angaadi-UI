@@ -71,7 +71,7 @@ export default function ComparePage() {
         </div>
 
         {items.length === 0 ? (
-          <div style={{ padding: '0 40px 40px' }}>
+          <div style={{ padding: '0 20px 24px' }}>
             <EmptyState
               title="Nothing to compare yet."
               body={`Add up to ${COMPARE_LIMIT} products from any listing — the Compare button sits next to Add to cart on every card.`}

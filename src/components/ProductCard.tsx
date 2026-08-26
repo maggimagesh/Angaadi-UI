@@ -6,15 +6,17 @@ import { useUIStore } from '../store/ui'
 import { useWishlistStore } from '../store/wishlist'
 import { useCompareStore } from '../store/compare'
 import { placeholderFor } from '../data/catalog'
-import { HeartIcon, CompareIcon, CloseIcon } from './icons'
+import { HeartIcon, CompareIcon, CloseIcon, Stars } from './icons'
+import { PriceTag } from './PriceTag'
+import { deliveryDate } from '../utils/delivery'
 
 /**
  * The one product cell, used on the home grids, the listing, the details page
  * and anywhere else a product appears.
  *
- * Treatment A from the design system: no fill, no shadow, no radius. The grid
- * that holds these cells draws the 1px rules; the cell itself only carries an
- * inset accent ring on hover.
+ * The Amazon result cell: white paper with no rule at rest, a hairline and a
+ * lifted shadow on hover. The order of the copy is Amazon's — title, star
+ * row, price, delivery promise, then the gold button.
  */
 
 export type CardProduct = {
@@ -61,14 +63,19 @@ function detailHref(p: CardProduct): string {
   return `/product/${cat}/${p.id}`
 }
 
-/** "Only 4 left · free delivery Tue" — specific, never "Hurry!". */
+/**
+ * The delivery promise, in Amazon's own words: the free-delivery date first,
+ * and the stock warning only when the count is genuinely low. Never "Hurry!".
+ */
 function stockLine(p: CardProduct): { text: string; low: boolean } {
-  if (!p.inStock) return { text: 'Out of stock · tell me when it returns', low: false }
-  const delivery = p.freeDelivery ? ' · free delivery' : ''
+  if (!p.inStock) return { text: 'Currently unavailable', low: false }
   if (typeof p.stockCount === 'number' && p.stockCount > 0 && p.stockCount <= 10) {
-    return { text: `Only ${p.stockCount} left${delivery}`, low: true }
+    return { text: `Only ${p.stockCount} left in stock — order soon`, low: true }
   }
-  return { text: `In stock${delivery}`, low: false }
+  return {
+    text: p.freeDelivery ? `FREE delivery ${deliveryDate()}` : `Delivery by ${deliveryDate(4)}`,
+    low: false,
+  }
 }
 
 function discountOf(p: CardProduct): number {
@@ -197,11 +204,13 @@ function QuickView({ product, onClose }: { product: CardProduct; onClose: () => 
             </p>
           ) : null}
           <div className="pcard-price">
-            <span className="now">{formatINR(product.price)}</span>
+            <PriceTag value={product.price} className="now" />
             {product.oldPrice && product.oldPrice > product.price ? (
-              <span className="was strike">{formatINR(product.oldPrice)}</span>
+              <span className="was">
+                M.R.P: <span className="strike">{formatINR(product.oldPrice)}</span>
+              </span>
             ) : null}
-            {discount > 0 ? <span className="tag tag-accent">{discount}% off</span> : null}
+            {discount > 0 ? <span className="tag tag-accent">Save {discount}%</span> : null}
           </div>
           <div className={`pcard-stock${stock.low ? ' is-low' : ''}`}>{stock.text}</div>
         </div>
@@ -250,8 +259,8 @@ export function ProductCard({ product }: { product: CardProduct }) {
       <div className="pcard-top">
         {!product.inStock ? (
           <span className="tag tag-outline">Out of stock</span>
-        ) : discount > 0 ? (
-          <span className="tag tag-accent">{discount}% off</span>
+        ) : discount >= 10 ? (
+          <span className="tag tag-accent">Save {discount}%</span>
         ) : product.badge ? (
           <span className="tag tag-neutral">{product.badge}</span>
         ) : (
@@ -335,19 +344,26 @@ export function ProductCard({ product }: { product: CardProduct }) {
 
       {product.rating ? (
         <div className="pcard-rating">
-          <span className="rating-chip">{product.rating.toFixed(1)} ★</span>
+          <span className="rating-chip">{product.rating.toFixed(1)}</span>
+          <Stars rating={product.rating} />
           {product.ratingsCount ? (
-            <span className="count">{product.ratingsCount.toLocaleString('en-IN')} ratings</span>
+            <span className="count">{product.ratingsCount.toLocaleString('en-IN')}</span>
           ) : null}
         </div>
       ) : null}
 
       <div className="pcard-price">
-        <span className="now" id={`result-price-${id}`} data-testid={`result-price-${id}`}>
-          {formatINR(product.price)}
-        </span>
+        <PriceTag
+          value={product.price}
+          className="now"
+          id={`result-price-${id}`}
+          testId={`result-price-${id}`}
+        />
         {product.inStock && product.oldPrice && product.oldPrice > product.price ? (
-          <span className="was strike">{formatINR(product.oldPrice)}</span>
+          <span className="was">
+            M.R.P: <span className="strike">{formatINR(product.oldPrice)}</span>
+            {discount > 0 ? ` (${discount}% off)` : ''}
+          </span>
         ) : null}
       </div>
 
@@ -428,6 +444,15 @@ export function ProductRow({ product }: { product: CardProduct }) {
         <h4 id={`product-card-${id}-title`}>
           <Link to={detailHref(product)}>{product.title}</Link>
         </h4>
+        {product.rating ? (
+          <div className="pcard-rating">
+            <span className="rating-chip">{product.rating.toFixed(1)}</span>
+            <Stars rating={product.rating} />
+            {product.ratingsCount ? (
+              <span className="count">{product.ratingsCount.toLocaleString('en-IN')}</span>
+            ) : null}
+          </div>
+        ) : null}
         {product.specs?.length ? (
           <div className="prow-specs">
             {product.specs.slice(0, 4).map((s) => (
@@ -443,9 +468,12 @@ export function ProductRow({ product }: { product: CardProduct }) {
       </div>
 
       <div className="prow-buy">
-        <div className="price" id={`result-price-${id}`} data-testid={`result-price-${id}`}>
-          {formatINR(product.price)}
-        </div>
+        <PriceTag
+          value={product.price}
+          className="price"
+          id={`result-price-${id}`}
+          testId={`result-price-${id}`}
+        />
         {savings > 0 ? (
           <div className="save">
             <span className="strike">{formatINR(product.oldPrice!)}</span> · save {formatINR(savings)}

@@ -12,7 +12,7 @@ import { applyTheme, nextTheme, readStoredTheme, type Theme } from './theme'
  */
 export function useTheme(): { theme: Theme; setTheme: (t: Theme) => void; toggleTheme: () => void } {
   const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'modernist'
+    if (typeof window === 'undefined') return 'storefront'
     return readStoredTheme()
   })
 
