@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '../styles/webhook-inspector.css'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
+  appendWebhookQuery,
+  buildWebhookBodyAttachmentUrl,
   buildWebhookBodyDownloadUrl,
   buildWebhookCaptureUrl,
   buildWebhookDownloadAllUrl,
@@ -202,7 +204,7 @@ async function fetchFullRequestBody(
     let offset = 0
     while (offset < totalBytes) {
       const limit = Math.min(BODY_CHUNK_BYTES, totalBytes - offset)
-      const response = await fetch(`${url}?offset=${offset}&limit=${limit}`, {
+      const response = await fetch(appendWebhookQuery(url, { offset, limit }), {
         headers: { Accept: '*/*' },
       })
       if (!response.ok) {
@@ -231,7 +233,7 @@ async function fetchFullRequestBody(
   let offset = 0
   while (offset < totalBytes) {
     const limit = Math.min(BODY_CHUNK_BYTES, totalBytes - offset)
-    const response = await fetch(`${url}?offset=${offset}&limit=${limit}`, {
+    const response = await fetch(appendWebhookQuery(url, { offset, limit }), {
       headers: { Accept: '*/*' },
     })
     if (!response.ok) {
@@ -265,9 +267,26 @@ function getResponseBodyValue(record: WebhookCaptureRecord): { value: unknown; i
   return { value: '', isJson: false }
 }
 
-function triggerUrlDownload(url: string): void {
+// Mirrors extensionForContentType() in the API's body route so the name the
+// browser suggests matches the one the server puts in Content-Disposition.
+function extensionForContentType(contentType: string | null): string {
+  if (!contentType) return 'bin'
+  if (contentType.includes('json')) return 'json'
+  if (contentType.startsWith('text/')) return 'txt'
+  if (contentType.includes('xml')) return 'xml'
+  return 'bin'
+}
+
+function buildBodyFilename(token: string, requestId: string, contentType: string | null): string {
+  return `webhook-${token}-${requestId}.${extensionForContentType(contentType)}`
+}
+
+function triggerUrlDownload(url: string, filename?: string): void {
   const link = document.createElement('a')
   link.href = url
+  // Only a same-origin API honours this; cross-origin it is ignored and the
+  // server's `Content-Disposition: attachment` is what saves the file.
+  link.download = filename ?? ''
   link.rel = 'noopener noreferrer'
   document.body.appendChild(link)
   link.click()
@@ -1769,7 +1788,7 @@ export default function WebhookInspector() {
     setJsonExpandSignal((s) => s + 1)
   }
 
-  const startServerDownload = async (url: string) => {
+  const startServerDownload = async (url: string, filename?: string) => {
     try {
       const probe = await fetch(url, { method: 'HEAD' })
       if (!probe.ok) {
@@ -1782,7 +1801,7 @@ export default function WebhookInspector() {
         return
       }
       setError(null)
-      triggerUrlDownload(url)
+      triggerUrlDownload(url, filename)
     } catch {
       setError(`Download failed: could not reach ${url}`)
     }
@@ -1790,7 +1809,8 @@ export default function WebhookInspector() {
 
   const handleDownloadRequest = (request: WebhookCaptureRecord) => {
     void startServerDownload(
-      buildWebhookBodyDownloadUrl(token, request.id, request.body.downloadUrl)
+      buildWebhookBodyAttachmentUrl(token, request.id, request.body.downloadUrl),
+      buildBodyFilename(token, request.id, request.body.contentType)
     )
   }
 
@@ -1798,7 +1818,7 @@ export default function WebhookInspector() {
     if (payload.requests.length === 0) {
       return
     }
-    void startServerDownload(buildWebhookDownloadAllUrl(token))
+    void startServerDownload(buildWebhookDownloadAllUrl(token), `webhook-${token}.zip`)
   }
 
   if (!token || !isValidWebhookToken(token)) {
@@ -2269,12 +2289,16 @@ export default function WebhookInspector() {
                           <BodyFetchErrorNotice
                             message={cached.error}
                             storedBody={selectedRequest.body}
-                            downloadUrl={buildWebhookBodyDownloadUrl(
+                            downloadUrl={buildWebhookBodyAttachmentUrl(
                               token,
                               selectedRequest.id,
                               selectedRequest.body.downloadUrl
                             )}
-                            downloadFilename={`webhook-${token}-${selectedRequest.id}.bin`}
+                            downloadFilename={buildBodyFilename(
+                              token,
+                              selectedRequest.id,
+                              selectedRequest.body.contentType
+                            )}
                             onRetry={() => retryFullBodyFetch(selectedRequest.id)}
                           />
                         )
