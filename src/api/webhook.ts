@@ -220,6 +220,21 @@ export function buildWebhookRequestsApiUrl(token: string): string {
   return `${getWebhookApiOrigin()}/api/webhook/${encodeURIComponent(token)}/requests`
 }
 
+export function appendWebhookQuery(
+  url: string,
+  params: Record<string, string | number>
+): string {
+  const query = Object.entries(params)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+    .join('&')
+
+  if (!query) {
+    return url
+  }
+
+  return `${url}${url.includes('?') ? '&' : '?'}${query}`
+}
+
 export function buildWebhookBodyDownloadUrl(
   token: string,
   requestId: string,
@@ -229,6 +244,24 @@ export function buildWebhookBodyDownloadUrl(
     return `${getWebhookApiOrigin()}${serverDownloadPath}`
   }
   return `${getWebhookApiOrigin()}/api/webhook/${encodeURIComponent(token)}/${encodeURIComponent(requestId)}/body`
+}
+
+// The body route serves `Content-Disposition: inline` by default so the plain
+// URL stays viewable (and so the inspector's own slice fetches are unaffected);
+// `?download=1` is what turns it into an attachment. Anything that is meant to
+// save the body to disk has to go through here, otherwise the browser just
+// renders the JSON in the tab instead of downloading it. The response header is
+// the only mechanism that works: the API usually sits on a different origin
+// than the UI, and browsers ignore an anchor's `download` attribute
+// cross-origin.
+export function buildWebhookBodyAttachmentUrl(
+  token: string,
+  requestId: string,
+  serverDownloadPath?: string | null
+): string {
+  return appendWebhookQuery(buildWebhookBodyDownloadUrl(token, requestId, serverDownloadPath), {
+    download: '1',
+  })
 }
 
 export function buildWebhookDownloadAllUrl(token: string): string {
