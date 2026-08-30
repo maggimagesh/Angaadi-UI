@@ -205,38 +205,41 @@ export default function HomePage() {
         <div className="hero-inner">
           <div className="hero-copy">
             <div className="hero-label">
-              <span className="tag tag-outline">Monsoon Electronics Week</span>
-              <span style={{ fontSize: 12, color: '#ccd2d8' }}>Ends 06:00 daily</span>
+              <span className="tag tag-outline">The Angaadi edit · 2026</span>
+              <span className="hero-edition-note">Curated in Chennai</span>
             </div>
 
-            <h1 className="hero-title">Specs, not spin.</h1>
+            <h1 className="hero-title">
+              Better objects.
+              <span>Beautifully chosen.</span>
+            </h1>
 
             <p className="hero-lede">
-              Every listing shows the real landed price, the stock count and the delivery date
-              before you click. No countdown theatre.
+              A considered marketplace for technology, design and everyday essentials—with
+              honest pricing, live availability and delivery clarity built in.
             </p>
 
             <div className="hero-actions">
               <Link className="btn btn-primary" to={productsHref(1, 'mobiles-tablets')}>
-                Shop the week
+                Explore the collection
               </Link>
               <Link className="btn btn-secondary" to="/compare">
-                Compare top phones
+                Compare favourites
               </Link>
             </div>
 
             <div className="hero-stats">
               <div className="hero-stat">
                 <div className="hero-stat-value">4.2L</div>
-                <div className="hero-stat-label">products listed</div>
+                <div className="hero-stat-label">considered products</div>
               </div>
               <div className="hero-stat">
                 <div className="hero-stat-value">48h</div>
-                <div className="hero-stat-label">median delivery</div>
+                <div className="hero-stat-label">typical dispatch</div>
               </div>
               <div className="hero-stat">
                 <div className="hero-stat-value">7 days</div>
-                <div className="hero-stat-label">no-question returns</div>
+                <div className="hero-stat-label">effortless returns</div>
               </div>
             </div>
           </div>
@@ -252,9 +255,11 @@ export default function HomePage() {
 
       {/* ── the card row that overlaps the hero ────────────────────────── */}
       <section aria-labelledby="home-categories-title" data-testid="home-categories">
-        <h2 id="home-categories-title" className="visually-hidden">
-          Shop by department
-        </h2>
+        <div className="home-section-intro">
+          <span>Explore</span>
+          <h2 id="home-categories-title">Shop by department</h2>
+          <p>Four worlds, selected with the same eye for quality.</p>
+        </div>
 
         {departmentsError ? (
           <div className="dept-grid" style={{ gridTemplateColumns: '1fr', marginTop: 20 }}>
