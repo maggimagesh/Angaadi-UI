@@ -296,7 +296,7 @@ export function Header() {
                 className="search-input"
                 ref={inputRef}
                 role="searchbox"
-                placeholder="Search products, brands and collections"
+                placeholder="Search Angaadi.in"
                 aria-label="Search electronics, models, brands"
                 autoComplete="off"
                 aria-expanded={suggestOpen}
@@ -480,14 +480,14 @@ export function Header() {
               </button>
             ))}
 
-            <span className="category-note hide-on-mobile">Curated daily · 06:00 IST</span>
+            <span className="category-note hide-on-mobile">Deals refresh 06:00 IST</span>
           </div>
         </div>
 
         {/* 3 · the promotional strip */}
         <div className="utility-band">
           <div className="utility-bar">
-            <span>Complimentary delivery over ₹499 · Easy 7-day returns</span>
+            <span>Free delivery over ₹499 · Delivering to 19,000+ pin codes</span>
             <div className="utility-links">
               <Link to="/orders">Track order</Link>
               <Link to="/health">Help centre</Link>

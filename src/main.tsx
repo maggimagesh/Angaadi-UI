@@ -13,9 +13,6 @@ import './index.css'
 import './styles/app.css'
 
 import App from './App.tsx'
-// Loaded after the complete route graph so its material layer consistently
-// covers shopping screens, dialogs and specialist QA fixtures alike.
-import './styles/liquid-glass.css'
 
 // CSS Variables Ponyfill for IE11 and older browsers
 import cssVars from 'css-vars-ponyfill'
@@ -31,9 +28,9 @@ cssVars({
   preserveVars: false,
   variables: {
     // Fallback values for CSS custom properties
-    '--color-accent': '#b6a5ff',
-    '--color-bg': '#080a10',
-    '--color-text': '#f7f8ff',
+    '--color-accent': '#007185',
+    '--color-bg': '#eaeded',
+    '--color-text': '#0f1111',
   },
 })
 

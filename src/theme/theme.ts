@@ -25,7 +25,7 @@ export const THEMES = ['storefront', 'liquid-glass'] as const
 
 export type Theme = (typeof THEMES)[number]
 
-export const DEFAULT_THEME: Theme = 'liquid-glass'
+export const DEFAULT_THEME: Theme = 'storefront'
 
 export const THEME_STORAGE_KEY = 'angaadi:theme'
 
@@ -60,10 +60,14 @@ export function readStoredTheme(): Theme {
 export function applyTheme(theme: Theme): void {
   const root = document.documentElement
 
-  root.setAttribute('data-theme', theme)
+  if (theme === DEFAULT_THEME) {
+    root.removeAttribute('data-theme')
+  } else {
+    root.setAttribute('data-theme', theme)
+  }
 
   // Lets the browser render form controls, scrollbars and the like to match.
-  root.style.colorScheme = theme === 'liquid-glass' ? 'dark' : 'light'
+  root.style.colorScheme = theme === 'liquid-glass' ? 'light dark' : 'light'
 
   try {
     window.localStorage.setItem(THEME_STORAGE_KEY, theme)
