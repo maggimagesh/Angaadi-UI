@@ -3,6 +3,7 @@ import '../styles/webhook-inspector.css'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   appendWebhookQuery,
+  appendWebhookQueryAuthParams,
   buildWebhookBodyAttachmentUrl,
   buildWebhookBodyDownloadUrl,
   buildWebhookCaptureUrl,
@@ -1272,7 +1273,13 @@ function CredentialEditor({
   )
 }
 
-function AuthRequirementsPanel({ token }: { token: string }) {
+function AuthRequirementsPanel({
+  token,
+  onConfigChange,
+}: {
+  token: string
+  onConfigChange: (config: WebhookAuthConfig) => void
+}) {
   const [expanded, setExpanded] = useState(false)
   const [headersEnabled, setHeadersEnabled] = useState(false)
   const [headerRows, setHeaderRows] = useState<AuthCredentialDraft[]>([])
@@ -1284,13 +1291,19 @@ function AuthRequirementsPanel({ token }: { token: string }) {
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
-  const applyConfig = useCallback((config: WebhookAuthConfig) => {
-    setHeadersEnabled(config.enabled)
-    setHeaderRows(toCredentialDrafts(config.headers))
-    setQueryEnabled(Boolean(config.queryEnabled))
-    setQueryRows(toCredentialDrafts(config.queryParams))
-    setSavedConfig(config)
-  }, [])
+  const applyConfig = useCallback(
+    (config: WebhookAuthConfig) => {
+      setHeadersEnabled(config.enabled)
+      setHeaderRows(toCredentialDrafts(config.headers))
+      setQueryEnabled(Boolean(config.queryEnabled))
+      setQueryRows(toCredentialDrafts(config.queryParams))
+      setSavedConfig(config)
+      // The page header builds the receive URL from this, so it updates the
+      // moment a param is saved rather than only after a reload.
+      onConfigChange(config)
+    },
+    [onConfigChange]
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -1924,6 +1937,7 @@ export default function WebhookInspector() {
   const bodyLoadingRef = useRef(false)
   const [blockedDismissedAt, setBlockedDismissedAt] = useState<string | null>(null)
   const [clearingBlocked, setClearingBlocked] = useState(false)
+  const [authConfig, setAuthConfig] = useState<WebhookAuthConfig | null>(null)
 
   useEffect(() => {
     try {
@@ -1934,6 +1948,22 @@ export default function WebhookInspector() {
   }, [token])
 
   const blockedAttempts = useMemo(() => payload.blocked ?? [], [payload.blocked])
+
+  // Params are only appended once the requirement is actually switched on —
+  // showing them while it is off would hand out a URL carrying secrets that
+  // nothing is checking.
+  const activeQueryAuthParams = useMemo(
+    () => (authConfig?.queryEnabled ? (authConfig.queryParams ?? []) : []),
+    [authConfig]
+  )
+
+  // The URL a sender must actually call. Built from the capture URL the API
+  // reported so it keeps the real public origin, with the required query params
+  // appended and percent-encoded — this is what gets copied and handed out.
+  const receiveUrl = useMemo(
+    () => appendWebhookQueryAuthParams(payload.captureUrl, activeQueryAuthParams),
+    [payload.captureUrl, activeQueryAuthParams]
+  )
   const newBlockedAttempts = useMemo(
     () =>
       blockedAttempts.filter(
@@ -2311,11 +2341,28 @@ export default function WebhookInspector() {
                       fontSize: '0.85rem',
                     }}
                   >
-                    {payload.captureUrl}
+                    {receiveUrl}
                   </code>
+                  {activeQueryAuthParams.length > 0 ? (
+                    <div
+                      style={{
+                        marginTop: 6,
+                        fontSize: '0.78rem',
+                        lineHeight: 1.5,
+                        color: 'var(--color-text-secondary)',
+                        overflowWrap: 'anywhere',
+                      }}
+                    >
+                      Includes the {activeQueryAuthParams.length} required query param
+                      {activeQueryAuthParams.length === 1 ? '' : 's'} (
+                      {activeQueryAuthParams.map((param) => param.name).join(', ')}). Send this
+                      exact URL — a call without the param
+                      {activeQueryAuthParams.length === 1 ? '' : 's'} is rejected with 401.
+                    </div>
+                  ) : null}
                   <button
                     className="btn btn-primary mt-2"
-                    onClick={() => void handleCopy('capture', payload.captureUrl)}
+                    onClick={() => void handleCopy('capture', receiveUrl)}
                   >
                     {copyState === 'capture' ? 'Copied' : 'Copy Receive URL'}
                   </button>
@@ -2439,7 +2486,7 @@ export default function WebhookInspector() {
           </div>
         ) : null}
 
-        <AuthRequirementsPanel token={token} />
+        <AuthRequirementsPanel token={token} onConfigChange={setAuthConfig} />
 
         {blockedAttempts.length > 0 || payload.authEnabled || payload.authQueryEnabled ? (
           <BlockedAttemptsPanel
@@ -2503,7 +2550,7 @@ export default function WebhookInspector() {
             ) : null}
             {!loading && payload.requests.length === 0 ? (
               <p className="wi-empty">
-                Nothing captured yet. Send a request to <code>{payload.captureUrl}</code> and it
+                Nothing captured yet. Send a request to <code>{receiveUrl}</code> and it
                 will appear here within 2.5s.
               </p>
             ) : null}

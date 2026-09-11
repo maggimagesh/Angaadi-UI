@@ -426,13 +426,46 @@ export function buildWebhookAuthQueryApiUrl(token: string): string {
   return `${getWebhookApiOrigin()}/api/webhook/${encodeURIComponent(token)}/auth-query`
 }
 
+// What /api/webhook/{token}/auth-query returns: the query half of the config,
+// plus the receive URL with those params already appended so a caller can hand
+// it straight to a sender.
+export interface WebhookAuthQueryResponse {
+  queryEnabled: boolean
+  queryParams: WebhookAuthQueryParam[]
+  captureUrl: string
+}
+
+async function parseAuthQueryResponse(response: Response): Promise<WebhookAuthQueryResponse> {
+  const payload = await parseJsonResponse<{
+    token: string
+    config: { queryEnabled: boolean; queryParams: WebhookAuthQueryParam[] }
+    captureUrl: string
+  }>(response)
+
+  return {
+    queryEnabled: Boolean(payload.config?.queryEnabled),
+    queryParams: payload.config?.queryParams ?? [],
+    captureUrl: payload.captureUrl,
+  }
+}
+
+export async function fetchWebhookAuthQueryConfig(
+  token: string
+): Promise<WebhookAuthQueryResponse> {
+  const response = await fetch(buildWebhookAuthQueryApiUrl(token), {
+    headers: { Accept: 'application/json' },
+  })
+
+  return parseAuthQueryResponse(response)
+}
+
 // Query-param-only endpoint. The inspector saves through saveWebhookAuthConfig
 // above; this is here for callers that want to manage the query rule on its own
 // without resending the headers.
 export async function saveWebhookAuthQueryConfig(
   token: string,
   config: { queryEnabled: boolean; queryParams: WebhookAuthQueryParam[] }
-): Promise<WebhookAuthConfig> {
+): Promise<WebhookAuthQueryResponse> {
   const response = await fetch(buildWebhookAuthQueryApiUrl(token), {
     method: 'PUT',
     headers: {
@@ -442,41 +475,47 @@ export async function saveWebhookAuthQueryConfig(
     body: JSON.stringify(config),
   })
 
-  const payload = await parseJsonResponse<{ ok: true; token: string; config: WebhookAuthConfig }>(
-    response
-  )
-  return payload.config
+  return parseAuthQueryResponse(response)
 }
 
-export async function clearWebhookAuthQueryConfig(token: string): Promise<WebhookAuthConfig> {
+export async function clearWebhookAuthQueryConfig(
+  token: string
+): Promise<WebhookAuthQueryResponse> {
   const response = await fetch(buildWebhookAuthQueryApiUrl(token), {
     method: 'DELETE',
   })
 
-  const payload = await parseJsonResponse<{ ok: true; token: string; config: WebhookAuthConfig }>(
-    response
-  )
-  return payload.config
+  return parseAuthQueryResponse(response)
 }
 
-// The capture URL a sender should actually call once query-param auth is on.
-// Values are percent-encoded, so a secret containing reserved characters still
-// produces a URL that can be pasted straight into the sending application.
-export function buildWebhookCaptureUrlWithQueryAuth(
-  token: string,
+// Appends configured auth params to any capture URL. Values are
+// percent-encoded, so a secret containing reserved characters still produces a
+// URL that can be pasted straight into the sending application.
+//
+// Takes the base URL rather than a token so it can decorate the capture URL the
+// API itself reported (which carries the real public origin) instead of one
+// rebuilt from client-side env guesses.
+export function appendWebhookQueryAuthParams(
+  baseUrl: string,
   queryParams: WebhookAuthQueryParam[]
 ): string {
-  const base = buildWebhookCaptureUrl(token)
-
   if (queryParams.length === 0) {
-    return base
+    return baseUrl
   }
 
   const search = queryParams
     .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
     .join('&')
 
-  return `${base}${base.includes('?') ? '&' : '?'}${search}`
+  return `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}${search}`
+}
+
+// The capture URL a sender should actually call once query-param auth is on.
+export function buildWebhookCaptureUrlWithQueryAuth(
+  token: string,
+  queryParams: WebhookAuthQueryParam[]
+): string {
+  return appendWebhookQueryAuthParams(buildWebhookCaptureUrl(token), queryParams)
 }
 
 export async function clearWebhookBlockedAttempts(
