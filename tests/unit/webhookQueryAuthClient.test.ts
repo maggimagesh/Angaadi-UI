@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict'
 import test, { describe } from 'node:test'
 import {
+  appendWebhookQueryAuthParams,
   buildWebhookAuthQueryApiUrl,
   buildWebhookCaptureUrl,
   buildWebhookCaptureUrlWithQueryAuth,
@@ -95,5 +96,49 @@ describe('buildWebhookAuthQueryApiUrl', () => {
 describe('limits match the API', () => {
   test('the client caps query params at the same number the API does', () => {
     assert.equal(MAX_WEBHOOK_AUTH_QUERY_PARAMS, 10)
+  })
+})
+
+describe('appendWebhookQueryAuthParams', () => {
+  // The inspector decorates the capture URL the API reported, rather than one
+  // rebuilt client-side, so this has to work on an arbitrary base URL.
+  const BASE = 'https://webhooks.example.com/valid-webhooks/abc123'
+
+  test('returns the base untouched when nothing is configured', () => {
+    assert.equal(appendWebhookQueryAuthParams(BASE, []), BASE)
+  })
+
+  test('appends the configured params', () => {
+    assert.equal(
+      appendWebhookQueryAuthParams(BASE, [
+        { name: 'a', value: '1' },
+        { name: 'b', value: '2' },
+      ]),
+      `${BASE}?a=1&b=2`
+    )
+  })
+
+  test('uses & when the base already has a query string', () => {
+    assert.equal(
+      appendWebhookQueryAuthParams(`${BASE}?existing=1`, [{ name: 'k', value: 'v' }]),
+      `${BASE}?existing=1&k=v`
+    )
+  })
+
+  test('preserves the origin and path of whatever base it is given', () => {
+    const url = new URL(
+      appendWebhookQueryAuthParams(BASE, [{ name: 'k', value: 'v' }])
+    )
+    assert.equal(url.origin, 'https://webhooks.example.com')
+    assert.equal(url.pathname, '/valid-webhooks/abc123')
+  })
+
+  test('percent-encodes values so the copied URL is usable as-is', () => {
+    const secret = 'a b&c=d?e#f'
+    const parsed = new URL(appendWebhookQueryAuthParams(BASE, [{ name: 'k', value: secret }]))
+
+    assert.equal(parsed.searchParams.get('k'), secret)
+    assert.deepEqual([...parsed.searchParams.keys()], ['k'])
+    assert.equal(parsed.hash, '')
   })
 })
