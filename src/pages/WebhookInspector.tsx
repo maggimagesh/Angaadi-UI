@@ -6,6 +6,7 @@ import {
   buildWebhookBodyAttachmentUrl,
   buildWebhookBodyDownloadUrl,
   buildWebhookCaptureUrl,
+  buildWebhookCaptureUrlWithQueryAuth,
   buildWebhookDownloadAllUrl,
   buildWebhookInspectorUrl,
   clearWebhookBlockedAttempts,
@@ -15,10 +16,14 @@ import {
   fetchWebhookRequests,
   getWebhookApiOrigin,
   getWebhookPublicApiOrigin,
+  isValidWebhookQueryParamName,
   isValidWebhookToken,
   isLoopbackWebhookOrigin,
+  MAX_WEBHOOK_AUTH_HEADERS,
+  MAX_WEBHOOK_AUTH_QUERY_PARAMS,
   saveWebhookAuthConfig,
   type WebhookAuthConfig,
+  type WebhookAuthConfigInput,
   type WebhookBlockedRecord,
   type WebhookCaptureListResponse,
   type WebhookCaptureRecord,
@@ -990,7 +995,9 @@ function ToggleSwitch({ checked, onChange, label }: ToggleSwitchProps) {
   )
 }
 
-interface AuthHeaderDraft {
+type AuthCredentialKind = 'header' | 'query'
+
+interface AuthCredentialDraft {
   key: string
   name: string
   value: string
@@ -1008,8 +1015,7 @@ function generateSecretValue(): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
-function nextGeneratedHeaderName(existingNames: string[]): string {
-  const base = 'X-Webhook-Key'
+function nextGeneratedName(base: string, existingNames: string[]): string {
   const taken = new Set(existingNames.map((name) => name.toLowerCase()))
   if (!taken.has(base.toLowerCase())) {
     return base
@@ -1019,6 +1025,30 @@ function nextGeneratedHeaderName(existingNames: string[]): string {
     suffix += 1
   }
   return `${base}-${suffix}`
+}
+
+function toCredentialDrafts(
+  entries: Array<{ name: string; value: string }> | undefined
+): AuthCredentialDraft[] {
+  return (entries ?? []).map((entry) => ({
+    key: nextAuthRowKey(),
+    name: entry.name,
+    value: entry.value,
+  }))
+}
+
+// Drops rows the user started and abandoned (both fields blank) while keeping
+// half-filled ones so the API can explain what is missing.
+function toCredentialPayload(rows: AuthCredentialDraft[]): Array<{ name: string; value: string }> {
+  return rows
+    .map((row) => ({ name: row.name.trim(), value: row.value.trim() }))
+    .filter((entry) => entry.name || entry.value)
+}
+
+function toCompleteCredentials(
+  rows: AuthCredentialDraft[]
+): Array<{ name: string; value: string }> {
+  return toCredentialPayload(rows).filter((entry) => entry.name && entry.value)
 }
 
 const AUTH_INPUT_STYLE: React.CSSProperties = {
@@ -1033,15 +1063,234 @@ const AUTH_INPUT_STYLE: React.CSSProperties = {
   boxSizing: 'border-box',
 }
 
-function AuthHeadersPanel({ token }: { token: string }) {
+const AUTH_INVALID_INPUT_STYLE: React.CSSProperties = {
+  ...AUTH_INPUT_STYLE,
+  border: '1px solid color-mix(in srgb, var(--color-danger) 55%, transparent)',
+}
+
+const CREDENTIAL_COPY: Record<
+  AuthCredentialKind,
+  {
+    heading: string
+    toggleOn: string
+    toggleOff: string
+    blurb: string
+    namePlaceholder: string
+    valuePlaceholder: string
+    nameLabel: string
+    valueLabel: string
+    emptyText: string
+    generateLabel: string
+    generateTitle: string
+    addLabel: string
+    limit: number
+  }
+> = {
+  header: {
+    heading: 'Required Headers',
+    toggleOn: 'Require headers: ON',
+    toggleOff: 'Require headers: OFF',
+    blurb:
+      'Secret headers every callback must include. The sender adds each one as a custom request header in their application.',
+    namePlaceholder: 'Header name (e.g. X-Callback-Key)',
+    valuePlaceholder: 'Expected value',
+    nameLabel: 'Header name',
+    valueLabel: 'Header value',
+    emptyText: 'No headers configured yet.',
+    generateLabel: '⚡ Generate Secret Header',
+    generateTitle: 'Create a secret header for this webhook and enable header authorization',
+    addLabel: '+ Add Header Manually',
+    limit: MAX_WEBHOOK_AUTH_HEADERS,
+  },
+  query: {
+    heading: 'Required Query Params',
+    toggleOn: 'Require query params: ON',
+    toggleOff: 'Require query params: OFF',
+    blurb:
+      'Secret query params every callback must carry in its URL. Useful when the sender cannot set custom headers — they just call the receive URL with the params appended.',
+    namePlaceholder: 'Param name (e.g. callback_key)',
+    valuePlaceholder: 'Expected value',
+    nameLabel: 'Query param name',
+    valueLabel: 'Query param value',
+    emptyText: 'No query params configured yet.',
+    generateLabel: '⚡ Generate Secret Query Param',
+    generateTitle: 'Create a secret query param for this webhook and enable query param authorization',
+    addLabel: '+ Add Query Param Manually',
+    limit: MAX_WEBHOOK_AUTH_QUERY_PARAMS,
+  },
+}
+
+interface CredentialEditorProps {
+  kind: AuthCredentialKind
+  enabled: boolean
+  onEnabledChange: (next: boolean) => void
+  rows: AuthCredentialDraft[]
+  onRowChange: (key: string, field: 'name' | 'value', value: string) => void
+  onRowRemove: (key: string) => void
+  onRowAdd: () => void
+  onGenerate: () => void
+  busy: boolean
+}
+
+function CredentialEditor({
+  kind,
+  enabled,
+  onEnabledChange,
+  rows,
+  onRowChange,
+  onRowRemove,
+  onRowAdd,
+  onGenerate,
+  busy,
+}: CredentialEditorProps) {
+  const copy = CREDENTIAL_COPY[kind]
+  const atLimit = rows.length >= copy.limit
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gap: 12,
+        minWidth: 0,
+        padding: 14,
+        borderRadius: 'var(--radius-md)',
+        border: '1px solid color-mix(in srgb, var(--color-text) 12%, transparent)',
+        background: 'color-mix(in srgb, var(--color-surface-raised) 55%, transparent)',
+      }}
+    >
+      <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{copy.heading}</div>
+      <p
+        style={{
+          margin: 0,
+          color: 'var(--color-text-secondary)',
+          fontSize: '0.88rem',
+          lineHeight: 1.55,
+        }}
+      >
+        {copy.blurb}
+      </p>
+
+      <ToggleSwitch
+        checked={enabled}
+        onChange={onEnabledChange}
+        label={enabled ? copy.toggleOn : copy.toggleOff}
+      />
+
+      <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
+        {rows.map((row) => {
+          const trimmedName = row.name.trim()
+          // Query param names are stricter than header names, so flag a bad one
+          // inline instead of waiting for the API to reject the whole save.
+          const nameInvalid =
+            kind === 'query' && trimmedName.length > 0 && !isValidWebhookQueryParamName(trimmedName)
+
+          return (
+            <div key={row.key} style={{ display: 'grid', gap: 4, minWidth: 0 }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(120px, 1fr) minmax(160px, 2fr) auto',
+                  gap: 8,
+                  alignItems: 'center',
+                  minWidth: 0,
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder={copy.namePlaceholder}
+                  aria-label={copy.nameLabel}
+                  aria-invalid={nameInvalid || undefined}
+                  value={row.name}
+                  onChange={(e) => onRowChange(row.key, 'name', e.target.value)}
+                  style={nameInvalid ? AUTH_INVALID_INPUT_STYLE : AUTH_INPUT_STYLE}
+                />
+                <input
+                  type="text"
+                  placeholder={copy.valuePlaceholder}
+                  aria-label={copy.valueLabel}
+                  value={row.value}
+                  onChange={(e) => onRowChange(row.key, 'value', e.target.value)}
+                  style={AUTH_INPUT_STYLE}
+                />
+                <button
+                  type="button"
+                  onClick={() => onRowRemove(row.key)}
+                  title={`Remove ${kind === 'header' ? 'header' : 'query param'}`}
+                  aria-label={`Remove ${kind === 'header' ? 'header' : 'query param'}`}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: 'var(--radius-md)',
+                    border:
+                      '1px solid color-mix(in srgb, var(--color-accent-2-700) 25%, transparent)',
+                    background: 'color-mix(in srgb, var(--color-accent-2-200) 70%, transparent)',
+                    color: 'var(--color-accent-800)',
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+              {nameInvalid ? (
+                <span style={{ fontSize: '0.78rem', color: 'var(--color-danger)' }}>
+                  Use letters, digits and _ . ~ - only. &quot;token&quot; and &quot;path&quot; are
+                  reserved.
+                </span>
+              ) : null}
+            </div>
+          )
+        })}
+        {rows.length === 0 ? (
+          <p
+            style={{
+              margin: 0,
+              color: 'var(--color-text-secondary)',
+              fontSize: '0.85rem',
+              fontStyle: 'italic',
+            }}
+          >
+            {copy.emptyText}
+          </p>
+        ) : null}
+      </div>
+
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+        <button
+          className="btn btn-primary"
+          type="button"
+          onClick={onGenerate}
+          disabled={busy || atLimit}
+          title={copy.generateTitle}
+        >
+          {busy ? 'Working…' : copy.generateLabel}
+        </button>
+        <button className="btn" type="button" onClick={onRowAdd} disabled={atLimit}>
+          {copy.addLabel}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function AuthRequirementsPanel({ token }: { token: string }) {
   const [expanded, setExpanded] = useState(false)
-  const [enabled, setEnabled] = useState(false)
-  const [rows, setRows] = useState<AuthHeaderDraft[]>([])
+  const [headersEnabled, setHeadersEnabled] = useState(false)
+  const [headerRows, setHeaderRows] = useState<AuthCredentialDraft[]>([])
+  const [queryEnabled, setQueryEnabled] = useState(false)
+  const [queryRows, setQueryRows] = useState<AuthCredentialDraft[]>([])
   const [savedConfig, setSavedConfig] = useState<WebhookAuthConfig | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
+
+  const applyConfig = useCallback((config: WebhookAuthConfig) => {
+    setHeadersEnabled(config.enabled)
+    setHeaderRows(toCredentialDrafts(config.headers))
+    setQueryEnabled(Boolean(config.queryEnabled))
+    setQueryRows(toCredentialDrafts(config.queryParams))
+    setSavedConfig(config)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -1051,16 +1300,8 @@ function AuthHeadersPanel({ token }: { token: string }) {
     fetchWebhookAuthConfig(token)
       .then((config) => {
         if (cancelled) return
-        setEnabled(config.enabled)
-        setRows(
-          config.headers.map((header) => ({
-            key: nextAuthRowKey(),
-            name: header.name,
-            value: header.value,
-          }))
-        )
-        setSavedConfig(config)
-        if (config.enabled) {
+        applyConfig(config)
+        if (config.enabled || config.queryEnabled) {
           setExpanded(true)
         }
       })
@@ -1068,8 +1309,7 @@ function AuthHeadersPanel({ token }: { token: string }) {
         if (cancelled) return
         setMessage({
           kind: 'error',
-          text:
-            error instanceof Error ? error.message : 'Failed to load authorization settings',
+          text: error instanceof Error ? error.message : 'Failed to load authorization settings',
         })
       })
       .finally(() => {
@@ -1081,18 +1321,26 @@ function AuthHeadersPanel({ token }: { token: string }) {
     return () => {
       cancelled = true
     }
-  }, [token])
+  }, [token, applyConfig])
 
-  const updateRow = (key: string, field: 'name' | 'value', nextValue: string) => {
-    setRows((prev) => prev.map((row) => (row.key === key ? { ...row, [field]: nextValue } : row)))
+  const updateRow = (
+    kind: AuthCredentialKind,
+    key: string,
+    field: 'name' | 'value',
+    nextValue: string
+  ) => {
+    const setter = kind === 'header' ? setHeaderRows : setQueryRows
+    setter((prev) => prev.map((row) => (row.key === key ? { ...row, [field]: nextValue } : row)))
   }
 
-  const removeRow = (key: string) => {
-    setRows((prev) => prev.filter((row) => row.key !== key))
+  const removeRow = (kind: AuthCredentialKind, key: string) => {
+    const setter = kind === 'header' ? setHeaderRows : setQueryRows
+    setter((prev) => prev.filter((row) => row.key !== key))
   }
 
-  const addRow = () => {
-    setRows((prev) => [...prev, { key: nextAuthRowKey(), name: '', value: '' }])
+  const addRow = (kind: AuthCredentialKind) => {
+    const setter = kind === 'header' ? setHeaderRows : setQueryRows
+    setter((prev) => [...prev, { key: nextAuthRowKey(), name: '', value: '' }])
   }
 
   const handleCopy = async (key: string, value: string) => {
@@ -1107,29 +1355,15 @@ function AuthHeadersPanel({ token }: { token: string }) {
     }, 1600)
   }
 
-  const persist = async (
-    nextEnabled: boolean,
-    headers: Array<{ name: string; value: string }>
-  ) => {
+  // One request writes both halves, so the header and query rules can never end
+  // up saved out of step with each other.
+  const persist = async (next: WebhookAuthConfigInput, successText: string) => {
     setSaving(true)
     setMessage(null)
     try {
-      const config = await saveWebhookAuthConfig(token, { enabled: nextEnabled, headers })
-      setEnabled(config.enabled)
-      setRows(
-        config.headers.map((header) => ({
-          key: nextAuthRowKey(),
-          name: header.name,
-          value: header.value,
-        }))
-      )
-      setSavedConfig(config)
-      setMessage({
-        kind: 'ok',
-        text: config.enabled
-          ? 'Saved.'
-          : 'Saved. Authorized receiving is off — every callback is accepted.',
-      })
+      const config = await saveWebhookAuthConfig(token, next)
+      applyConfig(config)
+      setMessage({ kind: 'ok', text: successText })
     } catch (error) {
       setMessage({
         kind: 'error',
@@ -1140,49 +1374,114 @@ function AuthHeadersPanel({ token }: { token: string }) {
     }
   }
 
-  const handleSave = async () => {
-    const headers = rows
-      .map((row) => ({ name: row.name.trim(), value: row.value.trim() }))
-      .filter((header) => header.name || header.value)
+  const describeSavedState = (config: WebhookAuthConfigInput): string => {
+    if (config.enabled && config.queryEnabled) {
+      return 'Saved. Callbacks must send both the headers and the query params.'
+    }
+    if (config.enabled) {
+      return 'Saved. Callbacks must send the required headers.'
+    }
+    if (config.queryEnabled) {
+      return 'Saved. Callbacks must send the required query params.'
+    }
+    return 'Saved. Authorized receiving is off — every callback is accepted.'
+  }
 
-    if (enabled && headers.length === 0) {
+  const handleSave = async () => {
+    const headers = toCredentialPayload(headerRows)
+    const queryParams = toCredentialPayload(queryRows)
+
+    if (headersEnabled && headers.length === 0) {
+      setMessage({ kind: 'error', text: 'Add at least one header before requiring headers.' })
+      return
+    }
+
+    if (queryEnabled && queryParams.length === 0) {
       setMessage({
         kind: 'error',
-        text: 'Add at least one header before enabling authorized receiving.',
+        text: 'Add at least one query param before requiring query params.',
       })
       return
     }
 
-    await persist(enabled, headers)
-  }
-
-  const handleGenerate = async () => {
-    const completeHeaders = rows
-      .map((row) => ({ name: row.name.trim(), value: row.value.trim() }))
-      .filter((header) => header.name && header.value)
-
-    const generated = {
-      name: nextGeneratedHeaderName(completeHeaders.map((header) => header.name)),
-      value: generateSecretValue(),
+    const next: WebhookAuthConfigInput = {
+      enabled: headersEnabled,
+      headers,
+      queryEnabled,
+      queryParams,
     }
 
-    await persist(true, [...completeHeaders, generated])
+    await persist(next, describeSavedState(next))
   }
+
+  // Generating turns that half on and saves immediately, so the secret shown in
+  // the hand-off card below is always one that is actually being enforced.
+  const handleGenerate = async (kind: AuthCredentialKind) => {
+    const headers = toCompleteCredentials(headerRows)
+    const queryParams = toCompleteCredentials(queryRows)
+
+    if (kind === 'header') {
+      const generated = {
+        name: nextGeneratedName(
+          'X-Webhook-Key',
+          headers.map((header) => header.name)
+        ),
+        value: generateSecretValue(),
+      }
+      const next: WebhookAuthConfigInput = {
+        enabled: true,
+        headers: [...headers, generated],
+        queryEnabled,
+        queryParams,
+      }
+      await persist(next, describeSavedState(next))
+      return
+    }
+
+    const generated = {
+      name: nextGeneratedName(
+        'webhook_key',
+        queryParams.map((param) => param.name)
+      ),
+      value: generateSecretValue(),
+    }
+    const next: WebhookAuthConfigInput = {
+      enabled: headersEnabled,
+      headers,
+      queryEnabled: true,
+      queryParams: [...queryParams, generated],
+    }
+    await persist(next, describeSavedState(next))
+  }
+
+  const savedHeaders = savedConfig?.enabled ? (savedConfig.headers ?? []) : []
+  const savedQueryParams = savedConfig?.queryEnabled ? (savedConfig.queryParams ?? []) : []
+  const hasHandoff = savedHeaders.length > 0 || savedQueryParams.length > 0
+  const sampleCaptureUrl = buildWebhookCaptureUrlWithQueryAuth(token, savedQueryParams)
+
+  const meta = loading
+    ? 'loading…'
+    : headersEnabled || queryEnabled
+      ? [
+          headersEnabled
+            ? `${headerRows.length} header${headerRows.length === 1 ? '' : 's'}`
+            : null,
+          queryEnabled
+            ? `${queryRows.length} query param${queryRows.length === 1 ? '' : 's'}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(' + ') + ' required'
+      : 'off — all senders accepted'
 
   return (
     <SectionPanel
       title="Authorized Receiving"
-      meta={
-        loading
-          ? 'loading…'
-          : enabled
-            ? `ON · ${rows.length} required header${rows.length === 1 ? '' : 's'}`
-            : 'off — all senders accepted'
-      }
+      meta={meta}
       expanded={expanded}
       onToggle={() => setExpanded((prev) => !prev)}
     >
-      <div style={{ display: 'grid', gap: 12, minWidth: 0 }}>
+      <div style={{ display: 'grid', gap: 14, minWidth: 0 }}>
         <p
           style={{
             margin: 0,
@@ -1191,93 +1490,40 @@ function AuthHeadersPanel({ token }: { token: string }) {
             lineHeight: 1.55,
           }}
         >
-          Define secret headers that every callback must include. Requests missing them (or
-          sending wrong values) are rejected with <code>401 Unauthorized</code>, never stored in
-          the inbox, and reported below as blocked attempts.
+          Require secret headers, secret query params, or both before a callback is accepted. Each
+          switch is independent — turn on whichever the sending system can actually set. Requests
+          that do not satisfy every switch you have turned on are rejected with{' '}
+          <code>401 Unauthorized</code>, never stored in the inbox, and reported below as blocked
+          attempts.
         </p>
 
-        <ToggleSwitch
-          checked={enabled}
-          onChange={setEnabled}
-          label={enabled ? 'Require headers: ON' : 'Require headers: OFF'}
+        <CredentialEditor
+          kind="header"
+          enabled={headersEnabled}
+          onEnabledChange={setHeadersEnabled}
+          rows={headerRows}
+          onRowChange={(key, field, value) => updateRow('header', key, field, value)}
+          onRowRemove={(key) => removeRow('header', key)}
+          onRowAdd={() => addRow('header')}
+          onGenerate={() => void handleGenerate('header')}
+          busy={saving || loading}
         />
 
-        <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
-          {rows.map((row) => (
-            <div
-              key={row.key}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'minmax(120px, 1fr) minmax(160px, 2fr) auto',
-                gap: 8,
-                alignItems: 'center',
-                minWidth: 0,
-              }}
-            >
-              <input
-                type="text"
-                placeholder="Header name (e.g. X-Callback-Key)"
-                aria-label="Header name"
-                value={row.name}
-                onChange={(e) => updateRow(row.key, 'name', e.target.value)}
-                style={AUTH_INPUT_STYLE}
-              />
-              <input
-                type="text"
-                placeholder="Expected value"
-                aria-label="Header value"
-                value={row.value}
-                onChange={(e) => updateRow(row.key, 'value', e.target.value)}
-                style={AUTH_INPUT_STYLE}
-              />
-              <button
-                type="button"
-                onClick={() => removeRow(row.key)}
-                title="Remove header"
-                aria-label="Remove header"
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid color-mix(in srgb, var(--color-accent-2-700) 25%, transparent)',
-                  background: 'color-mix(in srgb, var(--color-accent-2-200) 70%, transparent)',
-                  color: 'var(--color-accent-800)',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                }}
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-          {rows.length === 0 ? (
-            <p
-              style={{
-                margin: 0,
-                color: 'var(--color-text-secondary)',
-                fontSize: '0.85rem',
-                fontStyle: 'italic',
-              }}
-            >
-              No headers configured yet.
-            </p>
-          ) : null}
-        </div>
+        <CredentialEditor
+          kind="query"
+          enabled={queryEnabled}
+          onEnabledChange={setQueryEnabled}
+          rows={queryRows}
+          onRowChange={(key, field, value) => updateRow('query', key, field, value)}
+          onRowRemove={(key) => removeRow('query', key)}
+          onRowAdd={() => addRow('query')}
+          onGenerate={() => void handleGenerate('query')}
+          busy={saving || loading}
+        />
 
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           <button
             className="btn btn-primary"
-            type="button"
-            onClick={() => void handleGenerate()}
-            disabled={saving || loading || rows.length >= 10}
-            title="Create a secret header for this webhook and enable authorized receiving"
-          >
-            {saving ? 'Working…' : '⚡ Generate Secret Header'}
-          </button>
-          <button className="btn" type="button" onClick={addRow} disabled={rows.length >= 10}>
-            + Add Header Manually
-          </button>
-          <button
-            className="btn"
             type="button"
             onClick={() => void handleSave()}
             disabled={saving || loading}
@@ -1300,7 +1546,7 @@ function AuthHeadersPanel({ token }: { token: string }) {
           </p>
         ) : null}
 
-        {savedConfig?.enabled && savedConfig.headers.length > 0 ? (
+        {hasHandoff ? (
           <div
             style={{
               padding: 14,
@@ -1313,70 +1559,196 @@ function AuthHeadersPanel({ token }: { token: string }) {
             }}
           >
             <div style={{ fontWeight: 800, color: 'var(--color-sky-900)', fontSize: '0.92rem' }}>
-              ✅ Give these headers to the user
+              ✅ Give these credentials to the sender
             </div>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-sky-900)', lineHeight: 1.5 }}>
-              The sender must add each one as a custom request header (&quot;Header Key&quot; /
-              &quot;Header Value&quot;) in their application. Callbacks that include them are
-              received; everything else is rejected with 401 and you get a blocked-attempt alert.
+            <p
+              style={{
+                margin: 0,
+                fontSize: '0.85rem',
+                color: 'var(--color-sky-900)',
+                lineHeight: 1.5,
+              }}
+            >
+              Callbacks that carry {savedHeaders.length > 0 && savedQueryParams.length > 0
+                ? 'all of these'
+                : 'these'}{' '}
+              are received; everything else is rejected with 401 and you get a blocked-attempt
+              alert.
             </p>
-            {savedConfig.headers.map((header) => (
-              <div
-                key={header.name}
-                style={{
-                  display: 'flex',
-                  gap: 8,
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  minWidth: 0,
-                }}
-              >
-                <code
+
+            {savedHeaders.length > 0 ? (
+              <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
+                <div
                   style={{
-                    padding: '6px 10px',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
-                    border: '1px solid color-mix(in srgb, var(--color-sky-700) 25%, transparent)',
-                    fontSize: '0.82rem',
-                    overflowWrap: 'anywhere',
-                    wordBreak: 'break-all',
-                    minWidth: 0,
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: 'var(--color-sky-900)',
                   }}
                 >
-                  {header.name}: {header.value}
-                </code>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => void handleCopy(`key-${header.name}`, header.name)}
-                >
-                  {copiedKey === `key-${header.name}` ? 'Copied' : 'Copy Key'}
-                </button>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => void handleCopy(`value-${header.name}`, header.value)}
-                >
-                  {copiedKey === `value-${header.name}` ? 'Copied' : 'Copy Value'}
-                </button>
+                  Request headers
+                </div>
+                {savedHeaders.map((header) => (
+                  <div
+                    key={`header-${header.name}`}
+                    style={{
+                      display: 'flex',
+                      gap: 8,
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      minWidth: 0,
+                    }}
+                  >
+                    <code
+                      style={{
+                        padding: '6px 10px',
+                        borderRadius: 'var(--radius-md)',
+                        background:
+                          'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--color-sky-700) 25%, transparent)',
+                        fontSize: '0.82rem',
+                        overflowWrap: 'anywhere',
+                        wordBreak: 'break-all',
+                        minWidth: 0,
+                      }}
+                    >
+                      {header.name}: {header.value}
+                    </code>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => void handleCopy(`header-key-${header.name}`, header.name)}
+                    >
+                      {copiedKey === `header-key-${header.name}` ? 'Copied' : 'Copy Key'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => void handleCopy(`header-value-${header.name}`, header.value)}
+                    >
+                      {copiedKey === `header-value-${header.name}` ? 'Copied' : 'Copy Value'}
+                    </button>
+                  </div>
+                ))}
+                {savedHeaders.length > 1 ? (
+                  <div>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() =>
+                        void handleCopy(
+                          'all-headers',
+                          savedHeaders
+                            .map((header) => `${header.name}: ${header.value}`)
+                            .join('\n')
+                        )
+                      }
+                    >
+                      {copiedKey === 'all-headers' ? 'Copied' : 'Copy All Headers'}
+                    </button>
+                  </div>
+                ) : null}
               </div>
-            ))}
-            {savedConfig.headers.length > 1 ? (
-              <div>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() =>
-                    void handleCopy(
-                      'all-headers',
-                      savedConfig.headers
-                        .map((header) => `${header.name}: ${header.value}`)
-                        .join('\n')
-                    )
-                  }
+            ) : null}
+
+            {savedQueryParams.length > 0 ? (
+              <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: 'var(--color-sky-900)',
+                  }}
                 >
-                  {copiedKey === 'all-headers' ? 'Copied' : 'Copy All Headers'}
-                </button>
+                  Query params
+                </div>
+                {savedQueryParams.map((param) => (
+                  <div
+                    key={`query-${param.name}`}
+                    style={{
+                      display: 'flex',
+                      gap: 8,
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      minWidth: 0,
+                    }}
+                  >
+                    <code
+                      style={{
+                        padding: '6px 10px',
+                        borderRadius: 'var(--radius-md)',
+                        background:
+                          'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--color-sky-700) 25%, transparent)',
+                        fontSize: '0.82rem',
+                        overflowWrap: 'anywhere',
+                        wordBreak: 'break-all',
+                        minWidth: 0,
+                      }}
+                    >
+                      {param.name}={param.value}
+                    </code>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => void handleCopy(`query-key-${param.name}`, param.name)}
+                    >
+                      {copiedKey === `query-key-${param.name}` ? 'Copied' : 'Copy Key'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => void handleCopy(`query-value-${param.name}`, param.value)}
+                    >
+                      {copiedKey === `query-value-${param.name}` ? 'Copied' : 'Copy Value'}
+                    </button>
+                  </div>
+                ))}
+                <div style={{ display: 'grid', gap: 6, minWidth: 0 }}>
+                  <span
+                    style={{ fontSize: '0.8rem', color: 'var(--color-sky-900)', lineHeight: 1.5 }}
+                  >
+                    Ready-to-use receive URL — the sender can call this as-is:
+                  </span>
+                  <code
+                    style={{
+                      padding: '6px 10px',
+                      borderRadius: 'var(--radius-md)',
+                      background: 'color-mix(in srgb, var(--color-surface-raised) 85%, transparent)',
+                      border: '1px solid color-mix(in srgb, var(--color-sky-700) 25%, transparent)',
+                      fontSize: '0.82rem',
+                      overflowWrap: 'anywhere',
+                      wordBreak: 'break-all',
+                      minWidth: 0,
+                    }}
+                  >
+                    {sampleCaptureUrl}
+                  </code>
+                  <div>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => void handleCopy('query-capture-url', sampleCaptureUrl)}
+                    >
+                      {copiedKey === 'query-capture-url' ? 'Copied' : 'Copy Receive URL'}
+                    </button>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '0.78rem',
+                      color: 'var(--color-sky-900)',
+                      lineHeight: 1.5,
+                      opacity: 0.85,
+                    }}
+                  >
+                    Anything in a URL can be logged by proxies and browser history along the way.
+                    Prefer headers when the sending system supports them, and rotate a query secret
+                    if you suspect it leaked.
+                  </span>
+                </div>
               </div>
             ) : null}
           </div>
@@ -1388,11 +1760,24 @@ function AuthHeadersPanel({ token }: { token: string }) {
 
 function describeBlockedReason(record: WebhookBlockedRecord): string {
   const parts: string[] = []
+  const missingQueryParams = record.missingQueryParams ?? []
+  const mismatchedQueryParams = record.mismatchedQueryParams ?? []
+
   if (record.missingHeaders.length > 0) {
     parts.push(`missing header${record.missingHeaders.length === 1 ? '' : 's'}: ${record.missingHeaders.join(', ')}`)
   }
   if (record.mismatchedHeaders.length > 0) {
-    parts.push(`wrong value for: ${record.mismatchedHeaders.join(', ')}`)
+    parts.push(`wrong header value for: ${record.mismatchedHeaders.join(', ')}`)
+  }
+  if (missingQueryParams.length > 0) {
+    parts.push(
+      `missing query param${missingQueryParams.length === 1 ? '' : 's'}: ${missingQueryParams.join(', ')}`
+    )
+  }
+  if (mismatchedQueryParams.length > 0) {
+    // Covers a wrong value and a required param sent more than once; the API
+    // rejects both the same way.
+    parts.push(`wrong query param value for: ${mismatchedQueryParams.join(', ')}`)
   }
   return parts.join(' · ') || 'authorization failed'
 }
@@ -2054,9 +2439,9 @@ export default function WebhookInspector() {
           </div>
         ) : null}
 
-        <AuthHeadersPanel token={token} />
+        <AuthRequirementsPanel token={token} />
 
-        {blockedAttempts.length > 0 || payload.authEnabled ? (
+        {blockedAttempts.length > 0 || payload.authEnabled || payload.authQueryEnabled ? (
           <BlockedAttemptsPanel
             blocked={blockedAttempts}
             clearing={clearingBlocked}
