@@ -97,6 +97,7 @@ export interface WebhookCaptureListResponse {
   inspectUrl: string
   requests: WebhookCaptureRecord[]
   authEnabled?: boolean
+  authQueryEnabled?: boolean
   blocked?: WebhookBlockedRecord[]
   retentionHours?: number
 }
@@ -108,13 +109,28 @@ export interface WebhookAuthHeader {
   value: string
 }
 
+export interface WebhookAuthQueryParam {
+  name: string
+  value: string
+}
+
+// `enabled`/`headers` and `queryEnabled`/`queryParams` are independent switches:
+// either, both, or neither can be on. With both on a sender has to satisfy both.
+// The query fields are optional on the wire so a response from an API that
+// predates them still parses.
 export interface WebhookAuthConfig {
   enabled: boolean
   headers: WebhookAuthHeader[]
+  queryEnabled?: boolean
+  queryParams?: WebhookAuthQueryParam[]
   updatedAt: string | null
 }
 
-export type WebhookBlockedReason = 'missing-header' | 'header-mismatch'
+export type WebhookBlockedReason =
+  | 'missing-header'
+  | 'header-mismatch'
+  | 'missing-query-param'
+  | 'query-param-mismatch'
 
 export interface WebhookBlockedRecord {
   id: string
@@ -132,6 +148,32 @@ export interface WebhookBlockedRecord {
   reason: WebhookBlockedReason
   missingHeaders: string[]
   mismatchedHeaders: string[]
+  missingQueryParams?: string[]
+  mismatchedQueryParams?: string[]
+}
+
+export const MAX_WEBHOOK_AUTH_HEADERS = 10
+export const MAX_WEBHOOK_AUTH_QUERY_PARAMS = 10
+
+// Mirrors QUERY_NAME_PATTERN in the API so the inspector can flag a bad name
+// before the round trip. The API remains the authority — this is a convenience,
+// never the check that matters.
+const WEBHOOK_QUERY_PARAM_NAME_REGEX = /^[A-Za-z0-9_.~-]+$/
+const RESERVED_WEBHOOK_QUERY_PARAM_NAMES = new Set([
+  'token',
+  'path',
+  '__proto__',
+  'constructor',
+  'prototype',
+])
+
+export function isValidWebhookQueryParamName(name: string): boolean {
+  return (
+    name.length > 0 &&
+    name.length <= 128 &&
+    WEBHOOK_QUERY_PARAM_NAME_REGEX.test(name) &&
+    !RESERVED_WEBHOOK_QUERY_PARAM_NAMES.has(name.toLowerCase())
+  )
 }
 
 const WEBHOOK_TOKEN_REGEX = /^[A-Za-z0-9_-]{10,128}$/
@@ -352,9 +394,18 @@ export async function fetchWebhookAuthConfig(token: string): Promise<WebhookAuth
   return payload.config
 }
 
+export interface WebhookAuthConfigInput {
+  enabled: boolean
+  headers: WebhookAuthHeader[]
+  queryEnabled: boolean
+  queryParams: WebhookAuthQueryParam[]
+}
+
+// Writes both halves in one request so the header and query rules can never be
+// saved out of step with each other.
 export async function saveWebhookAuthConfig(
   token: string,
-  config: Pick<WebhookAuthConfig, 'enabled' | 'headers'>
+  config: WebhookAuthConfigInput
 ): Promise<WebhookAuthConfig> {
   const response = await fetch(buildWebhookAuthApiUrl(token), {
     method: 'PUT',
@@ -369,6 +420,63 @@ export async function saveWebhookAuthConfig(
     response
   )
   return payload.config
+}
+
+export function buildWebhookAuthQueryApiUrl(token: string): string {
+  return `${getWebhookApiOrigin()}/api/webhook/${encodeURIComponent(token)}/auth-query`
+}
+
+// Query-param-only endpoint. The inspector saves through saveWebhookAuthConfig
+// above; this is here for callers that want to manage the query rule on its own
+// without resending the headers.
+export async function saveWebhookAuthQueryConfig(
+  token: string,
+  config: { queryEnabled: boolean; queryParams: WebhookAuthQueryParam[] }
+): Promise<WebhookAuthConfig> {
+  const response = await fetch(buildWebhookAuthQueryApiUrl(token), {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(config),
+  })
+
+  const payload = await parseJsonResponse<{ ok: true; token: string; config: WebhookAuthConfig }>(
+    response
+  )
+  return payload.config
+}
+
+export async function clearWebhookAuthQueryConfig(token: string): Promise<WebhookAuthConfig> {
+  const response = await fetch(buildWebhookAuthQueryApiUrl(token), {
+    method: 'DELETE',
+  })
+
+  const payload = await parseJsonResponse<{ ok: true; token: string; config: WebhookAuthConfig }>(
+    response
+  )
+  return payload.config
+}
+
+// The capture URL a sender should actually call once query-param auth is on.
+// Values are percent-encoded, so a secret containing reserved characters still
+// produces a URL that can be pasted straight into the sending application.
+export function buildWebhookCaptureUrlWithQueryAuth(
+  token: string,
+  queryParams: WebhookAuthQueryParam[]
+): string {
+  const base = buildWebhookCaptureUrl(token)
+
+  if (queryParams.length === 0) {
+    return base
+  }
+
+  const search = queryParams
+    .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
+    .join('&')
+
+  return `${base}${base.includes('?') ? '&' : '?'}${search}`
 }
 
 export async function clearWebhookBlockedAttempts(
