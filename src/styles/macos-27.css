@@ -531,6 +531,7 @@ html[data-theme='macos-27'] .home-hero {
   color: var(--mac-ink);
   background: transparent;
 }
+html[data-theme='macos-27'] .home-hero::after { content: none; }
 html[data-theme='macos-27'] .hero-inner {
   position: relative;
   min-height: 460px;
@@ -593,6 +594,7 @@ html[data-theme='macos-27'] .hero-figure img { border-radius: 16px; }
 
 html[data-theme='macos-27'] .dept-grid,
 html[data-theme='macos-27'] .pgrid { gap: 16px; padding: 8px 20px 22px; }
+html[data-theme='macos-27'] .dept-grid { margin-top: 0; }
 html[data-theme='macos-27'] .dept-cell,
 html[data-theme='macos-27'] .pcard {
   background: rgba(255, 255, 255, 0.72);
