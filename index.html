@@ -2,41 +2,50 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    
+
+    <!-- Apply the saved theme before CSS paints to prevent a visible flash. -->
+    <script>
+      try {
+        if (localStorage.getItem('angaadi:theme') === 'macos-27') {
+          document.documentElement.setAttribute('data-theme', 'macos-27')
+        }
+      } catch (_) {}
+    </script>
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/logo/Angaadi.png" />
-    
+
     <!-- Viewport and Mobile Optimization -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    
+
     <!-- IE Compatibility -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    
+
     <!-- Theme Color for Mobile Browsers -->
     <meta name="theme-color" content="#131921" />
     <meta name="msapplication-TileColor" content="#131921" />
-    
+
     <!-- Apple Mobile Web App -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Angaadi" />
-    
+
     <!-- Description for SEO -->
     <meta name="description" content="Angaadi - Your trusted online shopping destination in India. Shop electronics, fashion, and more with great deals." />
-    
+
     <!-- Preconnect for Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    
+
     <title>Angaadi - Shop Online in India</title>
   </head>
   <body>
     <!-- Skip to main content for accessibility -->
     <a href="#main" class="skip-to-main">Skip to main content</a>
-    
+
     <!-- Main application root -->
     <div id="root"></div>
-    
+
     <!-- Fallback for users without JavaScript -->
     <noscript>
       <div style="padding: 20px; text-align: center; font-family: sans-serif;">
@@ -44,7 +53,7 @@
         <p>This application requires JavaScript to be enabled. Please enable JavaScript in your browser settings.</p>
       </div>
     </noscript>
-    
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

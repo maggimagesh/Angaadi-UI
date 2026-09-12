@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
-import { applyTheme, nextTheme, readStoredTheme, type Theme } from './theme'
+import {
+  applyTheme,
+  isTheme,
+  nextTheme,
+  readStoredTheme,
+  THEME_STORAGE_KEY,
+  type Theme,
+} from './theme'
 
-/**
- * Reads the theme chosen by the inline bootstrap in index.html, keeps it in
- * React state, and writes any change back to <html> + localStorage.
- *
- * The bootstrap has already applied the stored theme before first paint, so
- * the effect here is a re-assertion rather than the initial application — it
- * exists so the attribute is correct even if the bootstrap was skipped (for
- * example when the app is mounted into a host page in a test).
- */
-export function useTheme(): { theme: Theme; setTheme: (t: Theme) => void; toggleTheme: () => void } {
+export function useTheme(): { theme: Theme; setTheme: (theme: Theme) => void; toggleTheme: () => void } {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === 'undefined') return 'storefront'
     return readStoredTheme()
@@ -20,9 +18,20 @@ export function useTheme(): { theme: Theme; setTheme: (t: Theme) => void; toggle
     applyTheme(theme)
   }, [theme])
 
-  const setTheme = useCallback((next: Theme) => setThemeState(next), [])
+  // Keep multiple open Angaadi tabs in sync without introducing a global
+  // store or an animation dependency.
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === THEME_STORAGE_KEY && isTheme(event.newValue)) {
+        setThemeState(event.newValue)
+      }
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
 
-  const toggleTheme = useCallback(() => setThemeState((t) => nextTheme(t)), [])
+  const setTheme = useCallback((next: Theme) => setThemeState(next), [])
+  const toggleTheme = useCallback(() => setThemeState((current) => nextTheme(current)), [])
 
   return { theme, setTheme, toggleTheme }
 }

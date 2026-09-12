@@ -1,0 +1,619 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Angaadi — optional macOS 27-inspired Aurora Glass theme
+
+   This layer is deliberately additive. Storefront remains the unmodified
+   default; every visual override is scoped to data-theme="macos-27".
+   Expensive blur is limited to navigation, overlays and the theme switch so
+   product-heavy pages stay smooth on mobile and lower-power devices.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── persistent appearance switch ─────────────────────────────────────── */
+
+.theme-toggle {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 65;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 6px 7px 6px 13px;
+  color: #fff;
+  background: rgba(19, 25, 33, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  box-shadow: 0 10px 28px rgba(15, 17, 17, 0.24);
+  font: 600 12px/1.15 var(--font-body);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px);
+  background: #232f3e;
+  box-shadow: 0 14px 34px rgba(15, 17, 17, 0.3);
+}
+
+.theme-toggle:active { transform: translateY(0) scale(0.98); }
+
+.theme-toggle:focus-visible {
+  outline: 3px solid rgba(255, 216, 20, 0.72);
+  outline-offset: 3px;
+  box-shadow: 0 10px 28px rgba(15, 17, 17, 0.24);
+}
+
+.theme-toggle-copy { display: grid; gap: 1px; text-align: left; }
+.theme-toggle-eyebrow { font-size: 9px; font-weight: 600; letter-spacing: 0.08em; opacity: 0.68; text-transform: uppercase; }
+.theme-toggle-label { font-size: 12px; font-weight: 700; white-space: nowrap; }
+
+.theme-toggle-track {
+  position: relative;
+  display: block;
+  width: 48px;
+  height: 30px;
+  flex: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  transition: background-color 200ms ease;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: #131921;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.26);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), color 180ms ease;
+}
+
+.theme-toggle[aria-checked='true'] .theme-toggle-track {
+  background: linear-gradient(135deg, #087cff, #7c5cff);
+}
+
+.theme-toggle[aria-checked='true'] .theme-toggle-thumb {
+  color: #3868e8;
+  transform: translateX(18px);
+}
+
+/* ── palette, geometry and motion ─────────────────────────────────────── */
+
+html[data-theme='macos-27'] {
+  --color-navy: #152039;
+  --color-navy-2: #26385c;
+  --color-navy-3: #344b75;
+  --color-navy-4: #5f7191;
+  --color-bg: #eaf1fa;
+  --color-surface: rgba(244, 248, 255, 0.92);
+  --color-surface-raised: rgba(255, 255, 255, 0.9);
+  --color-text: #172033;
+  --color-accent: #0969da;
+  --color-accent-hover: #004fb2;
+  --color-gold: #ffd45a;
+  --color-gold-600: #f4c13b;
+  --color-orange: #ff9f45;
+  --color-orange-600: #f18725;
+  --color-tan: #77b8ff;
+  --color-tan-600: #5aa7fa;
+  --color-price: #c33453;
+  --color-star: #e37a1f;
+  --color-success: #11845b;
+  --color-danger: #c5314c;
+  --color-divider: rgba(46, 66, 103, 0.17);
+  --color-divider-strong: rgba(46, 66, 103, 0.31);
+  --color-neutral-100: #f8faff;
+  --color-neutral-200: #edf2f9;
+  --color-neutral-300: #e1e8f2;
+  --color-neutral-400: #ccd6e4;
+  --color-neutral-500: #aab7ca;
+  --color-neutral-600: #6d7c91;
+  --color-neutral-700: #536176;
+  --color-neutral-800: #303b50;
+  --color-neutral-900: #172033;
+  --color-accent-100: #edf6ff;
+  --color-accent-200: #d8ecff;
+  --color-accent-300: #acd7ff;
+  --color-accent-400: #72b8ff;
+  --color-accent-500: #3395f5;
+  --color-accent-600: #0969da;
+  --color-accent-700: #0758ba;
+  --color-accent-800: #06488f;
+  --color-accent-900: #083866;
+  --color-accent-2-100: #fff7e4;
+  --color-accent-2-200: #ffe8b1;
+  --color-accent-2-300: #ffd274;
+  --color-accent-2-400: #ffb74d;
+  --color-accent-2-500: #ee932d;
+  --color-accent-2-600: #d8751e;
+  --color-accent-2-700: #a95718;
+  --color-accent-2-800: #7b4018;
+  --color-accent-2-900: #542d16;
+  --color-sky-100: #f5f9ff;
+  --color-sky-200: #eaf4ff;
+  --color-sky-300: #d5eaff;
+  --color-sky-400: #acd5ff;
+  --color-sky-500: #77b8ff;
+  --color-sky-600: #3d96ec;
+  --color-sky-700: #176fc5;
+  --color-sky-800: #15599a;
+  --color-sky-900: #164778;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(23, 32, 51, 0.06), 0 5px 16px rgba(36, 61, 102, 0.06);
+  --shadow-md: 0 12px 34px rgba(36, 61, 102, 0.13), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  --shadow-lg: 0 24px 70px rgba(24, 43, 78, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  --focus-glow: 0 0 0 4px rgba(10, 132, 255, 0.27);
+  --motion-duration-short: 120ms;
+  --motion-duration-medium: 200ms;
+  --motion-duration-long: 320ms;
+  --motion-easing-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, "Segoe UI", sans-serif;
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, "Segoe UI", sans-serif;
+  --font-display: var(--font-heading);
+}
+
+html[data-theme='macos-27'],
+html[data-theme='macos-27'] body,
+html[data-theme='macos-27'] #root {
+  min-height: 100%;
+}
+
+html[data-theme='macos-27'] body {
+  background:
+    radial-gradient(circle at 9% 5%, rgba(122, 178, 255, 0.3), transparent 29rem),
+    radial-gradient(circle at 92% 18%, rgba(204, 158, 255, 0.21), transparent 31rem),
+    radial-gradient(circle at 56% 88%, rgba(117, 222, 211, 0.17), transparent 34rem),
+    linear-gradient(148deg, #f7faff 0%, #eaf1fb 48%, #f5f0fb 100%);
+  background-attachment: fixed;
+  color: var(--color-text);
+  letter-spacing: -0.006em;
+}
+
+html[data-theme='macos-27'] .app-shell { min-height: 100vh; }
+
+html[data-theme='macos-27'] ::selection { color: #10213f; background: rgba(116, 183, 255, 0.46); }
+
+html[data-theme='macos-27'] :focus-visible {
+  outline: none;
+  box-shadow: var(--focus-glow);
+}
+
+/* ── glass navigation ─────────────────────────────────────────────────── */
+
+html[data-theme='macos-27'] .site-header {
+  background: rgba(245, 249, 255, 0.78);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow: 0 10px 34px rgba(36, 61, 102, 0.11);
+  -webkit-backdrop-filter: saturate(150%) blur(18px);
+  backdrop-filter: saturate(150%) blur(18px);
+}
+
+html[data-theme='macos-27'] .header-main {
+  min-height: 66px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  color: var(--color-text);
+  background: transparent;
+}
+
+html[data-theme='macos-27'] .header-logo,
+html[data-theme='macos-27'] .header-action,
+html[data-theme='macos-27'] .header-deliver,
+html[data-theme='macos-27'] .header-signin {
+  color: var(--color-text);
+  border-color: transparent;
+  border-radius: 13px;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+html[data-theme='macos-27'] .header-logo:hover,
+html[data-theme='macos-27'] .header-action:hover,
+html[data-theme='macos-27'] .header-deliver:hover,
+html[data-theme='macos-27'] .header-signin:hover {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.68);
+  border-color: rgba(255, 255, 255, 0.82);
+  text-decoration: none;
+}
+
+html[data-theme='macos-27'] .header-wordmark { color: #172033; }
+html[data-theme='macos-27'] .header-tagline { color: #0969da; }
+html[data-theme='macos-27'] .header-deliver .l1,
+html[data-theme='macos-27'] .header-action .l1 { color: #64748b; }
+html[data-theme='macos-27'] .header-action .l2 { color: #172033; }
+html[data-theme='macos-27'] .header-action.is-active .l2 { color: var(--color-accent); }
+html[data-theme='macos-27'] .count-badge { color: #fff; background: #e64d69; border-radius: 999px; padding: 2px 5px; top: -11px; }
+
+html[data-theme='macos-27'] .search-form {
+  height: 42px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(53, 75, 110, 0.18);
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 5px 16px rgba(36, 61, 102, 0.08);
+}
+
+html[data-theme='macos-27'] .search-form:focus-within {
+  border-color: rgba(9, 105, 218, 0.55);
+  box-shadow: 0 0 0 4px rgba(9, 105, 218, 0.16), 0 8px 22px rgba(36, 61, 102, 0.1);
+}
+
+html[data-theme='macos-27'] .search-category,
+html[data-theme='macos-27'] .search-input {
+  color: var(--color-text);
+  background: transparent;
+}
+
+html[data-theme='macos-27'] .search-category { border-right-color: var(--color-divider); }
+html[data-theme='macos-27'] .search-category:hover { background: rgba(9, 105, 218, 0.07); }
+
+html[data-theme='macos-27'] .search-form .search-submit {
+  width: 48px;
+  color: #fff;
+  background: linear-gradient(145deg, #1788f7, #0969da);
+  border-radius: 0 13px 13px 0;
+}
+
+html[data-theme='macos-27'] .search-form .search-submit:hover { color: #fff; background: linear-gradient(145deg, #0d79e9, #075abc); }
+
+html[data-theme='macos-27'] .category-band {
+  background: rgba(225, 235, 249, 0.68);
+  border-top: 1px solid rgba(255, 255, 255, 0.66);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+html[data-theme='macos-27'] .category-trigger,
+html[data-theme='macos-27'] .category-chip {
+  margin: 5px 2px;
+  padding: 6px 10px;
+  color: #354258;
+  border-radius: 999px;
+  transition: color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+html[data-theme='macos-27'] .category-trigger:hover,
+html[data-theme='macos-27'] .category-chip:hover,
+html[data-theme='macos-27'] .category-trigger[aria-expanded='true'],
+html[data-theme='macos-27'] .category-chip.is-active {
+  color: #0758ba;
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(9, 105, 218, 0.18);
+  text-decoration: none;
+}
+
+html[data-theme='macos-27'] .category-note { color: #64748b; }
+
+html[data-theme='macos-27'] .utility-band {
+  background: rgba(255, 255, 255, 0.62);
+  border-bottom-color: rgba(46, 66, 103, 0.12);
+}
+
+html[data-theme='macos-27'] .mega-menu,
+html[data-theme='macos-27'] .search-suggestions {
+  color: var(--color-text);
+  background: rgba(250, 252, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 0 0 22px 22px;
+  box-shadow: var(--shadow-lg);
+  -webkit-backdrop-filter: saturate(145%) blur(20px);
+  backdrop-filter: saturate(145%) blur(20px);
+}
+
+html[data-theme='macos-27'] .mega-dept:hover,
+html[data-theme='macos-27'] .mega-dept.is-active { background: rgba(9, 105, 218, 0.08); }
+
+/* ── surfaces and content ─────────────────────────────────────────────── */
+
+html[data-theme='macos-27'] .card,
+html[data-theme='macos-27'] .shelf,
+html[data-theme='macos-27'] .state-block,
+html[data-theme='macos-27'] .pcard,
+html[data-theme='macos-27'] .prow,
+html[data-theme='macos-27'] .cart-line,
+html[data-theme='macos-27'] .buy-box,
+html[data-theme='macos-27'] .filter-panel,
+html[data-theme='macos-27'] .summary-card,
+html[data-theme='macos-27'] .checkout-card,
+html[data-theme='macos-27'] .profile-card,
+html[data-theme='macos-27'] .auth-card,
+html[data-theme='macos-27'] .order-card,
+html[data-theme='macos-27'] .address-card {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(255, 255, 255, 0.88);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme='macos-27'] .shelf,
+html[data-theme='macos-27'] .card,
+html[data-theme='macos-27'] .pcard,
+html[data-theme='macos-27'] .prow {
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms ease, border-color 180ms ease;
+}
+
+html[data-theme='macos-27'] .pcard:hover,
+html[data-theme='macos-27'] .prow:hover,
+html[data-theme='macos-27'] .card:hover {
+  border-color: rgba(9, 105, 218, 0.18);
+  box-shadow: 0 18px 42px rgba(32, 61, 105, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-3px);
+}
+
+html[data-theme='macos-27'] .home-hero {
+  background:
+    radial-gradient(circle at 18% 15%, rgba(118, 185, 255, 0.46), transparent 30rem),
+    radial-gradient(circle at 82% 24%, rgba(210, 158, 255, 0.34), transparent 28rem),
+    linear-gradient(140deg, #edf7ff 0%, #dceaff 45%, #f3eaff 100%);
+}
+
+html[data-theme='macos-27'] .pg-hero,
+html[data-theme='macos-27'] .page-hero {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.74), rgba(225, 237, 255, 0.7));
+  border-color: rgba(255, 255, 255, 0.82);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme='macos-27'] .section-head h2,
+html[data-theme='macos-27'] .pdp-title,
+html[data-theme='macos-27'] h1,
+html[data-theme='macos-27'] h2 {
+  letter-spacing: -0.025em;
+}
+
+html[data-theme='macos-27'] .tag,
+html[data-theme='macos-27'] .a-badge,
+html[data-theme='macos-27'] .rating-chip,
+html[data-theme='macos-27'] .num {
+  border-radius: 999px;
+}
+
+html[data-theme='macos-27'] .sk {
+  background: linear-gradient(100deg, rgba(220, 229, 241, 0.8) 25%, rgba(246, 249, 253, 0.95) 42%, rgba(220, 229, 241, 0.8) 62%);
+  background-size: 300% 100%;
+}
+
+/* ── controls ─────────────────────────────────────────────────────────── */
+
+html[data-theme='macos-27'] .btn {
+  min-height: 38px;
+  padding: 8px 16px;
+  color: #1f2b40;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(46, 66, 103, 0.18);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(36, 61, 102, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.88);
+  font-weight: 600;
+  transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+html[data-theme='macos-27'] .btn:hover {
+  color: #172033;
+  background: #fff;
+  border-color: rgba(9, 105, 218, 0.26);
+  box-shadow: 0 8px 20px rgba(36, 61, 102, 0.13), inset 0 1px 0 #fff;
+  transform: translateY(-1px);
+}
+
+html[data-theme='macos-27'] .btn:active { transform: translateY(0) scale(0.985); }
+
+html[data-theme='macos-27'] .btn-primary {
+  color: #fff;
+  background: linear-gradient(145deg, #1688f8, #0969da);
+  border-color: rgba(4, 79, 174, 0.58);
+  box-shadow: 0 8px 20px rgba(9, 105, 218, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+html[data-theme='macos-27'] .btn-primary:hover { color: #fff; background: linear-gradient(145deg, #0c78e9, #0758ba); }
+
+html[data-theme='macos-27'] .btn-buy {
+  color: #fff;
+  background: linear-gradient(145deg, #ff7087, #df3f61);
+  border-color: rgba(166, 40, 66, 0.55);
+  box-shadow: 0 8px 20px rgba(197, 49, 76, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+html[data-theme='macos-27'] .btn-buy:hover { color: #fff; background: linear-gradient(145deg, #ef5d78, #c82d50); }
+
+html[data-theme='macos-27'] .btn-ghost {
+  color: var(--color-accent);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+html[data-theme='macos-27'] .site-header .header-signin {
+  color: var(--color-text);
+  background: transparent;
+  border-color: transparent;
+  border-radius: 13px;
+  box-shadow: none;
+}
+
+html[data-theme='macos-27'] .site-header .header-signin:hover {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.68);
+  border-color: rgba(255, 255, 255, 0.82);
+  box-shadow: none;
+}
+
+html[data-theme='macos-27'] .input,
+html[data-theme='macos-27'] input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.search-input),
+html[data-theme='macos-27'] textarea,
+html[data-theme='macos-27'] select {
+  color: var(--color-text);
+  background-color: rgba(255, 255, 255, 0.78);
+  border-color: rgba(46, 66, 103, 0.24);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 2px rgba(36, 61, 102, 0.06);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+html[data-theme='macos-27'] .input:focus,
+html[data-theme='macos-27'] input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.search-input):focus,
+html[data-theme='macos-27'] textarea:focus,
+html[data-theme='macos-27'] select:focus {
+  background-color: #fff;
+  border-color: rgba(9, 105, 218, 0.65);
+  box-shadow: 0 0 0 4px rgba(9, 105, 218, 0.15);
+  outline: none;
+}
+
+html[data-theme='macos-27'] input[type='checkbox'],
+html[data-theme='macos-27'] input[type='radio'] { accent-color: #0969da; }
+
+html[data-theme='macos-27'] .seg {
+  padding: 3px;
+  gap: 2px;
+  background: rgba(226, 234, 246, 0.86);
+  border-color: rgba(46, 66, 103, 0.16);
+  border-radius: 13px;
+  box-shadow: inset 0 1px 2px rgba(36, 61, 102, 0.07);
+}
+
+html[data-theme='macos-27'] .seg-opt { border: 0; border-radius: 10px; }
+html[data-theme='macos-27'] .seg-opt:has(input:checked) { color: #0758ba; background: #fff; box-shadow: 0 3px 10px rgba(36, 61, 102, 0.12); }
+
+/* ── tables, dialogs and feedback ─────────────────────────────────────── */
+
+html[data-theme='macos-27'] .table,
+html[data-theme='macos-27'] table { border-color: var(--color-divider); }
+html[data-theme='macos-27'] .table th,
+html[data-theme='macos-27'] table th { background: rgba(226, 235, 248, 0.76); }
+html[data-theme='macos-27'] .table tbody tr:nth-child(even),
+html[data-theme='macos-27'] table tbody tr:nth-child(even) { background: rgba(246, 249, 253, 0.58); }
+html[data-theme='macos-27'] .table tbody tr:hover,
+html[data-theme='macos-27'] table tbody tr:hover { background: rgba(213, 234, 255, 0.55); }
+
+html[data-theme='macos-27'] .dialog-backdrop,
+html[data-theme='macos-27'] [class*='modal-backdrop'] {
+  background: rgba(28, 38, 58, 0.36);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+html[data-theme='macos-27'] .dialog,
+html[data-theme='macos-27'] [class*='modal-content'] {
+  background: rgba(250, 252, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  border-radius: 24px;
+  box-shadow: var(--shadow-lg);
+  -webkit-backdrop-filter: saturate(140%) blur(24px);
+  backdrop-filter: saturate(140%) blur(24px);
+}
+
+html[data-theme='macos-27'] .state-error { color: #83233a; background: rgba(255, 238, 242, 0.9); border-color: rgba(197, 49, 76, 0.3); }
+html[data-theme='macos-27'] .state-success { color: #116443; background: rgba(232, 250, 242, 0.9); border-color: rgba(17, 132, 91, 0.27); }
+
+/* ── commerce and footer accents ──────────────────────────────────────── */
+
+html[data-theme='macos-27'] .price-tag,
+html[data-theme='macos-27'] .price,
+html[data-theme='macos-27'] [class*='price'] { font-variant-numeric: tabular-nums; }
+
+html[data-theme='macos-27'] .site-footer,
+html[data-theme='macos-27'] .footer-base,
+html[data-theme='macos-27'] .footer-links {
+  background: linear-gradient(145deg, #152039, #26385c);
+}
+
+html[data-theme='macos-27'] .footer-back-top { background: rgba(52, 75, 117, 0.96); }
+
+html[data-theme='macos-27'] .checkout-bar {
+  background: rgba(248, 251, 255, 0.88);
+  border-color: rgba(46, 66, 103, 0.16);
+  box-shadow: 0 -12px 34px rgba(36, 61, 102, 0.12);
+  -webkit-backdrop-filter: saturate(140%) blur(18px);
+  backdrop-filter: saturate(140%) blur(18px);
+}
+
+/* The inspector remains a high-contrast console, but its chrome follows the
+   alternate theme. Payload colors remain untouched for legibility. */
+html[data-theme='macos-27'] .wi-page { background: transparent; }
+html[data-theme='macos-27'] .wi-panel,
+html[data-theme='macos-27'] .wi-toolbar,
+html[data-theme='macos-27'] .wi-sidebar {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(46, 66, 103, 0.17);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── switch in Aurora Glass mode ──────────────────────────────────────── */
+
+html[data-theme='macos-27'] .theme-toggle {
+  color: #172033;
+  background: rgba(248, 251, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 16px 40px rgba(36, 61, 102, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: saturate(150%) blur(18px);
+  backdrop-filter: saturate(150%) blur(18px);
+}
+
+html[data-theme='macos-27'] .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 20px 48px rgba(36, 61, 102, 0.24), inset 0 1px 0 #fff;
+}
+
+html[data-theme='macos-27'] .theme-toggle:focus-visible { outline-color: rgba(9, 105, 218, 0.55); }
+
+/* ── graceful fallbacks and responsive behavior ───────────────────────── */
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  html[data-theme='macos-27'] .site-header,
+  html[data-theme='macos-27'] .mega-menu,
+  html[data-theme='macos-27'] .search-suggestions,
+  html[data-theme='macos-27'] .dialog,
+  html[data-theme='macos-27'] [class*='modal-content'],
+  html[data-theme='macos-27'] .checkout-bar,
+  html[data-theme='macos-27'] .theme-toggle { background-color: #f7faff; }
+}
+
+@media (max-width: 760px) {
+  .theme-toggle {
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(10px, env(safe-area-inset-bottom));
+    min-width: 44px;
+    min-height: 44px;
+    padding: 7px;
+  }
+
+  .theme-toggle-copy { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+  html[data-theme='macos-27'] body { background-attachment: scroll; }
+  html[data-theme='macos-27'] .header-main { min-height: 58px; }
+  html[data-theme='macos-27'] .site-header { -webkit-backdrop-filter: saturate(135%) blur(12px); backdrop-filter: saturate(135%) blur(12px); }
+  html[data-theme='macos-27'] .pcard:hover,
+  html[data-theme='macos-27'] .prow:hover,
+  html[data-theme='macos-27'] .card:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-toggle-track,
+  .theme-toggle-thumb,
+  html[data-theme='macos-27'] .card,
+  html[data-theme='macos-27'] .pcard,
+  html[data-theme='macos-27'] .prow,
+  html[data-theme='macos-27'] .btn { transition-duration: 0.01ms !important; }
+}
+
+@media (prefers-contrast: more) {
+  html[data-theme='macos-27'] {
+    --color-divider: rgba(23, 32, 51, 0.38);
+    --color-divider-strong: rgba(23, 32, 51, 0.62);
+  }
+
+  html[data-theme='macos-27'] .card,
+  html[data-theme='macos-27'] .shelf,
+  html[data-theme='macos-27'] .state-block { border-color: var(--color-divider); }
+}

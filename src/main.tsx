@@ -7,10 +7,12 @@ import { createRoot } from 'react-dom/client'
 
 // The design system first: it owns the tokens and the component layer.
 // Everything after it is the app shell and the screen layer, built on those
-// tokens.
+// tokens. The macOS 27 theme loads last because it is an optional, scoped
+// presentation layer over the unchanged storefront UI.
 import './styles/design-system.css'
 import './index.css'
 import './styles/app.css'
+import './styles/macos-27.css'
 
 import App from './App.tsx'
 
