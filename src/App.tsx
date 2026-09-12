@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './index.css'
 import { Header } from './components/Header'
-import { ThemeToggle } from './components/ThemeToggle'
 import { CookieBanner } from './components/CookieBanner'
 import { APP_ROUTES } from './routes'
 
@@ -28,7 +27,6 @@ export default function App() {
     <div className="app-shell">
       <BrowserRouter>
         <Header />
-        <ThemeToggle />
         <Routes>
           {/* One <Route> per entry in src/routes.tsx — the same table
               /playground enumerates, so the two can never drift apart. */}

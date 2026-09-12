@@ -27,6 +27,7 @@ import {
 } from './icons'
 import SearchSuggestions, { pushRecentSearch, type SuggestionsHandle } from './SearchSuggestions'
 import type { ProductItem } from '../api/products'
+import { ThemeToggle } from './ThemeToggle'
 
 /** How long the pointer must rest on "All categories" before the panel opens. */
 const HOVER_INTENT_MS = 120
@@ -408,6 +409,8 @@ export function Header() {
               </span>
               <span className="l2 hide-on-mobile">Cart</span>
             </Link>
+
+            <ThemeToggle />
 
             {isAuthenticated ? (
               <button
