@@ -5,7 +5,9 @@ const COOKIE_NAME = 'auth_token'
 export function setAuthTokenCookie(token: string, maxAgeDays: number = 7) {
   try {
     const maxAge = maxAgeDays * 24 * 60 * 60
-    document.cookie = `${COOKIE_NAME}=${encodeURIComponent(token)}; Max-Age=${maxAge}; Path=/; SameSite=Lax`
+    // Secure keeps the token off plain-HTTP requests; skipped on http://localhost.
+    const secure = window.location.protocol === 'https:' ? '; Secure' : ''
+    document.cookie = `${COOKIE_NAME}=${encodeURIComponent(token)}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}`
   } catch {}
 }
 

@@ -16,6 +16,9 @@ import { authRedirectState, loginPathWithRedirect, rememberAuthRedirect } from '
  * The Developers column is the only route into the unlisted fixture pages
  * from ordinary chrome; everything it links is a real route in App.tsx.
  */
+// Read from the live URL so a domain change (angaadi.dev -> next TLD) needs no code edit.
+const SITE_HOST = typeof window !== 'undefined' ? window.location.hostname : 'angaadi.dev'
+
 export function Footer() {
   const navigate = useNavigate()
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
@@ -60,7 +63,7 @@ export function Footer() {
             <div className="footer-brand">angaadi</div>
             <div className="footer-tagline">Your Global Market</div>
             <p className="footer-blurb">
-              angaadi.online · Electronics retail, Chennai. Test environment for automation
+              {SITE_HOST} · Electronics retail, Chennai. Test environment for automation
               practice.
             </p>
           </div>
@@ -119,7 +122,7 @@ export function Footer() {
           <Link to="/health">System status</Link>
         </div>
         <div className="footer-copy">
-          © 2018–{new Date().getFullYear()} Angaadi.online, or its affiliates
+          © 2018–{new Date().getFullYear()} Angaadi, or its affiliates
         </div>
       </div>
     </footer>
