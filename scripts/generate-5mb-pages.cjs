@@ -16,7 +16,8 @@ const fs = require('fs');
 const path = require('path');
 
 const TOTAL_PAGES = 100;
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+// Root-relative by default so the pages work on whatever domain serves them.
+const BASE_URL = process.env.BASE_URL || '';
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
 function getTargetBytes(pageNum) {
@@ -117,7 +118,7 @@ function buildShell(pageNum) {
   }
   content += '</tbody></table></section>\n';
 
-  const MAIN_APP_URL = 'https://angaadi.online';
+  const MAIN_APP_URL = process.env.MAIN_APP_URL || BASE_URL;
   
   const footer = `</main>
 <footer class="site-footer">
