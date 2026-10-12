@@ -357,6 +357,28 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
   return payload as T
 }
 
+// A successful HTTP response can still be an expired-session/error envelope.
+// Validate before a poll replaces the last usable list in React state.
+export function parseWebhookCaptureList(payload: unknown): WebhookCaptureListResponse {
+  const isObject = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' && value !== null && !Array.isArray(value)
+
+  if (
+    !isObject(payload) ||
+    !Array.isArray(payload.requests) ||
+    !payload.requests.every((request: unknown) =>
+      isObject(request) && typeof request.id === 'string' &&
+      isObject(request.body) && isObject(request.response)
+    ) ||
+    (payload.blocked != null && (!Array.isArray(payload.blocked) ||
+      !payload.blocked.every((record: unknown) => isObject(record))))
+  ) {
+    throw new Error('Invalid webhook response. Could not refresh requests; retrying automatically.')
+  }
+
+  return payload as unknown as WebhookCaptureListResponse
+}
+
 export async function fetchWebhookRequests(token: string): Promise<WebhookCaptureListResponse> {
   const response = await fetch(buildWebhookRequestsApiUrl(token), {
     headers: {
@@ -364,7 +386,7 @@ export async function fetchWebhookRequests(token: string): Promise<WebhookCaptur
     },
   })
 
-  return parseJsonResponse<WebhookCaptureListResponse>(response)
+  return parseWebhookCaptureList(await parseJsonResponse<unknown>(response))
 }
 
 export async function clearWebhookRequests(token: string): Promise<{ ok: true; token: string; deleted: number }> {

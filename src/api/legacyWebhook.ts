@@ -7,7 +7,7 @@ export type {
   WebhookStoredBody,
 } from './webhook'
 
-import type { WebhookCaptureListResponse } from './webhook'
+import { parseWebhookCaptureList, type WebhookCaptureListResponse } from './webhook.ts'
 
 const WEBHOOK_TOKEN_REGEX = /^[A-Za-z0-9_-]{10,128}$/
 
@@ -118,7 +118,7 @@ export async function fetchWebhookRequests(token: string): Promise<WebhookCaptur
     },
   })
 
-  return parseJsonResponse<WebhookCaptureListResponse>(response)
+  return parseWebhookCaptureList(await parseJsonResponse<unknown>(response))
 }
 
 export async function clearWebhookRequests(token: string): Promise<{ ok: true; token: string; deleted: number }> {

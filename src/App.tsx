@@ -4,6 +4,7 @@ import './index.css'
 import { Header } from './components/Header'
 import { CookieBanner } from './components/CookieBanner'
 import { APP_ROUTES } from './routes'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
@@ -31,7 +32,7 @@ export default function App() {
           {/* One <Route> per entry in src/routes.tsx — the same table
               /playground enumerates, so the two can never drift apart. */}
           {APP_ROUTES.map((route) => (
-            <Route key={route.path} path={route.path} element={route.element} />
+            <Route key={route.path} path={route.path} element={<ErrorBoundary key={route.path}>{route.element}</ErrorBoundary>} />
           ))}
         </Routes>
         <SuccessModal />
