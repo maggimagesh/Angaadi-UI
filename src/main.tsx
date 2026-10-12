@@ -15,6 +15,7 @@ import './styles/app.css'
 import './styles/macos-27.css'
 
 import App from './App.tsx'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 // CSS Variables Ponyfill for IE11 and older browsers
 import cssVars from 'css-vars-ponyfill'
@@ -41,6 +42,8 @@ rootEl.setAttribute('data-testid', 'root')
 
 createRoot(rootEl).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 )

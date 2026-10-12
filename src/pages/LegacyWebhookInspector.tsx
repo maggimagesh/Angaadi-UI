@@ -1,3 +1,4 @@
+import { startVisiblePolling } from '../utils/visiblePolling'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
@@ -135,15 +136,16 @@ export default function LegacyWebhookInspector() {
       }
     }
 
-    void loadRequests(true)
-
-    const intervalId = window.setInterval(() => {
-      void loadRequests(false)
+    let firstLoad = true
+    const stopPolling = startVisiblePolling(async () => {
+      const showSpinner = firstLoad
+      firstLoad = false
+      await loadRequests(showSpinner)
     }, 2500)
 
     return () => {
       cancelled = true
-      window.clearInterval(intervalId)
+      stopPolling()
     }
   }, [token])
 

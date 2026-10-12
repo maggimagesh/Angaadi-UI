@@ -1,3 +1,4 @@
+import { startVisiblePolling } from '../utils/visiblePolling'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import '../styles/webhook-inspector.css'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -2063,18 +2064,17 @@ export default function WebhookInspector() {
     }
     cancelledRef.current = false
 
-    void loadRequests(true)
-
-    const intervalId = window.setInterval(() => {
-      if (bodyLoadingRef.current) {
-        return
-      }
-      void loadRequests(false)
+    let firstLoad = true
+    const stopPolling = startVisiblePolling(async () => {
+      if (bodyLoadingRef.current) return
+      const showSpinner = firstLoad
+      firstLoad = false
+      await loadRequests(showSpinner)
     }, 2500)
 
     return () => {
       cancelledRef.current = true
-      window.clearInterval(intervalId)
+      stopPolling()
     }
   }, [token, loadRequests])
 
