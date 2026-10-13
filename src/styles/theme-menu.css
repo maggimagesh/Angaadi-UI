@@ -1,0 +1,229 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Appearance menu + theme-switch mechanics.
+
+   The trigger keeps the .theme-toggle chrome defined in macos-27.css; this
+   file adds the icon, the settings panel and the per-theme panel tokens.
+   Every theme only re-points the --tm-* tokens below.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* While a theme is being swapped, no element animates its own colours: the
+   swap is one frame, cross-faded by the view transition where supported. */
+html[data-theme-switching] *,
+html[data-theme-switching] *::before,
+html[data-theme-switching] *::after {
+  transition: none !important;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 240ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.theme-menu {
+  --tm-surface: #fff;
+  --tm-ink: #0f1111;
+  --tm-ink-soft: #565959;
+  --tm-line: #d5d9d9;
+  --tm-hover: #f0f2f2;
+  --tm-accent: #007185;
+  --tm-accent-ink: #fff;
+  --tm-seg: #f0f2f2;
+  --tm-seg-on: #fff;
+  --tm-radius: 8px;
+  --tm-shadow: 0 6px 18px rgba(15, 17, 17, 0.22);
+  --tm-focus: 0 0 0 3px #c8f3fa, 0 0 0 1px #007185;
+  --tm-blur: none;
+
+  position: relative;
+  display: inline-flex;
+}
+
+.theme-toggle-track[data-scheme='dark'] { background: linear-gradient(135deg, #2b3a55, #12182a); }
+.theme-toggle-track[data-scheme='dark'] .theme-toggle-thumb { color: #6c7cff; transform: translateX(16px); }
+.theme-menu[data-open='true'] .theme-toggle { background: rgba(255, 255, 255, 0.17); }
+
+.theme-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 120;
+  width: min(340px, calc(100vw - 24px));
+  padding: 14px;
+  color: var(--tm-ink);
+  text-align: left;
+  background: var(--tm-surface);
+  border: 1px solid var(--tm-line);
+  border-radius: calc(var(--tm-radius) + 6px);
+  box-shadow: var(--tm-shadow);
+  -webkit-backdrop-filter: var(--tm-blur);
+  backdrop-filter: var(--tm-blur);
+  transform-origin: top right;
+  animation: theme-panel-in 200ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+.theme-panel[hidden] { display: none; }
+
+.theme-panel-title {
+  margin: 2px 4px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.theme-panel-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.theme-panel-group + .theme-panel-group { margin-top: 14px; }
+
+.theme-panel-legend {
+  padding: 0 4px 6px;
+  color: var(--tm-ink-soft);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.theme-options { display: grid; gap: 4px; }
+
+.theme-option {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--tm-radius);
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+.theme-option:hover { background: var(--tm-hover); }
+.theme-option:has(input:checked) { border-color: var(--tm-accent); background: var(--tm-hover); }
+
+/* The radios stay real, focusable inputs — only visually folded into the row. */
+.theme-option input,
+.appearance-opt input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.theme-option:has(input:focus-visible),
+.appearance-opt:has(input:focus-visible) { box-shadow: var(--tm-focus); }
+
+.theme-swatch {
+  display: grid;
+  grid-template-columns: repeat(3, 10px);
+  gap: 2px;
+  padding: 4px;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px var(--tm-line);
+}
+.theme-swatch i { display: block; height: 22px; border-radius: 3px; }
+.theme-swatch-macos-27 { background: linear-gradient(145deg, #dcebff, #efe4ff); }
+.theme-swatch-macos-27 i:nth-child(1) { background: rgba(255, 255, 255, 0.92); }
+.theme-swatch-macos-27 i:nth-child(2) { background: #0878e8; }
+.theme-swatch-macos-27 i:nth-child(3) { background: #6858e8; }
+.theme-swatch-apple { background: #f5f5f7; }
+.theme-swatch-apple i:nth-child(1) { background: #1d1d1f; }
+.theme-swatch-apple i:nth-child(2) { background: #fff; box-shadow: inset 0 0 0 1px #d2d2d7; }
+.theme-swatch-apple i:nth-child(3) { background: #0071e3; border-radius: 999px; }
+
+.theme-option-copy { display: grid; gap: 1px; min-width: 0; }
+.theme-option-name { font-size: 14px; font-weight: 600; }
+.theme-option-note { color: var(--tm-ink-soft); font-size: 12px; line-height: 1.3; }
+
+.theme-option-check {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--tm-line);
+  border-radius: 50%;
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+.theme-option:has(input:checked) .theme-option-check {
+  background: var(--tm-accent);
+  border-color: var(--tm-accent);
+  box-shadow: inset 0 0 0 4px var(--tm-surface);
+}
+
+.appearance-seg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding: 3px;
+  background: var(--tm-seg);
+  border-radius: calc(var(--tm-radius) + 2px);
+}
+.appearance-opt { position: relative; display: block; border-radius: var(--tm-radius); cursor: pointer; }
+.appearance-opt-face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 8px;
+  color: var(--tm-ink-soft);
+  border-radius: var(--tm-radius);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+.appearance-opt:hover .appearance-opt-face { color: var(--tm-ink); }
+.appearance-opt:has(input:checked) .appearance-opt-face {
+  color: var(--tm-ink);
+  background: var(--tm-seg-on);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+}
+
+.theme-panel-note {
+  margin: 8px 4px 0;
+  color: var(--tm-ink-soft);
+  font-size: 12px;
+}
+
+/* ── per-theme panel tokens ───────────────────────────────────────────── */
+
+html[data-theme='macos-27'] .theme-menu {
+  --tm-surface: rgba(250, 252, 255, 0.9);
+  --tm-ink: var(--mac-ink);
+  --tm-ink-soft: var(--mac-ink-soft);
+  --tm-line: var(--mac-line);
+  --tm-hover: rgba(8, 120, 232, 0.07);
+  --tm-accent: var(--mac-blue);
+  --tm-seg: rgba(221, 230, 242, 0.78);
+  --tm-seg-on: #fff;
+  --tm-radius: 11px;
+  --tm-shadow: var(--mac-shadow-3);
+  --tm-focus: var(--mac-focus);
+  --tm-blur: saturate(150%) blur(22px);
+}
+
+/* The macOS bars each form a stacking context (backdrop-filter), and the
+   category row comes later in the DOM — lift the main bar so the panel and
+   the search suggestions it owns paint above the row. */
+html[data-theme='macos-27'] .header-main { position: relative; z-index: 2; }
+
+html[data-theme='macos-27'][data-scheme='dark'] .theme-menu {
+  --tm-surface: rgba(30, 37, 52, 0.97);
+  --tm-hover: rgba(80, 160, 255, 0.12);
+  --tm-seg: rgba(12, 17, 27, 0.6);
+  --tm-seg-on: rgba(255, 255, 255, 0.14);
+}
+
+@keyframes theme-panel-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-panel { animation: none; }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+}
