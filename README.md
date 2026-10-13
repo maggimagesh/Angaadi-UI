@@ -87,6 +87,35 @@ styles/app.css             the screens — header, footer, home, cards, listing,
 styles/tokens.css          a bridge that maps legacy custom-property names onto the above
 ```
 
+## Themes and appearance
+
+The header's **Appearance** button opens a settings panel with two independent
+choices, both remembered per browser and synced across open tabs:
+
+| Theme | `data-theme` on `<html>` | Stylesheet |
+| --- | --- | --- |
+| Storefront (default) | *(none)* | the files above |
+| macOS 27 frost | `macos-27` | `styles/macos-27.css` |
+| Apple | `apple` | `styles/apple.css` |
+
+| Mode | Result |
+| --- | --- |
+| Light (default) | no `data-scheme` attribute — the light UI is unchanged |
+| Dark | `data-scheme="dark"` |
+| System | follows `prefers-color-scheme`, live |
+
+Dark palettes live in `styles/storefront-dark.css`, `styles/macos-27-dark.css`
+and the dark block of `styles/apple.css`. The Apple theme's tokens (`--ap-*`)
+were taken from apple.com's shipped stylesheets: the 0.8-alpha frosted nav,
+`#1d1d1f` / `#f5f5f7` ink and ground, `#0071e3` 980px pill buttons, SF Pro
+type with tight tracking, 18px cards and the `cubic-bezier(.4,0,.6,1)` easing.
+
+An inline script in `index.html` applies the stored theme and mode before
+first paint, so there is no flash. Theme switches cross-fade as one
+view transition and suspend per-element transitions for that frame.
+`--color-paper` is the card fill the dark palettes re-point; it is `#fff` in
+every light theme.
+
 ## Documentation
 
 - **Architecture**: Mobile-first responsive design

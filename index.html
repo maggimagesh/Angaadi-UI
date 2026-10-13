@@ -3,13 +3,21 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Apply the saved theme before CSS paints to prevent a visible flash. -->
+    <!-- Apply the saved theme and appearance before CSS paints to prevent a
+         visible flash. Mirrors applyTheme() in src/theme/theme.ts. -->
     <script>
+      (function () {
       try {
-        if (localStorage.getItem('angaadi:theme') === 'macos-27') {
-          document.documentElement.setAttribute('data-theme', 'macos-27')
-        }
+        var root = document.documentElement
+        var theme = localStorage.getItem('angaadi:theme')
+        if (theme === 'macos-27' || theme === 'apple') root.setAttribute('data-theme', theme)
+        var appearance = localStorage.getItem('angaadi:appearance')
+        var dark = appearance === 'dark' ||
+          (appearance === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        if (dark) root.setAttribute('data-scheme', 'dark')
+        root.style.colorScheme = dark ? 'dark' : 'light'
       } catch (_) {}
+      })()
     </script>
 
     <!-- Favicon -->
