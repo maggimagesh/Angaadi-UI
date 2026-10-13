@@ -20,7 +20,7 @@ import {
 
 type Snapshot = { theme: Theme; appearance: Appearance; scheme: Scheme }
 
-const SERVER_SNAPSHOT: Snapshot = { theme: 'storefront', appearance: 'light', scheme: 'light' }
+const SERVER_SNAPSHOT: Snapshot = { theme: 'apple', appearance: 'light', scheme: 'light' }
 
 let snapshot: Snapshot | null = null
 const listeners = new Set<() => void>()

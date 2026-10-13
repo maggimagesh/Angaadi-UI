@@ -4,7 +4,7 @@ A modern, accessible, and cross-browser compatible e-commerce web application fo
 
 ## Features
 
-- 🛒 Familiar large-retailer storefront UI — navy chrome, grey ground, white cards
+- 🍎 Two themes — Apple (default) and macOS 27 frost — each in light, dark or system mode
 - 🌐 Cross-browser compatible (Chrome, Firefox, Safari, Edge, IE11)
 - 📱 Fully responsive (320px to desktop)
 - ♿ WCAG 2.1 AA accessible
@@ -60,9 +60,10 @@ src/
 
 ## Design system
 
-The look is modelled on a large Indian retail storefront. Everything is driven
-by the tokens in `src/styles/design-system.css` — retune that file and the whole
-app follows.
+The base layer below both themes is modelled on a large Indian retail
+storefront. Everything is driven by the tokens in `src/styles/design-system.css`;
+the Apple and macOS 27 themes re-point those tokens and restyle the screens on
+top. The base is not offered as a theme of its own.
 
 | Role | Token | Value |
 | --- | --- | --- |
@@ -94,9 +95,8 @@ choices, both remembered per browser and synced across open tabs:
 
 | Theme | `data-theme` on `<html>` | Stylesheet |
 | --- | --- | --- |
-| Storefront (default) | *(none)* | the files above |
+| Apple (default) | `apple` | `styles/apple.css` |
 | macOS 27 frost | `macos-27` | `styles/macos-27.css` |
-| Apple | `apple` | `styles/apple.css` |
 
 | Mode | Result |
 | --- | --- |
@@ -104,8 +104,8 @@ choices, both remembered per browser and synced across open tabs:
 | Dark | `data-scheme="dark"` |
 | System | follows `prefers-color-scheme`, live |
 
-Dark palettes live in `styles/storefront-dark.css`, `styles/macos-27-dark.css`
-and the dark block of `styles/apple.css`. The Apple theme's tokens (`--ap-*`)
+Dark palettes live in `styles/macos-27-dark.css` and the dark block of
+`styles/apple.css`. The Apple theme's tokens (`--ap-*`)
 were taken from apple.com's shipped stylesheets: the 0.8-alpha frosted nav,
 `#1d1d1f` / `#f5f5f7` ink and ground, `#0071e3` 980px pill buttons, SF Pro
 type with tight tracking, 18px cards and the `cubic-bezier(.4,0,.6,1)` easing.
@@ -113,8 +113,8 @@ type with tight tracking, 18px cards and the `cubic-bezier(.4,0,.6,1)` easing.
 An inline script in `index.html` applies the stored theme and mode before
 first paint, so there is no flash. Theme switches cross-fade as one
 view transition and suspend per-element transitions for that frame.
-`--color-paper` is the card fill the dark palettes re-point; it is `#fff` in
-every light theme.
+`--color-paper` is the card fill the dark palettes re-point. A stored choice
+from the retired Storefront theme falls back to Apple.
 
 ## Documentation
 

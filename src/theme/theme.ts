@@ -1,27 +1,26 @@
-/* The existing Storefront theme is the default. The macOS 27 frost theme and
-   the Apple theme are additive CSS layers enabled by data-theme on <html>.
+/* Two themes: Apple (the default) and the macOS 27 frost theme. Both are CSS
+   layers over the shared base in design-system.css / app.css, enabled by
+   data-theme on <html>, which is therefore always set.
 
    Appearance (light / dark / system) is a second, independent axis. It is
    resolved to a concrete scheme and written as data-scheme on <html>, so every
    theme can carry its own dark palette. The inline script in index.html runs
    the same resolution before first paint — keep the two in step. */
 
-export const THEMES = ['storefront', 'macos-27', 'apple'] as const
+export const THEMES = ['apple', 'macos-27'] as const
 
 export type Theme = (typeof THEMES)[number]
 
-export const DEFAULT_THEME: Theme = 'storefront'
+export const DEFAULT_THEME: Theme = 'apple'
 
 export const THEME_STORAGE_KEY = 'angaadi:theme'
 
 export const THEME_LABELS: Record<Theme, string> = {
-  storefront: 'Storefront',
   'macos-27': 'macOS 27',
   apple: 'Apple',
 }
 
 export const THEME_DESCRIPTIONS: Record<Theme, string> = {
-  storefront: 'Navy belt, grey ground, gold buy buttons',
   'macos-27': 'Frosted glass windows and aurora light',
   apple: 'Clean canvas, SF type and pill buttons',
 }
@@ -32,8 +31,7 @@ export type Appearance = (typeof APPEARANCES)[number]
 
 export type Scheme = Exclude<Appearance, 'system'>
 
-/* Light keeps every existing visitor's storefront exactly as it was; dark and
-   system are opt-in from the appearance menu. */
+/* Light is the default; dark and system are opt-in from the appearance menu. */
 export const DEFAULT_APPEARANCE: Appearance = 'light'
 
 export const APPEARANCE_STORAGE_KEY = 'angaadi:appearance'
@@ -45,7 +43,6 @@ export const APPEARANCE_LABELS: Record<Appearance, string> = {
 }
 
 const THEME_COLORS: Record<Theme, Record<Scheme, string>> = {
-  storefront: { light: '#131921', dark: '#0b0f14' },
   'macos-27': { light: '#e9f1fb', dark: '#141a26' },
   apple: { light: '#f5f5f7', dark: '#000000' },
 }
@@ -101,11 +98,7 @@ export function applyTheme(theme: Theme, appearance: Appearance = readStoredAppe
   const root = document.documentElement
   const scheme = resolveScheme(appearance)
 
-  if (theme === DEFAULT_THEME) {
-    root.removeAttribute('data-theme')
-  } else {
-    root.setAttribute('data-theme', theme)
-  }
+  root.setAttribute('data-theme', theme)
 
   if (scheme === 'dark') {
     root.setAttribute('data-scheme', 'dark')

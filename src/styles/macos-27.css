@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    ANG AADI · macOS 27 complete interface
 
-   Storefront remains the fallback theme. When data-theme="macos-27" is on
-   <html>, this file owns the entire visual system: chrome, page composition,
+   The shared base (design-system.css / app.css) sits underneath. When
+   data-theme="macos-27" is on <html>, this file owns the entire visual system: chrome, page composition,
    navigation, commerce, account, fixtures, loading and motion.
    ═══════════════════════════════════════════════════════════════════════════ */
 

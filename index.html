@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="apple">
   <head>
     <meta charset="UTF-8" />
 
@@ -10,7 +10,8 @@
       try {
         var root = document.documentElement
         var theme = localStorage.getItem('angaadi:theme')
-        if (theme === 'macos-27' || theme === 'apple') root.setAttribute('data-theme', theme)
+        // Apple is the default and already on <html>; only macOS 27 swaps it.
+        if (theme === 'macos-27') root.setAttribute('data-theme', theme)
         var appearance = localStorage.getItem('angaadi:appearance')
         var dark = appearance === 'dark' ||
           (appearance === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -30,8 +31,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- Theme Color for Mobile Browsers -->
-    <meta name="theme-color" content="#131921" />
-    <meta name="msapplication-TileColor" content="#131921" />
+    <meta name="theme-color" content="#f5f5f7" />
+    <meta name="msapplication-TileColor" content="#f5f5f7" />
 
     <!-- Apple Mobile Web App -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
