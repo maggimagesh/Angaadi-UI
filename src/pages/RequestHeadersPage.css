@@ -1,0 +1,145 @@
+/* RequestHeadersPage.css — built only on the shared tokens, which apple.css and
+   macos-27.css re-point per theme and per light/dark scheme. */
+
+.rh-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: clamp(16px, 3vw, 32px);
+  padding-bottom: clamp(32px, 6vw, 64px);
+}
+
+.rh-intro { max-width: 72ch; }
+.rh-page .rh-intro h1 {
+  margin: 10px 0 8px;
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1.15;
+  color: var(--color-text);
+}
+.rh-intro p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--color-neutral-700); }
+
+.rh-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.rh-stat {
+  min-width: 0;
+  padding: 14px 16px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md, 8px);
+}
+.rh-stat-wide { grid-column: 1 / -1; }
+.rh-stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-neutral-600);
+}
+.rh-stat-value { margin-top: 4px; font-size: 17px; font-weight: 600; color: var(--color-text); }
+.rh-stat-sub { font-size: 13px; font-weight: 400; color: var(--color-neutral-700); }
+
+.rh-mono { font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: 14px; }
+.rh-wrap { overflow-wrap: anywhere; font-weight: 400; }
+
+.rh-card { padding: clamp(14px, 3vw, 24px); gap: 16px; }
+.rh-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.rh-card-title { margin: 0; font-size: 19px; color: var(--color-text); }
+.rh-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.rh-filter { width: 200px; max-width: 100%; }
+.rh-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-neutral-700);
+  cursor: pointer;
+}
+
+.rh-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md, 8px);
+}
+.rh-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.rh-table thead th {
+  position: sticky;
+  top: 0;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-neutral-700);
+  background: var(--color-neutral-100);
+  border-bottom: 1px solid var(--color-divider);
+}
+.rh-table tbody th,
+.rh-table tbody td {
+  padding: 10px 14px;
+  vertical-align: top;
+  text-align: left;
+  border-bottom: 1px solid var(--color-divider);
+}
+.rh-table tbody tr:last-child th,
+.rh-table tbody tr:last-child td { border-bottom: 0; }
+.rh-table tbody tr:hover { background: var(--color-neutral-100); }
+
+.rh-name {
+  width: 32%;
+  min-width: 160px;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+.rh-value {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 13px;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.rh-badge {
+  margin-left: 8px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+  color: var(--color-neutral-700);
+  background: var(--color-neutral-200);
+  border-radius: 999px;
+}
+.rh-masked { letter-spacing: 0.1em; color: var(--color-neutral-600); }
+.rh-empty { font-style: italic; color: var(--color-neutral-600); }
+.rh-empty-row { text-align: center; color: var(--color-neutral-700); }
+
+.rh-state { padding: 32px 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.rh-error { color: var(--color-danger); }
+.rh-error p { margin: 0; }
+
+.rh-footnote { margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-neutral-700); }
+.rh-footnote code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  padding: 1px 4px;
+  background: var(--color-neutral-200);
+  border-radius: 4px;
+}
+
+@media (max-width: 720px) {
+  .rh-stats { grid-template-columns: 1fr 1fr; }
+  .rh-actions { width: 100%; }
+  .rh-filter { flex: 1 1 100%; width: auto; }
+  .rh-name { min-width: 120px; white-space: normal; overflow-wrap: anywhere; }
+}
