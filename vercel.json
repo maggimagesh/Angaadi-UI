@@ -5,6 +5,10 @@
       "destination": "/api/slow-loading"
     },
     {
+      "source": "/request-headers",
+      "destination": "/api/request-headers"
+    },
+    {
       "source": "/bad-request",
       "destination": "/api/bad-request"
     },

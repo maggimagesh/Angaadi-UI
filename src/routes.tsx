@@ -5,7 +5,6 @@ import AuthPage from './pages/Auth'
 import OAuthCallback from './pages/OAuthCallback'
 import ProfilePage from './pages/Profile'
 import HealthPage from './pages/Health'
-import RequestHeadersPage from './pages/RequestHeadersPage'
 import ProductsListing from './pages/ProductsListing'
 import ProductDetails from './pages/ProductDetails'
 import CartPage from './pages/Cart'
@@ -131,7 +130,6 @@ export const APP_ROUTES: AppRoute[] = [
   { path: '/slow-loading', element: <HomePage />, group: 'responses', description: 'The home page, served slowly — same DOM, worse timing.', watchOut: 'Premature assertions' },
   { path: '/loop-detected', element: <LoopDetectedPage />, group: 'responses', description: 'A redirect loop that trips the guard.', watchOut: 'Navigation timeouts' },
   { path: '/health', element: <HealthPage />, group: 'responses', description: 'Service status rendered as a table.', watchOut: '—' },
-  { path: '/request-headers', element: <RequestHeadersPage />, group: 'responses', description: 'Every request header your browser sent, echoed back by the API.', watchOut: 'Values differ per browser' },
 
   /* ── consent, docs & misc ─────────────────────────────────────────── */
   { path: '/cookie-consent', element: <CookieConsentGallery />, group: 'misc', description: 'Gallery of consent banner designs and their storage keys.', watchOut: 'Overlay blocks clicks' },
