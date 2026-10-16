@@ -53,8 +53,25 @@ describe('/request-headers function', () => {
     assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'))
   })
 
+  test('orders headers the same way whatever order the proxy forwards them in', () => {
+    const shuffled = ['x-forwarded-for', '1.2.3.4', 'accept', 'text/html', 'x-custom', '1', 'user-agent', 'UA', 'host', 'angaadi.dev', 'accept-language', 'en']
+    const reversed: string[] = []
+    for (let i = shuffled.length - 2; i >= 0; i -= 2) reversed.push(shuffled[i], shuffled[i + 1])
+    const names = (raw: string[]) => mod.headerPairs({ rawHeaders: raw }).map((p) => p[0])
+    const expected = ['host', 'user-agent', 'accept', 'accept-language', 'x-custom', 'x-forwarded-for']
+    assert.deepEqual(names(shuffled), expected)
+    assert.deepEqual(names(reversed), expected)
+  })
+
+  test("never echoes Vercel's internal headers, which include credentials", () => {
+    const pairs = mod.headerPairs({
+      rawHeaders: ['x-vercel-oidc-token', 'secret', 'x-vercel-proxy-signature', 'sig', 'x-vercel-id', 'bom1', 'strict-transport-security', 'max-age=1', 'accept', '*/*'],
+    })
+    assert.deepEqual(pairs, [['accept', '*/*']])
+  })
+
   test('falls back to the parsed header map', () => {
-    assert.deepEqual(mod.headerPairs({ headers: { host: 'x', 'x-multi': ['a', 'b'] } }), [
+    assert.deepEqual(mod.headerPairs({ headers: { 'x-multi': ['a', 'b'], host: 'x' } }), [
       ['host', 'x'],
       ['x-multi', 'a'],
       ['x-multi', 'b'],

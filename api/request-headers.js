@@ -40,20 +40,52 @@ export function escapeHtml(value) {
     .replace(/'/g, '&#39;')
 }
 
-/** [name, value] pairs in arrival order; rawHeaders keeps the sender's casing. */
+// Vercel's edge forwards the request headers in a different order on every
+// request (and lowercased), and adds its own. So the table shows the browser's
+// headers in the order Chrome sends them, then the standard proxy headers, and
+// leaves Vercel's internal ones out: some of them are credentials
+// (x-vercel-oidc-token, x-vercel-proxy-signature) that must never be echoed.
+const HIDDEN_HEADER = /^(x-vercel-|x-middleware-|x-matched-path$|x-invoke-|x-now-|strict-transport-security$|referrer-policy$|x-content-type-options$)/i
+
+const BROWSER_ORDER = [
+  'host', 'connection', 'cache-control', 'pragma', 'sec-ch-ua', 'sec-ch-ua-mobile', 'sec-ch-ua-platform',
+  'upgrade-insecure-requests', 'user-agent', 'accept', 'sec-fetch-site', 'sec-fetch-mode', 'sec-fetch-user',
+  'sec-fetch-dest', 'sec-fetch-storage-access', 'referer', 'accept-encoding', 'accept-language', 'cookie',
+  'if-none-match', 'if-modified-since', 'priority',
+]
+
+const PROXY_HEADER = /^(x-forwarded-|x-real-ip$|forwarded$|via$|true-client-ip$|cf-|fly-)/i
+
+function headerRank(name) {
+  const lower = name.toLowerCase()
+  if (PROXY_HEADER.test(lower)) return 2000
+  const i = BROWSER_ORDER.indexOf(lower)
+  return i === -1 ? 1000 : i
+}
+
+/** [name, value] pairs, internal headers removed, in a stable order. */
 export function headerPairs(req) {
   const pairs = []
   if (Array.isArray(req.rawHeaders) && req.rawHeaders.length > 0) {
     for (let i = 0; i + 1 < req.rawHeaders.length; i += 2) {
       pairs.push([req.rawHeaders[i], req.rawHeaders[i + 1]])
     }
-    return pairs
-  }
-  for (const [name, value] of Object.entries(req.headers || {})) {
-    if (value === undefined) continue
-    for (const item of Array.isArray(value) ? value : [value]) pairs.push([name, item])
+  } else {
+    for (const [name, value] of Object.entries(req.headers || {})) {
+      if (value === undefined) continue
+      for (const item of Array.isArray(value) ? value : [value]) pairs.push([name, item])
+    }
   }
   return pairs
+    .filter(([name]) => !HIDDEN_HEADER.test(name))
+    .map((pair, index) => ({ pair, index }))
+    .sort((a, b) =>
+      headerRank(a.pair[0]) - headerRank(b.pair[0]) ||
+      // Same rank: unknown or proxy headers alphabetically; repeats keep their order.
+      a.pair[0].toLowerCase().localeCompare(b.pair[0].toLowerCase()) ||
+      a.index - b.index
+    )
+    .map(({ pair }) => pair)
 }
 
 export function renderPage(pairs, nonce = '') {
