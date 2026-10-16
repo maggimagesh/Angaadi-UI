@@ -6,11 +6,17 @@
  * catch-all would otherwise serve the React shell, which needs JavaScript and
  * shows a loader before anything appears. This function answers the page
  * request itself, so the table lists the headers of that navigation and is in
- * the raw HTML: no JavaScript, no app chrome, nothing else on the page.
+ * the raw HTML: no app chrome, and the table needs no JavaScript.
+ *
+ * Below it, a browser fingerprint after CreepJS (api/_fingerprint.js) is
+ * filled in by one inline script; it never delays the table and sends nothing.
  *
  * Wired up by the /request-headers rewrite in vercel.json, which must sit
  * BEFORE the SPA catch-all so it wins.
  */
+
+import { randomBytes } from 'node:crypto'
+import { FINGERPRINT_SCRIPT } from './_fingerprint.js'
 
 const STYLE = `
   :root { color-scheme: light dark; }
@@ -19,6 +25,10 @@ const STYLE = `
   th, td { border: 1px solid #8888; padding: 6px 10px; text-align: left; vertical-align: top; }
   thead th { background: #8882; }
   td { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+  h2 { font-size: 16px; margin: 28px 0 8px; }
+  h2 .hash { font-size: 12px; font-weight: 400; opacity: .65; }
+  #fingerprint tbody th { width: 30%; }
+  td.flag { color: #d33; font-weight: 600; }
 `
 
 export function escapeHtml(value) {
@@ -46,7 +56,7 @@ export function headerPairs(req) {
   return pairs
 }
 
-export function renderPage(pairs) {
+export function renderPage(pairs, nonce = '') {
   const rows = pairs
     .map(
       ([name, value]) =>
@@ -70,6 +80,9 @@ export function renderPage(pairs) {
 ${rows}
 </tbody>
 </table>
+<div id="fingerprint" data-testid="fingerprint"></div>
+<noscript><p>Turn on JavaScript to see the browser fingerprint below the headers.</p></noscript>
+<script nonce="${escapeHtml(nonce)}">${FINGERPRINT_SCRIPT}</script>
 </body>
 </html>`
 }
@@ -77,10 +90,13 @@ ${rows}
 export default function handler(req, res) {
   // Personal to each visitor (IP, cookies), so nothing may cache it.
   res.setHeader('Cache-Control', 'no-store, max-age=0')
-  // No script may run on this page; only its own inline <style> is allowed.
+  // Only this response's own inline script runs (plus the Blob worker it
+  // spawns), and connect-src 'none' guarantees the fingerprint never leaves
+  // the browser.
+  const nonce = randomBytes(16).toString('base64')
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+    `default-src 'none'; script-src 'nonce-${nonce}'; worker-src blob:; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'`
   )
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -96,5 +112,5 @@ export default function handler(req, res) {
     return
   }
 
-  res.status(200).send(renderPage(headerPairs(req)))
+  res.status(200).send(renderPage(headerPairs(req), nonce))
 }
