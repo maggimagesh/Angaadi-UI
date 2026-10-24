@@ -1,0 +1,156 @@
+{
+  "id": "I14",
+  "title": "Malformed HTML on one page",
+  "category": "faults",
+  "catalogueVersion": "1.0.0",
+  "client": "http",
+  "variant": null,
+  "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1",
+  "pageSize": 10,
+  "totalRecords": 47,
+  "records": "li.card[data-id] → .title, .category, .price[data-price], .rating[data-rating], time.created[datetime], a[href] (detail page)",
+  "selectors": {
+    "record": ".card",
+    "id": ".card[data-id]",
+    "title": ".card .title",
+    "price": ".card .price",
+    "link": ".card a[href]"
+  },
+  "pagination": {
+    "kind": "page-query",
+    "end": {
+      "behaviour": "H02",
+      "description": "200 with an empty list past the last page"
+    }
+  },
+  "expectedRequests": [
+    "https://{BASE_URL}/pagination/s/I14/list?page=1",
+    "https://{BASE_URL}/pagination/s/I14/list?page=2",
+    "https://{BASE_URL}/pagination/s/I14/list?page=3",
+    "https://{BASE_URL}/pagination/s/I14/list?page=4",
+    "https://{BASE_URL}/pagination/s/I14/list?page=5"
+  ],
+  "extraRequestsAllowed": 3,
+  "mustNotRequest": [
+    "https://{BASE_URL}/pagination/s/I14/list?page=11"
+  ],
+  "ignoreParams": [],
+  "requestHeaders": {},
+  "endProbe": {
+    "request": "https://{BASE_URL}/pagination/s/I14/list?page=6",
+    "expectStatus": 200,
+    "expectRecords": "none"
+  },
+  "expectedRecordIds": [
+    "p-000001",
+    "p-000002",
+    "p-000003",
+    "p-000004",
+    "p-000005",
+    "p-000006",
+    "p-000007",
+    "p-000008",
+    "p-000009",
+    "p-000010",
+    "p-000011",
+    "p-000012",
+    "p-000013",
+    "p-000014",
+    "p-000015",
+    "p-000016",
+    "p-000017",
+    "p-000018",
+    "p-000019",
+    "p-000020",
+    "p-000021",
+    "p-000022",
+    "p-000023",
+    "p-000024",
+    "p-000025",
+    "p-000026",
+    "p-000027",
+    "p-000028",
+    "p-000029",
+    "p-000030",
+    "p-000031",
+    "p-000032",
+    "p-000033",
+    "p-000034",
+    "p-000035",
+    "p-000036",
+    "p-000037",
+    "p-000038",
+    "p-000039",
+    "p-000040",
+    "p-000041",
+    "p-000042",
+    "p-000043",
+    "p-000044",
+    "p-000045",
+    "p-000046",
+    "p-000047"
+  ],
+  "variants": [
+    {
+      "behaviour": "H01",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h01",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h01"
+    },
+    {
+      "behaviour": "H02",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h02",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h02"
+    },
+    {
+      "behaviour": "H03",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h03",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h03"
+    },
+    {
+      "behaviour": "H04",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h04",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h04"
+    },
+    {
+      "behaviour": "H05",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h05",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h05"
+    },
+    {
+      "behaviour": "H06",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h06",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h06"
+    },
+    {
+      "behaviour": "H07",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h07",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h07"
+    },
+    {
+      "behaviour": "H08",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h08",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h08"
+    },
+    {
+      "behaviour": "H09",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h09",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h09"
+    },
+    {
+      "behaviour": "H10",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h10",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h10"
+    },
+    {
+      "behaviour": "H11",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h11",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h11"
+    },
+    {
+      "behaviour": "H12",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I14/list?page=1&variant=h12",
+      "answer": "https://{BASE_URL}/pagination/s/I14/_answer?variant=h12"
+    }
+  ],
+  "comparison": "Requests are compared on method, path and query (in order, decoded), ignoring run/variant/bare/delay and ignoreParams; JSON bodies are compared structurally (GraphQL: variables only). Records are compared order-insensitively by id."
+}

@@ -1,0 +1,42 @@
+{
+  "id": "D10",
+  "title": "Never-ending cursor",
+  "category": "cursor",
+  "catalogueVersion": "1.0.0",
+  "client": "http",
+  "variant": null,
+  "entryUrl": "https://{BASE_URL}/pagination/s/D10/items",
+  "pageSize": 10,
+  "totalRecords": null,
+  "records": "JSON data[] → id, title, category, price, rating, createdAt, url",
+  "selectors": null,
+  "pagination": {
+    "kind": "cursor-endless",
+    "field": "next_cursor",
+    "param": "cursor",
+    "endless": true,
+    "end": {
+      "behaviour": "custom",
+      "description": "Never ends: every page has records and a way to the next one. Stop at your own page cap (100 pages at most)."
+    }
+  },
+  "expectedRequests": [
+    "https://{BASE_URL}/pagination/s/D10/items",
+    "https://{BASE_URL}/pagination/s/D10/items?cursor=b2Zmc2V0OjEw",
+    "https://{BASE_URL}/pagination/s/D10/items?cursor=b2Zmc2V0OjIw",
+    "https://{BASE_URL}/pagination/s/D10/items?cursor=b2Zmc2V0OjMw",
+    "https://{BASE_URL}/pagination/s/D10/items?cursor=b2Zmc2V0OjQw"
+  ],
+  "extraRequestsAllowed": 95,
+  "mustNotRequest": [
+    "https://{BASE_URL}/pagination/s/D10/items?cursor=b2Zmc2V0OjEwMDA"
+  ],
+  "ignoreParams": [],
+  "requestHeaders": {},
+  "endProbe": null,
+  "expectedRecordIds": null,
+  "expectedRecordCount": null,
+  "expectedBehaviour": "The data never runs out. Collect at least 5 pages, then stop at a page cap of 100 or fewer.",
+  "variants": [],
+  "comparison": "Requests are compared on method, path and query (in order, decoded), ignoring run/variant/bare/delay and ignoreParams; JSON bodies are compared structurally (GraphQL: variables only). Records are compared order-insensitively by id."
+}

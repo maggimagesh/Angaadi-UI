@@ -1,0 +1,49 @@
+{
+  "id": "A16",
+  "title": "Never-ending ?page=",
+  "category": "url-parameter",
+  "catalogueVersion": "1.0.0",
+  "client": "http",
+  "variant": null,
+  "entryUrl": "https://{BASE_URL}/pagination/s/A16/list?page=1",
+  "pageSize": 10,
+  "totalRecords": null,
+  "records": "li.card[data-id] → .title, .category, .price[data-price], .rating[data-rating], time.created[datetime], a[href] (detail page)",
+  "selectors": {
+    "record": ".card",
+    "id": ".card[data-id]",
+    "title": ".card .title",
+    "price": ".card .price",
+    "link": ".card a[href]"
+  },
+  "pagination": {
+    "kind": "page-query-endless",
+    "param": "page",
+    "firstValue": 1,
+    "step": 1,
+    "endless": true,
+    "end": {
+      "behaviour": "custom",
+      "description": "Never ends: every page has records and a way to the next one. Stop at your own page cap (100 pages at most)."
+    }
+  },
+  "expectedRequests": [
+    "https://{BASE_URL}/pagination/s/A16/list?page=1",
+    "https://{BASE_URL}/pagination/s/A16/list?page=2",
+    "https://{BASE_URL}/pagination/s/A16/list?page=3",
+    "https://{BASE_URL}/pagination/s/A16/list?page=4",
+    "https://{BASE_URL}/pagination/s/A16/list?page=5"
+  ],
+  "extraRequestsAllowed": 95,
+  "mustNotRequest": [
+    "https://{BASE_URL}/pagination/s/A16/list?page=101"
+  ],
+  "ignoreParams": [],
+  "requestHeaders": {},
+  "endProbe": null,
+  "expectedRecordIds": null,
+  "expectedRecordCount": null,
+  "expectedBehaviour": "The data never runs out. Collect at least 5 pages, then stop at a page cap of 100 or fewer.",
+  "variants": [],
+  "comparison": "Requests are compared on method, path and query (in order, decoded), ignoring run/variant/bare/delay and ignoreParams; JSON bodies are compared structurally (GraphQL: variables only). Records are compared order-insensitively by id."
+}

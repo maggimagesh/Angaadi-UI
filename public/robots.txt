@@ -1,0 +1,7 @@
+# Pagination Playground scenario I17: pages 6-10 are linked but disallowed.
+User-agent: *
+Disallow: /pagination/s/I17/list?page=6
+Disallow: /pagination/s/I17/list?page=7
+Disallow: /pagination/s/I17/list?page=8
+Disallow: /pagination/s/I17/list?page=9
+Disallow: /pagination/s/I17/list?page=10

@@ -14,6 +14,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noEmit": true,
+    // The Pagination Playground (api/_pagination) is plain JS shared with the Vercel function.
+    "allowJs": true,
     "types": ["node"]
   },
   "include": ["**/*.ts", "../src/api/webhook.ts"]

@@ -1,0 +1,107 @@
+{
+  "id": "I12",
+  "title": "Very large page count (10,000 pages)",
+  "category": "faults",
+  "catalogueVersion": "1.0.0",
+  "client": "http",
+  "variant": null,
+  "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1",
+  "pageSize": 10,
+  "totalRecords": 100000,
+  "records": "li.card[data-id] → .title, .category, .price[data-price], .rating[data-rating], time.created[datetime], a[href] (detail page)",
+  "selectors": {
+    "record": ".card",
+    "id": ".card[data-id]",
+    "title": ".card .title",
+    "price": ".card .price",
+    "link": ".card a[href]"
+  },
+  "pagination": {
+    "kind": "page-query",
+    "end": {
+      "behaviour": "H01",
+      "description": "404 Not Found past the last page"
+    }
+  },
+  "expectedRequests": [
+    "https://{BASE_URL}/pagination/s/I12/list?page=1",
+    "https://{BASE_URL}/pagination/s/I12/list?page=10000"
+  ],
+  "extraRequestsAllowed": 3,
+  "mustNotRequest": [
+    "https://{BASE_URL}/pagination/s/I12/list?page=20001"
+  ],
+  "ignoreParams": [],
+  "requestHeaders": {},
+  "endProbe": {
+    "request": "https://{BASE_URL}/pagination/s/I12/list?page=10001",
+    "expectStatus": 404,
+    "expectRecords": "none"
+  },
+  "expectedRecordIds": null,
+  "expectedRecordCount": 100000,
+  "notes": "A full crawl is 10,000 requests. expectedRequests lists only the first and last pages, and expectedRecordIds is replaced by expectedRecordCount. Record ids run from p-000001 to p-100000.",
+  "variants": [
+    {
+      "behaviour": "H01",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h01",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h01"
+    },
+    {
+      "behaviour": "H02",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h02",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h02"
+    },
+    {
+      "behaviour": "H03",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h03",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h03"
+    },
+    {
+      "behaviour": "H04",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h04",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h04"
+    },
+    {
+      "behaviour": "H05",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h05",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h05"
+    },
+    {
+      "behaviour": "H06",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h06",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h06"
+    },
+    {
+      "behaviour": "H07",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h07",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h07"
+    },
+    {
+      "behaviour": "H08",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h08",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h08"
+    },
+    {
+      "behaviour": "H09",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h09",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h09"
+    },
+    {
+      "behaviour": "H10",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h10",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h10"
+    },
+    {
+      "behaviour": "H11",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h11",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h11"
+    },
+    {
+      "behaviour": "H12",
+      "entryUrl": "https://{BASE_URL}/pagination/s/I12/list?page=1&variant=h12",
+      "answer": "https://{BASE_URL}/pagination/s/I12/_answer?variant=h12"
+    }
+  ],
+  "comparison": "Requests are compared on method, path and query (in order, decoded), ignoring run/variant/bare/delay and ignoreParams; JSON bodies are compared structurally (GraphQL: variables only). Records are compared order-insensitively by id."
+}

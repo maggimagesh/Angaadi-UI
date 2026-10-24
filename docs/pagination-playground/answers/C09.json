@@ -1,0 +1,75 @@
+{
+  "id": "C09",
+  "title": "Next link to a different host",
+  "category": "link-following",
+  "catalogueVersion": "1.0.0",
+  "client": "http",
+  "variant": null,
+  "entryUrl": "https://{BASE_URL}/pagination/s/C09/list?page=1",
+  "pageSize": 10,
+  "totalRecords": 47,
+  "records": "li.card[data-id] → .title, .category, .price[data-price], .rating[data-rating], time.created[datetime], a[href] (detail page)",
+  "selectors": {
+    "record": ".card",
+    "id": ".card[data-id]",
+    "title": ".card .title",
+    "price": ".card .price",
+    "link": ".card a[href]"
+  },
+  "pagination": {
+    "kind": "next-link",
+    "selector": "a.next",
+    "scope": "same-host",
+    "end": {
+      "behaviour": "H02",
+      "description": "200 with an empty list past the last page"
+    }
+  },
+  "expectedRequests": [
+    "https://{BASE_URL}/pagination/s/C09/list?page=1",
+    "https://{BASE_URL}/pagination/s/C09/list?page=2",
+    "https://{BASE_URL}/pagination/s/C09/list?page=3"
+  ],
+  "extraRequestsAllowed": 3,
+  "mustNotRequest": [
+    "https://{BASE_URL}/pagination/s/C09/list?page=4"
+  ],
+  "ignoreParams": [],
+  "requestHeaders": {},
+  "endProbe": null,
+  "expectedRecordIds": [
+    "p-000001",
+    "p-000002",
+    "p-000003",
+    "p-000004",
+    "p-000005",
+    "p-000006",
+    "p-000007",
+    "p-000008",
+    "p-000009",
+    "p-000010",
+    "p-000011",
+    "p-000012",
+    "p-000013",
+    "p-000014",
+    "p-000015",
+    "p-000016",
+    "p-000017",
+    "p-000018",
+    "p-000019",
+    "p-000020",
+    "p-000021",
+    "p-000022",
+    "p-000023",
+    "p-000024",
+    "p-000025",
+    "p-000026",
+    "p-000027",
+    "p-000028",
+    "p-000029",
+    "p-000030"
+  ],
+  "expectedBehaviour": "Stop at page 3: its Next link leaves the site (catalogue.example.com). Pages 4–5 exist on this host but are only linked from the other host.",
+  "variants": [],
+  "comparison": "Requests are compared on method, path and query (in order, decoded), ignoring run/variant/bare/delay and ignoreParams; JSON bodies are compared structurally (GraphQL: variables only). Records are compared order-insensitively by id."
+}

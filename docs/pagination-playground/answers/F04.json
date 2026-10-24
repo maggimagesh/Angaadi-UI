@@ -1,0 +1,103 @@
+{
+  "id": "F04",
+  "title": "Hash-routed SPA",
+  "category": "client-side",
+  "catalogueVersion": "1.0.0",
+  "client": "browser",
+  "variant": null,
+  "entryUrl": "https://{BASE_URL}/pagination/s/F04/app#/page/1",
+  "pageSize": 10,
+  "totalRecords": 47,
+  "records": "li.card[data-id] → .title, .category, .price[data-price], .rating[data-rating], time.created[datetime], a[href] (detail page) (rendered by JavaScript); XHR: JSON items[] → id, title, category, price, rating, createdAt, url",
+  "selectors": {
+    "record": ".card",
+    "id": ".card[data-id]",
+    "title": ".card .title",
+    "price": ".card .price",
+    "link": ".card a[href]"
+  },
+  "pagination": {
+    "kind": "spa-hash",
+    "route": "#/page/N",
+    "xhr": "/api/list?page=N",
+    "end": {
+      "behaviour": "custom",
+      "description": "No a.next on page 5."
+    }
+  },
+  "expectedRequests": [
+    "https://{BASE_URL}/pagination/s/F04/app",
+    "https://{BASE_URL}/pagination/s/F04/api/list?page=1",
+    "https://{BASE_URL}/pagination/s/F04/api/list?page=2",
+    "https://{BASE_URL}/pagination/s/F04/api/list?page=3",
+    "https://{BASE_URL}/pagination/s/F04/api/list?page=4",
+    "https://{BASE_URL}/pagination/s/F04/api/list?page=5"
+  ],
+  "extraRequestsAllowed": 3,
+  "mustNotRequest": [],
+  "ignoreParams": [],
+  "requestHeaders": {},
+  "endProbe": null,
+  "expectedRecordIds": [
+    "p-000001",
+    "p-000002",
+    "p-000003",
+    "p-000004",
+    "p-000005",
+    "p-000006",
+    "p-000007",
+    "p-000008",
+    "p-000009",
+    "p-000010",
+    "p-000011",
+    "p-000012",
+    "p-000013",
+    "p-000014",
+    "p-000015",
+    "p-000016",
+    "p-000017",
+    "p-000018",
+    "p-000019",
+    "p-000020",
+    "p-000021",
+    "p-000022",
+    "p-000023",
+    "p-000024",
+    "p-000025",
+    "p-000026",
+    "p-000027",
+    "p-000028",
+    "p-000029",
+    "p-000030",
+    "p-000031",
+    "p-000032",
+    "p-000033",
+    "p-000034",
+    "p-000035",
+    "p-000036",
+    "p-000037",
+    "p-000038",
+    "p-000039",
+    "p-000040",
+    "p-000041",
+    "p-000042",
+    "p-000043",
+    "p-000044",
+    "p-000045",
+    "p-000046",
+    "p-000047"
+  ],
+  "uiActions": [
+    {
+      "action": "open",
+      "url": "https://{BASE_URL}/pagination/s/F04/app#/page/1"
+    },
+    {
+      "action": "click",
+      "selector": "nav.pagination a.next",
+      "times": 4
+    }
+  ],
+  "variants": [],
+  "comparison": "Requests are compared on method, path and query (in order, decoded), ignoring run/variant/bare/delay and ignoreParams; JSON bodies are compared structurally (GraphQL: variables only). Records are compared order-insensitively by id."
+}

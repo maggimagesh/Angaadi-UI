@@ -1,0 +1,74 @@
+{
+  "id": "B14",
+  "title": "Two-level pagination: /tpe/T?page=P, behaviour by type",
+  "category": "path",
+  "catalogueVersion": "1.0.0",
+  "client": "http",
+  "variant": null,
+  "entryUrl": "https://{BASE_URL}/pagination/s/B14/tpe/1?page=1",
+  "pageSize": 10,
+  "totalRecords": null,
+  "records": "li.card[data-id] → .title, .category, .price[data-price], .rating[data-rating], time.created[datetime], a[href] (detail page)",
+  "selectors": {
+    "record": ".card",
+    "id": ".card[data-id]",
+    "title": ".card .title",
+    "price": ".card .price",
+    "link": ".card a[href]"
+  },
+  "pagination": {
+    "kind": "type-and-page",
+    "type": {
+      "path": "/tpe/{T}",
+      "firstValue": 1,
+      "max": 999
+    },
+    "page": {
+      "param": "page",
+      "firstValue": 1
+    },
+    "rules": {
+      "T%3=0": "404 after page 5",
+      "T%3=1": "empty 200 after page 5",
+      "T%3=2": "endless"
+    },
+    "end": {
+      "behaviour": "custom",
+      "description": "Per type: T % 3 = 0 → 404 after page 5; T % 3 = 1 → empty 200 after page 5; T % 3 = 2 → endless."
+    }
+  },
+  "expectedRequests": [
+    "https://{BASE_URL}/pagination/s/B14/tpe/1?page=1",
+    "https://{BASE_URL}/pagination/s/B14/tpe/1?page=2",
+    "https://{BASE_URL}/pagination/s/B14/tpe/1?page=3",
+    "https://{BASE_URL}/pagination/s/B14/tpe/1?page=4",
+    "https://{BASE_URL}/pagination/s/B14/tpe/1?page=5",
+    "https://{BASE_URL}/pagination/s/B14/tpe/2?page=1",
+    "https://{BASE_URL}/pagination/s/B14/tpe/2?page=2",
+    "https://{BASE_URL}/pagination/s/B14/tpe/2?page=3",
+    "https://{BASE_URL}/pagination/s/B14/tpe/2?page=4",
+    "https://{BASE_URL}/pagination/s/B14/tpe/2?page=5",
+    "https://{BASE_URL}/pagination/s/B14/tpe/3?page=1",
+    "https://{BASE_URL}/pagination/s/B14/tpe/3?page=2",
+    "https://{BASE_URL}/pagination/s/B14/tpe/3?page=3",
+    "https://{BASE_URL}/pagination/s/B14/tpe/3?page=4",
+    "https://{BASE_URL}/pagination/s/B14/tpe/3?page=5"
+  ],
+  "extraRequestsAllowed": 200,
+  "mustNotRequest": [
+    "https://{BASE_URL}/pagination/s/B14/tpe/2?page=101",
+    "https://{BASE_URL}/pagination/s/B14/tpe/1?page=7"
+  ],
+  "ignoreParams": [],
+  "requestHeaders": {},
+  "endProbe": {
+    "request": "https://{BASE_URL}/pagination/s/B14/tpe/3?page=6",
+    "expectStatus": 404,
+    "expectRecords": "none"
+  },
+  "expectedRecordIds": null,
+  "expectedRecordCount": null,
+  "expectedBehaviour": "Types 1–3 cover all three rules: type 1 ends with an empty 200 page 6, type 2 never ends, type 3 is 404 on page 6. Stop each endless type at a page cap (100 at most) and stop types at your own type cap. Never ask for page 7 of a type that already returned an empty page 6.",
+  "variants": [],
+  "comparison": "Requests are compared on method, path and query (in order, decoded), ignoring run/variant/bare/delay and ignoreParams; JSON bodies are compared structurally (GraphQL: variables only). Records are compared order-insensitively by id."
+}

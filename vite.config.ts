@@ -43,6 +43,26 @@ function serve5mbPagesPlugin(): Plugin {
   }
 }
 
+// Serves the Pagination Playground (/pagination/**) in dev with the same
+// handler the Vercel function api/pagination.js uses in production.
+function paginationPlaygroundPlugin(): Plugin {
+  return {
+    name: 'pagination-playground',
+
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url || !/^\/pagination(\/|\?|$)/.test(req.url)) return next()
+        try {
+          const { handle } = await server.ssrLoadModule('/api/_pagination/app.js')
+          await handle(req, res)
+        } catch (e) {
+          next(e)
+        }
+      })
+    }
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -55,6 +75,7 @@ export default defineConfig({
       // Don't override build.target - let it be configured separately
     }),
     serve5mbPagesPlugin(),
+    paginationPlaygroundPlugin(),
   ],
   
   server: { 

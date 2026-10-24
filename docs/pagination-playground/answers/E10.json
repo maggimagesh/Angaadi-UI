@@ -1,0 +1,118 @@
+{
+  "id": "E10",
+  "title": "Elasticsearch-like search_after",
+  "category": "api",
+  "catalogueVersion": "1.0.0",
+  "client": "http",
+  "variant": null,
+  "entryUrl": "https://{BASE_URL}/pagination/s/E10/_search",
+  "pageSize": 10,
+  "totalRecords": 47,
+  "records": "JSON hits.hits[] → _id (record under _source), title, category, price, rating, createdAt, url",
+  "selectors": null,
+  "pagination": {
+    "kind": "search-after",
+    "endpoint": "/_search",
+    "method": "POST",
+    "field": "search_after",
+    "valueFrom": "hits.hits[-1].sort",
+    "end": {
+      "behaviour": "custom",
+      "description": "hits.hits is empty: one extra request after the last record."
+    }
+  },
+  "expectedRequests": [
+    {
+      "method": "POST",
+      "url": "https://{BASE_URL}/pagination/s/E10/_search",
+      "contentType": "application/json",
+      "body": "{\"size\":10,\"sort\":[{\"id\":\"asc\"}]}"
+    },
+    {
+      "method": "POST",
+      "url": "https://{BASE_URL}/pagination/s/E10/_search",
+      "contentType": "application/json",
+      "body": "{\"size\":10,\"sort\":[{\"id\":\"asc\"}],\"search_after\":[\"p-000010\"]}"
+    },
+    {
+      "method": "POST",
+      "url": "https://{BASE_URL}/pagination/s/E10/_search",
+      "contentType": "application/json",
+      "body": "{\"size\":10,\"sort\":[{\"id\":\"asc\"}],\"search_after\":[\"p-000020\"]}"
+    },
+    {
+      "method": "POST",
+      "url": "https://{BASE_URL}/pagination/s/E10/_search",
+      "contentType": "application/json",
+      "body": "{\"size\":10,\"sort\":[{\"id\":\"asc\"}],\"search_after\":[\"p-000030\"]}"
+    },
+    {
+      "method": "POST",
+      "url": "https://{BASE_URL}/pagination/s/E10/_search",
+      "contentType": "application/json",
+      "body": "{\"size\":10,\"sort\":[{\"id\":\"asc\"}],\"search_after\":[\"p-000040\"]}"
+    },
+    {
+      "method": "POST",
+      "url": "https://{BASE_URL}/pagination/s/E10/_search",
+      "contentType": "application/json",
+      "body": "{\"size\":10,\"sort\":[{\"id\":\"asc\"}],\"search_after\":[\"p-000047\"]}"
+    }
+  ],
+  "extraRequestsAllowed": 3,
+  "mustNotRequest": [],
+  "ignoreParams": [],
+  "requestHeaders": {},
+  "endProbe": null,
+  "expectedRecordIds": [
+    "p-000001",
+    "p-000002",
+    "p-000003",
+    "p-000004",
+    "p-000005",
+    "p-000006",
+    "p-000007",
+    "p-000008",
+    "p-000009",
+    "p-000010",
+    "p-000011",
+    "p-000012",
+    "p-000013",
+    "p-000014",
+    "p-000015",
+    "p-000016",
+    "p-000017",
+    "p-000018",
+    "p-000019",
+    "p-000020",
+    "p-000021",
+    "p-000022",
+    "p-000023",
+    "p-000024",
+    "p-000025",
+    "p-000026",
+    "p-000027",
+    "p-000028",
+    "p-000029",
+    "p-000030",
+    "p-000031",
+    "p-000032",
+    "p-000033",
+    "p-000034",
+    "p-000035",
+    "p-000036",
+    "p-000037",
+    "p-000038",
+    "p-000039",
+    "p-000040",
+    "p-000041",
+    "p-000042",
+    "p-000043",
+    "p-000044",
+    "p-000045",
+    "p-000046",
+    "p-000047"
+  ],
+  "variants": [],
+  "comparison": "Requests are compared on method, path and query (in order, decoded), ignoring run/variant/bare/delay and ignoreParams; JSON bodies are compared structurally (GraphQL: variables only). Records are compared order-insensitively by id."
+}

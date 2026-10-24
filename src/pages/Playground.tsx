@@ -64,6 +64,21 @@ export default function PlaygroundPage() {
         </div>
       </section>
 
+      {/* Server-rendered (api/pagination.js), so a plain link: the SPA router must not handle it. */}
+      <section className="pg-group" id="pagination-playground">
+        <div className="pg-group-head">
+          <h2>Pagination Playground · 100 scenarios</h2>
+        </div>
+        <p>
+          Every pagination pattern found on real sites: query and path counters, next links, cursors,
+          request-body APIs, load-more and infinite scroll, feeds, end-of-data signals and faults.
+          Each scenario has an answer key and a per-run request log.{' '}
+          <a className="pg-open" href="/pagination">
+            Open the catalogue →
+          </a>
+        </p>
+      </section>
+
       {grouped.map(({ group, routes }) => (
         <section className="pg-group" key={group}>
           <div className="pg-group-head">

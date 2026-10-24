@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/pagination",
+      "destination": "/api/pagination?__pgpath="
+    },
+    {
+      "source": "/pagination/:path(.*)",
+      "destination": "/api/pagination?__pgpath=:path"
+    },
+    {
       "source": "/slow-loading",
       "destination": "/api/slow-loading"
     },
