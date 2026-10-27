@@ -11,15 +11,89 @@ import { formatINR } from '../utils/currency'
 import {
   DEPARTMENTS,
   artUrl,
+  artForName,
+  type CatalogArt,
   placeholderFor,
   productsHref,
+  resolveDepartment,
 } from '../data/catalog'
+import { VisionStage } from '../vision/VisionStage'
+import type { ModelKind } from '../vision/models'
 import '../styles/home.css'
+import '../styles/landing.css'
 
 /** Categories the price-drop rail is drawn from. */
-const DEAL_CATEGORY_IDS = [1, 2, 3, 4]
+const DEAL_CATEGORY_IDS = [1, 2, 9, 10]
 /** Categories the recommendation strip is drawn from. */
-const PICK_CATEGORY_IDS = [11, 6, 4, 1, 2, 3]
+const PICK_CATEGORY_IDS = [10, 4, 3, 1, 2, 9]
+
+/** One stop on the product tour: a 3D model, and the department it leads to. */
+type Station = {
+  kind: ModelKind
+  slug: string
+  eyebrow: string
+  title: string
+  body: string
+  cta: string
+}
+
+const STATIONS: Station[] = [
+  {
+    kind: 'phone',
+    slug: 'mobiles-tablets',
+    eyebrow: 'Mobiles & Tablets',
+    title: 'Glass that fits your hand.',
+    body: 'Every phone shows its landed price, stock count and delivery date before you tap — no surprises at step four.',
+    cta: 'Shop mobiles',
+  },
+  {
+    kind: 'laptop',
+    slug: 'laptops-computers',
+    eyebrow: 'Laptops & Computers',
+    title: 'A bigger room to think in.',
+    body: 'Ultrabooks, creator rigs and the docks that survive daily travel, compared spec for spec.',
+    cta: 'Shop laptops',
+  },
+  {
+    kind: 'tv',
+    slug: 'tvs-appliances',
+    eyebrow: 'TVs & Appliances',
+    title: 'Turn the wall into a window.',
+    body: 'QLED panels, soundbars and mounts that fit them. Installation is booked at checkout, not chased later.',
+    cta: 'Shop TVs',
+  },
+  {
+    kind: 'headphones',
+    slug: 'audio-headphones',
+    eyebrow: 'Audio & Headphones',
+    title: 'Hear the whole room go quiet.',
+    body: 'True wireless, over-ear and neckband picks, with real battery numbers instead of marketing hours.',
+    cta: 'Shop audio',
+  },
+  {
+    kind: 'kitchen',
+    slug: 'home-kitchen',
+    eyebrow: 'Home & Kitchen',
+    title: 'The warm corner of the house.',
+    body: 'Kettles, air fryers and mixers from brands with service centres near you.',
+    cta: 'Shop kitchen',
+  },
+  {
+    kind: 'fashion',
+    slug: 'fashion-lifestyle',
+    eyebrow: 'Fashion & Lifestyle',
+    title: 'Details that catch the light.',
+    body: 'Eyewear, bags and everyday wear, with seven-day no-question returns.',
+    cta: 'Shop fashion',
+  },
+]
+
+/** The still that stands in for a station when the 3D room is not running. */
+function artForKind(kind: ModelKind): CatalogArt {
+  return kind === 'phone' ? 'smartphone' : kind === 'headphones' ? 'earphones' : kind === 'watch' ? 'smartwatch' : kind
+}
+
+const STATION_KINDS = STATIONS.map((st) => st.kind)
 
 type HomeDepartment = {
   id: number
@@ -93,6 +167,7 @@ export default function HomePage() {
   const [alertSet, setAlertSet] = useState(false)
 
   const hasLoaded = useRef(false)
+  const [station, setStation] = useState(0)
 
   const loadDeals = async () => {
     setDealsLoading(true)
@@ -156,14 +231,20 @@ export default function HomePage() {
       const mapped = response.data
         .filter((c: Category) => c.isactive)
         .sort((a, b) => a.displayorder - b.displayorder)
-        .slice(0, 6)
-        .map((c: Category) => ({
-          id: c.id,
-          name: c.description || c.productname,
-          slug: c.slug || String(c.id),
-          art: c.imageurl || placeholderFor({ categoryId: c.id, slug: c.slug, name: c.productname }),
-          count: c.productcount || 0,
-        }))
+        .map((c: Category) => {
+          const name = c.description || c.productname || `Category ${c.id}`
+          // Departments are looked up by name: the catalogue photo for a live
+          // category is whatever the seed data holds, but the render that
+          // belongs on this page is the one drawn for that department.
+          const known = DEPARTMENTS.find((d) => d.name === name)
+          return {
+            id: c.id,
+            name,
+            slug: known?.slug ?? c.slug ?? String(c.id),
+            art: artForName(name),
+            count: c.productcount || 0,
+          }
+        })
       setDepartments(mapped)
     } catch {
       setDepartmentsError('Failed to load departments')
@@ -185,118 +266,157 @@ export default function HomePage() {
 
   const dealWindow = deals.slice(dealPage * 4, dealPage * 4 + 4)
   const dealPages = Math.max(1, Math.ceil(deals.length / 4))
-  const featured = deals[0]
 
   const openDepartment = (id: number, slug: string) => {
     storeCategoryInfo(id, slug)
     navigate(productsHref(id, slug))
   }
 
+  const goDepartment = (slug: string) => {
+    const dept = resolveDepartment(slug)
+    if (dept) openDepartment(dept.id, dept.slug)
+  }
+
+  const active = STATIONS[Math.min(station, STATIONS.length - 1)]
+
   return (
-    <main className="app-main" id="home-page" data-testid="home-page">
-      {/* ── the hero band ──────────────────────────────────────────────── */}
+    <main className="app-main landing" id="home-page" data-testid="home-page">
+      <VisionStage stations={STATION_KINDS} trackId="tour-track" onStation={setStation} />
+
+      {/* ── 1 · the hero: the first station, with the headline beside it ── */}
       <section
-        className="home-hero"
+        className="lp-hero"
         role="region"
         aria-label="Featured promotions"
         id="hero-banner"
         data-testid="hero-banner"
       >
-        <div className="hero-inner">
-          <div className="hero-copy">
-            <div className="hero-label">
-              <span className="tag tag-outline">Monsoon Electronics Week</span>
-              <span style={{ fontSize: 12, color: '#ccd2d8' }}>Ends 06:00 daily</span>
-            </div>
-
-            <h1 className="hero-title">Specs, not spin.</h1>
-
-            <p className="hero-lede">
-              Every listing shows the real landed price, the stock count and the delivery date
-              before you click. No countdown theatre.
-            </p>
-
-            <div className="hero-actions">
-              <Link className="btn btn-primary" to={productsHref(1, 'mobiles-tablets')}>
-                Shop the week
-              </Link>
-              <Link className="btn btn-secondary" to="/compare">
-                Compare top phones
-              </Link>
-            </div>
-
-            <div className="hero-stats">
-              <div className="hero-stat">
-                <div className="hero-stat-value">4.2L</div>
-                <div className="hero-stat-label">products listed</div>
-              </div>
-              <div className="hero-stat">
-                <div className="hero-stat-value">48h</div>
-                <div className="hero-stat-label">median delivery</div>
-              </div>
-              <div className="hero-stat">
-                <div className="hero-stat-value">7 days</div>
-                <div className="hero-stat-label">no-question returns</div>
-              </div>
-            </div>
+        <div className="lp-hero-copy">
+          <div className="lp-eyebrow">
+            <span className="lp-pill">Monsoon Electronics Week</span>
+            <span>Ends 06:00 daily</span>
           </div>
 
-          <div className="grayscale hero-figure">
-            <img
-              src={featured ? (featured.image || placeholderFor({ name: featured.title })) : artUrl('smartphone')}
-              alt={featured ? featured.title : 'Featured product'}
-            />
+          <h1 className="lp-title">
+            Shop inside
+            <br />
+            the glass.
+          </h1>
+
+          <p className="lp-lede">
+            Every listing shows the real landed price, the stock count and the delivery date before
+            you click. No countdown theatre.
+          </p>
+
+          <div className="lp-actions">
+            <Link className="btn btn-primary" to={productsHref(1, 'mobiles-tablets')}>
+              Shop the week
+            </Link>
+            <Link className="btn btn-secondary" to="/compare">
+              Compare top phones
+            </Link>
           </div>
+
+          <dl className="lp-stats">
+            <div>
+              <dt>products listed</dt>
+              <dd>4.2L</dd>
+            </div>
+            <div>
+              <dt>median delivery</dt>
+              <dd>48h</dd>
+            </div>
+            <div>
+              <dt>no-question returns</dt>
+              <dd>7 days</dd>
+            </div>
+          </dl>
+        </div>
+
+        {/* shown until (or unless) the 3D room is running */}
+        <div className="lp-hero-still" aria-hidden="true">
+          <img src={artUrl('smartphone')} alt="" />
+        </div>
+
+        <a className="lp-cue" href="#tour-track" aria-label="Scroll to the product tour">
+          <span />
+          Scroll
+        </a>
+      </section>
+
+      {/* ── 2 · the product tour: the camera flies station to station ──── */}
+      <section className="lp-tour" id="tour-track" aria-label="Product tour">
+        <div className="lp-tour-pin">
+          <div className="lp-tour-card" aria-live="polite">
+            <span className="lp-count">
+              {String(station + 1).padStart(2, '0')}
+              <i> / {String(STATIONS.length).padStart(2, '0')}</i>
+            </span>
+            <p className="lp-eyebrow-line">{active.eyebrow}</p>
+            <h2>{active.title}</h2>
+            <p>{active.body}</p>
+            <button type="button" className="btn btn-secondary" onClick={() => goDepartment(active.slug)}>
+              {active.cta}
+            </button>
+          </div>
+          <div className="lp-rail" aria-hidden="true">
+            {STATIONS.map((st, i) => (
+              <span key={st.kind} className={i === station ? 'is-on' : undefined} />
+            ))}
+          </div>
+          {/* the tour has a still for every station when the 3D room is off */}
+          <img className="lp-tour-still" src={artUrl(artForKind(active.kind))} alt="" />
         </div>
       </section>
 
-      {/* ── the card row that overlaps the hero ────────────────────────── */}
-      <section aria-labelledby="home-categories-title" data-testid="home-categories">
-        <h2 id="home-categories-title" className="visually-hidden">
-          Shop by department
-        </h2>
+      <div className="lp-after">
+        {/* ── 3 · departments, straight from the category feed ─────────── */}
+        <section id="home-departments" aria-labelledby="home-categories-title" data-testid="home-categories">
+          <div className="section-head">
+            <h2 id="home-categories-title">Shop by department</h2>
+          </div>
 
-        {departmentsError ? (
-          <div className="dept-grid" style={{ gridTemplateColumns: '1fr', marginTop: 20 }}>
-            <ErrorState
-              operation="/products"
-              title="We couldn't load the departments."
-              body="Showing the standing list instead. Your cart is safe."
-              actions={[{ label: 'Retry', variant: 'primary', onClick: () => void loadDepartments() }]}
-            />
-          </div>
-        ) : (
-          <div className="dept-grid">
-            {departmentsLoading
-              ? Array.from({ length: 4 }).map((_, i) => (
-                  <div className="dept-cell sk-cell" key={i} style={{ animationDelay: `${i * 0.2}s` }} aria-hidden="true">
-                    <div className="sk" style={{ height: 170 }} />
-                    <div>
-                      <div className="sk" style={{ height: 17, width: '80%' }} />
-                      <div className="sk" style={{ height: 13, width: '45%', marginTop: 6 }} />
+          {departmentsError ? (
+            <div className="dept-grid" style={{ gridTemplateColumns: '1fr', marginTop: 20 }}>
+              <ErrorState
+                operation="/products"
+                title="We couldn't load the departments."
+                body="Showing the standing list instead. Your cart is safe."
+                actions={[{ label: 'Retry', variant: 'primary', onClick: () => void loadDepartments() }]}
+              />
+            </div>
+          ) : (
+            <div className="dept-grid lp-depts">
+              {departmentsLoading
+                ? Array.from({ length: 4 }).map((_, i) => (
+                    <div className="dept-cell sk-cell" key={i} style={{ animationDelay: `${i * 0.2}s` }} aria-hidden="true">
+                      <div className="sk" style={{ height: 170 }} />
+                      <div>
+                        <div className="sk" style={{ height: 17, width: '80%' }} />
+                        <div className="sk" style={{ height: 13, width: '45%', marginTop: 6 }} />
+                      </div>
                     </div>
-                  </div>
-                ))
-              : departments.slice(0, 4).map((d) => (
-                  <button
-                    type="button"
-                    className="dept-cell"
-                    key={`${d.slug}-${d.id}`}
-                    onClick={() => openDepartment(d.id, d.slug)}
-                    aria-label={`Shop ${d.name}`}
-                  >
-                    <span className="dept-name">{d.name}</span>
-                    <span className="grayscale dept-icon">
-                      <img src={d.art} alt="" loading="lazy" />
-                    </span>
-                    <span className="dept-count">
-                      {d.count > 0 ? `Shop all ${d.count.toLocaleString('en-IN')} items` : 'Shop now'}
-                    </span>
-                  </button>
-                ))}
-          </div>
-        )}
-      </section>
+                  ))
+                : departments.map((d) => (
+                    <button
+                      type="button"
+                      className="dept-cell"
+                      key={`${d.slug}-${d.id}`}
+                      onClick={() => openDepartment(d.id, d.slug)}
+                      aria-label={`Shop ${d.name}`}
+                    >
+                      <span className="dept-name">{d.name}</span>
+                      <span className="grayscale dept-icon">
+                        <img src={d.art} alt="" loading="lazy" />
+                      </span>
+                      <span className="dept-count">
+                        {d.count > 0 ? `Shop all ${d.count.toLocaleString('en-IN')} items` : 'Shop now'}
+                      </span>
+                    </button>
+                  ))}
+            </div>
+          )}
+        </section>
 
       {/* ── today's price drops ────────────────────────────────────────── */}
       <section className="shelf" aria-labelledby="home-deals-title" data-testid="deals-of-day">
@@ -384,7 +504,7 @@ export default function HomePage() {
           <span className="grayscale spotlight-figure">
             <img src={artUrl('tv')} alt="" loading="lazy" />
           </span>
-          <Link className="btn btn-secondary" to={productsHref(3, 'tvs-appliances')}>
+          <Link className="btn btn-secondary" to={productsHref(9, 'tvs-appliances')}>
             Browse televisions — from {formatINR(12499)}
           </Link>
         </div>
@@ -511,6 +631,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      </div>
 
       <Footer />
     </main>

@@ -251,7 +251,8 @@ export function Header() {
         {/* 1 · the navy belt — logo, deliver-to, search, account, cart */}
         <nav className="header-main" aria-label="Top Navigation">
           <Link to="/" aria-label="Angaadi Home" id="logo" data-testid="logo" className="header-logo">
-            <img src="/logo/Angaadi.png" alt="Angaadi" />
+            <img className="logo-on-light" src="/logo/Angaadi.png" alt="Angaadi" />
+            <img className="logo-on-dark" src="/logo/Angaadi-vision.png" alt="" aria-hidden="true" />
             <span className="header-logo-text">
               <span className="header-wordmark">angaadi</span>
               <span className="header-tagline">.in</span>

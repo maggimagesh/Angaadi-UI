@@ -266,6 +266,7 @@
 }
 .header-logo:hover { color: #fff; }
 .header-logo img { height: 30px; width: auto; }
+.logo-on-dark { display: none; }
 
 .header-logo-text { display: flex; flex-direction: column; line-height: 1; }
 

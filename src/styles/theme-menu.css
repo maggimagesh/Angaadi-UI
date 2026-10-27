@@ -131,6 +131,10 @@ html[data-theme-switching] *::after {
 .theme-swatch-macos-27 i:nth-child(1) { background: rgba(255, 255, 255, 0.92); }
 .theme-swatch-macos-27 i:nth-child(2) { background: #0878e8; }
 .theme-swatch-macos-27 i:nth-child(3) { background: #6858e8; }
+.theme-swatch-vision { background: radial-gradient(120% 120% at 20% 0%, #4a43b0, #0a0b2a 70%); }
+.theme-swatch-vision i:nth-child(1) { background: rgba(34, 32, 94, 0.85); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 0 0 1px rgba(196, 190, 255, 0.35); border-radius: 6px; }
+.theme-swatch-vision i:nth-child(2) { background: linear-gradient(135deg, #8b7dff, #5a49f0); border-radius: 999px; }
+.theme-swatch-vision i:nth-child(3) { background: #ccccd3; border-radius: 999px; }
 .theme-swatch-apple { background: #f5f5f7; }
 .theme-swatch-apple i:nth-child(1) { background: #1d1d1f; }
 .theme-swatch-apple i:nth-child(2) { background: #fff; box-shadow: inset 0 0 0 1px #d2d2d7; }

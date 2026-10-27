@@ -28,8 +28,8 @@ const SCOPE_TO_IDS: Record<string, number[]> = {
   all: ALL_SCOPE_IDS,
   phones: [1],
   laptops: [2],
-  audio: [4],
-  accessories: [4, 6],
+  audio: [10],
+  accessories: [10, 4],
 }
 
 type Row = {

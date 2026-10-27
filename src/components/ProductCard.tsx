@@ -58,6 +58,15 @@ function imageFor(p: CardProduct): string {
   return placeholderFor({ categoryId: p.categoryId, slug: p.categorySlug, name: p.title })
 }
 
+/** A dead photo URL swaps once to the department's own render. */
+function artFallback(p: CardProduct) {
+  return (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget
+    img.onerror = null
+    img.src = placeholderFor({ categoryId: p.categoryId, slug: p.categorySlug, name: p.title })
+  }
+}
+
 function detailHref(p: CardProduct): string {
   const cat = p.categoryId ?? 1
   return `/product/${cat}/${p.id}`
@@ -159,6 +168,7 @@ function useProductActions(p: CardProduct) {
 /* ── quick view ─────────────────────────────────────────────────────────── */
 
 function QuickView({ product, onClose }: { product: CardProduct; onClose: () => void }) {
+  const onImgError = artFallback(product)
   const { addToCart } = useProductActions(product)
   const stock = stockLine(product)
   const discount = discountOf(product)
@@ -195,7 +205,7 @@ function QuickView({ product, onClose }: { product: CardProduct; onClose: () => 
 
         <div className="dialog-body">
           <div className="grayscale pcard-well" style={{ marginTop: 0 }}>
-            <img src={imageFor(product)} alt="" />
+            <img src={imageFor(product)} alt="" onError={onImgError} />
           </div>
           {product.brand ? <div className="pcard-brand">{product.brand}</div> : null}
           {product.description ? (
@@ -239,6 +249,7 @@ function QuickView({ product, onClose }: { product: CardProduct; onClose: () => 
 /* ── the ruled cell ─────────────────────────────────────────────────────── */
 
 export function ProductCard({ product }: { product: CardProduct }) {
+  const onImgError = artFallback(product)
   const [quickOpen, setQuickOpen] = useState(false)
   const { addToCart, toggleWishlist, toggleCompare, wishlisted, comparing } =
     useProductActions(product)
@@ -285,18 +296,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
           id={`prod-image-${id}`}
           data-testid={`prod-image-${id}`}
           loading="lazy"
-          onError={(e) => {
-            const img = e.currentTarget
-            const fallback = placeholderFor({
-              categoryId: product.categoryId,
-              slug: product.categorySlug,
-              name: product.title,
-            })
-            if (img.src !== fallback) {
-              img.onerror = null
-              img.src = fallback
-            }
-          }}
+          onError={onImgError}
         />
         <div className="pcard-hover">
           <button
@@ -415,6 +415,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
 /* ── the spec-dense list row ────────────────────────────────────────────── */
 
 export function ProductRow({ product }: { product: CardProduct }) {
+  const onImgError = artFallback(product)
   const navigate = useNavigate()
   const { addToCart, toggleCompare, comparing } = useProductActions(product)
   const id = product.id
@@ -436,6 +437,7 @@ export function ProductRow({ product }: { product: CardProduct }) {
           id={`prod-image-${id}`}
           data-testid={`prod-image-${id}`}
           loading="lazy"
+          onError={onImgError}
         />
       </div>
 
