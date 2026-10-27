@@ -17,7 +17,7 @@ import {
   productsHref,
   resolveDepartment,
 } from '../data/catalog'
-import { VisionStage } from '../vision/VisionStage'
+import { useScene, useSceneStore } from '../vision/sceneStore'
 import type { ModelKind } from '../vision/models'
 import '../styles/home.css'
 import '../styles/landing.css'
@@ -93,7 +93,7 @@ function artForKind(kind: ModelKind): CatalogArt {
   return kind === 'phone' ? 'smartphone' : kind === 'headphones' ? 'earphones' : kind === 'watch' ? 'smartwatch' : kind
 }
 
-const STATION_KINDS = STATIONS.map((st) => st.kind)
+const TOUR_SCENE = { mode: 'tour', stations: STATIONS.map((st) => st.kind) } as const
 
 type HomeDepartment = {
   id: number
@@ -167,7 +167,8 @@ export default function HomePage() {
   const [alertSet, setAlertSet] = useState(false)
 
   const hasLoaded = useRef(false)
-  const [station, setStation] = useState(0)
+  const station = useSceneStore((st) => st.station)
+  useScene(TOUR_SCENE, 'tour-track')
 
   const loadDeals = async () => {
     setDealsLoading(true)
@@ -281,8 +282,6 @@ export default function HomePage() {
 
   return (
     <main className="app-main landing" id="home-page" data-testid="home-page">
-      <VisionStage stations={STATION_KINDS} trackId="tour-track" onStation={setStation} />
-
       {/* ── 1 · the hero: the first station, with the headline beside it ── */}
       <section
         className="lp-hero"

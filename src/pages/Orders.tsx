@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../store/auth'
+import { PageHero } from '../components/PageHero'
 import { Footer } from '../components/Footer'
 import { EmptyState, ErrorState } from '../components/States'
 import { formatINR } from '../utils/currency'
@@ -53,10 +54,8 @@ export default function OrdersPage() {
   if (!isAuthenticated) {
     return (
       <main className="app-main" id="orders-page" data-testid="orders-page">
+        <PageHero kicker="Returns & orders" title="Your orders" lede="Sign in to follow every parcel." />
         <section className="shelf">
-          <div className="section-head">
-            <h1 style={{ margin: 0, fontSize: 28 }}>Your orders</h1>
-          </div>
           <div style={{ padding: '0 20px 24px' }}>
             <EmptyState
               title="Sign in to see your orders."
@@ -72,15 +71,12 @@ export default function OrdersPage() {
 
   return (
     <main className="app-main" id="orders-page" data-testid="orders-page">
+      <PageHero
+        kicker="Returns & orders"
+        title="Your orders"
+        lede={loading ? 'Loading…' : `${orders.length} order${orders.length === 1 ? '' : 's'}`}
+      />
       <section className="shelf">
-        <div className="section-head">
-          <div>
-            <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Your orders</h1>
-            <div style={{ fontSize: 13, color: 'var(--color-neutral-700)' }}>
-              {loading ? 'Loading…' : `${orders.length} order${orders.length === 1 ? '' : 's'}`}
-            </div>
-          </div>
-        </div>
 
         <div style={{ padding: '0 20px 24px' }}>
           {loading ? (

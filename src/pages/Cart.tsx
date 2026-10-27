@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '../store/cart'
 import { useWishlistStore } from '../store/wishlist'
+import { PageHero } from '../components/PageHero'
 import { Footer } from '../components/Footer'
 import { PriceTag } from '../components/PriceTag'
 import { deliveryDate } from '../utils/delivery'
@@ -41,10 +42,8 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <main className="app-main">
+        <PageHero kicker="Your bag" title="Shopping Cart" lede="Nothing in the bag yet." />
         <div className="cart-lines" style={{ margin: '20px 0' }}>
-          <div className="cart-head">
-            <h1>Shopping Cart</h1>
-          </div>
           <div style={{ paddingTop: 20 }}>
             <EmptyState
             title="Your cart is empty."
@@ -63,10 +62,15 @@ export default function CartPage() {
 
   return (
     <main className="app-main">
+      <PageHero
+        kicker="Your bag"
+        title="Shopping Cart"
+        lede="Review what is in your bag, change quantities, then check out in a few steps."
+        trail={[`${items.length} ${items.length === 1 ? 'item' : 'items'}`, 'Free delivery over ₹499', '7-day returns']}
+      />
       <div className="cart-layout">
         <div className="cart-lines">
           <div className="cart-head">
-            <h1>Shopping Cart</h1>
             <span className="meta">Price</span>
           </div>
 

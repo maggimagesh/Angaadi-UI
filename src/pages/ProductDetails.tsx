@@ -20,7 +20,8 @@ import {
   LockIcon,
 } from '../components/icons'
 import { formatINR } from '../utils/currency'
-import { placeholderFor } from '../data/catalog'
+import { departmentById, modelKindFor, placeholderFor } from '../data/catalog'
+import { useScene } from '../vision/sceneStore'
 import { storeCategoryInfo, getCategoryInfo } from '../utils/categoryStorage'
 import '../styles/product-details.css'
 
@@ -140,6 +141,19 @@ export default function ProductDetails() {
     }
   }, [product])
 
+  /* The product turns on a glass pane beside the copy as you read down the
+     page — the 3D model is the department's, in a colourway picked from the id. */
+  const scene = useMemo(() => {
+    const dept = departmentById(product?.categoryid ?? categoryId)
+    return {
+      mode: 'focus',
+      kind: modelKindFor(dept?.art ?? 'smartphone'),
+      variant: product?.id ?? 0,
+      side: 'left',
+    } as const
+  }, [product?.categoryid, product?.id, categoryId])
+  useScene(scene, 'pdp-page')
+
   const images = useMemo(() => {
     if (!product) return []
     const primary =
@@ -251,7 +265,7 @@ export default function ProductDetails() {
   }
 
   return (
-    <main className="app-main">
+    <main className="app-main pdp-page" id="pdp-page">
       <nav aria-label="Breadcrumb">
         <ol className="breadcrumb">
           <li>

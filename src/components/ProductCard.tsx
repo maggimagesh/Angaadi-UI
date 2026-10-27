@@ -67,6 +67,25 @@ function artFallback(p: CardProduct) {
   }
 }
 
+/** Cards lean toward the pointer (Vision theme). The values go to CSS variables, never to state. */
+function tilt(e: React.PointerEvent<HTMLElement>) {
+  if (e.pointerType !== 'mouse') return
+  const el = e.currentTarget
+  const r = el.getBoundingClientRect()
+  const x = (e.clientX - r.left) / r.width
+  const y = (e.clientY - r.top) / r.height
+  el.style.setProperty('--tilt-y', `${((x - 0.5) * 9).toFixed(2)}deg`)
+  el.style.setProperty('--tilt-x', `${((0.5 - y) * 7).toFixed(2)}deg`)
+  el.style.setProperty('--glare-x', `${(x * 100).toFixed(1)}%`)
+  el.style.setProperty('--glare-y', `${(y * 100).toFixed(1)}%`)
+}
+
+function untilt(e: React.PointerEvent<HTMLElement>) {
+  const el = e.currentTarget
+  el.style.removeProperty('--tilt-x')
+  el.style.removeProperty('--tilt-y')
+}
+
 function detailHref(p: CardProduct): string {
   const cat = p.categoryId ?? 1
   return `/product/${cat}/${p.id}`
@@ -266,6 +285,8 @@ export function ProductCard({ product }: { product: CardProduct }) {
       data-testid={`product-card-${id}`}
       role="article"
       aria-labelledby={titleId}
+      onPointerMove={tilt}
+      onPointerLeave={untilt}
     >
       <div className="pcard-top">
         {!product.inStock ? (

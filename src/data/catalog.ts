@@ -1,3 +1,5 @@
+import type { ModelKind } from '../vision/models'
+
 export type Department = {
   id: number
   /** Short label used on the header chip row. */
@@ -36,6 +38,14 @@ export const CATALOG_ARTS: readonly CatalogArt[] = [
 export function artVariantUrl(art: CatalogArt, variant: number): string {
   const n = ((Math.floor(variant) % 4) + 4) % 4 + 1
   return `/images/catalog/${art}-${n}.jpg`
+}
+
+/** The 3D model that stands for a department's art slot. */
+export function modelKindFor(art: CatalogArt): ModelKind {
+  if (art === 'smartphone') return 'phone'
+  if (art === 'earphones') return 'headphones'
+  if (art === 'smartwatch') return 'watch'
+  return art
 }
 
 export function artUrl(art: CatalogArt): string {

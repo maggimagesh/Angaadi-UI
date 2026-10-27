@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { products as mockProducts } from '../data/products'
 import { fetchProductsByCategory, type ProductItem } from '../api/products'
-import { DEPARTMENTS, resolveDepartment } from '../data/catalog'
+import { DEPARTMENTS, artUrl, modelKindFor, resolveDepartment } from '../data/catalog'
+import { useScene } from '../vision/sceneStore'
+import { formatINR } from '../utils/currency'
 import { PaginationOld } from '../components/PaginationOld'
 import {
   ProductCard,
@@ -265,7 +267,30 @@ export default function ProductsListing() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const pageItems = results.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
-  const categoryName = resolveDepartment(categoryParam, categoryIdParam)?.name ?? 'All Products'
+  const department = resolveDepartment(categoryParam, categoryIdParam)
+  const categoryName = department?.name ?? 'All Products'
+
+  /* A department opens as a chapter: its product turns on a glass pane while
+     the hero is pinned. "All products" and search have no single product to
+     show, so they get the ambient room instead. */
+  const scene = useMemo(
+    () =>
+      department && !searchQuery
+        ? ({ mode: 'focus', kind: modelKindFor(department.art), variant: department.id, side: 'right' } as const)
+        : ({ mode: 'ambient' } as const),
+    [department, searchQuery],
+  )
+  useScene(scene, department && !searchQuery ? 'dept-hero' : null)
+
+  const heroFacts = useMemo(() => {
+    const prices = searched.map((p) => p.price).filter((n) => n > 0)
+    return {
+      count: searched.length,
+      brands: new Set(searched.map((p) => p.brand).filter(Boolean)).size,
+      from: prices.length ? Math.min(...prices) : 0,
+      free: searched.filter((p) => p.freeDelivery).length,
+    }
+  }, [searched])
 
   /* ── active-filter chips ─────────────────────────────────────────────── */
 
@@ -424,24 +449,68 @@ export default function ProductsListing() {
     .join(', ')
 
   return (
-    <main className="app-main">
-      <nav aria-label="Breadcrumb">
-        <ol className="breadcrumb">
-          <li>
-            <button type="button" onClick={() => navigate('/')}>
-              Home
-            </button>
-          </li>
-          <li>/</li>
-          <li aria-current="page">{categoryName}</li>
-          {searchQuery ? (
-            <>
-              <li>/</li>
-              <li>“{searchQuery}”</li>
-            </>
+    <main className="app-main listing-page">
+      <section className={`dept-hero${department && !searchQuery ? ' has-model' : ''}`} id="dept-hero" data-testid="dept-hero">
+        <div className="dept-hero-pin">
+          <div className="dept-hero-copy">
+            <nav aria-label="Breadcrumb">
+              <ol className="breadcrumb">
+                <li>
+                  <button type="button" onClick={() => navigate('/')}>
+                    Home
+                  </button>
+                </li>
+                <li>/</li>
+                <li aria-current="page">{categoryName}</li>
+                {searchQuery ? (
+                  <>
+                    <li>/</li>
+                    <li>“{searchQuery}”</li>
+                  </>
+                ) : null}
+              </ol>
+            </nav>
+
+            <p className="dept-kicker">{searchQuery ? 'Search results' : department ? 'Department' : 'The whole catalogue'}</p>
+            <h1 className="dept-title">{searchQuery ? `“${searchQuery}”` : categoryName}</h1>
+            <p className="dept-lede">
+              {department?.groups?.[0]
+                ? `${department.groups[0].items.slice(0, 4).join(' · ')} — every price is the landed price, every delivery date is real.`
+                : 'Every price is the landed price, every delivery date is real.'}
+            </p>
+
+            <dl className="dept-facts">
+              <div>
+                <dt>products</dt>
+                <dd>{isLoading ? '—' : heroFacts.count}</dd>
+              </div>
+              <div>
+                <dt>brands</dt>
+                <dd>{isLoading ? '—' : heroFacts.brands}</dd>
+              </div>
+              <div>
+                <dt>from</dt>
+                <dd>{isLoading || !heroFacts.from ? '—' : formatINR(heroFacts.from)}</dd>
+              </div>
+              <div>
+                <dt>free delivery</dt>
+                <dd>{isLoading ? '—' : heroFacts.free}</dd>
+              </div>
+            </dl>
+
+            <a className="dept-cue" href="#results">
+              <span />
+              Browse the range
+            </a>
+          </div>
+
+          {department ? (
+            <div className="dept-hero-still" aria-hidden="true">
+              <img src={artUrl(department.art)} alt="" />
+            </div>
           ) : null}
-        </ol>
-      </nav>
+        </div>
+      </section>
 
       {/* Below 1200px the rail collapses into this bar. */}
       <div className="filter-bar">
@@ -485,10 +554,9 @@ export default function ProductsListing() {
           {filterGroups}
         </aside>
 
-        <div className="results-col">
+        <div className="results-col" id="results">
           <div className="results-head">
             <div>
-              <h1>{searchQuery ? `“${searchQuery}”` : categoryName}</h1>
               <div className="results-count">
                 <strong>
                   {results.length} result{results.length === 1 ? '' : 's'}

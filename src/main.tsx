@@ -19,6 +19,8 @@ import './styles/macos-27.css'
 import './styles/macos-27-dark.css'
 import './styles/apple.css'
 import './styles/vision.css'
+import './styles/shell.css'
+import './styles/pages.css'
 import './styles/theme-menu.css'
 
 import App from './App.tsx'

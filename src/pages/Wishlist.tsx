@@ -1,6 +1,7 @@
 import { useWishlistStore } from '../store/wishlist'
 import { useCartStore } from '../store/cart'
 import { useUIStore } from '../store/ui'
+import { PageHero } from '../components/PageHero'
 import { Footer } from '../components/Footer'
 import { EmptyState } from '../components/States'
 import { CloseIcon } from '../components/icons'
@@ -38,20 +39,17 @@ export default function WishlistPage() {
 
   return (
     <main className="app-main" id="wishlist-page" data-testid="wishlist-page">
-      <section className="shelf">
-        <div className="section-head">
-          <div>
-            <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Wishlist</h1>
-            <div style={{ fontSize: 13, color: 'var(--color-neutral-700)' }}>
-              {items.length} saved
-              {dropped.length > 0
-                ? ` · ${dropped.length} ${dropped.length === 1 ? 'has' : 'have'} dropped in price since you saved ${dropped.length === 1 ? 'it' : 'them'}`
-                : ''}
-            </div>
-          </div>
-
-          {items.length > 0 ? (
-            <div className="wish-actions">
+      <PageHero
+        kicker="Saved for later"
+        title="Wishlist"
+        lede={`${items.length} saved${
+          dropped.length > 0
+            ? ` · ${dropped.length} ${dropped.length === 1 ? 'has' : 'have'} dropped in price since you saved ${dropped.length === 1 ? 'it' : 'them'}`
+            : ''
+        }`}
+        actions={
+          items.length > 0 ? (
+            <>
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -65,9 +63,11 @@ export default function WishlistPage() {
               <button type="button" className="btn btn-secondary" onClick={clear}>
                 Clear list
               </button>
-            </div>
-          ) : null}
-        </div>
+            </>
+          ) : null
+        }
+      />
+      <section className="shelf">
 
         {items.length === 0 ? (
           <div style={{ padding: '0 20px 24px' }}>

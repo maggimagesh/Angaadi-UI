@@ -1,19 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { useTheme } from '../theme/useTheme'
-import type { StagePalette } from './stage'
-import type { ModelKind } from './models'
+import { useSceneStore } from './sceneStore'
+import type { LandingStage, StagePalette } from './stage'
 
-/* The fixed WebGL canvas behind the landing page. three.js is imported on
-   demand, so it never weighs on any other route, and the page works without it:
-   if WebGL is missing, the theme is not Vision, or anything throws, the canvas
-   simply stays empty and the CSS room gradient underneath carries the page. */
-
-type Props = {
-  stations: ModelKind[]
-  /** id of the tall element whose scroll range drives the product tour. */
-  trackId: string
-  onStation: (index: number) => void
-}
+/* The one canvas behind the whole app. three.js is imported on demand, so it
+   never weighs on first paint, and nothing depends on it: if WebGL is missing,
+   the theme is not Vision, or anything throws, the canvas stays empty and the
+   CSS room gradient underneath carries the page. */
 
 function readPalette(): StagePalette {
   const css = getComputedStyle(document.documentElement)
@@ -36,11 +29,9 @@ function hasWebGL(): boolean {
   }
 }
 
-export function VisionStage({ stations, trackId, onStation }: Props) {
+export function SceneHost() {
   const { theme } = useTheme()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const onStationRef = useRef(onStation)
-  onStationRef.current = onStation
   const enabled = theme === 'vision'
 
   useEffect(() => {
@@ -54,19 +45,21 @@ export function VisionStage({ stations, trackId, onStation }: Props) {
       .then(({ LandingStage }) => {
         if (disposed) return
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-        const stage = new LandingStage({
+        const store = useSceneStore
+        const stage: LandingStage = new LandingStage({
           canvas,
           palette: readPalette(),
-          stations,
+          scene: store.getState().spec,
           reducedMotion,
-          onStation: (i) => onStationRef.current(i),
+          onStation: (i) => store.getState().setStation(i),
         })
 
         const size = () => stage.resize(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1)
         const progress = () => {
-          const track = document.getElementById(trackId)
           const doc = document.documentElement
           const page = doc.scrollHeight > window.innerHeight ? window.scrollY / (doc.scrollHeight - window.innerHeight) : 0
+          const trackId = store.getState().trackId
+          const track = trackId ? document.getElementById(trackId) : null
           let tour = 0
           if (track) {
             const rect = track.getBoundingClientRect()
@@ -77,6 +70,14 @@ export function VisionStage({ stations, trackId, onStation }: Props) {
         }
         const pointer = (e: PointerEvent) => stage.setPointer((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1)
         const visibility = () => stage.setVisible(!document.hidden)
+
+        // a page asked for a different scene: swap it, then re-read the scroll position
+        const unsubscribe = store.subscribe((state, prev) => {
+          if (state.spec !== prev.spec || state.trackId !== prev.trackId) {
+            stage.setScene(state.spec)
+            requestAnimationFrame(progress)
+          }
+        })
 
         size()
         progress()
@@ -92,6 +93,7 @@ export function VisionStage({ stations, trackId, onStation }: Props) {
         canvas.dataset.ready = 'true'
         document.documentElement.dataset.stage = 'ready'
         cleanup = () => {
+          unsubscribe()
           watcher.disconnect()
           window.removeEventListener('resize', size)
           window.removeEventListener('scroll', progress)
@@ -110,7 +112,7 @@ export function VisionStage({ stations, trackId, onStation }: Props) {
       disposed = true
       cleanup()
     }
-  }, [enabled, stations, trackId])
+  }, [enabled])
 
   if (!enabled) return null
   return <canvas ref={canvasRef} className="vr-stage" aria-hidden="true" data-testid="vr-stage" />

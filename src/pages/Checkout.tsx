@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { PageHero } from '../components/PageHero'
 import { Link, useNavigate } from 'react-router-dom'
 import { loadRazorpayCheckout, type RazorpayHandlerResponse } from '../lib/razorpay'
 import { useCartStore } from '../store/cart'
@@ -377,6 +378,8 @@ export default function CheckoutPage() {
           Secure checkout · nothing is charged until you confirm
         </span>
       </div>
+
+      <PageHero kicker="Secure checkout" title="Checkout" lede="Three short steps — address, delivery slot, payment. Nothing is charged until you confirm." />
 
       <div className="steps">
         <button
