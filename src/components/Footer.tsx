@@ -104,6 +104,19 @@ export function Footer() {
         </div>
       </div>
 
+      <div className="footer-promise">
+        <span>Free delivery over ₹499 · Delivering to 19,000+ pin codes</span>
+        <span className="footer-promise-links">
+          <Link to="/orders">Track order</Link>
+          <Link to="/health">Help centre</Link>
+          <Link to="/crawlableDocuments">Sell on Angaadi</Link>
+        </span>
+      </div>
+
+      <div className="footer-mark" aria-hidden="true">
+        angaadi
+      </div>
+
       <div className="footer-base">
         <span className="footer-brand">angaadi</span>
         <Link to="/crawlableDocuments" className="footer-locale">

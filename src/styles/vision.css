@@ -1,0 +1,571 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANGAADI · Vision theme
+
+   Spatial glass: a dusk-violet room, frosted panels that float in it, thin
+   rim light along their edges and a soft glow where you point. Palette taken
+   from the reference still — deep indigo #27265c, violet #3a366c, near-black
+   navy #060a24, glass interior #161641 and the soft white specular streaks
+   along the pane's top and bottom edges.
+
+   Vision reuses the whole component skin in apple.css (every rule there now
+   matches both themes) and only re-points its --ap-* tokens, so the two
+   themes cannot drift apart structurally. This file adds what Apple does not
+   have: the room backdrop, rim-lit glass, glow, and image wells that tint
+   bright product photography toward indigo so it sits in the scene.
+
+   Dark is the native mode. Light is "day glass": the same panels in a pale
+   lavender room. The 3D landing stage reads the --vr-* tokens defined here.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ══ day glass (light) ══════════════════════════════════════════════════ */
+
+html[data-theme='vision'] {
+  color-scheme: light;
+
+  --ap-bg: #e4e1fb;
+  --ap-bg-alt: #efedff;
+  --ap-surface: rgba(255, 255, 255, 0.66);
+  --ap-surface-2: rgba(255, 255, 255, 0.5);
+  --ap-surface-3: rgba(235, 232, 255, 0.78);
+  --ap-fill: rgba(86, 72, 210, 0.12);
+  --ap-fill-hover: rgba(86, 72, 210, 0.08);
+  --ap-ink: #17153f;
+  --ap-ink-2: #53508a;
+  --ap-ink-3: #77739f;
+  --ap-line: rgba(70, 58, 170, 0.22);
+  --ap-line-soft: rgba(70, 58, 170, 0.13);
+  --ap-blue: #5848ff;
+  --ap-blue-hover: #6a5bff;
+  --ap-blue-active: #4a3beb;
+  --ap-blue-tint: rgba(88, 72, 255, 0.12);
+  --ap-link: #4636e0;
+  --ap-on-blue: #ffffff;
+  --ap-neutral-btn: #1c1a4d;
+  --ap-neutral-btn-hover: #2a2766;
+  --ap-on-neutral: #ffffff;
+  --ap-green: #0b8a5b;
+  --ap-red: #d6335f;
+  --ap-red-tint: rgba(214, 51, 95, 0.1);
+  --ap-orange: #b8560f;
+  --ap-star: #e07a0b;
+  --ap-nav: rgba(240, 238, 255, 0.62);
+  --ap-nav-solid: #ece9ff;
+  --ap-nav-ink: rgba(23, 21, 63, 0.82);
+  --ap-nav-ink-hover: #17153f;
+  --ap-localnav: rgba(245, 243, 255, 0.7);
+  --ap-flyout: #f1efff;
+  --ap-scrim: rgba(60, 50, 140, 0.28);
+  --ap-shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 1px rgba(80, 66, 190, 0.12), 0 14px 34px -16px rgba(60, 46, 170, 0.35);
+  --ap-shadow-card-hover: inset 0 1px 0 #fff, 0 0 0 1px rgba(88, 72, 255, 0.5), 0 18px 44px -12px rgba(88, 72, 255, 0.45);
+  --ap-shadow-pop: inset 0 1px 0 #fff, 0 0 0 1px rgba(80, 66, 190, 0.18), 0 30px 80px -20px rgba(50, 36, 150, 0.5);
+  --ap-focus: 0 0 0 4px rgba(88, 72, 255, 0.4);
+  --ap-focus-ring: 0 0 0 2px #efedff, 0 0 0 4px #5848ff;
+  --ap-skeleton: rgba(88, 72, 255, 0.1);
+  --ap-skeleton-sheen: rgba(255, 255, 255, 0.6);
+  --ap-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ap-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* the stage and the landing page read these */
+  --vr-bg-top: #f4f2ff;
+  --vr-bg-mid: #dcd8fb;
+  --vr-bg-bottom: #c9c3f5;
+  --vr-glow-a: #7a6bff;
+  --vr-glow-b: #3aa9ff;
+  --vr-glow-c: #c06bff;
+  --vr-dust: #6a5bef;
+  --vr-room: 0;
+  --vr-panel-fill: rgba(255, 255, 255, 0.55);
+  --vr-panel-rim: rgba(255, 255, 255, 0.95);
+  --vr-streak: rgba(120, 100, 255, 0.55);
+  --vr-halo: rgba(88, 72, 255, 0.22);
+  --vr-hero-ink: #17153f;
+
+  --color-navy: #1c1a4d;
+  --color-navy-2: #2a2766;
+  --color-navy-3: #3d3a85;
+  --color-navy-4: #5a56a8;
+  --color-accent-300: #b6aeff;
+  --color-accent-400: #9a8fff;
+  --color-sky-400: #b6aeff;
+  --color-sky-500: #9a8fff;
+}
+
+/* ══ night room (dark — the native mode) ════════════════════════════════ */
+
+html[data-theme='vision'][data-scheme='dark'] {
+  color-scheme: dark;
+
+  --ap-bg: #080a24;
+  --ap-bg-alt: #0b0c2c;
+  --ap-surface: rgba(34, 32, 94, 0.5);
+  --ap-surface-2: rgba(24, 22, 70, 0.56);
+  --ap-surface-3: rgba(14, 13, 48, 0.7);
+  --ap-fill: rgba(150, 142, 255, 0.17);
+  --ap-fill-hover: rgba(160, 152, 255, 0.11);
+  --ap-ink: #f2f0ff;
+  --ap-ink-2: #bab6e8;
+  --ap-ink-3: #8f8bc4;
+  --ap-line: rgba(196, 190, 255, 0.24);
+  --ap-line-soft: rgba(196, 190, 255, 0.14);
+  --ap-blue: #7b6cff;
+  --ap-blue-hover: #9084ff;
+  --ap-blue-active: #6a5af0;
+  --ap-blue-tint: rgba(123, 108, 255, 0.2);
+  --ap-link: #aea3ff;
+  --ap-on-blue: #ffffff;
+  --ap-neutral-btn: #f2f0ff;
+  --ap-neutral-btn-hover: #ffffff;
+  --ap-on-neutral: #14123c;
+  --ap-green: #5eeab0;
+  --ap-red: #ff7a99;
+  --ap-red-tint: rgba(255, 122, 153, 0.14);
+  --ap-orange: #ffb372;
+  --ap-star: #ffc56b;
+  --ap-nav: rgba(12, 12, 42, 0.58);
+  --ap-nav-solid: #0d0d2e;
+  --ap-nav-ink: rgba(244, 242, 255, 0.86);
+  --ap-nav-ink-hover: #ffffff;
+  --ap-localnav: rgba(22, 21, 66, 0.62);
+  --ap-flyout: #12113a;
+  --ap-scrim: rgba(4, 4, 22, 0.62);
+  --ap-shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(196, 190, 255, 0.17), 0 22px 44px -22px rgba(0, 0, 8, 0.8);
+  --ap-shadow-card-hover: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(176, 166, 255, 0.55), 0 0 44px -6px rgba(123, 108, 255, 0.5), 0 26px 50px -20px rgba(0, 0, 8, 0.9);
+  --ap-shadow-pop: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 0 0 1px rgba(200, 195, 255, 0.22), 0 36px 90px -24px rgba(0, 0, 10, 0.92);
+  --ap-focus: 0 0 0 4px rgba(123, 108, 255, 0.5);
+  --ap-focus-ring: 0 0 0 2px #0c0d2e, 0 0 0 4px #aea3ff;
+  --ap-skeleton: rgba(150, 142, 255, 0.14);
+  --ap-skeleton-sheen: rgba(255, 255, 255, 0.1);
+
+  --vr-bg-top: #0a0b2a;
+  --vr-bg-mid: #14134a;
+  --vr-bg-bottom: #060a24;
+  --vr-glow-a: #7b6cff;
+  --vr-glow-b: #3fd2ff;
+  --vr-glow-c: #ff5fd2;
+  --vr-dust: #b9b3ff;
+  --vr-room: 1;
+  --vr-panel-fill: rgba(22, 22, 65, 0.55);
+  --vr-panel-rim: rgba(214, 214, 245, 0.85);
+  --vr-streak: rgba(204, 204, 211, 0.95);
+  --vr-halo: rgba(123, 108, 255, 0.3);
+  --vr-hero-ink: #f2f0ff;
+
+  --color-navy: #0d0d2e;
+  --color-navy-2: #15154a;
+  --color-navy-3: #24246a;
+  --color-navy-4: #3a3a8a;
+  --color-accent-300: #3a3a9a;
+  --color-accent-400: #4a45c8;
+  --color-sky-400: #3a3a9a;
+  --color-sky-500: #4a45c8;
+}
+
+/* ══ the room — page backdrop ═══════════════════════════════════════════ */
+
+html[data-theme='vision'] body {
+  background:
+    radial-gradient(62rem 40rem at 10% 4%, rgba(166, 150, 255, 0.45), transparent 62%),
+    radial-gradient(52rem 38rem at 94% 12%, rgba(190, 150, 255, 0.34), transparent 62%),
+    radial-gradient(44rem 30rem at 58% 98%, rgba(110, 190, 255, 0.28), transparent 62%),
+    linear-gradient(180deg, #f1efff 0%, #e2defb 55%, #d4cff6 100%);
+  background-attachment: fixed;
+}
+html[data-theme='vision'][data-scheme='dark'] body {
+  background:
+    radial-gradient(62rem 40rem at 10% 4%, rgba(86, 74, 200, 0.4), transparent 62%),
+    radial-gradient(52rem 38rem at 94% 12%, rgba(124, 92, 255, 0.24), transparent 62%),
+    radial-gradient(44rem 30rem at 58% 98%, rgba(60, 160, 255, 0.15), transparent 62%),
+    linear-gradient(180deg, #0a0b2a 0%, #070920 55%, #05061a 100%);
+  background-attachment: fixed;
+}
+html[data-theme='vision'] { background: var(--ap-bg); }
+html[data-theme='vision'] ::selection { color: #fff; background: rgba(123, 108, 255, 0.55); }
+html[data-theme='vision'] { scrollbar-color: rgba(150, 142, 255, 0.5) transparent; scrollbar-width: thin; }
+html[data-theme='vision'] h1,
+html[data-theme='vision'] h2 { letter-spacing: -0.022em; }
+html[data-theme='vision'] h1 { font-weight: 700; }
+
+/* ══ rim-lit glass ══════════════════════════════════════════════════════
+   One backdrop blur per large surface (nav, shelf, panels, dialogs). Cards
+   inside them stay unblurred so a grid of twenty never costs twenty blurs. */
+
+html[data-theme='vision'] .card,
+html[data-theme='vision'] .shelf,
+html[data-theme='vision'] .state-block,
+html[data-theme='vision'] .filter-rail,
+html[data-theme='vision'] .results-col,
+html[data-theme='vision'] .pdp-gallery,
+html[data-theme='vision'] .pdp-info,
+html[data-theme='vision'] .pdp-buybox,
+html[data-theme='vision'] .cart-lines,
+html[data-theme='vision'] .summary-aside,
+html[data-theme='vision'] .checkout-section,
+html[data-theme='vision'] .profile-rail,
+html[data-theme='vision'] .profile-pane,
+html[data-theme='vision'] .auth-card,
+html[data-theme='vision'] .confirmation-main,
+html[data-theme='vision'] .confirmation-next,
+html[data-theme='vision'] .compare-scroll,
+html[data-theme='vision'] .poster,
+html[data-theme='vision'] .trust-cell {
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  backdrop-filter: blur(22px) saturate(1.5);
+  border-radius: 28px;
+}
+/* the listing page sets its cards straight on the room, as Apple does */
+html[data-theme='vision'] .filter-rail { -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; }
+
+html[data-theme='vision'] .pcard,
+html[data-theme='vision'] .prow,
+html[data-theme='vision'] .compact-cell,
+html[data-theme='vision'] .wish-cell,
+html[data-theme='vision'] .compare-slot,
+html[data-theme='vision'] .dept-cell,
+html[data-theme='vision'] .is-product-card,
+html[data-theme='vision'] .compact-card,
+html[data-theme='vision'] .job-card { border-radius: 24px; }
+@media (hover: hover) {
+  html[data-theme='vision'] .dept-cell:hover,
+  html[data-theme='vision'] .pcard:hover,
+  html[data-theme='vision'] .compact-cell:hover,
+  html[data-theme='vision'] .wish-cell:hover,
+  html[data-theme='vision'] .compare-slot:hover,
+  html[data-theme='vision'] .is-product-card:hover,
+  html[data-theme='vision'] .compact-card:hover { transform: translateY(-4px) scale(1.012); }
+}
+
+/* the nav: a floating bar, rim-lit along its lower edge */
+html[data-theme='vision'] .site-header {
+  box-shadow: 0 1px 0 var(--ap-line-soft), 0 18px 40px -24px rgba(0, 0, 10, 0.6);
+  -webkit-backdrop-filter: saturate(1.6) blur(18px);
+  backdrop-filter: saturate(1.6) blur(18px);
+}
+html[data-theme='vision'] .site-header::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--vr-streak), transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+html[data-theme='vision'] .site-header { overflow: visible; }
+
+/* ══ light you can feel — buttons, fields ═══════════════════════════════ */
+
+html[data-theme='vision'] .btn-primary,
+html[data-theme='vision'] .btn-primary:disabled {
+  color: #fff;
+  background: linear-gradient(135deg, #8b7dff 0%, #6a5bff 52%, #5a49f0 100%);
+  border-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 8px 24px -8px rgba(110, 94, 255, 0.75);
+}
+html[data-theme='vision'] .btn-primary:hover {
+  color: #fff;
+  background: linear-gradient(135deg, #a094ff 0%, #7b6dff 52%, #6a5af8 100%);
+  border-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 10px 32px -6px rgba(123, 108, 255, 0.95);
+}
+html[data-theme='vision'] .btn-secondary,
+html[data-theme='vision'] .btn {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+html[data-theme='vision'] .btn:not(.btn-primary):not(.btn-buy):not(.btn-ghost):not(.btn-icon) {
+  color: var(--ap-ink);
+  background: var(--ap-fill-hover);
+  border-color: var(--ap-line);
+}
+html[data-theme='vision'] .btn:not(.btn-primary):not(.btn-buy):not(.btn-ghost):not(.btn-icon):hover {
+  color: var(--ap-ink);
+  background: var(--ap-fill);
+  border-color: var(--ap-link);
+  box-shadow: 0 0 24px -6px var(--vr-halo);
+}
+html[data-theme='vision'] .btn-buy { box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.12), 0 10px 26px -10px rgba(240, 238, 255, 0.55); }
+html[data-theme='vision'] .btn-ghost:hover,
+html[data-theme='vision'] .btn-ghost { background: transparent; box-shadow: none; }
+html[data-theme='vision'] .btn-icon,
+html[data-theme='vision'] .icon-btn { background: var(--ap-fill); border: 1px solid var(--ap-line-soft); }
+
+html[data-theme='vision'] .input,
+html[data-theme='vision'] .select,
+html[data-theme='vision'] .textarea,
+html[data-theme='vision'] input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.search-input),
+html[data-theme='vision'] textarea,
+html[data-theme='vision'] select:not(.search-category) {
+  background: var(--ap-surface-3);
+  border-color: var(--ap-line);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 8, 0.25);
+}
+html[data-theme='vision'][data-scheme='dark'] select option { color: #f2f0ff; background: #14133f; }
+html[data-theme='vision'] .search-form { background: var(--ap-surface-3); border-color: var(--ap-line); }
+html[data-theme='vision'] .search-form:hover { background: var(--ap-surface-2); }
+html[data-theme='vision'] .search-form:focus-within { background: var(--ap-surface-2); border-color: var(--ap-link); }
+
+html[data-theme='vision'] .seg,
+html[data-theme='vision'] .view-toggle,
+html[data-theme='vision'] .auth-tabs,
+html[data-theme='vision'] .steps { background: var(--ap-surface-3); border: 1px solid var(--ap-line-soft); }
+html[data-theme='vision'] .seg-opt:has(input:checked),
+html[data-theme='vision'] .view-toggle .is-active,
+html[data-theme='vision'] .auth-tab.is-active,
+html[data-theme='vision'] .step.is-current,
+html[data-theme='vision'] .tab-active,
+html[data-theme='vision'] .combined-tab.active { background: var(--ap-fill); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 0 18px -6px var(--vr-halo); }
+
+html[data-theme='vision'] .tag-sky,
+html[data-theme='vision'] .ts-chip { color: var(--ap-link); background: var(--ap-blue-tint); }
+html[data-theme='vision'] .count-badge { background: linear-gradient(135deg, #8b7dff, #ff5fd2); box-shadow: 0 0 12px rgba(160, 120, 255, 0.7); }
+html[data-theme='vision'] .site-header .header-signin {
+  background: linear-gradient(135deg, #8b7dff 0%, #6a5bff 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 20px -6px rgba(110, 94, 255, 0.8);
+}
+html[data-theme='vision'] .category-chip.is-active { box-shadow: 0 0 20px -4px var(--vr-halo); }
+
+/* ══ images — wells that seat any photo in the room ═════════════════════
+   Product photography arrives from the catalogue API with white, yellow and
+   grey backdrops. Each well becomes a dark glass plinth with a soft top
+   light, and its image is tinted toward indigo with a multiply wash so a
+   bright photo reads as lit by the room instead of pasted onto it. */
+
+html[data-theme='vision'] .dept-icon,
+html[data-theme='vision'] .pcard-well,
+html[data-theme='vision'] .prow-well,
+html[data-theme='vision'] .compact-well,
+html[data-theme='vision'] .wish-well,
+html[data-theme='vision'] .compare-well,
+html[data-theme='vision'] .cart-thumb,
+html[data-theme='vision'] .summary-item-thumb,
+html[data-theme='vision'] .is-card-image,
+html[data-theme='vision'] .compact-card-img,
+html[data-theme='vision'] .pdp-main-well,
+html[data-theme='vision'] .pdp-thumb,
+html[data-theme='vision'] .mega-pick-well,
+html[data-theme='vision'] .spotlight-figure,
+html[data-theme='vision'] .hero-figure {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(165, 150, 255, 0.34), transparent 58%),
+    linear-gradient(180deg, rgba(36, 34, 104, 0.9), rgba(12, 12, 44, 0.96));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 0 0 1px rgba(196, 190, 255, 0.14);
+}
+html[data-theme='vision']:not([data-scheme='dark']) .dept-icon,
+html[data-theme='vision']:not([data-scheme='dark']) .pcard-well,
+html[data-theme='vision']:not([data-scheme='dark']) .prow-well,
+html[data-theme='vision']:not([data-scheme='dark']) .compact-well,
+html[data-theme='vision']:not([data-scheme='dark']) .wish-well,
+html[data-theme='vision']:not([data-scheme='dark']) .compare-well,
+html[data-theme='vision']:not([data-scheme='dark']) .cart-thumb,
+html[data-theme='vision']:not([data-scheme='dark']) .summary-item-thumb,
+html[data-theme='vision']:not([data-scheme='dark']) .is-card-image,
+html[data-theme='vision']:not([data-scheme='dark']) .compact-card-img,
+html[data-theme='vision']:not([data-scheme='dark']) .pdp-main-well,
+html[data-theme='vision']:not([data-scheme='dark']) .pdp-thumb,
+html[data-theme='vision']:not([data-scheme='dark']) .mega-pick-well,
+html[data-theme='vision']:not([data-scheme='dark']) .spotlight-figure,
+html[data-theme='vision']:not([data-scheme='dark']) .hero-figure {
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(255, 255, 255, 0.95), transparent 60%),
+    linear-gradient(180deg, rgba(214, 208, 255, 0.95), rgba(176, 168, 244, 0.95));
+}
+html[data-theme='vision'] .pcard-well img,
+html[data-theme='vision'] .prow-well img,
+html[data-theme='vision'] .compact-well img,
+html[data-theme='vision'] .wish-well img,
+html[data-theme='vision'] .compare-well img,
+html[data-theme='vision'] .cart-thumb img,
+html[data-theme='vision'] .summary-item-thumb img,
+html[data-theme='vision'] .is-card-image img,
+html[data-theme='vision'] .compact-card-img img,
+html[data-theme='vision'] .pdp-main-well img,
+html[data-theme='vision'] .pdp-thumb img,
+html[data-theme='vision'] .dept-icon img,
+html[data-theme='vision'] .spotlight-figure img,
+html[data-theme='vision'] .hero-figure img {
+  position: relative;
+  z-index: 0;
+  mix-blend-mode: multiply;
+  filter: saturate(1.08) contrast(1.04);
+}
+html[data-theme='vision'][data-scheme='dark'] .pcard-well img,
+html[data-theme='vision'][data-scheme='dark'] .prow-well img,
+html[data-theme='vision'][data-scheme='dark'] .compact-well img,
+html[data-theme='vision'][data-scheme='dark'] .wish-well img,
+html[data-theme='vision'][data-scheme='dark'] .compare-well img,
+html[data-theme='vision'][data-scheme='dark'] .cart-thumb img,
+html[data-theme='vision'][data-scheme='dark'] .summary-item-thumb img,
+html[data-theme='vision'][data-scheme='dark'] .is-card-image img,
+html[data-theme='vision'][data-scheme='dark'] .compact-card-img img,
+html[data-theme='vision'][data-scheme='dark'] .pdp-main-well img,
+html[data-theme='vision'][data-scheme='dark'] .pdp-thumb img {
+  /* On a dark plinth multiply would swallow the photo — lift it instead */
+  mix-blend-mode: normal;
+  filter: saturate(1.1) contrast(1.05) brightness(0.9);
+}
+/* The house renders were drawn for this room: show them as drawn, never tinted */
+html[data-theme='vision'][data-theme] img[src^='/images/catalog/'][src] {
+  mix-blend-mode: normal;
+  filter: none;
+  object-fit: cover;
+}
+/* the indigo wash and edge vignette that seat the picture in the scene */
+html[data-theme='vision'] .pcard-well::after,
+html[data-theme='vision'] .prow-well::after,
+html[data-theme='vision'] .compact-well::after,
+html[data-theme='vision'] .wish-well::after,
+html[data-theme='vision'] .compare-well::after,
+html[data-theme='vision'] .is-card-image::after,
+html[data-theme='vision'] .compact-card-img::after,
+html[data-theme='vision'] .pdp-main-well::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(90% 80% at 50% 45%, transparent 55%, rgba(14, 12, 60, 0.5) 100%),
+    linear-gradient(180deg, rgba(110, 94, 255, 0.1), rgba(20, 16, 90, 0.28));
+}
+html[data-theme='vision']:not([data-scheme='dark']) .pcard-well::after,
+html[data-theme='vision']:not([data-scheme='dark']) .prow-well::after,
+html[data-theme='vision']:not([data-scheme='dark']) .compact-well::after,
+html[data-theme='vision']:not([data-scheme='dark']) .wish-well::after,
+html[data-theme='vision']:not([data-scheme='dark']) .compare-well::after,
+html[data-theme='vision']:not([data-scheme='dark']) .is-card-image::after,
+html[data-theme='vision']:not([data-scheme='dark']) .compact-card-img::after,
+html[data-theme='vision']:not([data-scheme='dark']) .pdp-main-well::after {
+  background: radial-gradient(90% 80% at 50% 45%, transparent 60%, rgba(120, 104, 230, 0.28) 100%);
+}
+
+/* the header logo ships twice (navy text for light rooms, white for dark) */
+html[data-theme='vision'] .logo-on-dark { display: none; }
+html[data-theme='vision'][data-scheme='dark'] .logo-on-light { display: none; }
+html[data-theme='vision'][data-scheme='dark'] .logo-on-dark { display: inline; }
+
+/* ══ dialogs, flyouts, toasts — the heaviest glass ══════════════════════ */
+
+html[data-theme='vision'] .dialog,
+html[data-theme='vision'] .modal-surface,
+html[data-theme='vision'] .toast-surface,
+html[data-theme='vision'] .cookie-banner,
+html[data-theme='vision'] [class*='cookie-banner'],
+html[data-theme='vision'] .filter-drawer {
+  background: color-mix(in srgb, var(--ap-flyout) 78%, transparent);
+  -webkit-backdrop-filter: blur(34px) saturate(1.6);
+  backdrop-filter: blur(34px) saturate(1.6);
+  border-radius: 30px;
+}
+html[data-theme='vision'] .suggestions,
+html[data-theme='vision'] .mega-menu,
+html[data-theme='vision'] .theme-panel {
+  background: color-mix(in srgb, var(--ap-flyout) 90%, transparent);
+  -webkit-backdrop-filter: blur(30px) saturate(1.5);
+  backdrop-filter: blur(30px) saturate(1.5);
+}
+html[data-theme='vision'] .dialog-backdrop,
+html[data-theme='vision'] .modal-overlay { background: radial-gradient(circle at 50% 38%, rgba(60, 48, 170, 0.28), var(--ap-scrim) 72%); }
+
+/* ══ footer — the quiet floor of the room ═══════════════════════════════ */
+
+html[data-theme='vision'] .site-footer {
+  margin-top: 64px;
+  background: linear-gradient(180deg, transparent, var(--ap-surface-2) 40%);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid var(--ap-line-soft);
+}
+
+/* ══ tables, skeletons and the rest ═════════════════════════════════════ */
+
+html[data-theme='vision'] .sk,
+html[data-theme='vision'] .pskel,
+html[data-theme='vision'] .skeleton-card { border: 1px solid var(--ap-line-soft); }
+html[data-theme='vision'] .loading-orbit { border-top-color: var(--ap-link); box-shadow: 0 0 22px -4px var(--vr-halo); }
+html[data-theme='vision'] .spotlight {
+  background: linear-gradient(160deg, rgba(60, 52, 170, 0.6), rgba(14, 13, 52, 0.85));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 0 0 1px rgba(196, 190, 255, 0.2), 0 30px 60px -30px rgba(0, 0, 10, 0.9);
+}
+html[data-theme='vision'] .wi-code,
+html[data-theme='vision'] pre { border: 1px solid var(--ap-line-soft); }
+html[data-theme='vision'] .dialog-close,
+html[data-theme='vision'] .step-num { border: 1px solid var(--ap-line-soft); }
+
+/* ══ reduced transparency / motion ══════════════════════════════════════ */
+
+@media (prefers-reduced-transparency: reduce) {
+  html[data-theme='vision'] .card,
+  html[data-theme='vision'] .shelf,
+  html[data-theme='vision'] .site-header,
+  html[data-theme='vision'] .dialog,
+  html[data-theme='vision'] .theme-panel { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  html[data-theme='vision'][data-scheme='dark'] { --ap-surface: #1c1b55; --ap-surface-2: #17164a; --ap-surface-3: #0f0f35; }
+}
+
+@supports not (background: color-mix(in srgb, red 50%, transparent)) {
+  html[data-theme='vision'] .dialog,
+  html[data-theme='vision'] .modal-surface,
+  html[data-theme='vision'] .toast-surface,
+  html[data-theme='vision'] .cookie-banner,
+  html[data-theme='vision'] .filter-drawer,
+  html[data-theme='vision'] .suggestions,
+  html[data-theme='vision'] .mega-menu,
+  html[data-theme='vision'] .theme-panel { background: var(--ap-flyout); }
+}
+
+/* ══ the 3D windows ═════════════════════════════════════════════════════════
+   Each scene is a pane of dark glass set into the page: a rim of light, the
+   little camera pill and a soft streak along the top edge, as in the reference.
+   The backdrop gradient is what the stage paints inside it. */
+
+html[data-theme='vision'] {
+  --page-top: 100px;
+  --pin-top: 0px;
+  --pin-bottom: 112px;
+  --vr-stage-top: #17164f;
+  --vr-stage-mid: #262470;
+  --vr-stage-bottom: #07081f;
+  --scene-rim: rgba(214, 214, 245, 0.34);
+}
+html[data-theme='vision']:not([data-scheme='dark']) {
+  --vr-stage-top: #f6f4ff;
+  --vr-stage-mid: #dedaf9;
+  --vr-stage-bottom: #c3bcf2;
+  --scene-rim: rgba(255, 255, 255, 0.9);
+}
+html[data-theme='vision'] .scene-view {
+  border-radius: 32px;
+  box-shadow: 0 40px 90px -44px rgba(0, 0, 14, 0.9), 0 0 60px -26px var(--vr-halo);
+}
+html[data-theme='vision'] .scene-frame {
+  box-shadow: inset 0 0 0 1px var(--scene-rim), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+html[data-theme='vision'] .scene-frame::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  width: 44px;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(3, 3, 24, 0.55);
+  box-shadow: inset 0 0 0 1px var(--scene-rim), -20px 0 0 -3px rgba(3, 3, 24, 0.55);
+}
+html[data-theme='vision'] .scene-frame::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18%;
+  width: 36%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--vr-streak, rgba(204, 204, 211, 0.9)), transparent);
+}
+@media (max-width: 860px) {
+  html[data-theme='vision'] { --page-top: 80px; --pin-bottom: 100px; }
+  html[data-theme='vision'] .scene-view { border-radius: 26px; }
+}

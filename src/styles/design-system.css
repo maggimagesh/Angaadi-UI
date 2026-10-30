@@ -9,7 +9,7 @@
    and the component layer (.btn, .input, .card, .a-badge, .table, .dialog …).
    styles/app.css builds the screens on top of it.
    ═══════════════════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap');
 
 :root {
   /* ── chrome ──────────────────────────────────────────────────────────

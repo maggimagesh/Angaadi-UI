@@ -132,6 +132,23 @@ export function Header() {
   const triggerRef = useRef<HTMLButtonElement>(null)
   const headerRef = useRef<HTMLElement>(null)
 
+  /* The top island tucks away while you read down the page and comes back the
+     moment you scroll up — the room stays in view, the controls stay one
+     flick away. */
+  const [tucked, setTucked] = useState(false)
+  useEffect(() => {
+    let lastY = window.scrollY
+    const onScroll = () => {
+      const y = window.scrollY
+      const delta = y - lastY
+      if (Math.abs(delta) < 8) return
+      setTucked(delta > 0 && y > 160)
+      lastY = y
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   /**
    * Everything else that sticks — the filter bar, the filter rail, the order
    * summary, the profile rail — has to clear this header, and its height
@@ -247,11 +264,12 @@ export function Header() {
 
   return (
     <>
-      <header className="site-header" ref={headerRef}>
+      <header className={`site-header${tucked && !megaOpen && !suggestOpen ? ' is-tucked' : ''}`} ref={headerRef}>
         {/* 1 · the navy belt — logo, deliver-to, search, account, cart */}
         <nav className="header-main" aria-label="Top Navigation">
           <Link to="/" aria-label="Angaadi Home" id="logo" data-testid="logo" className="header-logo">
-            <img src="/logo/Angaadi.png" alt="Angaadi" />
+            <img className="logo-on-light" src="/logo/Angaadi.png" alt="Angaadi" />
+            <img className="logo-on-dark" src="/logo/Angaadi-vision.png" alt="" aria-hidden="true" />
             <span className="header-logo-text">
               <span className="header-wordmark">angaadi</span>
               <span className="header-tagline">.in</span>
@@ -442,6 +460,13 @@ export function Header() {
             aria-label="Categories"
             onMouseLeave={closeMega}
           >
+            <Link to="/" className="dock-home" aria-label="Home">
+              <span className="dock-glyph" aria-hidden="true">
+                <img src="/logo/Angaadi-vision.png" alt="" />
+              </span>
+              <span className="dock-label">Home</span>
+            </Link>
+
             <button
               type="button"
               className="category-trigger"
@@ -462,11 +487,15 @@ export function Header() {
                 }
               }}
             >
-              <MenuIcon size={16} />
-              All
+              <span className="dock-glyph" aria-hidden="true">
+                <MenuIcon size={22} />
+              </span>
+              <span className="dock-label">All</span>
             </button>
 
-            {HEADER_CATEGORIES.map((category) => (
+            {HEADER_CATEGORIES.map((category) => {
+              const dept = DEPARTMENTS.find((d) => d.id === category.id)
+              return (
               <button
                 key={category.id}
                 type="button"
@@ -479,9 +508,11 @@ export function Header() {
                   navigate(productsHref(category.id, category.slug))
                 }}
               >
-                {category.name}
+                {dept ? <img className="dock-art" src={artUrl(dept.art)} alt="" loading="lazy" /> : null}
+                <span className="dock-label">{category.name}</span>
               </button>
-            ))}
+              )
+            })}
 
             <span className="category-note hide-on-mobile">Deals refresh 06:00 IST</span>
           </div>

@@ -1,0 +1,278 @@
+/* ══ the landing page, and the 3D windows every page shares ═════════════════
+   A scene is a window in the page (SceneView): it scrolls with the content,
+   never sits behind it, and has its own shape, which the camera fits. On wide
+   screens the copy sits beside the window; on phones the window sits under the
+   copy, so nothing ever overlaps the product.
+
+   Spacing the pages share:
+     --page-top      room above the first block (the header may overlay it)
+     --pin-top       where a pinned chapter sticks
+     --pin-bottom    room kept at the bottom of a pinned chapter (the dock) */
+
+:root {
+  --page-top: 32px;
+  --pin-top: 0px;
+  --pin-bottom: 32px;
+}
+
+/* ── the window itself ───────────────────────────────────────────────────── */
+
+.scene-view {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--vr-stage-mid, var(--ap-surface-2, #eee));
+  min-height: 240px;
+  contain: layout paint;
+}
+.scene-still {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 600ms ease;
+}
+.scene-view[data-ready='true'] .scene-still { opacity: 0; }
+.scene-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* vertical swipes still scroll the page; a sideways drag turns the product */
+  touch-action: pan-y;
+  cursor: grab;
+}
+.scene-canvas.is-dragging { cursor: grabbing; }
+.scene-frame {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--scene-rim, rgba(255, 255, 255, 0.14));
+}
+
+/* ── landing: hero ───────────────────────────────────────────────────────── */
+
+.landing {
+  position: relative;
+  overflow-x: clip;
+  --lp-ink: var(--vr-hero-ink, var(--ap-ink, currentColor));
+  --lp-ink-2: var(--ap-ink-2, color-mix(in srgb, currentColor 70%, transparent));
+  --lp-glass: var(--vr-panel-fill, color-mix(in srgb, var(--ap-bg-alt, #fff) 70%, transparent));
+  --lp-rim: var(--vr-panel-rim, var(--ap-line, rgba(0, 0, 0, 0.12)));
+  --lp-halo: var(--vr-halo, rgba(0, 113, 227, 0.2));
+  --lp-scrim: color-mix(in srgb, var(--vr-bg-bottom, var(--ap-bg, #fff)) 82%, transparent);
+}
+
+.lp-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: center;
+  min-height: min(calc(100svh - var(--pin-top)), 860px);
+  padding: var(--page-top) 0 var(--pin-bottom);
+  color: var(--lp-ink);
+}
+.lp-hero-copy { position: relative; z-index: 2; max-width: 560px; }
+.lp-hero-slot { width: 100%; aspect-ratio: 1 / 1; max-height: min(70svh, 620px); }
+
+.lp-eyebrow { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; font-size: 13px; color: var(--lp-ink-2); }
+.lp-pill {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--lp-rim);
+  background: var(--lp-glass);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  color: var(--lp-ink);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.lp-title {
+  margin: 18px 0 0;
+  font-family: var(--font-heading, inherit);
+  font-size: clamp(40px, 6.4vw, 84px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  color: var(--lp-ink);
+  text-wrap: balance;
+}
+html[data-theme='vision'] .lp-title {
+  background: linear-gradient(180deg, var(--lp-ink) 30%, color-mix(in srgb, var(--vr-glow-a, #7b6cff) 70%, var(--lp-ink)) 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.lp-lede { margin: 22px 0 0; max-width: 46ch; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.5; color: var(--lp-ink-2); }
+.lp-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.lp-actions .btn { min-height: 46px; padding-inline: 24px; font-size: 16px; }
+
+.lp-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px clamp(22px, 4vw, 44px);
+  margin: 34px 0 0;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--lp-rim);
+}
+.lp-stats div { display: flex; flex-direction: column-reverse; gap: 2px; }
+.lp-stats dt { font-size: 12px; color: var(--lp-ink-2); }
+.lp-stats dd { margin: 0; font-family: var(--font-heading, inherit); font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+
+.lp-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lp-ink-2);
+  text-decoration: none;
+}
+.lp-cue span {
+  width: 1px;
+  height: 30px;
+  background: linear-gradient(var(--lp-ink-2), transparent);
+  transform-origin: top;
+  animation: lp-cue 2.2s ease-in-out infinite;
+}
+@keyframes lp-cue {
+  0%, 100% { transform: scaleY(0.35); opacity: 0.5; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+/* ── landing: the tour (pinned; the camera glides station to station) ───── */
+
+.lp-tour { position: relative; height: 520vh; }
+
+.lp-tour-pin {
+  position: sticky;
+  top: var(--pin-top);
+  height: calc(100svh - var(--pin-top));
+  display: grid;
+  grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 48px);
+  align-items: center;
+  padding: var(--page-top) 0 var(--pin-bottom);
+}
+.lp-tour-slot { grid-column: 2; grid-row: 1; height: 100%; max-height: 760px; }
+.lp-tour-card {
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  z-index: 2;
+  padding: 26px 28px 28px;
+  border-radius: 28px;
+  border: 1px solid var(--lp-rim);
+  background: var(--lp-glass);
+  -webkit-backdrop-filter: blur(26px) saturate(1.4);
+  backdrop-filter: blur(26px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 30px 70px -34px var(--lp-halo);
+  color: var(--lp-ink);
+}
+.lp-count { display: block; font-family: var(--font-heading, inherit); font-size: 15px; font-weight: 600; letter-spacing: 0.08em; }
+.lp-count i { font-style: normal; color: var(--lp-ink-2); }
+.lp-eyebrow-line { margin: 14px 0 0; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--lp-ink-2); }
+.lp-tour-card h2 { margin: 8px 0 0; font-size: clamp(24px, 3vw, 34px); line-height: 1.1; letter-spacing: -0.025em; font-weight: 700; }
+.lp-tour-card p:not(.lp-eyebrow-line) { margin: 12px 0 20px; font-size: 15.5px; line-height: 1.5; color: var(--lp-ink-2); }
+
+.lp-rail {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.lp-rail span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #fff;
+  opacity: 0.35;
+  transition: height 0.35s ease, opacity 0.35s ease, background 0.35s ease;
+}
+.lp-rail span.is-on { height: 28px; opacity: 1; background: var(--vr-glow-b, var(--ap-link, currentColor)); }
+
+/* ── after the tour ──────────────────────────────────────────────────────── */
+
+.lp-after {
+  position: relative;
+  padding-top: 56px;
+}
+.lp-after > section { margin-bottom: 28px; }
+
+.lp-depts { grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); }
+.lp-depts .dept-cell { transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.4s ease; }
+@media (hover: hover) {
+  .lp-depts .dept-cell:hover { transform: perspective(900px) translateY(-6px) rotateX(3deg); }
+}
+
+/* reveal: cards rise a little as they enter, and are never fully hidden */
+@supports (animation-timeline: view()) {
+  .lp-after > section,
+  .lp-depts .dept-cell {
+    animation: lp-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 45%;
+  }
+}
+@keyframes lp-rise {
+  from { opacity: 0.55; transform: translateY(26px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── phones and narrow windows: the window sits under the copy ─────────── */
+
+@media (max-width: 860px) {
+  .lp-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    min-height: 0;
+    padding-top: calc(var(--page-top) - 20px);
+  }
+  .lp-hero-slot { aspect-ratio: 4 / 3.6; max-height: none; }
+  .lp-stats { display: none; }
+  .lp-cue { display: none; }
+
+  .lp-tour { height: 440vh; }
+  .lp-tour-pin {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: stretch;
+    padding-top: calc(var(--page-top) - 24px);
+  }
+  .lp-tour-slot { grid-column: 1; grid-row: 1; max-height: none; min-height: 0; }
+  .lp-tour-card { grid-column: 1; grid-row: 2; padding: 18px 20px 20px; border-radius: 24px; }
+  .lp-tour-card h2 { font-size: 22px; }
+  .lp-tour-card p:not(.lp-eyebrow-line) { margin: 8px 0 14px; font-size: 14.5px; }
+  .lp-eyebrow-line { margin-top: 8px; }
+  .lp-rail { right: 10px; }
+}
+@media (max-height: 640px) and (max-width: 860px) {
+  .lp-tour-card p:not(.lp-eyebrow-line) { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-cue span { animation: none; }
+  .scene-still { transition: none; }
+  .lp-after > section,
+  .lp-depts .dept-cell { animation: none; }
+}

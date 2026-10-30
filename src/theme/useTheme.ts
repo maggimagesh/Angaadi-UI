@@ -2,6 +2,8 @@ import { useCallback, useSyncExternalStore } from 'react'
 import {
   APPEARANCE_STORAGE_KEY,
   applyTheme,
+  DEFAULT_THEME,
+  defaultAppearance,
   isAppearance,
   isTheme,
   nextTheme,
@@ -18,9 +20,17 @@ import {
 /* One module-level store so every subscriber (the header menu today, anything
    else tomorrow) reads the same theme without a global state library. */
 
-type Snapshot = { theme: Theme; appearance: Appearance; scheme: Scheme }
+/* `chosen` is true once the visitor has picked a mode themselves. Until then the
+   appearance follows the theme's own default (Vision opens dark, the others
+   light) and is not written to storage. */
+type Snapshot = { theme: Theme; appearance: Appearance; scheme: Scheme; chosen: boolean }
 
-const SERVER_SNAPSHOT: Snapshot = { theme: 'apple', appearance: 'light', scheme: 'light' }
+const SERVER_SNAPSHOT: Snapshot = {
+  theme: DEFAULT_THEME,
+  appearance: defaultAppearance(DEFAULT_THEME),
+  scheme: resolveScheme(defaultAppearance(DEFAULT_THEME)),
+  chosen: false,
+}
 
 let snapshot: Snapshot | null = null
 const listeners = new Set<() => void>()
@@ -29,8 +39,9 @@ let teardown: (() => void) | null = null
 function current(): Snapshot {
   if (!snapshot) {
     const theme = readStoredTheme()
-    const appearance = readStoredAppearance()
-    snapshot = { theme, appearance, scheme: resolveScheme(appearance) }
+    const stored = readStoredAppearance()
+    const appearance = stored ?? defaultAppearance(theme)
+    snapshot = { theme, appearance, scheme: resolveScheme(appearance), chosen: stored !== null }
   }
   return snapshot
 }
@@ -56,6 +67,10 @@ let swapPending = false
 
 function commit(next: Snapshot): void {
   snapshot = next
+  // The attributes below are written inside a view transition, after listeners
+  // have already re-rendered. Anything that picks assets by theme at render time
+  // (the two render sets) reads this target instead, which is set first.
+  document.documentElement.setAttribute('data-theme-target', next.theme)
   emit()
 
   // A transition is already waiting to paint — it will pick up this state.
@@ -65,7 +80,7 @@ function commit(next: Snapshot): void {
   const swap = () => {
     swapPending = false
     const latest = current()
-    applyTheme(latest.theme, latest.appearance)
+    applyTheme(latest.theme, latest.appearance, latest.chosen)
   }
 
   root.setAttribute('data-theme-switching', '')
@@ -85,10 +100,11 @@ function commit(next: Snapshot): void {
 function update(patch: Partial<Pick<Snapshot, 'theme' | 'appearance'>>): void {
   const base = current()
   const theme = patch.theme ?? base.theme
-  const appearance = patch.appearance ?? base.appearance
+  const chosen = base.chosen || patch.appearance !== undefined
+  const appearance = patch.appearance ?? (chosen ? base.appearance : defaultAppearance(theme))
   const scheme = resolveScheme(appearance)
-  if (theme === base.theme && appearance === base.appearance && scheme === base.scheme) return
-  commit({ theme, appearance, scheme })
+  if (theme === base.theme && appearance === base.appearance && scheme === base.scheme && chosen === base.chosen) return
+  commit({ theme, appearance, scheme, chosen })
 }
 
 function subscribe(listener: () => void): () => void {
@@ -112,7 +128,7 @@ function subscribe(listener: () => void): () => void {
     }
     // The pre-paint script in index.html has already written the attributes;
     // re-apply once so a stale or partial boot state is corrected.
-    applyTheme(current().theme, current().appearance)
+    applyTheme(current().theme, current().appearance, current().chosen)
   }
 
   return () => {

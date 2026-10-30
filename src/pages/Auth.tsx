@@ -1,3 +1,5 @@
+import { SceneView } from '../vision/SceneView'
+import { artUrl } from '../data/catalog'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { isStrongPassword } from '../utils/password'
@@ -26,12 +28,16 @@ function AuthError({ label, message, id, testId }: { label: string; message: str
   )
 }
 
+const AUTH_SCENE = { mode: 'focus', kind: 'laptop', variant: 2 } as const
+
 export default function AuthPage() {
   const [tab, setTab] = useState<AuthTab>('signin')
 
   return (
     <main className="app-main">
       <section className="auth-page" aria-label="Authentication">
+        {/* beside the card on wide screens: a laptop turning on its plinth. Hidden on phones. */}
+        <SceneView className="auth-slot" scene={AUTH_SCENE} still={artUrl('laptop')} label="A laptop turning on a plinth" />
         <div className="auth-column">
           <Link to="/" className="auth-logo" aria-label="Angaadi Home">
             angaadi<span>.in</span>

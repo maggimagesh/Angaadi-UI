@@ -2,6 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { products as mockProducts } from '../data/products'
 import { fetchProductsByCategory, type ProductItem } from '../api/products'
+import { DEPARTMENTS, artUrl, modelKindFor, resolveDepartment } from '../data/catalog'
+import { SceneView } from '../vision/SceneView'
+import { formatINR } from '../utils/currency'
 import { PaginationOld } from '../components/PaginationOld'
 import {
   ProductCard,
@@ -16,38 +19,28 @@ import { storeCategoryInfo } from '../utils/categoryStorage'
 import { useStockUpdates, type StockUpdateEvent } from '../hooks/useStockUpdates'
 import '../styles/products-listing-old.css'
 
-/* The category maps below are unchanged — the same slugs, ids and defaults the
-   app already navigates with. Nothing here introduces a new query param. */
+/* Category ids, names and slugs come from data/catalog.ts, which mirrors the
+   live /products category list. A slug in the URL wins over a stale numeric id,
+   so a bookmarked link lands on the department it names. */
 
-const categoryDisplayNames: Record<string, string> = {
-  'mobiles-tablets': 'Mobiles & Tablets',
-  'laptops-computers': 'Laptops & Computers',
-  'tvs-appliances': 'TVs & Appliances',
-  'audio-headphones': 'Audio & Headphones',
-  'fashion-lifestyle': 'Fashion & Lifestyle',
-  'home-kitchen': 'Home & Kitchen',
-  'beauty-personal-care': 'Beauty & Personal Care',
-  'books-media': 'Books & Media',
-  'sports-fitness': 'Sports & Fitness',
-  'grocery-gourmet': 'Grocery & Gourmet',
-  smartwatches: 'Smartwatches',
-  all: 'All Products',
+/** Which department each mock fixture belongs to, for the offline fallback. */
+const MOCK_DEPARTMENT: Record<(typeof mockProducts)[number]['category'], string> = {
+  smartphone: 'mobiles-tablets',
+  tablet: 'mobiles-tablets',
+  laptop: 'laptops-computers',
+  tv: 'tvs-appliances',
+  earphones: 'audio-headphones',
+  smartwatch: 'mobiles-tablets',
+  fashion: 'fashion-lifestyle',
+  'home-kitchen': 'home-kitchen',
+  beauty: 'beauty-personal-care',
+  books: 'books-media',
+  sports: 'sports-fitness',
+  grocery: 'grocery-gourmet',
 }
 
-const categoryIdMap: Record<string, number> = {
-  'mobiles-tablets': 1,
-  'laptops-computers': 2,
-  'tvs-appliances': 3,
-  'audio-headphones': 4,
-  'fashion-lifestyle': 5,
-  'home-kitchen': 6,
-  'beauty-personal-care': 7,
-  'books-media': 8,
-  'sports-fitness': 9,
-  'grocery-gourmet': 10,
-  smartwatches: 11,
-  all: 0,
-}
+/** "All products" is a sample of every department, one page each. */
+const ALL_PAGE_SIZE = 12
 
 const ITEMS_PER_PAGE = 12
 const BRANDS_COLLAPSED = 4
@@ -157,20 +150,28 @@ export default function ProductsListing() {
     setLoadError(null)
     setUsingFallback(false)
 
-    const categoryId = categoryIdParam
-      ? parseInt(categoryIdParam, 10)
-      : categoryIdMap[categoryParam] !== undefined
-        ? categoryIdMap[categoryParam]
-        : parseInt(categoryParam, 10) || 1
+    const isAll = categoryParam === 'all' && !categoryIdParam
+    const department = isAll ? undefined : resolveDepartment(categoryParam, categoryIdParam)
+    const categoryId = department?.id ?? (parseInt(categoryIdParam ?? '', 10) || 0)
 
-    storeCategoryInfo(categoryId, categoryParam)
+    if (department) storeCategoryInfo(department.id, department.slug)
 
     const fallback = () => {
-      setAllProducts(mockProducts.map((p) => mockToCard(p, categoryId)))
+      const pool = department ? mockProducts.filter((p) => MOCK_DEPARTMENT[p.category] === department.slug) : mockProducts
+      setAllProducts(pool.map((p) => mockToCard(p, categoryId)))
       setUsingFallback(true)
     }
 
     try {
+      if (!department && !categoryId) {
+        const lists = await Promise.all(
+          DEPARTMENTS.map((d) => fetchProductsByCategory(d.id, 1, ALL_PAGE_SIZE).catch(() => null)),
+        )
+        const merged = lists.flatMap((r) => r?.data?.products ?? [])
+        if (merged.length === 0) throw new Error('empty')
+        setAllProducts(merged.map(apiToCard))
+        return
+      }
       const response = await fetchProductsByCategory(categoryId, 1, 100)
       if (response.error) {
         setLoadError(response.error.message)
@@ -266,7 +267,26 @@ export default function ProductsListing() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const pageItems = results.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
-  const categoryName = categoryDisplayNames[categoryParam] || 'All Products'
+  const department = resolveDepartment(categoryParam, categoryIdParam)
+  const categoryName = department?.name ?? 'All Products'
+
+  /* A department opens as a chapter: its product turns on a plinth beside the
+     heading while the hero is pinned. "All products" and search have no single
+     product to show, so they get the heading alone. */
+  const heroScene = useMemo(
+    () => (department && !searchQuery ? ({ mode: 'focus', kind: modelKindFor(department.art), variant: department.id } as const) : null),
+    [department, searchQuery],
+  )
+
+  const heroFacts = useMemo(() => {
+    const prices = searched.map((p) => p.price).filter((n) => n > 0)
+    return {
+      count: searched.length,
+      brands: new Set(searched.map((p) => p.brand).filter(Boolean)).size,
+      from: prices.length ? Math.min(...prices) : 0,
+      free: searched.filter((p) => p.freeDelivery).length,
+    }
+  }, [searched])
 
   /* ── active-filter chips ─────────────────────────────────────────────── */
 
@@ -425,24 +445,72 @@ export default function ProductsListing() {
     .join(', ')
 
   return (
-    <main className="app-main">
-      <nav aria-label="Breadcrumb">
-        <ol className="breadcrumb">
-          <li>
-            <button type="button" onClick={() => navigate('/')}>
-              Home
-            </button>
-          </li>
-          <li>/</li>
-          <li aria-current="page">{categoryName}</li>
-          {searchQuery ? (
-            <>
-              <li>/</li>
-              <li>“{searchQuery}”</li>
-            </>
+    <main className="app-main listing-page">
+      <section className={`dept-hero${department && !searchQuery ? ' has-model' : ''}`} id="dept-hero" data-testid="dept-hero">
+        <div className="dept-hero-pin">
+          <div className="dept-hero-copy">
+            <nav aria-label="Breadcrumb">
+              <ol className="breadcrumb">
+                <li>
+                  <button type="button" onClick={() => navigate('/')}>
+                    Home
+                  </button>
+                </li>
+                <li>/</li>
+                <li aria-current="page">{categoryName}</li>
+                {searchQuery ? (
+                  <>
+                    <li>/</li>
+                    <li>“{searchQuery}”</li>
+                  </>
+                ) : null}
+              </ol>
+            </nav>
+
+            <p className="dept-kicker">{searchQuery ? 'Search results' : department ? 'Department' : 'The whole catalogue'}</p>
+            <h1 className="dept-title">{searchQuery ? `“${searchQuery}”` : categoryName}</h1>
+            <p className="dept-lede">
+              {department?.groups?.[0]
+                ? `${department.groups[0].items.slice(0, 4).join(' · ')} — every price is the landed price, every delivery date is real.`
+                : 'Every price is the landed price, every delivery date is real.'}
+            </p>
+
+            <dl className="dept-facts">
+              <div>
+                <dt>products</dt>
+                <dd>{isLoading ? '—' : heroFacts.count}</dd>
+              </div>
+              <div>
+                <dt>brands</dt>
+                <dd>{isLoading ? '—' : heroFacts.brands}</dd>
+              </div>
+              <div>
+                <dt>from</dt>
+                <dd>{isLoading || !heroFacts.from ? '—' : formatINR(heroFacts.from)}</dd>
+              </div>
+              <div>
+                <dt>free delivery</dt>
+                <dd>{isLoading ? '—' : heroFacts.free}</dd>
+              </div>
+            </dl>
+
+            <a className="dept-cue" href="#results">
+              <span />
+              Browse the range
+            </a>
+          </div>
+
+          {department && heroScene ? (
+            <SceneView
+              className="dept-hero-slot"
+              scene={heroScene}
+              track="dept-hero"
+              still={artUrl(department.art)}
+              label={`${department.name}: a product on a plinth`}
+            />
           ) : null}
-        </ol>
-      </nav>
+        </div>
+      </section>
 
       {/* Below 1200px the rail collapses into this bar. */}
       <div className="filter-bar">
@@ -486,10 +554,9 @@ export default function ProductsListing() {
           {filterGroups}
         </aside>
 
-        <div className="results-col">
+        <div className="results-col" id="results">
           <div className="results-head">
             <div>
-              <h1>{searchQuery ? `“${searchQuery}”` : categoryName}</h1>
               <div className="results-count">
                 <strong>
                   {results.length} result{results.length === 1 ? '' : 's'}

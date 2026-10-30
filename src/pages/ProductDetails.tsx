@@ -20,7 +20,9 @@ import {
   LockIcon,
 } from '../components/icons'
 import { formatINR } from '../utils/currency'
-import { placeholderFor } from '../data/catalog'
+import { departmentById, modelKindFor, placeholderFor } from '../data/catalog'
+import { SceneView } from '../vision/SceneView'
+import { useTheme } from '../theme/useTheme'
 import { storeCategoryInfo, getCategoryInfo } from '../utils/categoryStorage'
 import '../styles/product-details.css'
 
@@ -140,6 +142,14 @@ export default function ProductDetails() {
     }
   }, [product])
 
+  /* Vision: the department's model turns on a plinth above the photographs, in
+     a colourway picked from the id. Other themes show the photograph alone. */
+  const { theme } = useTheme()
+  const pdpScene = useMemo(() => {
+    const dept = departmentById(product?.categoryid ?? categoryId)
+    return { mode: 'focus', kind: modelKindFor(dept?.art ?? 'smartphone'), variant: product?.id ?? 0 } as const
+  }, [product?.categoryid, product?.id, categoryId])
+
   const images = useMemo(() => {
     if (!product) return []
     const primary =
@@ -251,7 +261,7 @@ export default function ProductDetails() {
   }
 
   return (
-    <main className="app-main">
+    <main className="app-main pdp-page" id="pdp-page">
       <nav aria-label="Breadcrumb">
         <ol className="breadcrumb">
           <li>
@@ -270,6 +280,15 @@ export default function ProductDetails() {
 
       <div className="pdp-top">
         <div className="pdp-gallery">
+          {theme === 'vision' ? (
+            <SceneView
+              className="pdp-slot"
+              scene={pdpScene}
+              track="page"
+              still={placeholderFor({ categoryId: product.categoryid, name: product.productname })}
+              label={`${product.productname}: a product on a plinth`}
+            />
+          ) : null}
           <div className="pdp-thumbs">
             {images.map((src, i) => (
               <button
@@ -383,7 +402,7 @@ export default function ProductDetails() {
           <div className="bb-note">Order within 6 hrs 12 mins · Deliver to Chennai 600001</div>
 
           <div className={`bb-stock${inStock ? '' : ' is-out'}`}>
-            {inStock ? 'In stock' : 'Currently unavailable'}
+            {inStock ? `In stock${theme === 'studio' && typeof product.stock === 'number' ? ` · ${product.stock.toLocaleString('en-IN')}` : ''}` : 'Currently unavailable'}
           </div>
           {inStock && lowStock ? (
             <div className="bb-note" style={{ color: 'var(--color-price)', fontWeight: 700 }}>

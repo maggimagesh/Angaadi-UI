@@ -1,22 +1,29 @@
 <!doctype html>
-<html lang="en" data-theme="apple">
+<html lang="en" data-theme="vision" data-scheme="dark" style="color-scheme: dark">
   <head>
     <meta charset="UTF-8" />
 
     <!-- Apply the saved theme and appearance before CSS paints to prevent a
-         visible flash. Mirrors applyTheme() in src/theme/theme.ts. -->
+         visible flash. Mirrors applyTheme() in src/theme/theme.ts: Vision is
+         the default theme and opens dark until the visitor picks a mode. -->
     <script>
       (function () {
       try {
         var root = document.documentElement
         var theme = localStorage.getItem('angaadi:theme')
-        // Apple is the default and already on <html>; only macOS 27 swaps it.
-        if (theme === 'macos-27') root.setAttribute('data-theme', theme)
+        if (theme !== 'vision' && theme !== 'apple' && theme !== 'macos-27' && theme !== 'studio') theme = 'vision'
+        root.setAttribute('data-theme', theme)
         var appearance = localStorage.getItem('angaadi:appearance')
+        if (appearance !== 'light' && appearance !== 'dark' && appearance !== 'system') {
+          appearance = theme === 'vision' ? 'dark' : 'light'
+        }
         var dark = appearance === 'dark' ||
           (appearance === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
         if (dark) root.setAttribute('data-scheme', 'dark')
+        else root.removeAttribute('data-scheme')
         root.style.colorScheme = dark ? 'dark' : 'light'
+        var meta = document.querySelector('meta[name="theme-color"]')
+        if (meta) meta.setAttribute('content', theme === 'vision' ? (dark ? '#0a0b26' : '#ebe8ff') : theme === 'studio' ? (dark ? '#141415' : '#f7f6f3') : theme === 'macos-27' ? (dark ? '#141a26' : '#e9f1fb') : (dark ? '#000000' : '#f5f5f7'))
       } catch (_) {}
       })()
     </script>
@@ -31,8 +38,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- Theme Color for Mobile Browsers -->
-    <meta name="theme-color" content="#f5f5f7" />
-    <meta name="msapplication-TileColor" content="#f5f5f7" />
+    <meta name="theme-color" content="#0a0b26" />
+    <meta name="msapplication-TileColor" content="#0a0b26" />
 
     <!-- Apple Mobile Web App -->
     <meta name="apple-mobile-web-app-capable" content="yes" />

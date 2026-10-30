@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useCompareStore, COMPARE_LIMIT } from '../store/compare'
 import { useCartStore } from '../store/cart'
 import { useUIStore } from '../store/ui'
+import { PageHero } from '../components/PageHero'
 import { Footer } from '../components/Footer'
 import { EmptyState } from '../components/States'
 import { formatINR } from '../utils/currency'
@@ -54,21 +55,19 @@ export default function ComparePage() {
 
   return (
     <main className="app-main" id="compare-page" data-testid="compare-page">
-      <section>
-        <div className="section-head">
-          <div>
-            <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Compare</h1>
-            <div style={{ fontSize: 13, color: 'var(--color-neutral-700)' }}>
-              {items.length} of {COMPARE_LIMIT} slots used
-              {items.length > 1 ? ' · differing values are emphasised' : ''}
-            </div>
-          </div>
-          {items.length > 0 ? (
+      <PageHero
+        kicker="Side by side"
+        title="Compare"
+        lede={`${items.length} of ${COMPARE_LIMIT} slots used${items.length > 1 ? ' · differing values are emphasised' : ''}`}
+        actions={
+          items.length > 0 ? (
             <button type="button" className="btn btn-secondary" onClick={clear}>
               Clear all
             </button>
-          ) : null}
-        </div>
+          ) : null
+        }
+      />
+      <section>
 
         {items.length === 0 ? (
           <div style={{ padding: '0 20px 24px' }}>

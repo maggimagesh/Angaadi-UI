@@ -6,6 +6,7 @@ import { useUIStore } from '../store/ui'
 import { useWishlistStore } from '../store/wishlist'
 import { useCompareStore } from '../store/compare'
 import { placeholderFor } from '../data/catalog'
+import { useTheme } from '../theme/useTheme'
 import { HeartIcon, CompareIcon, CloseIcon, Stars } from './icons'
 import { PriceTag } from './PriceTag'
 import { deliveryDate } from '../utils/delivery'
@@ -56,6 +57,34 @@ export function numericProductId(id: string | number, offset = 800000): number {
 function imageFor(p: CardProduct): string {
   if (p.image && p.image.trim() !== '') return p.image
   return placeholderFor({ categoryId: p.categoryId, slug: p.categorySlug, name: p.title })
+}
+
+/** A dead photo URL swaps once to the department's own render. */
+function artFallback(p: CardProduct) {
+  return (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget
+    img.onerror = null
+    img.src = placeholderFor({ categoryId: p.categoryId, slug: p.categorySlug, name: p.title })
+  }
+}
+
+/** Cards lean toward the pointer (Vision theme). The values go to CSS variables, never to state. */
+function tilt(e: React.PointerEvent<HTMLElement>) {
+  if (e.pointerType !== 'mouse') return
+  const el = e.currentTarget
+  const r = el.getBoundingClientRect()
+  const x = (e.clientX - r.left) / r.width
+  const y = (e.clientY - r.top) / r.height
+  el.style.setProperty('--tilt-y', `${((x - 0.5) * 9).toFixed(2)}deg`)
+  el.style.setProperty('--tilt-x', `${((0.5 - y) * 7).toFixed(2)}deg`)
+  el.style.setProperty('--glare-x', `${(x * 100).toFixed(1)}%`)
+  el.style.setProperty('--glare-y', `${(y * 100).toFixed(1)}%`)
+}
+
+function untilt(e: React.PointerEvent<HTMLElement>) {
+  const el = e.currentTarget
+  el.style.removeProperty('--tilt-x')
+  el.style.removeProperty('--tilt-y')
 }
 
 function detailHref(p: CardProduct): string {
@@ -159,6 +188,7 @@ function useProductActions(p: CardProduct) {
 /* ── quick view ─────────────────────────────────────────────────────────── */
 
 function QuickView({ product, onClose }: { product: CardProduct; onClose: () => void }) {
+  const onImgError = artFallback(product)
   const { addToCart } = useProductActions(product)
   const stock = stockLine(product)
   const discount = discountOf(product)
@@ -195,7 +225,7 @@ function QuickView({ product, onClose }: { product: CardProduct; onClose: () => 
 
         <div className="dialog-body">
           <div className="grayscale pcard-well" style={{ marginTop: 0 }}>
-            <img src={imageFor(product)} alt="" />
+            <img src={imageFor(product)} alt="" onError={onImgError} />
           </div>
           {product.brand ? <div className="pcard-brand">{product.brand}</div> : null}
           {product.description ? (
@@ -239,6 +269,8 @@ function QuickView({ product, onClose }: { product: CardProduct; onClose: () => 
 /* ── the ruled cell ─────────────────────────────────────────────────────── */
 
 export function ProductCard({ product }: { product: CardProduct }) {
+  const onImgError = artFallback(product)
+  const studio = useTheme().theme === 'studio'
   const [quickOpen, setQuickOpen] = useState(false)
   const { addToCart, toggleWishlist, toggleCompare, wishlisted, comparing } =
     useProductActions(product)
@@ -255,6 +287,8 @@ export function ProductCard({ product }: { product: CardProduct }) {
       data-testid={`product-card-${id}`}
       role="article"
       aria-labelledby={titleId}
+      onPointerMove={tilt}
+      onPointerLeave={untilt}
     >
       <div className="pcard-top">
         {!product.inStock ? (
@@ -285,18 +319,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
           id={`prod-image-${id}`}
           data-testid={`prod-image-${id}`}
           loading="lazy"
-          onError={(e) => {
-            const img = e.currentTarget
-            const fallback = placeholderFor({
-              categoryId: product.categoryId,
-              slug: product.categorySlug,
-              name: product.title,
-            })
-            if (img.src !== fallback) {
-              img.onerror = null
-              img.src = fallback
-            }
-          }}
+          onError={onImgError}
         />
         <div className="pcard-hover">
           <button
@@ -368,6 +391,16 @@ export function ProductCard({ product }: { product: CardProduct }) {
       </div>
 
       <div className={`pcard-stock${stock.low ? ' is-low' : ''}`}>{stock.text}</div>
+      {/* the Studio theme's signature: a stock dot with the real count. Only that theme renders it, so other themes' text is untouched. */}
+      {studio ? (
+        <div className={`pcard-avail${!product.inStock ? ' is-out' : stock.low ? ' is-low' : ''}`}>
+          {product.inStock
+            ? typeof product.stockCount === 'number'
+              ? `In stock · ${product.stockCount.toLocaleString('en-IN')}`
+              : 'In stock'
+            : 'Out of stock'}
+        </div>
+      ) : null}
 
       <div className="pcard-actions">
         {product.inStock ? (
@@ -415,6 +448,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
 /* ── the spec-dense list row ────────────────────────────────────────────── */
 
 export function ProductRow({ product }: { product: CardProduct }) {
+  const onImgError = artFallback(product)
   const navigate = useNavigate()
   const { addToCart, toggleCompare, comparing } = useProductActions(product)
   const id = product.id
@@ -436,6 +470,7 @@ export function ProductRow({ product }: { product: CardProduct }) {
           id={`prod-image-${id}`}
           data-testid={`prod-image-${id}`}
           loading="lazy"
+          onError={onImgError}
         />
       </div>
 
