@@ -387,9 +387,6 @@ html[data-theme='studio'] .dept-facts dd { font-size: 28px; font-weight: 500; le
 html[data-theme='studio'] .dept-facts dt { color: var(--ap-ink-2); }
 html[data-theme='studio'] .dept-cue { color: var(--ap-ink-2); letter-spacing: 0; text-transform: none; font-size: 13px; }
 html[data-theme='studio'] .dept-cue span { animation: none; background: var(--ap-ink-3); }
-html[data-theme='studio'] .dept-hero-still,
-html[data-theme='studio'] .lp-hero-still,
-html[data-theme='studio'] .lp-tour-still { border-radius: 16px; box-shadow: none; }
 
 html[data-theme='studio'] .listing-layout { background: none; box-shadow: none; clip-path: none; padding-top: 16px; }
 html[data-theme='studio'] .filter-rail { top: calc(var(--header-h, 120px) + 16px); padding: 16px; overflow: auto; }
@@ -439,7 +436,6 @@ html[data-theme='studio'] .cookie-banner-mini { border-radius: 16px !important; 
 
 /* ── the landing page ───────────────────────────────────────────────────── */
 
-html[data-theme='studio'] .lp-hero { min-height: min(calc(100svh - var(--header-h, 120px)), 820px); }
 html[data-theme='studio'] .lp-pill { padding: 0; border: 0; background: none; color: var(--ap-ink-2); font-weight: 500; font-size: 13px; letter-spacing: 0; border-radius: 0; }
 html[data-theme='studio'] .lp-title { font-size: clamp(44px, 6vw, 72px); line-height: 1.04; letter-spacing: -0.03em; }
 html[data-theme='studio'] .lp-actions .btn { min-height: 44px; font-size: 15px; }
@@ -449,7 +445,7 @@ html[data-theme='studio'] .lp-cue span { animation: none; background: var(--ap-i
 html[data-theme='studio'] .lp-cue { letter-spacing: 0; text-transform: none; font-size: 13px; }
 html[data-theme='studio'] .lp-tour-card h2 { font-weight: 500; letter-spacing: -0.02em; }
 html[data-theme='studio'] .lp-rail span.is-on { background: var(--st-accent); }
-html[data-theme='studio'] .lp-after { background: var(--ap-bg); padding-top: 64px; box-shadow: 0 0 0 100vmax var(--ap-bg); clip-path: inset(0 -100vmax); }
+html[data-theme='studio'] .lp-after { padding-top: 64px; }
 html[data-theme='studio'] .lp-depts .dept-cell:hover { transform: none; }
 
 /* ── one entrance per page ──────────────────────────────────────────────── */
@@ -497,3 +493,27 @@ html[data-theme='studio'] .pcard-avail.is-out::before,
 html[data-theme='studio'] .bb-stock.is-out::before { background: var(--ap-red); }
 html[data-theme='studio'] .bb-stock { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 13px; font-weight: 400; color: var(--ap-ink); }
 html[data-theme='studio'] .bb-stock.is-out { color: var(--ap-ink); }
+
+/* ── the 3D windows: a plain plate with a hairline ──────────────────────── */
+
+html[data-theme='studio'] {
+  --page-top: 24px;
+  --pin-top: var(--header-h, 120px);
+  --pin-bottom: 24px;
+  --vr-stage-top: #f3f2ee;
+  --vr-stage-mid: #ece9e4;
+  --vr-stage-bottom: #ddd9d2;
+  --scene-rim: var(--ap-line-soft);
+}
+html[data-theme='studio'][data-scheme='dark'] {
+  --vr-stage-top: #1d1d20;
+  --vr-stage-mid: #19191b;
+  --vr-stage-bottom: #121213;
+}
+html[data-theme='studio'] .scene-view { border-radius: 16px; box-shadow: none; background: var(--vr-stage-mid); }
+html[data-theme='studio'] .scene-frame { box-shadow: inset 0 0 0 1px var(--scene-rim); }
+html[data-theme='studio'] .lp-rail span { background: var(--ap-ink-3); }
+html[data-theme='studio'] .lp-tour-card { background: var(--ap-surface); }
+@media (max-width: 860px) {
+  html[data-theme='studio'] { --page-top: 20px; --pin-bottom: 16px; }
+}

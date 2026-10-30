@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import './index.css'
 import { Header } from './components/Header'
-import { SceneHost } from './vision/SceneHost'
 import { useTheme } from './theme/useTheme'
 import { CookieBanner } from './components/CookieBanner'
 import { APP_ROUTES } from './routes'
@@ -47,7 +46,6 @@ export default function App() {
   return (
     <div className="app-shell">
       <BrowserRouter>
-        <SceneHost />
         <ThemedHeader />
         <RouteStage>
         <Routes>

@@ -21,7 +21,7 @@ import {
 } from '../components/icons'
 import { formatINR } from '../utils/currency'
 import { departmentById, modelKindFor, placeholderFor } from '../data/catalog'
-import { useScene } from '../vision/sceneStore'
+import { SceneView } from '../vision/SceneView'
 import { useTheme } from '../theme/useTheme'
 import { storeCategoryInfo, getCategoryInfo } from '../utils/categoryStorage'
 import '../styles/product-details.css'
@@ -142,21 +142,13 @@ export default function ProductDetails() {
     }
   }, [product])
 
-  /* The product turns on a glass pane beside the copy as you read down the
-     page — the 3D model is the department's, in a colourway picked from the id. */
+  /* Vision: the department's model turns on a plinth above the photographs, in
+     a colourway picked from the id. Other themes show the photograph alone. */
   const { theme } = useTheme()
-  const scene = useMemo(() => {
-    // Studio shows the product's own photograph, large; the 3D model is a Vision thing here
-    if (theme === 'studio') return { mode: 'ambient' } as const
+  const pdpScene = useMemo(() => {
     const dept = departmentById(product?.categoryid ?? categoryId)
-    return {
-      mode: 'focus',
-      kind: modelKindFor(dept?.art ?? 'smartphone'),
-      variant: product?.id ?? 0,
-      side: 'left',
-    } as const
-  }, [product?.categoryid, product?.id, categoryId, theme])
-  useScene(scene, theme === 'studio' ? null : 'pdp-page')
+    return { mode: 'focus', kind: modelKindFor(dept?.art ?? 'smartphone'), variant: product?.id ?? 0 } as const
+  }, [product?.categoryid, product?.id, categoryId])
 
   const images = useMemo(() => {
     if (!product) return []
@@ -288,6 +280,15 @@ export default function ProductDetails() {
 
       <div className="pdp-top">
         <div className="pdp-gallery">
+          {theme === 'vision' ? (
+            <SceneView
+              className="pdp-slot"
+              scene={pdpScene}
+              track="page"
+              still={placeholderFor({ categoryId: product.categoryid, name: product.productname })}
+              label={`${product.productname}: a product on a plinth`}
+            />
+          ) : null}
           <div className="pdp-thumbs">
             {images.map((src, i) => (
               <button

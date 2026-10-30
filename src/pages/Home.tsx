@@ -17,7 +17,7 @@ import {
   productsHref,
   resolveDepartment,
 } from '../data/catalog'
-import { useScene, useSceneStore } from '../vision/sceneStore'
+import { SceneView } from '../vision/SceneView'
 import { useTheme } from '../theme/useTheme'
 import type { ModelKind } from '../vision/models'
 import '../styles/home.css'
@@ -103,6 +103,7 @@ function artForKind(kind: ModelKind): CatalogArt {
 }
 
 const TOUR_SCENE = { mode: 'tour', stations: STATIONS.map((st) => st.kind) } as const
+const HERO_SCENE = { mode: 'focus', kind: 'phone', variant: 0 } as const
 
 type HomeDepartment = {
   id: number
@@ -176,9 +177,8 @@ export default function HomePage() {
   const [alertSet, setAlertSet] = useState(false)
 
   const hasLoaded = useRef(false)
-  const station = useSceneStore((st) => st.station)
+  const [station, setStation] = useState(0)
   const studio = useTheme().theme === 'studio'
-  useScene(TOUR_SCENE, 'tour-track')
 
   const loadDeals = async () => {
     setDealsLoading(true)
@@ -349,10 +349,12 @@ export default function HomePage() {
           </dl>
         </div>
 
-        {/* shown until (or unless) the 3D room is running */}
-        <div className="lp-hero-still" aria-hidden="true">
-          <img src={artUrl('smartphone')} alt="" />
-        </div>
+        <SceneView
+          className="lp-hero-slot"
+          scene={HERO_SCENE}
+          still={artUrl('smartphone')}
+          label="A phone turning on a plinth"
+        />
 
         <a className="lp-cue" href="#tour-track" aria-label="Scroll to the product tour">
           <span />
@@ -363,6 +365,14 @@ export default function HomePage() {
       {/* ── 2 · the product tour: the camera flies station to station ──── */}
       <section className="lp-tour" id="tour-track" aria-label="Product tour">
         <div className="lp-tour-pin">
+          <SceneView
+            className="lp-tour-slot"
+            scene={TOUR_SCENE}
+            track="tour-track"
+            still={artUrl(artForKind(active.kind))}
+            label={`${active.eyebrow}: a product on a plinth`}
+            onStation={setStation}
+          />
           <div className="lp-tour-card" aria-live="polite">
             <span className="lp-count">
               {String(station + 1).padStart(2, '0')}
@@ -380,8 +390,6 @@ export default function HomePage() {
               <span key={st.kind} className={i === station ? 'is-on' : undefined} />
             ))}
           </div>
-          {/* the tour has a still for every station when the 3D room is off */}
-          <img className="lp-tour-still" src={artUrl(artForKind(active.kind))} alt="" />
         </div>
       </section>
 

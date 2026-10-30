@@ -1,4 +1,3 @@
-import { useScene } from '../vision/sceneStore'
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Footer } from '../components/Footer'
@@ -14,11 +13,8 @@ import { getOrder, type Order } from '../api/orders'
  * the navigation state alone, so a refresh or a shared link still resolves.
  */
 
-const CONFIRM_SCENE = { mode: 'focus', kind: 'headphones', variant: 3, side: 'right' } as const
-
 export default function CheckoutConfirmation() {
   const location = useLocation()
-  useScene(CONFIRM_SCENE)
   const orderId = (location.state as { orderId?: string } | null)?.orderId
 
   const [order, setOrder] = useState<Order | null>(null)

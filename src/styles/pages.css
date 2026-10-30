@@ -49,20 +49,23 @@ html:is([data-theme='vision'], [data-theme='studio']) .cookie-banner-mini {
 
 html:is([data-theme='vision'], [data-theme='studio']) .dept-hero { position: relative; }
 html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-pin {
-  min-height: min(62vh, 560px);
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 64px);
   align-items: center;
-  padding: 96px 0 24px;
+  min-height: min(56svh, 520px);
+  padding: var(--page-top) 0 28px;
 }
-html:is([data-theme='vision'], [data-theme='studio']) .dept-hero.has-model { height: 185vh; }
+/* the chapter pins while the product turns, then the grid slides over it */
+html:is([data-theme='vision'], [data-theme='studio']) .dept-hero.has-model { height: 175vh; }
 html:is([data-theme='vision'], [data-theme='studio']) .dept-hero.has-model .dept-hero-pin {
   position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
+  top: var(--pin-top);
+  height: calc(100svh - var(--pin-top));
   min-height: 0;
-  padding-bottom: 60px;
+  padding-bottom: var(--pin-bottom);
 }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-slot { width: 100%; height: 100%; min-height: 320px; max-height: min(72svh, 660px); }
 html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-copy { position: relative; z-index: 2; width: min(560px, 100%); padding: 0; }
 html:is([data-theme='vision'], [data-theme='studio']) .dept-hero .breadcrumb { margin: 0 0 8px; }
 html:is([data-theme='vision'], [data-theme='studio']) .dept-kicker { color: var(--ap-link); font-weight: 600; margin-top: 28px; }
@@ -99,24 +102,6 @@ html:is([data-theme='vision'], [data-theme='studio']) .dept-cue span {
   transform-origin: left;
 }
 @keyframes pg-cue { 0%, 100% { transform: scaleX(0.35); opacity: 0.5; } 50% { transform: scaleX(1); opacity: 1; } }
-
-/* the still stands in until the 3D room is running */
-html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-still {
-  display: block;
-  position: absolute;
-  right: 0;
-  top: 50%;
-  width: min(44vw, 520px);
-  aspect-ratio: 1;
-  transform: translateY(-46%);
-  border-radius: 30px;
-  overflow: hidden;
-  box-shadow: 0 30px 80px -30px var(--vr-halo);
-}
-html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-still img { display: block; width: 100%; height: 100%; object-fit: cover; }
-html[data-stage='ready']:is([data-theme='vision'], [data-theme='studio']) .dept-hero-still { display: none; }
-html:is([data-theme='vision'], [data-theme='studio']):not([data-stage='ready']) .dept-hero.has-model { height: auto; }
-html:is([data-theme='vision'], [data-theme='studio']):not([data-stage='ready']) .dept-hero.has-model .dept-hero-pin { position: relative; height: auto; min-height: min(62vh, 560px); }
 
 /* ── Vision: rail, toolbar, grid ─────────────────────────────────────────── */
 
@@ -205,9 +190,11 @@ html:is([data-theme='vision'], [data-theme='studio']) .pgrid { gap: 22px; paddin
   html:is([data-theme='vision'], [data-theme='studio']) .results-head { position: static; border-radius: 26px; }
 }
 @media (max-width: 860px) {
-  html:is([data-theme='vision'], [data-theme='studio']) .dept-hero.has-model { height: 150vh; }
-  html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-pin { align-items: flex-start; padding-top: 88px; }
-  html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-still { top: auto; bottom: 40px; right: 0; left: 0; width: auto; height: 34svh; aspect-ratio: auto; transform: none; }
+  /* phones: the heading, then the window beneath it; nothing is pinned */
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-hero.has-model { height: auto; }
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-hero.has-model .dept-hero-pin { position: relative; top: auto; height: auto; padding-bottom: 20px; }
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-pin { grid-template-columns: minmax(0, 1fr); gap: 20px; min-height: 0; padding-top: calc(var(--page-top) - 12px); }
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-slot { height: auto; min-height: 0; max-height: none; aspect-ratio: 4 / 3.4; }
   html:is([data-theme='vision'], [data-theme='studio']) .dept-facts dd { font-size: 22px; }
   html:is([data-theme='vision'], [data-theme='studio']) .dept-lede,
   html:is([data-theme='vision'], [data-theme='studio']) .dept-cue { display: none; }
@@ -244,14 +231,13 @@ html:is([data-theme='vision'], [data-theme='studio']) .pdp-top {
   border: 0;
   box-shadow: none;
 }
+/* the gallery column: the window on top, the photographs beneath it */
 html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery {
   grid-area: gallery;
   position: sticky;
-  top: 90px;
-  height: calc(100vh - 130px);
-  min-height: 420px;
+  top: calc(var(--pin-top) + 76px);
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
   gap: 12px;
   padding: 0;
   background: transparent;
@@ -259,27 +245,23 @@ html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery {
   box-shadow: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  pointer-events: none;
 }
-html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery > * { pointer-events: auto; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-slot { width: 100%; aspect-ratio: 1 / 0.9; max-height: calc(100svh - 280px); min-height: 280px; }
 html:is([data-theme='vision'], [data-theme='studio']) .pdp-thumbs { flex-direction: row; order: 2; }
 html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery .pdp-main-well {
   order: 1;
-  width: min(230px, 40%);
+  width: 96px;
   min-height: 0;
   aspect-ratio: 1;
   padding: 0;
-  border-radius: 26px;
+  border-radius: 18px;
   border: 1px solid var(--vr-panel-rim-soft, rgba(214, 214, 245, 0.28));
-  box-shadow: 0 24px 50px -24px rgba(0, 0, 12, 0.9), 0 0 36px -14px var(--vr-halo);
 }
 html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery .pdp-main-well img { width: 100%; height: 100%; max-width: none; object-fit: cover; }
 html:is([data-theme='vision'], [data-theme='studio']) .pdp-thumb { width: 56px; height: 56px; border-radius: 16px; }
-
-/* until the 3D room is up, the photo takes the whole column */
-html:is([data-theme='vision'], [data-theme='studio']):not([data-stage='ready']) .pdp-gallery { position: static; height: auto; display: grid; grid-template-columns: 64px 1fr; align-items: start; }
-html:is([data-theme='vision'], [data-theme='studio']):not([data-stage='ready']) .pdp-thumbs { flex-direction: column; order: 0; }
-html:is([data-theme='vision'], [data-theme='studio']):not([data-stage='ready']) .pdp-gallery .pdp-main-well { width: auto; aspect-ratio: 1; }
+/* the photographs: one row under the window */
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery:has(.pdp-slot) { display: grid; grid-template-columns: auto 1fr; align-items: center; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery:has(.pdp-slot) .pdp-slot { grid-column: 1 / -1; }
 
 html:is([data-theme='vision'], [data-theme='studio']) .pdp-info { grid-area: info; }
 html:is([data-theme='vision'], [data-theme='studio']) .pdp-buybox { grid-area: buy; position: static; max-width: none; }
@@ -318,8 +300,8 @@ html:is([data-theme='vision'], [data-theme='studio']) .pdp-reviews {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'gallery' 'info' 'buy' 'assure';
   }
-  html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery { position: static; height: 46svh; min-height: 300px; }
-  html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery .pdp-main-well { width: 120px; }
+  html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery { position: static; }
+  html:is([data-theme='vision'], [data-theme='studio']) .pdp-slot { aspect-ratio: 4 / 3.6; max-height: none; min-height: 0; }
 }
 
 /* ══ inner pages: a hero on the room, then glass sections ═══════════════════ */
@@ -402,13 +384,16 @@ html:is([data-theme='vision'], [data-theme='studio']) .step.is-done .step-num { 
 html:is([data-theme='vision'], [data-theme='studio']) .checkout-layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; }
 html:is([data-theme='vision'], [data-theme='studio']) .checkout-section { border-bottom-color: var(--ap-line-soft); padding: 26px 28px; }
 
-/* ── sign in: the card sits on the right of the turning laptop ── */
-html:is([data-theme='vision'], [data-theme='studio']) .auth-page { padding: 100px 0 40px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 440px); gap: 40px; align-items: center; min-height: 80vh; }
-html:is([data-theme='vision'], [data-theme='studio']) .auth-column { grid-column: 2; max-width: none; margin: 0; }
+/* ── sign in: the card sits beside a turning laptop (wide screens only) ── */
+.auth-slot { display: none; }
+html:is([data-theme='vision'], [data-theme='studio']) .auth-page { padding: var(--page-top) 0 40px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 440px); gap: clamp(24px, 4vw, 56px); align-items: center; min-height: min(80svh, 760px); }
+html:is([data-theme='vision'], [data-theme='studio']) .auth-slot { display: block; grid-column: 1; grid-row: 1; width: 100%; height: 100%; min-height: 420px; max-height: 640px; }
+html:is([data-theme='vision'], [data-theme='studio']) .auth-column { grid-column: 2; grid-row: 1; max-width: none; margin: 0; }
 html:is([data-theme='vision'], [data-theme='studio']) .auth-card { padding: 26px 30px 30px; border-radius: 34px; }
 html:is([data-theme='vision'], [data-theme='studio']) .auth-logo { display: inline-block; margin-bottom: 14px; color: var(--ap-ink); }
 @media (max-width: 900px) {
-  html:is([data-theme='vision'], [data-theme='studio']) .auth-page { grid-template-columns: 1fr; padding-top: 90px; }
+  html:is([data-theme='vision'], [data-theme='studio']) .auth-page { grid-template-columns: 1fr; min-height: 0; }
+  html:is([data-theme='vision'], [data-theme='studio']) .auth-slot { display: none; }
   html:is([data-theme='vision'], [data-theme='studio']) .auth-column { grid-column: 1; }
 }
 
@@ -532,3 +517,11 @@ html:is([data-theme='vision'], [data-theme='studio']) .footer-legal { background
 /* classic themes do not get the extra footer rows */
 .footer-promise,
 .footer-mark { display: none; }
+
+/* the department window only exists in the two themes that have a chapter layout */
+html:not([data-theme='vision']):not([data-theme='studio']) .dept-hero-slot { display: none; }
+
+@media (max-width: 760px) {
+  html:is([data-theme='vision'], [data-theme='studio']) .cookie-banner-footer { left: 8px !important; right: 8px !important; width: auto; }
+  html:is([data-theme='vision'], [data-theme='studio']) .cookie-banner-mini { max-width: none !important; padding: 12px 14px !important; gap: 8px !important; font-size: 12.5px; }
+}

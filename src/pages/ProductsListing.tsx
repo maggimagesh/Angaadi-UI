@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { products as mockProducts } from '../data/products'
 import { fetchProductsByCategory, type ProductItem } from '../api/products'
 import { DEPARTMENTS, artUrl, modelKindFor, resolveDepartment } from '../data/catalog'
-import { useScene } from '../vision/sceneStore'
+import { SceneView } from '../vision/SceneView'
 import { formatINR } from '../utils/currency'
 import { PaginationOld } from '../components/PaginationOld'
 import {
@@ -270,17 +270,13 @@ export default function ProductsListing() {
   const department = resolveDepartment(categoryParam, categoryIdParam)
   const categoryName = department?.name ?? 'All Products'
 
-  /* A department opens as a chapter: its product turns on a glass pane while
-     the hero is pinned. "All products" and search have no single product to
-     show, so they get the ambient room instead. */
-  const scene = useMemo(
-    () =>
-      department && !searchQuery
-        ? ({ mode: 'focus', kind: modelKindFor(department.art), variant: department.id, side: 'right' } as const)
-        : ({ mode: 'ambient' } as const),
+  /* A department opens as a chapter: its product turns on a plinth beside the
+     heading while the hero is pinned. "All products" and search have no single
+     product to show, so they get the heading alone. */
+  const heroScene = useMemo(
+    () => (department && !searchQuery ? ({ mode: 'focus', kind: modelKindFor(department.art), variant: department.id } as const) : null),
     [department, searchQuery],
   )
-  useScene(scene, department && !searchQuery ? 'dept-hero' : null)
 
   const heroFacts = useMemo(() => {
     const prices = searched.map((p) => p.price).filter((n) => n > 0)
@@ -504,10 +500,14 @@ export default function ProductsListing() {
             </a>
           </div>
 
-          {department ? (
-            <div className="dept-hero-still" aria-hidden="true">
-              <img src={artUrl(department.art)} alt="" />
-            </div>
+          {department && heroScene ? (
+            <SceneView
+              className="dept-hero-slot"
+              scene={heroScene}
+              track="dept-hero"
+              still={artUrl(department.art)}
+              label={`${department.name}: a product on a plinth`}
+            />
           ) : null}
         </div>
       </section>
