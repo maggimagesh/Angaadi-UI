@@ -67,6 +67,10 @@ let swapPending = false
 
 function commit(next: Snapshot): void {
   snapshot = next
+  // The attributes below are written inside a view transition, after listeners
+  // have already re-rendered. Anything that picks assets by theme at render time
+  // (the two render sets) reads this target instead, which is set first.
+  document.documentElement.setAttribute('data-theme-target', next.theme)
   emit()
 
   // A transition is already waiting to paint — it will pick up this state.

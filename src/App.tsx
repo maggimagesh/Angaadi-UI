@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import './index.css'
 import { Header } from './components/Header'
 import { SceneHost } from './vision/SceneHost'
+import { useTheme } from './theme/useTheme'
 import { CookieBanner } from './components/CookieBanner'
 import { APP_ROUTES } from './routes'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -17,11 +18,19 @@ import { clearLegacyPasswordStorage, auditStorageSecurity } from './utils/securi
 /** Every route change replays a short enter animation (Vision theme): the page rises out of the room. */
 function RouteStage({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation()
+  // the theme is part of the key: the two render sets are chosen at render time,
+  // so a theme switch re-mounts the page and every image follows
+  const { theme } = useTheme()
   return (
-    <div className="route-stage" key={pathname}>
+    <div className="route-stage" key={`${theme}:${pathname}`}>
       {children}
     </div>
   )
+}
+
+function ThemedHeader() {
+  const { theme } = useTheme()
+  return <Header key={theme} />
 }
 
 export default function App() {
@@ -39,7 +48,7 @@ export default function App() {
     <div className="app-shell">
       <BrowserRouter>
         <SceneHost />
-        <Header />
+        <ThemedHeader />
         <RouteStage>
         <Routes>
           {/* One <Route> per entry in src/routes.tsx — the same table

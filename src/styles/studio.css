@@ -1,0 +1,499 @@
+/* ══ Studio — the quiet, professional theme ═════════════════════════════════
+   Built with the unslop method (Damir Sokolovsky, CC BY 4.0,
+   https://github.com/heydamir/unslop).
+
+   Direction
+     product    an electronics and everyday-goods shop for India, with landed
+                prices, real stock counts and delivery dates shown up front
+     character  exact, calm, a little warm
+     world      a retail counter and a spec sheet — matte device packaging,
+                daylight over a workbench
+     moments    the matte product renders and the price and spec rows
+     signature  a stock dot with the real count beside every price
+
+   Rules this file follows: one graphite neutral ramp with three text roles and
+   one cobalt accent; no gradients, glows, glass or tinted shadows; borders are
+   8% hairlines; radius by size (controls 10, cards 14, panels 16); weights 400
+   to 600; sentence case; one easing curve; motion only where it explains.
+
+   It reuses Apple's component skin (apple.css) and the Vision page structure
+   (pages.css), then replaces what makes them look generated. */
+
+/* ── tokens: light ──────────────────────────────────────────────────────── */
+
+html[data-theme='studio'] {
+  color-scheme: light;
+
+  --st-accent: #1f5eea;
+  --st-accent-hover: #1a52d1;
+  --st-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --ap-bg: #fafafa;
+  --ap-bg-alt: #ffffff;
+  --ap-surface: #ffffff;
+  --ap-surface-2: #f4f4f5;
+  --ap-surface-3: #ffffff;
+  --ap-fill: #f4f4f5;
+  --ap-fill-hover: rgba(23, 23, 23, 0.05);
+  --ap-ink: #171717;
+  --ap-ink-2: #525252;
+  --ap-ink-3: #737373;
+  --ap-line: rgba(23, 23, 23, 0.14);
+  --ap-line-soft: rgba(23, 23, 23, 0.08);
+  --ap-blue: #1f5eea;
+  --ap-blue-hover: #1a52d1;
+  --ap-blue-active: #1646b3;
+  --ap-blue-tint: rgba(31, 94, 234, 0.08);
+  --ap-link: #1f5eea;
+  --ap-on-blue: #ffffff;
+  --ap-neutral-btn: #171717;
+  --ap-neutral-btn-hover: #262626;
+  --ap-on-neutral: #ffffff;
+  --ap-green: #15803d;
+  --ap-red: #dc2626;
+  --ap-red-tint: #fef2f2;
+  --ap-orange: #b45309;
+  --ap-star: #b45309;
+  --ap-nav: #ffffff;
+  --ap-nav-solid: #ffffff;
+  --ap-nav-ink: #171717;
+  --ap-nav-ink-hover: #000000;
+  --ap-localnav: #ffffff;
+  --ap-flyout: #ffffff;
+  --ap-scrim: rgba(23, 23, 23, 0.36);
+  --ap-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --ap-shadow-card-hover: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --ap-shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --ap-focus: 0 0 0 2px #fafafa, 0 0 0 4px #1f5eea;
+  --ap-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --font-body: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-heading: var(--font-body);
+  --font-display: var(--font-body);
+  --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+  --font-heading-weight: 500;
+
+  /* the 3D stage reads these */
+  --vr-look: studio;
+  --vr-room: 0;
+  --vr-glow-a: #1f5eea;
+  --vr-glow-b: #8a8f98;
+  --vr-glow-c: #b5b9c0;
+  --vr-dust: #8a8f98;
+  --vr-bg-top: #fafafa;
+  --vr-bg-mid: #f4f4f5;
+  --vr-bg-bottom: #fafafa;
+  --vr-hero-ink: #171717;
+}
+
+/* ── tokens: dark ───────────────────────────────────────────────────────── */
+
+html[data-theme='studio'][data-scheme='dark'] {
+  color-scheme: dark;
+
+  --ap-bg: #141415;
+  --ap-bg-alt: #0f0f10;
+  --ap-surface: #19191b;
+  --ap-surface-2: #19191b;
+  --ap-surface-3: #19191b;
+  --ap-fill: #232325;
+  --ap-fill-hover: rgba(237, 237, 237, 0.06);
+  --ap-ink: #ededed;
+  --ap-ink-2: #a1a1a6;
+  --ap-ink-3: #85858b;
+  --ap-line: rgba(237, 237, 237, 0.14);
+  --ap-line-soft: rgba(237, 237, 237, 0.08);
+  /* on dark the primary button is an off white, the accent lives in links and selection */
+  --ap-blue: #ededed;
+  --ap-blue-hover: #ffffff;
+  --ap-blue-active: #d4d4d6;
+  --ap-blue-tint: rgba(107, 155, 255, 0.14);
+  --ap-link: #7aa2ff;
+  --ap-on-blue: #141415;
+  --ap-neutral-btn: #ededed;
+  --ap-neutral-btn-hover: #ffffff;
+  --ap-on-neutral: #141415;
+  --ap-green: #4cc38a;
+  --ap-red: #e5484d;
+  --ap-red-tint: rgba(229, 72, 77, 0.14);
+  --ap-orange: #e0a458;
+  --ap-star: #e0a458;
+  --ap-nav: #0f0f10;
+  --ap-nav-solid: #0f0f10;
+  --ap-nav-ink: #ededed;
+  --ap-nav-ink-hover: #ffffff;
+  --ap-localnav: #0f0f10;
+  --ap-flyout: #19191b;
+  --ap-scrim: rgba(0, 0, 0, 0.6);
+  --ap-shadow-card: none;
+  --ap-shadow-card-hover: none;
+  --ap-shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --ap-focus: 0 0 0 2px #141415, 0 0 0 4px #7aa2ff;
+
+  --vr-room: 1;
+  --vr-glow-a: #7aa2ff;
+  --vr-glow-b: #85858b;
+  --vr-glow-c: #a1a1a6;
+  --vr-dust: #85858b;
+  --vr-bg-top: #141415;
+  --vr-bg-mid: #19191b;
+  --vr-bg-bottom: #141415;
+  --vr-hero-ink: #ededed;
+}
+
+/* ── ground, type ───────────────────────────────────────────────────────── */
+
+html[data-theme='studio'] .app-main { background: transparent; }
+html[data-theme='studio'] body {
+  background: var(--ap-bg);
+  color: var(--ap-ink);
+  font-family: var(--font-body);
+  font-feature-settings: 'tnum' 1, 'cv11' 1;
+}
+html[data-theme='studio'] h1,
+html[data-theme='studio'] h2,
+html[data-theme='studio'] h3,
+html[data-theme='studio'] h4 { font-weight: 500; letter-spacing: 0; }
+html[data-theme='studio'] h1 { letter-spacing: -0.02em; }
+html[data-theme='studio'] strong,
+html[data-theme='studio'] b { font-weight: 600; }
+html[data-theme='studio'] ::selection { color: var(--ap-on-blue); background: var(--ap-blue); }
+html[data-theme='studio'] { scrollbar-color: var(--ap-line) transparent; scrollbar-width: thin; }
+
+/* every small label is sentence case at normal tracking */
+html[data-theme='studio'] :is(h6, .kicker, .card-kicker, .state-label, .filter-group-label, .footer-col-title, .theme-toggle-eyebrow, .theme-panel-legend, .wi-eyebrow, .ph-kicker, .dept-kicker, .lp-eyebrow-line, .lp-count, .rail-head) {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+html[data-theme='studio'] .ph-kicker,
+html[data-theme='studio'] .dept-kicker,
+html[data-theme='studio'] .lp-eyebrow-line { font-size: 13px; color: var(--ap-ink-2); }
+
+/* figures: tabular, one family */
+html[data-theme='studio'] :is(.pdp-price, .bb-price, .compact-price, .dept-facts dd, .lp-stats dd, .price, [class*='price']) { font-variant-numeric: tabular-nums; }
+
+/* ── logo: the flat original, never the glow variant ────────────────────── */
+
+html[data-theme='studio'] .logo-on-dark { display: none; }
+html[data-theme='studio'] .logo-on-light { display: inline; }
+html[data-theme='studio'] .header-wordmark { font-weight: 600; letter-spacing: 0; }
+
+/* ── chrome: header, nav, flyouts ───────────────────────────────────────── */
+
+html[data-theme='studio'] .site-header {
+  background: var(--ap-nav);
+  box-shadow: none;
+  border-bottom: 1px solid var(--ap-line-soft);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+html[data-theme='studio'] .site-header::after { content: none; }
+html[data-theme='studio'] .header-main { min-height: 56px; }
+html[data-theme='studio'] .header-logo,
+html[data-theme='studio'] .header-action,
+html[data-theme='studio'] .header-deliver { border-radius: 8px; }
+html[data-theme='studio'] .site-header .header-signin {
+  min-height: 36px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
+html[data-theme='studio'] .count-badge {
+  color: var(--ap-on-blue);
+  background: var(--st-accent);
+  color: #fff;
+  box-shadow: none;
+  border-radius: 8px;
+}
+html[data-theme='studio'] .category-band { border-top: 1px solid var(--ap-line-soft); }
+html[data-theme='studio'] .category-trigger,
+html[data-theme='studio'] .category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ap-ink-2);
+}
+html[data-theme='studio'] .category-trigger:hover,
+html[data-theme='studio'] .category-chip:hover { color: var(--ap-ink); background: var(--ap-fill-hover); }
+html[data-theme='studio'] .category-chip.is-active { color: var(--ap-ink); background: var(--ap-fill); box-shadow: inset 0 0 0 1px var(--ap-line-soft); }
+html[data-theme='studio'] .utility-band { background: var(--ap-bg); }
+
+html[data-theme='studio'] .search-form {
+  border-radius: 10px;
+  background: var(--ap-fill);
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+html[data-theme='studio'] .search-form:hover { background: var(--ap-fill); }
+html[data-theme='studio'] .search-form:focus-within { background: var(--ap-bg-alt); border-color: var(--st-accent); box-shadow: var(--ap-focus); }
+html[data-theme='studio'] .search-submit { border-radius: 8px; font-weight: 500; }
+
+html[data-theme='studio'] .mega-menu,
+html[data-theme='studio'] .suggestions {
+  border: 1px solid var(--ap-line-soft);
+  border-top: 0;
+  box-shadow: var(--ap-shadow-pop);
+  animation: st-menu 200ms var(--st-ease) both;
+}
+@keyframes st-menu {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── controls ───────────────────────────────────────────────────────────── */
+
+html[data-theme='studio'] .btn {
+  min-height: 36px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: none;
+  transition: color 150ms var(--st-ease), background-color 150ms var(--st-ease), border-color 150ms var(--st-ease), transform 150ms var(--st-ease);
+}
+html[data-theme='studio'] .btn:active { transform: scale(0.98); }
+html[data-theme='studio'] .btn-primary,
+html[data-theme='studio'] .btn-primary:disabled {
+  color: var(--ap-on-blue);
+  background: var(--ap-blue);
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+html[data-theme='studio'] .btn-primary:hover { background: var(--ap-blue-hover); }
+html[data-theme='studio'] .btn-primary:disabled { opacity: 0.45; }
+html[data-theme='studio'] .btn-buy { color: var(--ap-on-neutral); background: var(--ap-neutral-btn); border: 1px solid transparent; box-shadow: none; }
+html[data-theme='studio'] .btn-buy:hover { background: var(--ap-neutral-btn-hover); }
+html[data-theme='studio'] .btn:not(.btn-primary):not(.btn-buy):not(.btn-ghost):not(.btn-icon) {
+  color: var(--ap-ink);
+  background: var(--ap-bg-alt);
+  border: 1px solid var(--ap-line);
+}
+html[data-theme='studio'] .btn:not(.btn-primary):not(.btn-buy):not(.btn-ghost):not(.btn-icon):hover { background: var(--ap-fill); border-color: var(--ap-line); }
+html[data-theme='studio'] .btn-ghost { background: transparent; }
+html[data-theme='studio'] .btn-icon,
+html[data-theme='studio'] .icon-btn { border-radius: 8px; background: transparent; border: 1px solid var(--ap-line-soft); }
+html[data-theme='studio'] :is(.btn, a, button, input, select, textarea):focus-visible { outline: none; box-shadow: var(--ap-focus); }
+
+html[data-theme='studio'] :is(.input, .select, .textarea, input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.search-input), textarea, select:not(.search-category)) {
+  min-height: 40px;
+  border-radius: 10px;
+  background: var(--ap-bg-alt);
+  border: 1px solid var(--ap-line);
+  box-shadow: none;
+  font-size: 14px;
+}
+html[data-theme='studio'] :is(.input, .select, .textarea, input, textarea, select):focus { border-color: var(--st-accent); box-shadow: var(--ap-focus); outline: none; }
+
+html[data-theme='studio'] :is(.opt-btn, .chip-remove, .tag, .ts-chip, .stat-badge, .is-card-stock-badge, .wi-code-badge, .rating-chip, .footer-locale, .page-cell) { border-radius: 8px; }
+html[data-theme='studio'] .tag { font-weight: 500; letter-spacing: 0; text-transform: none; }
+html[data-theme='studio'] .tag-accent,
+html[data-theme='studio'] .tag-sky { color: var(--ap-link); background: var(--ap-blue-tint); }
+html[data-theme='studio'] .qty-stepper,
+html[data-theme='studio'] .qty-stepper button { border-radius: 8px; }
+html[data-theme='studio'] .opt-btn.is-selected { color: var(--ap-ink); background: var(--ap-fill); border-color: var(--st-accent); box-shadow: inset 0 0 0 1px var(--st-accent); }
+
+/* ── surfaces: plain raised planes with a hairline ──────────────────────── */
+
+html[data-theme='studio'] :is(.card, .shelf, .state-block, .filter-rail, .results-head, .pdp-info, .pdp-buybox, .pdp-assurance, .pdp-specs, .pdp-reviews, .cart-lines, .summary-aside, .checkout-panels, .checkout-bar, .confirmation-main, .confirmation-next, .auth-card, .profile-rail, .profile-pane, .step, .site-footer .footer-links, .site-footer .footer-top, .poster, .trust-cell, .spotlight, .lp-tour-card, .lp-pill, .compare-scroll, .cookie-banner-mini) {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-line-soft);
+  border-radius: 16px;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  color: var(--ap-ink);
+}
+html:not([data-scheme='dark'])[data-theme='studio'] :is(.shelf, .pdp-info, .pdp-buybox, .cart-lines, .summary-aside, .auth-card, .profile-pane, .profile-rail, .lp-tour-card) { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); }
+html[data-theme='studio'] :is(.filter-rail, .results-head, .pdp-assurance, .step, .site-footer .footer-top, .lp-pill) { border-radius: 14px; }
+html[data-theme='studio'] .results-head { border-radius: 14px; padding: 10px 16px; }
+html[data-theme='studio'] .site-footer { background: var(--ap-bg-alt); border-top: 1px solid var(--ap-line-soft); margin-top: 64px; padding-bottom: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
+html[data-theme='studio'] .site-footer .footer-links { border: 0; border-radius: 0; background: transparent; padding: 40px var(--page-gutter); }
+html[data-theme='studio'] .site-footer .footer-top { border: 0; border-block: 1px solid var(--ap-line-soft); border-radius: 0; background: var(--ap-bg); width: 100%; }
+html[data-theme='studio'] .footer-mark { display: none; }
+html[data-theme='studio'] .footer-promise { max-width: var(--page-max); margin: 0 auto; padding: 16px var(--page-gutter); color: var(--ap-ink-2); font-size: 13px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+html[data-theme='studio'] .footer-promise a { color: var(--ap-link); }
+html[data-theme='studio'] .footer-promise-links { display: flex; gap: 16px; }
+
+html[data-theme='studio'] :is(.pcard, .prow, .compact-cell, .wish-cell, .compare-slot, .dept-cell, .is-product-card, .compact-card) {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-line-soft);
+  border-radius: 14px;
+  box-shadow: none;
+  transform: none;
+  transition: border-color 150ms var(--st-ease), background-color 150ms var(--st-ease);
+}
+html[data-theme='studio'] :is(.pcard, .prow, .compact-cell, .wish-cell, .compare-slot, .dept-cell):hover {
+  transform: none;
+  border-color: var(--ap-line);
+  background: var(--ap-surface);
+  box-shadow: none;
+}
+html[data-theme='studio'] .pcard::before { content: none; }
+
+/* image wells: matte plates, no wash */
+html[data-theme='studio'] :is(.dept-icon, .pcard-well, .prow-well, .compact-well, .wish-well, .compare-well, .cart-thumb, .summary-item-thumb, .is-card-image, .compact-card-img, .pdp-main-well, .pdp-thumb, .mega-pick-well, .spotlight-figure, .hero-figure) {
+  background: #efeeea;
+  border-radius: 10px;
+  box-shadow: none;
+}
+html[data-theme='studio'][data-scheme='dark'] :is(.dept-icon, .pcard-well, .prow-well, .compact-well, .wish-well, .compare-well, .cart-thumb, .summary-item-thumb, .is-card-image, .compact-card-img, .pdp-main-well, .pdp-thumb, .mega-pick-well, .spotlight-figure, .hero-figure) { background: #232325; }
+html[data-theme='studio'] :is(.pcard-well, .prow-well, .compact-well, .wish-well, .compare-well, .cart-thumb, .summary-item-thumb, .is-card-image, .compact-card-img, .pdp-main-well, .pdp-thumb, .dept-icon)::after { content: none; }
+html[data-theme='studio'] :is(.pcard-well, .prow-well, .compact-well, .wish-well, .compare-well, .cart-thumb, .is-card-image, .pdp-main-well, .dept-icon) img {
+  mix-blend-mode: multiply;
+  filter: none;
+}
+html[data-theme='studio'][data-scheme='dark'] :is(.pcard-well, .prow-well, .compact-well, .wish-well, .compare-well, .cart-thumb, .is-card-image, .pdp-main-well, .dept-icon) img { mix-blend-mode: normal; }
+html[data-theme='studio'][data-theme] img[src^='/images/studio/'][src] { mix-blend-mode: normal; filter: none; object-fit: cover; }
+
+/* ── the page structure, flattened ──────────────────────────────────────── */
+
+/* the header is in flow here, so nothing needs room cleared above it */
+html[data-theme='studio'] .ph { padding: 40px 0 16px; max-width: 760px; }
+html[data-theme='studio'] .ph-title,
+html[data-theme='studio'] .dept-title,
+html[data-theme='studio'] .lp-title,
+html[data-theme='studio'] .confirmation-main h1 {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  color: var(--ap-ink);
+  font-weight: 500;
+}
+html[data-theme='studio'] .ph-title { font-size: clamp(28px, 3.6vw, 36px); line-height: 1.15; letter-spacing: -0.02em; }
+html[data-theme='studio'] .ph-lede,
+html[data-theme='studio'] .dept-lede,
+html[data-theme='studio'] .lp-lede { color: var(--ap-ink-2); font-size: 16px; line-height: 1.5; }
+html[data-theme='studio'] .ph-trail { border-top: 1px solid var(--ap-line-soft); color: var(--ap-ink-2); font-size: 13px; }
+html[data-theme='studio'] .ph-trail li::before { content: none; }
+html[data-theme='studio'] .confirmation-main h1 { font-size: clamp(26px, 3vw, 32px); color: var(--ap-green); -webkit-text-fill-color: currentColor; }
+
+html[data-theme='studio'] .dept-hero-pin { padding: 16px 0 24px; }
+html[data-theme='studio'] .dept-hero .breadcrumb { margin-top: 0; }
+html[data-theme='studio'] .dept-kicker { margin-top: 24px; color: var(--ap-ink-2); font-weight: 500; }
+html[data-theme='studio'] .dept-title { font-size: clamp(40px, 5.6vw, 64px); line-height: 1.04; letter-spacing: -0.03em; }
+html[data-theme='studio'] .dept-facts { border-top: 1px solid var(--ap-line-soft); gap: 12px 32px; }
+html[data-theme='studio'] .dept-facts dd { font-size: 28px; font-weight: 500; letter-spacing: 0; }
+html[data-theme='studio'] .dept-facts dt { color: var(--ap-ink-2); }
+html[data-theme='studio'] .dept-cue { color: var(--ap-ink-2); letter-spacing: 0; text-transform: none; font-size: 13px; }
+html[data-theme='studio'] .dept-cue span { animation: none; background: var(--ap-ink-3); }
+html[data-theme='studio'] .dept-hero-still,
+html[data-theme='studio'] .lp-hero-still,
+html[data-theme='studio'] .lp-tour-still { border-radius: 16px; box-shadow: none; }
+
+html[data-theme='studio'] .listing-layout { background: none; box-shadow: none; clip-path: none; padding-top: 16px; }
+html[data-theme='studio'] .filter-rail { top: calc(var(--header-h, 120px) + 16px); padding: 16px; overflow: auto; }
+html[data-theme='studio'] .results-head { top: calc(var(--header-h, 120px) + 8px); }
+html[data-theme='studio'] .pcard { transform: none; transition: border-color 150ms var(--st-ease); }
+html[data-theme='studio'] .pgrid > *,
+html[data-theme='studio'] .prow-list > *,
+html[data-theme='studio'] .compact-grid > *,
+html[data-theme='studio'] .lp-after > section,
+html[data-theme='studio'] .lp-depts .dept-cell { animation: none; }
+
+html[data-theme='studio'] .pdp-page .breadcrumb { margin-top: 0; }
+/* the photograph is the product: thumbnails beside one large plate */
+html[data-theme='studio'] .pdp-gallery {
+  top: calc(var(--header-h, 120px) + 16px);
+  height: auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: start;
+  pointer-events: auto;
+}
+html[data-theme='studio'] .pdp-thumbs { flex-direction: column; order: 0; }
+html[data-theme='studio'] .pdp-gallery .pdp-main-well { width: auto; aspect-ratio: 1; border: 1px solid var(--ap-line-soft); box-shadow: none; border-radius: 16px; }
+html[data-theme='studio'] .pdp-gallery .pdp-main-well img { object-fit: contain; }
+html[data-theme='studio'] .pdp-title { font-size: clamp(26px, 3vw, 36px); line-height: 1.15; letter-spacing: -0.02em; }
+html[data-theme='studio'] .pdp-price { font-size: 32px; letter-spacing: -0.01em; }
+html[data-theme='studio'] .pdp-lower .pdp-specs,
+html[data-theme='studio'] .pdp-lower .pdp-reviews { background: var(--ap-surface); border-radius: 16px; }
+
+html[data-theme='studio'] .auth-page { padding: 32px 0 40px; min-height: 0; }
+html[data-theme='studio'] .auth-card { border-radius: 16px; padding: 24px; }
+html[data-theme='studio'] .profile-layout { margin-top: 24px; }
+html[data-theme='studio'] .checkout-bar { margin: 16px auto 0; width: auto; padding: 12px 16px; border-radius: 14px; }
+html[data-theme='studio'] .checkout-bar + .ph { padding-top: 24px; }
+html[data-theme='studio'] .steps { gap: 8px; }
+html[data-theme='studio'] .step { padding: 12px 16px; border-radius: 14px; transform: none; box-shadow: none; transition: border-color 150ms var(--st-ease); }
+html[data-theme='studio'] .step.is-current { border-color: var(--st-accent); box-shadow: inset 0 0 0 1px var(--st-accent); transform: none; }
+html[data-theme='studio'] .step .step-num { width: 28px; height: 28px; font-size: 13px; border-radius: 8px; background: var(--ap-fill); }
+html[data-theme='studio'] .step.is-current .step-num { background: var(--st-accent); color: #fff; box-shadow: none; }
+html[data-theme='studio'] .step.is-done .step-num { background: var(--ap-green); color: #fff; }
+html[data-theme='studio'] .route-stage > .app-main:not(.listing-page):not(.pdp-page):not(.landing) { padding-top: 0; }
+
+/* the cookie card sits quietly in the corner */
+html[data-theme='studio'] .cookie-banner-footer { bottom: 16px !important; left: 16px !important; width: min(380px, calc(100vw - 32px)); }
+html[data-theme='studio'] .cookie-banner-mini { border-radius: 16px !important; box-shadow: var(--ap-shadow-pop); }
+
+/* ── the landing page ───────────────────────────────────────────────────── */
+
+html[data-theme='studio'] .lp-hero { min-height: min(calc(100svh - var(--header-h, 120px)), 820px); }
+html[data-theme='studio'] .lp-pill { padding: 0; border: 0; background: none; color: var(--ap-ink-2); font-weight: 500; font-size: 13px; letter-spacing: 0; border-radius: 0; }
+html[data-theme='studio'] .lp-title { font-size: clamp(44px, 6vw, 72px); line-height: 1.04; letter-spacing: -0.03em; }
+html[data-theme='studio'] .lp-actions .btn { min-height: 44px; font-size: 15px; }
+html[data-theme='studio'] .lp-stats { border-top: 1px solid var(--ap-line-soft); }
+html[data-theme='studio'] .lp-stats dd { font-weight: 500; letter-spacing: 0; }
+html[data-theme='studio'] .lp-cue span { animation: none; background: var(--ap-ink-3); }
+html[data-theme='studio'] .lp-cue { letter-spacing: 0; text-transform: none; font-size: 13px; }
+html[data-theme='studio'] .lp-tour-card h2 { font-weight: 500; letter-spacing: -0.02em; }
+html[data-theme='studio'] .lp-rail span.is-on { background: var(--st-accent); }
+html[data-theme='studio'] .lp-after { background: var(--ap-bg); padding-top: 64px; box-shadow: 0 0 0 100vmax var(--ap-bg); clip-path: inset(0 -100vmax); }
+html[data-theme='studio'] .lp-depts .dept-cell:hover { transform: none; }
+
+/* ── one entrance per page ──────────────────────────────────────────────── */
+
+html[data-theme='studio'] .route-stage > .app-main,
+html[data-theme='studio'] .route-stage > main { animation: st-enter 320ms var(--st-ease) backwards; }
+@keyframes st-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme='studio'] .route-stage > .app-main,
+  html[data-theme='studio'] .route-stage > main,
+  html[data-theme='studio'] .mega-menu,
+  html[data-theme='studio'] .suggestions { animation: none; }
+}
+@media (max-width: 860px) {
+  html[data-theme='studio'] .dept-hero-pin { padding-top: 8px; }
+}
+
+/* ── signature: a stock dot with the real count, beside every price ─────── */
+
+.pcard-avail { display: none; }
+html[data-theme='studio'] .pcard-avail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--ap-ink-2);
+}
+html[data-theme='studio'] .pcard-avail::before,
+html[data-theme='studio'] .bb-stock::before {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ap-green);
+}
+html[data-theme='studio'] .pcard-avail.is-low::before { background: var(--ap-orange); }
+html[data-theme='studio'] .pcard-avail.is-out::before,
+html[data-theme='studio'] .bb-stock.is-out::before { background: var(--ap-red); }
+html[data-theme='studio'] .bb-stock { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 13px; font-weight: 400; color: var(--ap-ink); }
+html[data-theme='studio'] .bb-stock.is-out { color: var(--ap-ink); }

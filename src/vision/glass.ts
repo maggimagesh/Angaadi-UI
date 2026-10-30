@@ -17,6 +17,8 @@ export type GlassPanelOptions = {
   streak: number
   glow: number
   pill: boolean
+  /** a flat plate: one even fill, a hairline rim, no sheen or streaks (the Studio look) */
+  flat?: boolean
 }
 
 const VERTEX = /* glsl */ `
@@ -38,6 +40,7 @@ const FRAGMENT = /* glsl */ `
   uniform float uPill;
   uniform float uOpacity;
   uniform float uShine;
+  uniform float uFlat;
   varying vec2 vP;
 
   float sdRoundRect(vec2 p, vec2 b, float r) {
@@ -63,12 +66,13 @@ const FRAGMENT = /* glsl */ `
     float vignette = smoothstep(1.35, 0.1, length(n * vec2(0.9, 1.1)));
     vec3 body = uFill * (0.55 + 0.7 * diag * diag) * (0.7 + 0.5 * vignette);
     body += uGlow * 0.07 * smoothstep(0.2, 1.0, 1.0 - diag) * vignette;
+    body = mix(body, uFill, uFlat);
 
     // thin rim light, strongest at the top-left and bottom-right corners
     float rimLine = band(d + unit * 0.004, 0.0, unit * 0.0075);
     float cornerA = pow(max(dot(normalize(n + 1e-4), normalize(vec2(-1.0, 1.0))), 0.0), 3.0);
     float cornerB = pow(max(dot(normalize(n + 1e-4), normalize(vec2(1.0, -1.0))), 0.0), 3.0);
-    float rimI = 0.28 + 0.9 * (cornerA + cornerB);
+    float rimI = mix(0.28 + 0.9 * (cornerA + cornerB), 0.45, uFlat);
 
     // the two soft streaks that run along the top and bottom edges
     float topS = band(n.x, 0.2, 0.2) * band(d + unit * 0.003, 0.0, unit * 0.012) * step(0.0, n.y);
@@ -134,6 +138,7 @@ export class GlassPanel extends Mesh<PlaneGeometry, ShaderMaterial> {
           uPill: { value: options.pill ? 1 : 0 },
           uOpacity: { value: 1 },
           uShine: { value: 1 },
+          uFlat: { value: options.flat ? 1 : 0 },
         },
       }),
     )

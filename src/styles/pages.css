@@ -26,14 +26,14 @@
 
 /* ── Vision: cookie card sits above the dock, not across it ─────────────── */
 
-html[data-theme='vision'] .cookie-banner-footer {
+html:is([data-theme='vision'], [data-theme='studio']) .cookie-banner-footer {
   left: 16px !important;
   right: auto !important;
   bottom: 112px !important;
   width: min(380px, calc(100vw - 32px));
   justify-content: flex-start !important;
 }
-html[data-theme='vision'] .cookie-banner-mini {
+html:is([data-theme='vision'], [data-theme='studio']) .cookie-banner-mini {
   flex-direction: column !important;
   align-items: stretch !important;
   gap: 12px !important;
@@ -42,20 +42,20 @@ html[data-theme='vision'] .cookie-banner-mini {
   border-radius: 26px !important;
 }
 @media (max-width: 760px) {
-  html[data-theme='vision'] .cookie-banner-footer { bottom: 92px !important; left: 8px !important; }
+  html:is([data-theme='vision'], [data-theme='studio']) .cookie-banner-footer { bottom: 92px !important; left: 8px !important; }
 }
 
 /* ── Vision: the department chapter ──────────────────────────────────────── */
 
-html[data-theme='vision'] .dept-hero { position: relative; }
-html[data-theme='vision'] .dept-hero-pin {
+html:is([data-theme='vision'], [data-theme='studio']) .dept-hero { position: relative; }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-pin {
   min-height: min(62vh, 560px);
   display: flex;
   align-items: center;
   padding: 96px 0 24px;
 }
-html[data-theme='vision'] .dept-hero.has-model { height: 185vh; }
-html[data-theme='vision'] .dept-hero.has-model .dept-hero-pin {
+html:is([data-theme='vision'], [data-theme='studio']) .dept-hero.has-model { height: 185vh; }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-hero.has-model .dept-hero-pin {
   position: sticky;
   top: 0;
   height: 100vh;
@@ -63,10 +63,10 @@ html[data-theme='vision'] .dept-hero.has-model .dept-hero-pin {
   min-height: 0;
   padding-bottom: 60px;
 }
-html[data-theme='vision'] .dept-hero-copy { position: relative; z-index: 2; width: min(560px, 100%); padding: 0; }
-html[data-theme='vision'] .dept-hero .breadcrumb { margin: 0 0 8px; }
-html[data-theme='vision'] .dept-kicker { color: var(--ap-link); font-weight: 600; margin-top: 28px; }
-html[data-theme='vision'] .dept-title {
+html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-copy { position: relative; z-index: 2; width: min(560px, 100%); padding: 0; }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-hero .breadcrumb { margin: 0 0 8px; }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-kicker { color: var(--ap-link); font-weight: 600; margin-top: 28px; }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-title {
   font-size: clamp(42px, 6.6vw, 84px);
   line-height: 0.98;
   letter-spacing: -0.035em;
@@ -76,11 +76,11 @@ html[data-theme='vision'] .dept-title {
   -webkit-text-fill-color: transparent;
   text-wrap: balance;
 }
-html[data-theme='vision'] .dept-lede { color: var(--ap-ink-2); font-size: clamp(15px, 1.4vw, 18px); line-height: 1.5; }
-html[data-theme='vision'] .dept-facts { gap: 12px 34px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--ap-line); }
-html[data-theme='vision'] .dept-facts dd { font-family: var(--font-heading, inherit); font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
-html[data-theme='vision'] .dept-facts dt { color: var(--ap-ink-2); }
-html[data-theme='vision'] .dept-cue {
+html:is([data-theme='vision'], [data-theme='studio']) .dept-lede { color: var(--ap-ink-2); font-size: clamp(15px, 1.4vw, 18px); line-height: 1.5; }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-facts { gap: 12px 34px; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--ap-line); }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-facts dd { font-family: var(--font-heading, inherit); font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-facts dt { color: var(--ap-ink-2); }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-cue {
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -91,7 +91,7 @@ html[data-theme='vision'] .dept-cue {
   color: var(--ap-ink-2);
   text-decoration: none;
 }
-html[data-theme='vision'] .dept-cue span {
+html:is([data-theme='vision'], [data-theme='studio']) .dept-cue span {
   width: 34px;
   height: 1px;
   background: linear-gradient(90deg, var(--ap-ink-2), transparent);
@@ -101,7 +101,7 @@ html[data-theme='vision'] .dept-cue span {
 @keyframes pg-cue { 0%, 100% { transform: scaleX(0.35); opacity: 0.5; } 50% { transform: scaleX(1); opacity: 1; } }
 
 /* the still stands in until the 3D room is running */
-html[data-theme='vision'] .dept-hero-still {
+html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-still {
   display: block;
   position: absolute;
   right: 0;
@@ -113,15 +113,15 @@ html[data-theme='vision'] .dept-hero-still {
   overflow: hidden;
   box-shadow: 0 30px 80px -30px var(--vr-halo);
 }
-html[data-theme='vision'] .dept-hero-still img { display: block; width: 100%; height: 100%; object-fit: cover; }
-html[data-stage='ready'][data-theme='vision'] .dept-hero-still { display: none; }
-html[data-theme='vision']:not([data-stage='ready']) .dept-hero.has-model { height: auto; }
-html[data-theme='vision']:not([data-stage='ready']) .dept-hero.has-model .dept-hero-pin { position: relative; height: auto; min-height: min(62vh, 560px); }
+html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-still img { display: block; width: 100%; height: 100%; object-fit: cover; }
+html[data-stage='ready']:is([data-theme='vision'], [data-theme='studio']) .dept-hero-still { display: none; }
+html:is([data-theme='vision'], [data-theme='studio']):not([data-stage='ready']) .dept-hero.has-model { height: auto; }
+html:is([data-theme='vision'], [data-theme='studio']):not([data-stage='ready']) .dept-hero.has-model .dept-hero-pin { position: relative; height: auto; min-height: min(62vh, 560px); }
 
 /* ── Vision: rail, toolbar, grid ─────────────────────────────────────────── */
 
-html[data-theme='vision'] .listing-layout { gap: 28px; align-items: start; }
-html[data-theme='vision'] .filter-rail {
+html:is([data-theme='vision'], [data-theme='studio']) .listing-layout { gap: 28px; align-items: start; }
+html:is([data-theme='vision'], [data-theme='studio']) .filter-rail {
   position: sticky;
   top: 84px;
   align-self: start;
@@ -135,7 +135,7 @@ html[data-theme='vision'] .filter-rail {
   backdrop-filter: blur(26px) saturate(1.5);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 30px 70px -40px rgba(0, 0, 12, 0.9);
 }
-html[data-theme='vision'] .results-col {
+html:is([data-theme='vision'], [data-theme='studio']) .results-col {
   background: transparent;
   border: 0;
   box-shadow: none;
@@ -144,7 +144,7 @@ html[data-theme='vision'] .results-col {
   border-radius: 0;
   padding: 0;
 }
-html[data-theme='vision'] .results-head {
+html:is([data-theme='vision'], [data-theme='studio']) .results-head {
   position: sticky;
   top: 78px;
   z-index: 6;
@@ -158,21 +158,21 @@ html[data-theme='vision'] .results-head {
   backdrop-filter: blur(24px) saturate(1.5);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 18px 40px -28px rgba(0, 0, 12, 0.9);
 }
-html[data-theme='vision'] .results-head .results-count { margin: 0; }
-html[data-theme='vision'] .pgrid { gap: 22px; padding: 0; }
+html:is([data-theme='vision'], [data-theme='studio']) .results-head .results-count { margin: 0; }
+html:is([data-theme='vision'], [data-theme='studio']) .pgrid { gap: 22px; padding: 0; }
 
 /* cards lean toward the pointer */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  html[data-theme='vision'] .pcard {
+  html:is([data-theme='vision'], [data-theme='studio']) .pcard {
     transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
     transition: transform 0.18s ease-out, box-shadow 0.3s ease;
     transform-style: preserve-3d;
   }
-  html[data-theme='vision'] .pcard:hover {
+  html:is([data-theme='vision'], [data-theme='studio']) .pcard:hover {
     transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(-6px);
     box-shadow: 0 34px 60px -30px rgba(0, 0, 12, 0.95), 0 0 46px -14px var(--vr-halo);
   }
-  html[data-theme='vision'] .pcard::before {
+  html:is([data-theme='vision'], [data-theme='studio']) .pcard::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -183,14 +183,14 @@ html[data-theme='vision'] .pgrid { gap: 22px; padding: 0; }
     background: radial-gradient(260px circle at var(--glare-x, 50%) var(--glare-y, 0%), rgba(255, 255, 255, 0.16), transparent 60%);
     transition: opacity 0.3s ease;
   }
-  html[data-theme='vision'] .pcard:hover::before { opacity: 1; }
+  html:is([data-theme='vision'], [data-theme='studio']) .pcard:hover::before { opacity: 1; }
 }
 
 /* scroll reveal: rows rise as they enter, and are never fully hidden */
 @supports (animation-timeline: view()) {
-  html[data-theme='vision'] .pgrid > *,
-  html[data-theme='vision'] .prow-list > *,
-  html[data-theme='vision'] .compact-grid > * {
+  html:is([data-theme='vision'], [data-theme='studio']) .pgrid > *,
+  html:is([data-theme='vision'], [data-theme='studio']) .prow-list > *,
+  html:is([data-theme='vision'], [data-theme='studio']) .compact-grid > * {
     animation: pg-rise linear both;
     animation-timeline: view();
     animation-range: entry 0% entry 55%;
@@ -202,26 +202,26 @@ html[data-theme='vision'] .pgrid { gap: 22px; padding: 0; }
 }
 
 @media (max-width: 1200px) {
-  html[data-theme='vision'] .results-head { position: static; border-radius: 26px; }
+  html:is([data-theme='vision'], [data-theme='studio']) .results-head { position: static; border-radius: 26px; }
 }
 @media (max-width: 860px) {
-  html[data-theme='vision'] .dept-hero.has-model { height: 150vh; }
-  html[data-theme='vision'] .dept-hero-pin { align-items: flex-start; padding-top: 88px; }
-  html[data-theme='vision'] .dept-hero-still { top: auto; bottom: 40px; right: 0; left: 0; width: auto; height: 34svh; aspect-ratio: auto; transform: none; }
-  html[data-theme='vision'] .dept-facts dd { font-size: 22px; }
-  html[data-theme='vision'] .dept-lede,
-  html[data-theme='vision'] .dept-cue { display: none; }
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-hero.has-model { height: 150vh; }
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-pin { align-items: flex-start; padding-top: 88px; }
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-hero-still { top: auto; bottom: 40px; right: 0; left: 0; width: auto; height: 34svh; aspect-ratio: auto; transform: none; }
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-facts dd { font-size: 22px; }
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-lede,
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-cue { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  html[data-theme='vision'] .pgrid > *,
-  html[data-theme='vision'] .prow-list > *,
-  html[data-theme='vision'] .compact-grid > *,
-  html[data-theme='vision'] .dept-cue span { animation: none; }
+  html:is([data-theme='vision'], [data-theme='studio']) .pgrid > *,
+  html:is([data-theme='vision'], [data-theme='studio']) .prow-list > *,
+  html:is([data-theme='vision'], [data-theme='studio']) .compact-grid > *,
+  html:is([data-theme='vision'], [data-theme='studio']) .dept-cue span { animation: none; }
 }
 
 /* the results sit on a scrim so the pinned hero does not show through the cards */
-html[data-theme='vision'] { --vr-scrim: color-mix(in srgb, var(--vr-bg-bottom, #060a24) 90%, transparent); }
-html[data-theme='vision'] .listing-layout {
+html:is([data-theme='vision'], [data-theme='studio']) { --vr-scrim: color-mix(in srgb, var(--vr-bg-bottom, #060a24) 90%, transparent); }
+html:is([data-theme='vision'], [data-theme='studio']) .listing-layout {
   position: relative;
   padding-top: 28px;
   background: linear-gradient(to bottom, transparent 0, var(--vr-scrim) 140px);
@@ -231,8 +231,8 @@ html[data-theme='vision'] .listing-layout {
 
 /* ══ the product page — the model turns beside you as you read ══════════════ */
 
-html[data-theme='vision'] .pdp-page .breadcrumb { margin-top: 84px; }
-html[data-theme='vision'] .pdp-top {
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-page .breadcrumb { margin-top: 84px; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-top {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
   grid-template-areas: 'gallery info' 'gallery buy' 'gallery assure';
@@ -244,7 +244,7 @@ html[data-theme='vision'] .pdp-top {
   border: 0;
   box-shadow: none;
 }
-html[data-theme='vision'] .pdp-gallery {
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery {
   grid-area: gallery;
   position: sticky;
   top: 90px;
@@ -261,9 +261,9 @@ html[data-theme='vision'] .pdp-gallery {
   backdrop-filter: none;
   pointer-events: none;
 }
-html[data-theme='vision'] .pdp-gallery > * { pointer-events: auto; }
-html[data-theme='vision'] .pdp-thumbs { flex-direction: row; order: 2; }
-html[data-theme='vision'] .pdp-gallery .pdp-main-well {
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery > * { pointer-events: auto; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-thumbs { flex-direction: row; order: 2; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery .pdp-main-well {
   order: 1;
   width: min(230px, 40%);
   min-height: 0;
@@ -273,20 +273,20 @@ html[data-theme='vision'] .pdp-gallery .pdp-main-well {
   border: 1px solid var(--vr-panel-rim-soft, rgba(214, 214, 245, 0.28));
   box-shadow: 0 24px 50px -24px rgba(0, 0, 12, 0.9), 0 0 36px -14px var(--vr-halo);
 }
-html[data-theme='vision'] .pdp-gallery .pdp-main-well img { width: 100%; height: 100%; max-width: none; object-fit: cover; }
-html[data-theme='vision'] .pdp-thumb { width: 56px; height: 56px; border-radius: 16px; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery .pdp-main-well img { width: 100%; height: 100%; max-width: none; object-fit: cover; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-thumb { width: 56px; height: 56px; border-radius: 16px; }
 
 /* until the 3D room is up, the photo takes the whole column */
-html[data-theme='vision']:not([data-stage='ready']) .pdp-gallery { position: static; height: auto; display: grid; grid-template-columns: 64px 1fr; align-items: start; }
-html[data-theme='vision']:not([data-stage='ready']) .pdp-thumbs { flex-direction: column; order: 0; }
-html[data-theme='vision']:not([data-stage='ready']) .pdp-gallery .pdp-main-well { width: auto; aspect-ratio: 1; }
+html:is([data-theme='vision'], [data-theme='studio']):not([data-stage='ready']) .pdp-gallery { position: static; height: auto; display: grid; grid-template-columns: 64px 1fr; align-items: start; }
+html:is([data-theme='vision'], [data-theme='studio']):not([data-stage='ready']) .pdp-thumbs { flex-direction: column; order: 0; }
+html:is([data-theme='vision'], [data-theme='studio']):not([data-stage='ready']) .pdp-gallery .pdp-main-well { width: auto; aspect-ratio: 1; }
 
-html[data-theme='vision'] .pdp-info { grid-area: info; }
-html[data-theme='vision'] .pdp-buybox { grid-area: buy; position: static; max-width: none; }
-html[data-theme='vision'] .pdp-assurance { grid-area: assure; }
-html[data-theme='vision'] .pdp-info,
-html[data-theme='vision'] .pdp-buybox,
-html[data-theme='vision'] .pdp-assurance {
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-info { grid-area: info; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-buybox { grid-area: buy; position: static; max-width: none; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-assurance { grid-area: assure; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-info,
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-buybox,
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-assurance {
   border: 1px solid var(--vr-panel-rim-soft, rgba(214, 214, 245, 0.28));
   background: var(--vr-panel-fill);
   -webkit-backdrop-filter: blur(26px) saturate(1.5);
@@ -294,17 +294,17 @@ html[data-theme='vision'] .pdp-assurance {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 30px 70px -40px rgba(0, 0, 12, 0.9);
   border-radius: 32px;
 }
-html[data-theme='vision'] .pdp-assurance { padding: 20px 22px; }
-html[data-theme='vision'] .pdp-title {
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-assurance { padding: 20px 22px; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-title {
   font-size: clamp(30px, 3.6vw, 46px);
   line-height: 1.04;
   letter-spacing: -0.03em;
 }
-html[data-theme='vision'] .pdp-price { font-size: 38px; letter-spacing: -0.02em; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-price { font-size: 38px; letter-spacing: -0.02em; }
 
-html[data-theme='vision'] .pdp-lower { margin-top: 36px; gap: 22px; }
-html[data-theme='vision'] .pdp-specs,
-html[data-theme='vision'] .pdp-reviews {
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-lower { margin-top: 36px; gap: 22px; }
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-specs,
+html:is([data-theme='vision'], [data-theme='studio']) .pdp-reviews {
   padding: 28px 30px;
   border-radius: 32px;
   border: 1px solid var(--vr-panel-rim-soft, rgba(214, 214, 245, 0.28));
@@ -314,19 +314,19 @@ html[data-theme='vision'] .pdp-reviews {
 }
 
 @media (max-width: 1000px) {
-  html[data-theme='vision'] .pdp-top {
+  html:is([data-theme='vision'], [data-theme='studio']) .pdp-top {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'gallery' 'info' 'buy' 'assure';
   }
-  html[data-theme='vision'] .pdp-gallery { position: static; height: 46svh; min-height: 300px; }
-  html[data-theme='vision'] .pdp-gallery .pdp-main-well { width: 120px; }
+  html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery { position: static; height: 46svh; min-height: 300px; }
+  html:is([data-theme='vision'], [data-theme='studio']) .pdp-gallery .pdp-main-well { width: 120px; }
 }
 
 /* ══ inner pages: a hero on the room, then glass sections ═══════════════════ */
 
-html[data-theme='vision'] .ph { padding: 108px 0 18px; max-width: 760px; }
-html[data-theme='vision'] .ph-kicker { color: var(--ap-link); font-weight: 600; margin-top: 0; }
-html[data-theme='vision'] .ph-title {
+html:is([data-theme='vision'], [data-theme='studio']) .ph { padding: 108px 0 18px; max-width: 760px; }
+html:is([data-theme='vision'], [data-theme='studio']) .ph-kicker { color: var(--ap-link); font-weight: 600; margin-top: 0; }
+html:is([data-theme='vision'], [data-theme='studio']) .ph-title {
   font-size: clamp(40px, 6vw, 76px);
   line-height: 0.98;
   letter-spacing: -0.035em;
@@ -335,36 +335,36 @@ html[data-theme='vision'] .ph-title {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-html[data-theme='vision'] .ph-lede { color: var(--ap-ink-2); font-size: clamp(15px, 1.4vw, 18px); line-height: 1.5; }
-html[data-theme='vision'] .ph-trail { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--ap-line); color: var(--ap-ink-2); }
-html[data-theme='vision'] .ph-trail li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--vr-glow-b); box-shadow: 0 0 10px var(--vr-glow-b); }
+html:is([data-theme='vision'], [data-theme='studio']) .ph-lede { color: var(--ap-ink-2); font-size: clamp(15px, 1.4vw, 18px); line-height: 1.5; }
+html:is([data-theme='vision'], [data-theme='studio']) .ph-trail { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--ap-line); color: var(--ap-ink-2); }
+html:is([data-theme='vision'], [data-theme='studio']) .ph-trail li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--vr-glow-b); box-shadow: 0 0 10px var(--vr-glow-b); }
 /* the hero already carries the title, so the first section's own heading row goes */
-html[data-theme='vision'] .cart-head { border-bottom-color: var(--ap-line-soft); }
+html:is([data-theme='vision'], [data-theme='studio']) .cart-head { border-bottom-color: var(--ap-line-soft); }
 
 /* shared glass sections */
-html[data-theme='vision'] .cart-lines,
-html[data-theme='vision'] .summary-aside,
-html[data-theme='vision'] .checkout-panels,
-html[data-theme='vision'] .confirmation-main,
-html[data-theme='vision'] .confirmation-next,
-html[data-theme='vision'] .shelf,
-html[data-theme='vision'] .state-block,
-html[data-theme='vision'] .auth-card {
+html:is([data-theme='vision'], [data-theme='studio']) .cart-lines,
+html:is([data-theme='vision'], [data-theme='studio']) .summary-aside,
+html:is([data-theme='vision'], [data-theme='studio']) .checkout-panels,
+html:is([data-theme='vision'], [data-theme='studio']) .confirmation-main,
+html:is([data-theme='vision'], [data-theme='studio']) .confirmation-next,
+html:is([data-theme='vision'], [data-theme='studio']) .shelf,
+html:is([data-theme='vision'], [data-theme='studio']) .state-block,
+html:is([data-theme='vision'], [data-theme='studio']) .auth-card {
   border: 1px solid var(--vr-panel-rim-soft, rgba(214, 214, 245, 0.28));
   background: var(--vr-panel-fill);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 30px 70px -40px rgba(0, 0, 12, 0.9);
   border-radius: 32px;
 }
-html[data-theme='vision'] .cart-lines { padding: 22px 26px; }
+html:is([data-theme='vision'], [data-theme='studio']) .cart-lines { padding: 22px 26px; }
 
 /* ── cart ── */
-html[data-theme='vision'] .cart-layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; }
-html[data-theme='vision'] .summary-aside { position: sticky; top: 90px; padding: 24px; }
-html[data-theme='vision'] .cart-line { border-bottom-color: var(--ap-line-soft); padding: 22px 0; }
-html[data-theme='vision'] .cart-thumb { width: 140px; height: 140px; border-radius: 22px; overflow: hidden; }
+html:is([data-theme='vision'], [data-theme='studio']) .cart-layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; }
+html:is([data-theme='vision'], [data-theme='studio']) .summary-aside { position: sticky; top: 90px; padding: 24px; }
+html:is([data-theme='vision'], [data-theme='studio']) .cart-line { border-bottom-color: var(--ap-line-soft); padding: 22px 0; }
+html:is([data-theme='vision'], [data-theme='studio']) .cart-thumb { width: 140px; height: 140px; border-radius: 22px; overflow: hidden; }
 
 /* ── checkout: a rail of three steps with a lit progress line ── */
-html[data-theme='vision'] .checkout-bar {
+html:is([data-theme='vision'], [data-theme='studio']) .checkout-bar {
   margin: 96px auto 0;
   width: min(1240px, calc(100% - 24px));
   max-width: none;
@@ -375,10 +375,10 @@ html[data-theme='vision'] .checkout-bar {
   color: var(--ap-ink-2);
   font-size: 13px;
 }
-html[data-theme='vision'] .checkout-bar + .ph { padding-top: 28px; }
-html[data-theme='vision'] .checkout-bar .brand { color: var(--ap-ink) !important; }
-html[data-theme='vision'] .checkout-bar span { color: var(--ap-ink-2) !important; }
-html[data-theme='vision'] .steps {
+html:is([data-theme='vision'], [data-theme='studio']) .checkout-bar + .ph { padding-top: 28px; }
+html:is([data-theme='vision'], [data-theme='studio']) .checkout-bar .brand { color: var(--ap-ink) !important; }
+html:is([data-theme='vision'], [data-theme='studio']) .checkout-bar span { color: var(--ap-ink-2) !important; }
+html:is([data-theme='vision'], [data-theme='studio']) .steps {
   position: relative;
   gap: 12px;
   margin: 8px 0 22px;
@@ -386,7 +386,7 @@ html[data-theme='vision'] .steps {
   border: 0;
   background: transparent;
 }
-html[data-theme='vision'] .step {
+html:is([data-theme='vision'], [data-theme='studio']) .step {
   flex: 1 1 200px;
   padding: 14px 18px;
   border: 1px solid var(--vr-panel-rim-soft, rgba(214, 214, 245, 0.28));
@@ -395,32 +395,32 @@ html[data-theme='vision'] .step {
   color: var(--ap-ink-2);
   transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.3s ease;
 }
-html[data-theme='vision'] .step .step-num { width: 34px; height: 34px; font-size: 15px; border-color: var(--ap-line); background: var(--ap-fill); color: var(--ap-ink); }
-html[data-theme='vision'] .step.is-current { color: var(--ap-ink); transform: translateY(-4px); box-shadow: 0 0 36px -10px var(--vr-halo), inset 0 1px 0 rgba(255, 255, 255, 0.25); border-color: var(--ap-link); }
-html[data-theme='vision'] .step.is-current .step-num { background: linear-gradient(135deg, #8b7dff, #5a49f0); border-color: transparent; color: #fff; box-shadow: 0 0 18px var(--vr-halo); }
-html[data-theme='vision'] .step.is-done .step-num { background: linear-gradient(135deg, #3fd2ff, #5eeab0); border-color: transparent; color: #04122a; }
-html[data-theme='vision'] .checkout-layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; }
-html[data-theme='vision'] .checkout-section { border-bottom-color: var(--ap-line-soft); padding: 26px 28px; }
+html:is([data-theme='vision'], [data-theme='studio']) .step .step-num { width: 34px; height: 34px; font-size: 15px; border-color: var(--ap-line); background: var(--ap-fill); color: var(--ap-ink); }
+html:is([data-theme='vision'], [data-theme='studio']) .step.is-current { color: var(--ap-ink); transform: translateY(-4px); box-shadow: 0 0 36px -10px var(--vr-halo), inset 0 1px 0 rgba(255, 255, 255, 0.25); border-color: var(--ap-link); }
+html:is([data-theme='vision'], [data-theme='studio']) .step.is-current .step-num { background: linear-gradient(135deg, #8b7dff, #5a49f0); border-color: transparent; color: #fff; box-shadow: 0 0 18px var(--vr-halo); }
+html:is([data-theme='vision'], [data-theme='studio']) .step.is-done .step-num { background: linear-gradient(135deg, #3fd2ff, #5eeab0); border-color: transparent; color: #04122a; }
+html:is([data-theme='vision'], [data-theme='studio']) .checkout-layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; }
+html:is([data-theme='vision'], [data-theme='studio']) .checkout-section { border-bottom-color: var(--ap-line-soft); padding: 26px 28px; }
 
 /* ── sign in: the card sits on the right of the turning laptop ── */
-html[data-theme='vision'] .auth-page { padding: 100px 0 40px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 440px); gap: 40px; align-items: center; min-height: 80vh; }
-html[data-theme='vision'] .auth-column { grid-column: 2; max-width: none; margin: 0; }
-html[data-theme='vision'] .auth-card { padding: 26px 30px 30px; border-radius: 34px; }
-html[data-theme='vision'] .auth-logo { display: inline-block; margin-bottom: 14px; color: var(--ap-ink); }
+html:is([data-theme='vision'], [data-theme='studio']) .auth-page { padding: 100px 0 40px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 440px); gap: 40px; align-items: center; min-height: 80vh; }
+html:is([data-theme='vision'], [data-theme='studio']) .auth-column { grid-column: 2; max-width: none; margin: 0; }
+html:is([data-theme='vision'], [data-theme='studio']) .auth-card { padding: 26px 30px 30px; border-radius: 34px; }
+html:is([data-theme='vision'], [data-theme='studio']) .auth-logo { display: inline-block; margin-bottom: 14px; color: var(--ap-ink); }
 @media (max-width: 900px) {
-  html[data-theme='vision'] .auth-page { grid-template-columns: 1fr; padding-top: 90px; }
-  html[data-theme='vision'] .auth-column { grid-column: 1; }
+  html:is([data-theme='vision'], [data-theme='studio']) .auth-page { grid-template-columns: 1fr; padding-top: 90px; }
+  html:is([data-theme='vision'], [data-theme='studio']) .auth-column { grid-column: 1; }
 }
 
 /* ── profile ── */
-html[data-theme='vision'] .profile-layout {
+html:is([data-theme='vision'], [data-theme='studio']) .profile-layout {
   background: transparent;
   gap: 24px;
   margin-top: 96px;
   grid-template-columns: 260px minmax(0, 1fr);
   border-radius: 0;
 }
-html[data-theme='vision'] .profile-rail {
+html:is([data-theme='vision'], [data-theme='studio']) .profile-rail {
   position: sticky;
   top: 90px;
   align-self: start;
@@ -429,21 +429,21 @@ html[data-theme='vision'] .profile-rail {
   border-radius: 32px;
   padding: 18px;
 }
-html[data-theme='vision'] .profile-pane {
+html:is([data-theme='vision'], [data-theme='studio']) .profile-pane {
   border: 1px solid var(--vr-panel-rim-soft, rgba(214, 214, 245, 0.28));
   background: var(--vr-panel-fill);
   border-radius: 32px;
   padding: 10px 14px 24px;
 }
-html[data-theme='vision'] .profile-pane-head h1 { font-size: clamp(30px, 4vw, 46px); letter-spacing: -0.03em; }
+html:is([data-theme='vision'], [data-theme='studio']) .profile-pane-head h1 { font-size: clamp(30px, 4vw, 46px); letter-spacing: -0.03em; }
 @media (max-width: 900px) {
-  html[data-theme='vision'] .profile-layout { grid-template-columns: 1fr; }
-  html[data-theme='vision'] .profile-rail { position: static; }
+  html:is([data-theme='vision'], [data-theme='studio']) .profile-layout { grid-template-columns: 1fr; }
+  html:is([data-theme='vision'], [data-theme='studio']) .profile-rail { position: static; }
 }
 
 /* ── confirmation, wishlist, compare, orders ── */
-html[data-theme='vision'] .confirmation { margin-top: 24px; gap: 24px; }
-html[data-theme='vision'] .confirmation-main h1 {
+html:is([data-theme='vision'], [data-theme='studio']) .confirmation { margin-top: 24px; gap: 24px; }
+html:is([data-theme='vision'], [data-theme='studio']) .confirmation-main h1 {
   font-size: clamp(30px, 4vw, 52px);
   letter-spacing: -0.03em;
   background: linear-gradient(135deg, #3fd2ff, #5eeab0);
@@ -451,21 +451,21 @@ html[data-theme='vision'] .confirmation-main h1 {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-html[data-theme='vision'] #wishlist-page .shelf,
-html[data-theme='vision'] #compare-page > section,
-html[data-theme='vision'] #orders-page .shelf { padding-bottom: 18px; }
-html[data-theme='vision'] .wish-cell,
-html[data-theme='vision'] .compare-slot { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
+html:is([data-theme='vision'], [data-theme='studio']) #wishlist-page .shelf,
+html:is([data-theme='vision'], [data-theme='studio']) #compare-page > section,
+html:is([data-theme='vision'], [data-theme='studio']) #orders-page .shelf { padding-bottom: 18px; }
+html:is([data-theme='vision'], [data-theme='studio']) .wish-cell,
+html:is([data-theme='vision'], [data-theme='studio']) .compare-slot { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
 
 /* ── pages without a hero of their own (fixtures, health, playground…) ── */
-html[data-theme='vision'] .route-stage > .app-main:not(.listing-page):not(.pdp-page):not(.landing) { padding-top: 96px; }
-html[data-theme='vision'] .route-stage > .app-main:has(> .ph),
-html[data-theme='vision'] .route-stage > .app-main:has(> .checkout-bar),
-html[data-theme='vision'] .route-stage > .app-main:has(> .profile-layout),
-html[data-theme='vision'] .route-stage > .app-main:has(> .auth-page) { padding-top: 0; }
+html:is([data-theme='vision'], [data-theme='studio']) .route-stage > .app-main:not(.listing-page):not(.pdp-page):not(.landing) { padding-top: 96px; }
+html:is([data-theme='vision'], [data-theme='studio']) .route-stage > .app-main:has(> .ph),
+html:is([data-theme='vision'], [data-theme='studio']) .route-stage > .app-main:has(> .checkout-bar),
+html:is([data-theme='vision'], [data-theme='studio']) .route-stage > .app-main:has(> .profile-layout),
+html:is([data-theme='vision'], [data-theme='studio']) .route-stage > .app-main:has(> .auth-page) { padding-top: 0; }
 
 /* ── the footer: a horizon with a glass shelf of links ── */
-html[data-theme='vision'] .site-footer {
+html:is([data-theme='vision'], [data-theme='studio']) .site-footer {
   position: relative;
   margin-top: 90px;
   padding-bottom: 130px;
@@ -475,7 +475,7 @@ html[data-theme='vision'] .site-footer {
   backdrop-filter: none;
   overflow: hidden;
 }
-html[data-theme='vision'] .site-footer .footer-top {
+html:is([data-theme='vision'], [data-theme='studio']) .site-footer .footer-top {
   display: block;
   margin: 0 auto 30px;
   padding: 10px 22px;
@@ -485,7 +485,7 @@ html[data-theme='vision'] .site-footer .footer-top {
   color: var(--ap-ink);
   width: auto;
 }
-html[data-theme='vision'] .site-footer .footer-links {
+html:is([data-theme='vision'], [data-theme='studio']) .site-footer .footer-links {
   max-width: 1160px;
   margin: 0 auto;
   padding: 30px 34px;
@@ -496,7 +496,7 @@ html[data-theme='vision'] .site-footer .footer-links {
   backdrop-filter: blur(24px) saturate(1.4);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 30px 70px -40px rgba(0, 0, 12, 0.9);
 }
-html[data-theme='vision'] .footer-promise {
+html:is([data-theme='vision'], [data-theme='studio']) .footer-promise {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -508,9 +508,9 @@ html[data-theme='vision'] .footer-promise {
   font-size: 13px;
   color: var(--ap-ink-2);
 }
-html[data-theme='vision'] .footer-promise-links { display: flex; gap: 18px; }
-html[data-theme='vision'] .footer-promise-links a { color: var(--ap-link); }
-html[data-theme='vision'] .footer-mark {
+html:is([data-theme='vision'], [data-theme='studio']) .footer-promise-links { display: flex; gap: 18px; }
+html:is([data-theme='vision'], [data-theme='studio']) .footer-promise-links a { color: var(--ap-link); }
+html:is([data-theme='vision'], [data-theme='studio']) .footer-mark {
   display: block;
   margin: 26px 0 -0.16em;
   text-align: center;
@@ -526,8 +526,8 @@ html[data-theme='vision'] .footer-mark {
   pointer-events: none;
   user-select: none;
 }
-html[data-theme='vision'] .footer-base,
-html[data-theme='vision'] .footer-legal { background: transparent; border: 0; }
+html:is([data-theme='vision'], [data-theme='studio']) .footer-base,
+html:is([data-theme='vision'], [data-theme='studio']) .footer-legal { background: transparent; border: 0; }
 
 /* classic themes do not get the extra footer rows */
 .footer-promise,

@@ -1,6 +1,8 @@
-// Renders the Vision-theme catalogue art.
+// Renders the catalogue art.
 //
-//   node scripts/vision-art/render.mjs [outDir] [filter]
+//   node scripts/vision-art/render.mjs [outDir] [filter] [look]
+//
+//   look  neon (default, the Vision theme) or studio (matte stills on a warm sweep)
 //
 // Needs the Vite dev server (`npm run dev`) and Playwright with Chromium
 // (`npx playwright install chromium`). It is a build-time tool, not a runtime
@@ -14,7 +16,9 @@ const { chromium } = require('playwright')
 
 const origin = process.env.ART_ORIGIN ?? 'http://127.0.0.1:5173'
 const outDir = path.resolve(process.argv[2] ?? 'public/images/catalog')
-const filter = process.argv[3] ? new RegExp(process.argv[3]) : null
+const filter = process.argv[3] && process.argv[3] !== '-' ? new RegExp(process.argv[3]) : null
+const look = process.argv[4] === 'studio' ? 'studio' : 'neon'
+const page_name = look === 'studio' ? 'art-studio.html' : 'art.html'
 
 // wide art: one per department; square art: four colourways per product type
 const ITEMS = ['phone', 'laptop', 'tv', 'headphones', 'watch', 'tablet', 'kitchen', 'fashion', 'beauty', 'books', 'sports', 'grocery']
@@ -34,7 +38,7 @@ page.on('console', (m) => { if (m.type() === 'error' && !/GroupMarkerNotSet/.tes
 
 for (const job of jobs) {
   if (filter && !filter.test(job.file)) continue
-  const url = `${origin}/scripts/vision-art/art.html?item=${job.item}&variant=${job.variant}&shape=${job.shape}`
+  const url = `${origin}/scripts/vision-art/${page_name}?item=${job.item}&variant=${job.variant}&shape=${job.shape}`
   await page.goto(url)
   await page.waitForFunction(() => window.__artReady === true, null, { timeout: 120000 })
   const err = await page.evaluate(() => window.__artError)

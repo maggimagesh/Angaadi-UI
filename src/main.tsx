@@ -21,6 +21,7 @@ import './styles/apple.css'
 import './styles/vision.css'
 import './styles/shell.css'
 import './styles/pages.css'
+import './styles/studio.css'
 import './styles/theme-menu.css'
 
 import App from './App.tsx'

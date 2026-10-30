@@ -18,6 +18,7 @@ import {
   resolveDepartment,
 } from '../data/catalog'
 import { useScene, useSceneStore } from '../vision/sceneStore'
+import { useTheme } from '../theme/useTheme'
 import type { ModelKind } from '../vision/models'
 import '../styles/home.css'
 import '../styles/landing.css'
@@ -33,6 +34,8 @@ type Station = {
   slug: string
   eyebrow: string
   title: string
+  /** the Studio theme's headline: a plain statement of what the department offers */
+  plainTitle: string
   body: string
   cta: string
 }
@@ -43,6 +46,7 @@ const STATIONS: Station[] = [
     slug: 'mobiles-tablets',
     eyebrow: 'Mobiles & Tablets',
     title: 'Glass that fits your hand.',
+    plainTitle: 'Phones with the landed price before you tap',
     body: 'Every phone shows its landed price, stock count and delivery date before you tap — no surprises at step four.',
     cta: 'Shop mobiles',
   },
@@ -51,6 +55,7 @@ const STATIONS: Station[] = [
     slug: 'laptops-computers',
     eyebrow: 'Laptops & Computers',
     title: 'A bigger room to think in.',
+    plainTitle: 'Laptops compared spec for spec',
     body: 'Ultrabooks, creator rigs and the docks that survive daily travel, compared spec for spec.',
     cta: 'Shop laptops',
   },
@@ -59,6 +64,7 @@ const STATIONS: Station[] = [
     slug: 'tvs-appliances',
     eyebrow: 'TVs & Appliances',
     title: 'Turn the wall into a window.',
+    plainTitle: 'Televisions with installation booked at checkout',
     body: 'QLED panels, soundbars and mounts that fit them. Installation is booked at checkout, not chased later.',
     cta: 'Shop TVs',
   },
@@ -67,6 +73,7 @@ const STATIONS: Station[] = [
     slug: 'audio-headphones',
     eyebrow: 'Audio & Headphones',
     title: 'Hear the whole room go quiet.',
+    plainTitle: 'Audio with real battery numbers',
     body: 'True wireless, over-ear and neckband picks, with real battery numbers instead of marketing hours.',
     cta: 'Shop audio',
   },
@@ -75,6 +82,7 @@ const STATIONS: Station[] = [
     slug: 'home-kitchen',
     eyebrow: 'Home & Kitchen',
     title: 'The warm corner of the house.',
+    plainTitle: 'Kitchen appliances from brands with service centres near you',
     body: 'Kettles, air fryers and mixers from brands with service centres near you.',
     cta: 'Shop kitchen',
   },
@@ -83,6 +91,7 @@ const STATIONS: Station[] = [
     slug: 'fashion-lifestyle',
     eyebrow: 'Fashion & Lifestyle',
     title: 'Details that catch the light.',
+    plainTitle: 'Fashion with seven-day returns',
     body: 'Eyewear, bags and everyday wear, with seven-day no-question returns.',
     cta: 'Shop fashion',
   },
@@ -168,6 +177,7 @@ export default function HomePage() {
 
   const hasLoaded = useRef(false)
   const station = useSceneStore((st) => st.station)
+  const studio = useTheme().theme === 'studio'
   useScene(TOUR_SCENE, 'tour-track')
 
   const loadDeals = async () => {
@@ -292,19 +302,26 @@ export default function HomePage() {
       >
         <div className="lp-hero-copy">
           <div className="lp-eyebrow">
-            <span className="lp-pill">Monsoon Electronics Week</span>
-            <span>Ends 06:00 daily</span>
+            <span className="lp-pill">{studio ? 'Monsoon electronics week' : 'Monsoon Electronics Week'}</span>
+            <span>{studio ? 'ends 06:00 daily' : 'Ends 06:00 daily'}</span>
           </div>
 
           <h1 className="lp-title">
-            Shop inside
-            <br />
-            the glass.
+            {studio ? (
+              'Electronics, with the landed price up front'
+            ) : (
+              <>
+                Shop inside
+                <br />
+                the glass.
+              </>
+            )}
           </h1>
 
           <p className="lp-lede">
-            Every listing shows the real landed price, the stock count and the delivery date before
-            you click. No countdown theatre.
+            {studio
+              ? 'Every listing shows the landed price, the stock count and the delivery date before you click.'
+              : 'Every listing shows the real landed price, the stock count and the delivery date before you click. No countdown theatre.'}
           </p>
 
           <div className="lp-actions">
@@ -352,7 +369,7 @@ export default function HomePage() {
               <i> / {String(STATIONS.length).padStart(2, '0')}</i>
             </span>
             <p className="lp-eyebrow-line">{active.eyebrow}</p>
-            <h2>{active.title}</h2>
+            <h2>{studio ? active.plainTitle : active.title}</h2>
             <p>{active.body}</p>
             <button type="button" className="btn btn-secondary" onClick={() => goDepartment(active.slug)}>
               {active.cta}
@@ -591,7 +608,7 @@ export default function HomePage() {
       <section aria-labelledby="home-cta-title" data-testid="home-footer-cta" className="poster">
         <div className="poster-grid">
           <div>
-            <h2 id="home-cta-title">Price alerts beat panic buying.</h2>
+            <h2 id="home-cta-title">{studio ? 'Get one email when a price drops' : 'Price alerts beat panic buying.'}</h2>
           </div>
           <div>
             <p>

@@ -11,7 +11,7 @@
       try {
         var root = document.documentElement
         var theme = localStorage.getItem('angaadi:theme')
-        if (theme !== 'vision' && theme !== 'apple' && theme !== 'macos-27') theme = 'vision'
+        if (theme !== 'vision' && theme !== 'apple' && theme !== 'macos-27' && theme !== 'studio') theme = 'vision'
         root.setAttribute('data-theme', theme)
         var appearance = localStorage.getItem('angaadi:appearance')
         if (appearance !== 'light' && appearance !== 'dark' && appearance !== 'system') {
@@ -23,7 +23,7 @@
         else root.removeAttribute('data-scheme')
         root.style.colorScheme = dark ? 'dark' : 'light'
         var meta = document.querySelector('meta[name="theme-color"]')
-        if (meta) meta.setAttribute('content', theme === 'vision' ? (dark ? '#0a0b26' : '#ebe8ff') : theme === 'macos-27' ? (dark ? '#141a26' : '#e9f1fb') : (dark ? '#000000' : '#f5f5f7'))
+        if (meta) meta.setAttribute('content', theme === 'vision' ? (dark ? '#0a0b26' : '#ebe8ff') : theme === 'studio' ? (dark ? '#141415' : '#f7f6f3') : theme === 'macos-27' ? (dark ? '#141a26' : '#e9f1fb') : (dark ? '#000000' : '#f5f5f7'))
       } catch (_) {}
       })()
     </script>

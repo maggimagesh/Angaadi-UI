@@ -6,6 +6,7 @@ import { useUIStore } from '../store/ui'
 import { useWishlistStore } from '../store/wishlist'
 import { useCompareStore } from '../store/compare'
 import { placeholderFor } from '../data/catalog'
+import { useTheme } from '../theme/useTheme'
 import { HeartIcon, CompareIcon, CloseIcon, Stars } from './icons'
 import { PriceTag } from './PriceTag'
 import { deliveryDate } from '../utils/delivery'
@@ -269,6 +270,7 @@ function QuickView({ product, onClose }: { product: CardProduct; onClose: () => 
 
 export function ProductCard({ product }: { product: CardProduct }) {
   const onImgError = artFallback(product)
+  const studio = useTheme().theme === 'studio'
   const [quickOpen, setQuickOpen] = useState(false)
   const { addToCart, toggleWishlist, toggleCompare, wishlisted, comparing } =
     useProductActions(product)
@@ -389,6 +391,16 @@ export function ProductCard({ product }: { product: CardProduct }) {
       </div>
 
       <div className={`pcard-stock${stock.low ? ' is-low' : ''}`}>{stock.text}</div>
+      {/* the Studio theme's signature: a stock dot with the real count. Only that theme renders it, so other themes' text is untouched. */}
+      {studio ? (
+        <div className={`pcard-avail${!product.inStock ? ' is-out' : stock.low ? ' is-low' : ''}`}>
+          {product.inStock
+            ? typeof product.stockCount === 'number'
+              ? `In stock · ${product.stockCount.toLocaleString('en-IN')}`
+              : 'In stock'
+            : 'Out of stock'}
+        </div>
+      ) : null}
 
       <div className="pcard-actions">
         {product.inStock ? (

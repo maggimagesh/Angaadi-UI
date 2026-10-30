@@ -65,6 +65,13 @@ describe('catalogue art', () => {
     }
   })
 
+  test('the studio set has the same files as the neon set', () => {
+    for (const art of CATALOG_ARTS) {
+      assert.ok(existsSync(path.join(publicDir, `/images/studio/${art}.jpg`)), `studio ${art}.jpg`)
+      for (let v = 1; v <= 4; v++) assert.ok(existsSync(path.join(publicDir, `/images/studio/${art}-${v}.jpg`)), `studio ${art}-${v}.jpg`)
+    }
+  })
+
   test('colourway index wraps and never goes negative', () => {
     assert.equal(artVariantUrl('tv', 0), '/images/catalog/tv-1.jpg')
     assert.equal(artVariantUrl('tv', 5), '/images/catalog/tv-2.jpg')
@@ -82,9 +89,10 @@ describe('catalogue art', () => {
 describe('themes', () => {
   test('Vision is the default and opens dark; the other themes stay light', () => {
     assert.equal(DEFAULT_THEME, 'vision')
-    assert.deepEqual([...THEMES], ['vision', 'apple', 'macos-27'])
+    assert.deepEqual([...THEMES], ['vision', 'apple', 'macos-27', 'studio'])
     assert.equal(defaultAppearance('vision'), 'dark')
     assert.equal(defaultAppearance('apple'), 'light')
     assert.equal(defaultAppearance('macos-27'), 'light')
+    assert.equal(defaultAppearance('studio'), 'light')
   })
 })

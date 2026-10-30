@@ -197,7 +197,7 @@ export function buildBeauty(style: ModelStyle): BuiltModel {
   bottle.position.y = 0.66
   const liquid = new Mesh(
     rbox(t, 0.74, 0.78, 0.3, 0.06, 4),
-    t.mat(new MeshStandardMaterial({ color: style.accent2, emissive: style.accent2, emissiveIntensity: 0.55, transparent: true, opacity: 0.9, roughness: 0.2 })),
+    t.mat(new MeshStandardMaterial({ color: style.accent2, emissive: style.accent2, emissiveIntensity: style.look === 'studio' ? 0 : 0.55, transparent: true, opacity: 0.9, roughness: 0.2 })),
   )
   liquid.position.y = 0.52
   const neck = new Mesh(t.geo(new CylinderGeometry(0.12, 0.14, 0.16, 32)), m.metal)
@@ -241,7 +241,7 @@ export function buildBooks(style: ModelStyle): BuiltModel {
   const t = new Tracker()
   const m = makeMaterials(t, style)
   const g = new Group()
-  const pages = t.mat(new MeshStandardMaterial({ color: 0xece9ff, roughness: 0.9, emissive: 0x2a2860, emissiveIntensity: 0.25 }))
+  const pages = t.mat(new MeshStandardMaterial({ color: 0xece9ff, roughness: 0.9, emissive: 0x2a2860, emissiveIntensity: style.look === 'studio' ? 0 : 0.25 }))
 
   const books: Array<{ w: number; d: number; h: number; rot: number; x: number; hue: number }> = [
     { w: 1.7, d: 1.2, h: 0.26, rot: 0.1, x: 0, hue: 0 },
@@ -256,7 +256,7 @@ export function buildBooks(style: ModelStyle): BuiltModel {
     const block = new Mesh(rbox(t, b.w - 0.1, b.h - 0.07, b.d - 0.02, 0.012, 2), pages)
     block.position.set(0.03, 0, 0.02)
     grp.add(cover, block)
-    const art = new Mesh(t.geo(roundedPlane(b.w * 0.74, b.d * 0.62, 0.05)), t.mat(new MeshStandardMaterial({ map: t.tex(uiTexture('wallpaper', style.screen, style.seed + i * 5)), emissive: 0xffffff, emissiveMap: null, emissiveIntensity: 0, roughness: 0.4 })))
+    const art = new Mesh(t.geo(roundedPlane(b.w * 0.74, b.d * 0.62, 0.05)), t.mat(new MeshStandardMaterial({ map: t.tex(uiTexture('wallpaper', style.screen, style.seed + i * 5)), emissive: 0xffffff, emissiveMap: null, emissiveIntensity: style.look === 'studio' ? 0 : 0, roughness: 0.4 })))
     art.rotation.x = -Math.PI / 2
     art.position.set(-0.02, b.h / 2 + 0.003, 0)
     const stripe = new Mesh(rbox(t, 0.04, b.h + 0.004, b.d + 0.004, 0.015, 2), m.neon)
@@ -271,7 +271,7 @@ export function buildBooks(style: ModelStyle): BuiltModel {
   // an e-reader leaning on the stack
   const reader = new Group()
   const slab = new Mesh(rbox(t, 0.86, 1.2, 0.06, 0.06, 4), m.body)
-  const page = new Mesh(t.geo(roundedPlane(0.74, 1.08, 0.035)), t.mat(new MeshStandardMaterial({ color: 0xf1eeff, emissive: 0x8f86ff, emissiveIntensity: 0.55, roughness: 0.7 })))
+  const page = new Mesh(t.geo(roundedPlane(0.74, 1.08, 0.035)), t.mat(new MeshStandardMaterial({ color: 0xf1eeff, emissive: 0x8f86ff, emissiveIntensity: style.look === 'studio' ? 0 : 0.55, roughness: 0.7 })))
   page.position.z = 0.0315
   reader.add(slab, page)
   reader.position.set(-1.2, 0.62, 0.35)
@@ -349,7 +349,7 @@ export function buildGrocery(style: ModelStyle): BuiltModel {
 
   // beans packed into the jar
   const beanGeo = t.geo(new SphereGeometry(0.075, 12, 10))
-  const beanMat = t.mat(new MeshStandardMaterial({ color: 0x8a4f2b, roughness: 0.45, emissive: 0xff8a3d, emissiveIntensity: 0.18 }))
+  const beanMat = t.mat(new MeshStandardMaterial({ color: 0x8a4f2b, roughness: 0.45, emissive: 0xff8a3d, emissiveIntensity: style.look === 'studio' ? 0 : 0.18 }))
   const count = 220
   const beans = new InstancedMesh(beanGeo, beanMat, count)
   const dummy = new Object3D()
@@ -374,7 +374,7 @@ export function buildGrocery(style: ModelStyle): BuiltModel {
   const bottleBody = new Mesh(lathe(t, [[0.0, 0.0], [0.3, 0.0], [0.34, 0.06], [0.34, 0.9], [0.28, 1.08], [0.13, 1.34], [0.11, 1.62], [0.0, 1.62]]), glass)
   const liquid = new Mesh(
     lathe(t, [[0.0, 0.03], [0.27, 0.03], [0.3, 0.08], [0.3, 0.86], [0.24, 1.02], [0.0, 1.02]]),
-    t.mat(new MeshStandardMaterial({ color: 0xffb347, emissive: 0xffa43a, emissiveIntensity: 0.65, roughness: 0.15, transparent: true, opacity: 0.92 })),
+    t.mat(new MeshStandardMaterial({ color: 0xffb347, emissive: 0xffa43a, emissiveIntensity: style.look === 'studio' ? 0 : 0.65, roughness: 0.15, transparent: true, opacity: 0.92 })),
   )
   const cork = new Mesh(t.geo(new CylinderGeometry(0.1, 0.085, 0.16, 24)), m.neon)
   cork.position.y = 1.7

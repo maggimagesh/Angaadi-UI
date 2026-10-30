@@ -25,13 +25,23 @@ export type ModelStyle = {
   accent2: number
   screen: ScreenColors
   seed: number
+  /** neon is the Vision look (lit trim, glow); studio is matte, lit only by the room */
+  look: 'neon' | 'studio'
 }
 
 export const MODEL_STYLES: ModelStyle[] = [
-  { body: 0x16154a, metal: 0xb9b6ff, accent: 0x7b6cff, accent2: 0x3fd2ff, screen: { a: '#5a49f0', b: '#1d1b6b', c: '#3fd2ff' }, seed: 11 },
-  { body: 0x0a2a3f, metal: 0xbfeaff, accent: 0x3fd2ff, accent2: 0x7b6cff, screen: { a: '#1fb6e6', b: '#10335f', c: '#7b6cff' }, seed: 23 },
-  { body: 0x2c1148, metal: 0xe6c9ff, accent: 0xff5fd2, accent2: 0x7b6cff, screen: { a: '#d34fd0', b: '#3b1670', c: '#ff7ab8' }, seed: 37 },
-  { body: 0x1d1740, metal: 0xffe0c2, accent: 0xffb066, accent2: 0x8f82ff, screen: { a: '#ff9a55', b: '#4a2a86', c: '#8f82ff' }, seed: 51 },
+  { body: 0x16154a, metal: 0xb9b6ff, accent: 0x7b6cff, accent2: 0x3fd2ff, screen: { a: '#5a49f0', b: '#1d1b6b', c: '#3fd2ff' }, seed: 11, look: 'neon' },
+  { body: 0x0a2a3f, metal: 0xbfeaff, accent: 0x3fd2ff, accent2: 0x7b6cff, screen: { a: '#1fb6e6', b: '#10335f', c: '#7b6cff' }, seed: 23, look: 'neon' },
+  { body: 0x2c1148, metal: 0xe6c9ff, accent: 0xff5fd2, accent2: 0x7b6cff, screen: { a: '#d34fd0', b: '#3b1670', c: '#ff7ab8' }, seed: 37, look: 'neon' },
+  { body: 0x1d1740, metal: 0xffe0c2, accent: 0xffb066, accent2: 0x8f82ff, screen: { a: '#ff9a55', b: '#4a2a86', c: '#8f82ff' }, seed: 51, look: 'neon' },
+]
+
+/** Studio colourways: graphite, titanium, deep blue and sand, with one cobalt trim. */
+export const STUDIO_STYLES: ModelStyle[] = [
+  { body: 0x2b2d31, metal: 0xcfd1d6, accent: 0x2f6df6, accent2: 0x9aa1ad, screen: { a: '#3b4660', b: '#1a1d26', c: '#6f86b8' }, seed: 11, look: 'studio' },
+  { body: 0xc9c7c1, metal: 0xe9e8e5, accent: 0x2f6df6, accent2: 0x7d838d, screen: { a: '#aab4c6', b: '#59606e', c: '#dfe3ea' }, seed: 23, look: 'studio' },
+  { body: 0x1e2c47, metal: 0xc7ccd6, accent: 0x2f6df6, accent2: 0x8f98a8, screen: { a: '#2c4f94', b: '#101a30', c: '#7ba0e8' }, seed: 37, look: 'studio' },
+  { body: 0x8d7f6d, metal: 0xe2dccf, accent: 0x2f6df6, accent2: 0x9a8f80, screen: { a: '#8c7a63', b: '#2e2923', c: '#d6c3a6' }, seed: 51, look: 'studio' },
 ]
 
 export type BuiltModel = {
@@ -97,7 +107,11 @@ export type Materials = ReturnType<typeof makeMaterials>
 export function makeMaterials(t: Tracker, style: ModelStyle) {
   return {
     /** glossy lacquered shell */
-    body: t.mat(new MeshPhysicalMaterial({ color: style.body, metalness: 0.55, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 1.25 })),
+    body: t.mat(
+      style.look === 'studio'
+        ? new MeshPhysicalMaterial({ color: style.body, metalness: 0.25, roughness: 0.42, clearcoat: 0.25, clearcoatRoughness: 0.4, envMapIntensity: 0.9 })
+        : new MeshPhysicalMaterial({ color: style.body, metalness: 0.55, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 1.25 }),
+    ),
     /** machined aluminium */
     metal: t.mat(new MeshStandardMaterial({ color: style.metal, metalness: 1, roughness: 0.24, envMapIntensity: 1.2 })),
     /** black glass and rubber */
@@ -119,8 +133,9 @@ export function makeMaterials(t: Tracker, style: ModelStyle) {
         specularIntensity: 1,
       }),
     ),
-    neon: t.mat(new MeshBasicMaterial({ color: style.accent, toneMapped: false })),
-    neon2: t.mat(new MeshBasicMaterial({ color: style.accent2, toneMapped: false })),
+    // the trim: lit and unshaded in the neon look, plain painted parts in the studio look
+    neon: t.mat(style.look === 'studio' ? new MeshStandardMaterial({ color: style.accent, metalness: 0.1, roughness: 0.5 }) : new MeshBasicMaterial({ color: style.accent, toneMapped: false })),
+    neon2: t.mat(style.look === 'studio' ? new MeshStandardMaterial({ color: style.accent2, metalness: 0.2, roughness: 0.5 }) : new MeshBasicMaterial({ color: style.accent2, toneMapped: false })),
     white: t.mat(new MeshBasicMaterial({ color: 0xf2f0ff, toneMapped: false })),
   }
 }

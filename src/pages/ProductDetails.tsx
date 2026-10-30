@@ -22,6 +22,7 @@ import {
 import { formatINR } from '../utils/currency'
 import { departmentById, modelKindFor, placeholderFor } from '../data/catalog'
 import { useScene } from '../vision/sceneStore'
+import { useTheme } from '../theme/useTheme'
 import { storeCategoryInfo, getCategoryInfo } from '../utils/categoryStorage'
 import '../styles/product-details.css'
 
@@ -143,7 +144,10 @@ export default function ProductDetails() {
 
   /* The product turns on a glass pane beside the copy as you read down the
      page — the 3D model is the department's, in a colourway picked from the id. */
+  const { theme } = useTheme()
   const scene = useMemo(() => {
+    // Studio shows the product's own photograph, large; the 3D model is a Vision thing here
+    if (theme === 'studio') return { mode: 'ambient' } as const
     const dept = departmentById(product?.categoryid ?? categoryId)
     return {
       mode: 'focus',
@@ -151,8 +155,8 @@ export default function ProductDetails() {
       variant: product?.id ?? 0,
       side: 'left',
     } as const
-  }, [product?.categoryid, product?.id, categoryId])
-  useScene(scene, 'pdp-page')
+  }, [product?.categoryid, product?.id, categoryId, theme])
+  useScene(scene, theme === 'studio' ? null : 'pdp-page')
 
   const images = useMemo(() => {
     if (!product) return []
@@ -397,7 +401,7 @@ export default function ProductDetails() {
           <div className="bb-note">Order within 6 hrs 12 mins · Deliver to Chennai 600001</div>
 
           <div className={`bb-stock${inStock ? '' : ' is-out'}`}>
-            {inStock ? 'In stock' : 'Currently unavailable'}
+            {inStock ? `In stock${theme === 'studio' && typeof product.stock === 'number' ? ` · ${product.stock.toLocaleString('en-IN')}` : ''}` : 'Currently unavailable'}
           </div>
           {inStock && lowStock ? (
             <div className="bb-note" style={{ color: 'var(--color-price)', fontWeight: 700 }}>

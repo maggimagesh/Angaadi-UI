@@ -220,7 +220,10 @@ export const products: Product[] = Array.from({ length: 90 }).map((_, idx) => {
     price: getPriceForCategory(category, idx),
     rating: [4.3, 4.5, 3.9, 4.1, 4.8, 4.6, 4.2, 4.7, 4.4, 3.8, 4.0, 4.9, 3.7, 4.4, 4.6][idx % 15],
     stock: idx % 13 === 0 ? 'Out of Stock' : 'In Stock',
-    image: artVariantUrl(art, titleIndex),
+    // read at use, not at import, so the render set follows the current theme
+    get image() {
+      return artVariantUrl(art, titleIndex)
+    },
     category,
     freeDelivery: idx % 3 !== 0,
   }

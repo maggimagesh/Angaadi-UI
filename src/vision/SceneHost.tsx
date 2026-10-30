@@ -17,6 +17,7 @@ function readPalette(): StagePalette {
     glowC: get('--vr-glow-c', '#ff5fd2'),
     dust: get('--vr-dust', '#b9b3ff'),
     room: parseFloat(get('--vr-room', '1')) || 0,
+    look: get('--vr-look', 'neon') === 'studio' ? 'studio' : 'neon',
   }
 }
 
@@ -32,7 +33,7 @@ function hasWebGL(): boolean {
 export function SceneHost() {
   const { theme } = useTheme()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const enabled = theme === 'vision'
+  const enabled = theme === 'vision' || theme === 'studio'
 
   useEffect(() => {
     const canvas = canvasRef.current

@@ -37,7 +37,19 @@ export const CATALOG_ARTS: readonly CatalogArt[] = [
 /** Square colourway variants (1-4) rendered for each art slot. */
 export function artVariantUrl(art: CatalogArt, variant: number): string {
   const n = ((Math.floor(variant) % 4) + 4) % 4 + 1
-  return `/images/catalog/${art}-${n}.jpg`
+  return `/images/${artSet()}/${art}-${n}.jpg`
+}
+
+/**
+ * Two sets of renders: neon stills for Vision and matte studio shots for the
+ * Studio theme. The set follows the theme on <html>, read at call time; the app
+ * re-mounts its pages when the theme changes so every image picks it up.
+ */
+export function artSet(): 'catalog' | 'studio' {
+  if (typeof document === 'undefined') return 'catalog'
+  const root = document.documentElement
+  // data-theme-target leads data-theme during a theme switch (see useTheme.commit)
+  return (root.getAttribute('data-theme-target') ?? root.getAttribute('data-theme')) === 'studio' ? 'studio' : 'catalog'
 }
 
 /** The 3D model that stands for a department's art slot. */
@@ -49,7 +61,7 @@ export function modelKindFor(art: CatalogArt): ModelKind {
 }
 
 export function artUrl(art: CatalogArt): string {
-  return `/images/catalog/${art}.jpg`
+  return `/images/${artSet()}/${art}.jpg`
 }
 
 /** The five chips that live in the header's third row. */

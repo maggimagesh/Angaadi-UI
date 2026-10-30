@@ -10,6 +10,7 @@ import {
   HemisphereLight,
   Mesh,
   MeshBasicMaterial,
+  NormalBlending,
   PerspectiveCamera,
   Points,
   PointsMaterial,
@@ -44,6 +45,8 @@ export type StagePalette = {
   dust: string
   /** 1 for the night room, 0 for the day room. */
   room: number
+  /** neon is the Vision room; studio is plain light, a matte plate and a soft shadow. */
+  look: 'neon' | 'studio'
 }
 
 export type SceneSpec =
@@ -231,6 +234,11 @@ export class LandingStage {
   private panePalette(): { fill: number; rim: number; streak: number; glow: number } {
     const p = this.opts.palette
     const night = p.room > 0.5
+    if (p.look === 'studio') {
+      // a plain plate: no streaks, no glow, a hairline rim
+      const plate = night ? 0x1d1d20 : 0xeceae5
+      return { fill: plate, rim: night ? 0x3a3a3f : 0xc9c6bf, streak: plate, glow: plate }
+    }
     return {
       fill: night ? 0x10103a : 0xf4f2ff,
       rim: night ? 0xd6d6f5 : 0xffffff,
@@ -240,6 +248,8 @@ export class LandingStage {
   }
 
   private addDrift(): void {
+    // the studio room is empty between products
+    if (this.opts.palette.look === 'studio') return
     const c = this.panePalette()
     const spec: Array<[number, number, number, number, number, number]> = [
       // x, y, z, width, height, yaw
@@ -258,7 +268,7 @@ export class LandingStage {
 
   private addStation(kind: ModelKind, index: number, variant: number, maxW: number, maxH: number): void {
     const p = this.opts.palette
-    const built = buildModel(kind, variant)
+    const built = buildModel(kind, variant, p.look)
     const hero = new Group()
     hero.add(built.group)
     const baseScale = fitScale(built, maxW, maxH)
@@ -269,7 +279,8 @@ export class LandingStage {
     root.add(hero)
 
     const c = this.panePalette()
-    const pane = new GlassPanel({ width: 6.4, height: 3.9, radius: 0.4, fillAlpha: 0.78, pill: true, ...c })
+    const studio = p.look === 'studio'
+    const pane = new GlassPanel({ width: 6.4, height: 3.9, radius: studio ? 0.2 : 0.4, fillAlpha: studio ? 1 : 0.78, pill: !studio, flat: studio, ...c })
     pane.position.set(0, 2.45, -2.3)
     root.add(pane)
 
@@ -277,10 +288,10 @@ export class LandingStage {
       new CircleGeometry(3.2, 48),
       new MeshBasicMaterial({
         map: glowSprite(),
-        color: new Color(p.glowA),
+        color: studio ? new Color(0x000000) : new Color(p.glowA),
         transparent: true,
-        opacity: 0.5,
-        blending: AdditiveBlending,
+        opacity: studio ? 0.3 : 0.5,
+        blending: studio ? NormalBlending : AdditiveBlending,
         depthWrite: false,
         toneMapped: false,
       }),
@@ -294,6 +305,7 @@ export class LandingStage {
     ring.rotation.x = -Math.PI / 2
     ring.scale.set(1.2, 0.8, 1)
     ring.position.y = 0.015
+    ring.visible = !studio
     root.add(ring)
 
     this.scene.add(root)
@@ -304,31 +316,50 @@ export class LandingStage {
     this.env?.dispose()
     const p = this.opts.palette
     const night = p.room > 0.5
-    this.env = createNeonEnvironment(this.renderer, {
-      base: night ? 0x05061c : 0x2a2760,
-      key: 0xe6e6ff,
-      a: new Color(p.glowA).getHex(),
-      b: new Color(p.glowB).getHex(),
-      c: new Color(p.glowC).getHex(),
-    })
+    this.env = createNeonEnvironment(
+      this.renderer,
+      p.look === 'studio'
+        ? // a plain studio: white softbox overhead, two grey strips, no colour
+          { base: night ? 0x1c1c1f : 0xcfcdc8, key: 0xffffff, a: 0xe9e9ec, b: 0xc8ccd4, c: 0xb9b6ae }
+        : {
+            base: night ? 0x05061c : 0x2a2760,
+            key: 0xe6e6ff,
+            a: new Color(p.glowA).getHex(),
+            b: new Color(p.glowB).getHex(),
+            c: new Color(p.glowC).getHex(),
+          },
+    )
     this.scene.environment = this.env.texture
   }
 
   /** Re-tints lights, glow and panes from the current theme tokens. */
   applyPalette(palette: StagePalette): void {
-    const roomChanged = Math.round(palette.room) !== Math.round(this.opts.palette.room)
+    const lookChanged = palette.look !== this.opts.palette.look
+    const roomChanged = Math.round(palette.room) !== Math.round(this.opts.palette.room) || lookChanged
     this.opts.palette = palette
+    // models are built per look, so a theme switch rebuilds them
+    if (lookChanged) {
+      this.clear()
+      this.build(this.spec)
+    }
     const a = new Color(palette.glowA)
     const b = new Color(palette.glowB)
-    this.lights.a.color.copy(a)
-    this.lights.b.color.copy(b)
+    const studio = palette.look === 'studio'
+    this.lights.a.color.set(studio ? 0xffffff : a)
+    this.lights.b.color.set(studio ? 0xc8ccd4 : b)
+    this.lights.a.intensity = studio ? 1.1 : 3.2
+    this.lights.b.intensity = studio ? 0.7 : 2
+    this.lights.hemi.color.set(studio ? 0xffffff : 0x8d86ff)
+    this.lights.hemi.groundColor.set(studio ? 0x8b8985 : 0x05061a)
+    this.lights.hemi.intensity = studio ? 0.5 : 0.55
+    this.dust.visible = !studio
     ;(this.dust.material as PointsMaterial).color.set(palette.dust)
     ;(this.dust.material as PointsMaterial).opacity = palette.room > 0.5 ? 0.7 : 0.55
-    this.renderer.toneMappingExposure = palette.room > 0.5 ? 1.05 : 1.2
+    this.renderer.toneMappingExposure = studio ? (palette.room > 0.5 ? 1.0 : 1.05) : palette.room > 0.5 ? 1.05 : 1.2
     const c = this.panePalette()
     for (const st of this.stations) {
       st.pane.setColors(c)
-      ;(st.pool.material as MeshBasicMaterial).color.copy(a)
+      if (!studio) (st.pool.material as MeshBasicMaterial).color.copy(a)
       ;(st.ring.material as MeshBasicMaterial).color.copy(b)
     }
     for (const d of this.drift) d.pane.setColors(c)
@@ -407,6 +438,7 @@ export class LandingStage {
     const spec = this.spec
     const wide = this.camera.aspect > 1.15
     const portrait = this.camera.aspect < 0.9
+    const poolK = this.opts.palette.look === 'studio' ? 0.45 : 1
 
     let camX = 0
     let camY = 2
@@ -452,7 +484,7 @@ export class LandingStage {
         st.hero.scale.setScalar(st.baseScale * (0.82 + 0.18 * focus) * (0.9 + 0.1 * ease))
         st.pane.opacity = (0.35 + 0.65 * focus) * ease
         st.pane.shine = 0.45 + 0.75 * focus
-        ;(st.pool.material as MeshBasicMaterial).opacity = (0.18 + 0.4 * focus) * ease
+        ;(st.pool.material as MeshBasicMaterial).opacity = (0.18 + 0.4 * focus) * ease * poolK
       })
     } else if (spec.mode === 'focus') {
       // one product, turned by scroll: a full half-turn and a little more over the track
@@ -472,7 +504,7 @@ export class LandingStage {
         st.hero.scale.setScalar(st.baseScale * (0.88 + 0.12 * ease) * (1 - this.tour * 0.06))
         st.pane.opacity = ease
         st.pane.shine = 0.7 + Math.sin(t * 0.8) * 0.2 + this.tour * 0.5
-        ;(st.pool.material as MeshBasicMaterial).opacity = 0.55 * ease
+        ;(st.pool.material as MeshBasicMaterial).opacity = 0.55 * ease * poolK
       }
     } else {
       // ambient: panes drift, the camera slides with the page

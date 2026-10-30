@@ -18,7 +18,7 @@
    effect stays on a handful of layers so scrolling remains composited.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) {
   color-scheme: light;
 
   --ap-bg: #f5f5f7;
@@ -161,7 +161,7 @@ html:is([data-theme='apple'], [data-theme='vision']) {
   --page-gutter: clamp(16px, 3vw, 44px);
 }
 
-html:is([data-theme='apple'], [data-theme='vision'])[data-scheme='dark'] {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio'])[data-scheme='dark'] {
   color-scheme: dark;
 
   --ap-bg: #000000;
@@ -216,11 +216,11 @@ html:is([data-theme='apple'], [data-theme='vision'])[data-scheme='dark'] {
 
 /* ══ canvas and type ════════════════════════════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']),
-html:is([data-theme='apple'], [data-theme='vision']) body,
-html:is([data-theme='apple'], [data-theme='vision']) #root { min-height: 100%; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']),
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) body,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) #root { min-height: 100%; }
 
-html:is([data-theme='apple'], [data-theme='vision']) body {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) body {
   margin: 0;
   color: var(--ap-ink);
   background: var(--ap-bg);
@@ -234,27 +234,27 @@ html:is([data-theme='apple'], [data-theme='vision']) body {
   text-rendering: optimizeLegibility;
 }
 
-html:is([data-theme='apple'], [data-theme='vision']) .app-shell { min-height: 100vh; }
-html:is([data-theme='apple'], [data-theme='vision']) ::selection { color: var(--ap-ink); background: rgba(0, 113, 227, 0.24); }
-html:is([data-theme='apple'], [data-theme='vision']) h1,
-html:is([data-theme='apple'], [data-theme='vision']) h2,
-html:is([data-theme='apple'], [data-theme='vision']) h3,
-html:is([data-theme='apple'], [data-theme='vision']) h4 { color: var(--ap-ink); font-family: var(--font-heading); font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) h1 { font-size: clamp(32px, 4vw, 48px); line-height: 1.08349; letter-spacing: -0.003em; }
-html:is([data-theme='apple'], [data-theme='vision']) h2 { font-size: clamp(24px, 2.6vw, 32px); line-height: 1.125; letter-spacing: 0.004em; }
-html:is([data-theme='apple'], [data-theme='vision']) h3 { font-size: 19px; line-height: 1.21; letter-spacing: 0.012em; }
-html:is([data-theme='apple'], [data-theme='vision']) a { color: var(--ap-link); text-underline-offset: 0.18em; }
-html:is([data-theme='apple'], [data-theme='vision']) a:hover { color: var(--ap-link); text-decoration: underline; }
-html:is([data-theme='apple'], [data-theme='vision']) :focus { outline: none; }
-html:is([data-theme='apple'], [data-theme='vision']) :focus-visible { outline: 2px solid var(--ap-blue); outline-offset: 2px; box-shadow: none; }
-html:is([data-theme='apple'], [data-theme='vision'])[data-scheme='dark'] :focus-visible { outline-color: var(--ap-link); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .app-shell { min-height: 100vh; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) ::selection { color: var(--ap-ink); background: rgba(0, 113, 227, 0.24); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) h1,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) h2,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) h3,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) h4 { color: var(--ap-ink); font-family: var(--font-heading); font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) h1 { font-size: clamp(32px, 4vw, 48px); line-height: 1.08349; letter-spacing: -0.003em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) h2 { font-size: clamp(24px, 2.6vw, 32px); line-height: 1.125; letter-spacing: 0.004em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) h3 { font-size: 19px; line-height: 1.21; letter-spacing: 0.012em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) a { color: var(--ap-link); text-underline-offset: 0.18em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) a:hover { color: var(--ap-link); text-decoration: underline; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) :focus { outline: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) :focus-visible { outline: 2px solid var(--ap-blue); outline-offset: 2px; box-shadow: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio'])[data-scheme='dark'] :focus-visible { outline-color: var(--ap-link); }
 
 /* ══ global nav — the frosted Apple bar ═════════════════════════════════ */
 
 /* apple.com blurs its bar at 20px. Under the 0.8 tint a 10px radius reads
    the same and costs about half per scrolled frame, which is what keeps the
    sticky bar at 60fps on integrated GPUs. */
-html:is([data-theme='apple'], [data-theme='vision']) .site-header {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .site-header {
   position: sticky;
   top: 0;
   z-index: 60;
@@ -265,15 +265,15 @@ html:is([data-theme='apple'], [data-theme='vision']) .site-header {
   backdrop-filter: saturate(180%) blur(10px);
 }
 
-html:is([data-theme='apple'], [data-theme='vision']) .header-main,
-html:is([data-theme='apple'], [data-theme='vision']) .category-row,
-html:is([data-theme='apple'], [data-theme='vision']) .utility-bar {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-main,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-row,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .utility-bar {
   max-width: var(--page-max);
   margin-inline: auto;
   padding-inline: var(--page-gutter);
 }
 
-html:is([data-theme='apple'], [data-theme='vision']) .header-main {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-main {
   min-height: 52px;
   padding-block: 4px;
   gap: 4px;
@@ -281,38 +281,38 @@ html:is([data-theme='apple'], [data-theme='vision']) .header-main {
   background: transparent;
 }
 
-html:is([data-theme='apple'], [data-theme='vision']) .header-logo,
-html:is([data-theme='apple'], [data-theme='vision']) .header-action,
-html:is([data-theme='apple'], [data-theme='vision']) .header-deliver,
-html:is([data-theme='apple'], [data-theme='vision']) .header-signin {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-logo,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-action,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-deliver,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-signin {
   color: var(--ap-nav-ink);
   border: 0;
   border-radius: 8px;
   transition: color 240ms var(--ap-ease), background-color 240ms var(--ap-ease);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .header-logo:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .header-action:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .header-deliver:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .header-signin:hover {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-logo:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-action:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-deliver:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-signin:hover {
   color: var(--ap-nav-ink-hover);
   background: var(--ap-fill-hover);
   text-decoration: none;
 }
 
-html:is([data-theme='apple'], [data-theme='vision']) .header-logo { padding: 6px 8px; }
-html:is([data-theme='apple'], [data-theme='vision']) .header-logo img { height: 26px; }
-html:is([data-theme='apple'], [data-theme='vision']) .header-wordmark { color: var(--ap-ink); font-family: var(--font-heading); font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
-html:is([data-theme='apple'], [data-theme='vision']) .header-tagline { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .header-deliver .l1,
-html:is([data-theme='apple'], [data-theme='vision']) .header-action .l1 { color: var(--ap-ink-3); font-size: 11px; letter-spacing: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .header-deliver .l2,
-html:is([data-theme='apple'], [data-theme='vision']) .header-action .l2 { color: var(--ap-nav-ink); font-size: 12px; font-weight: 400; letter-spacing: -0.01em; }
-html:is([data-theme='apple'], [data-theme='vision']) .header-action:hover .l2,
-html:is([data-theme='apple'], [data-theme='vision']) .header-deliver:hover .l2 { color: var(--ap-nav-ink-hover); }
-html:is([data-theme='apple'], [data-theme='vision']) .header-action.is-active .l2 { color: var(--ap-nav-ink-hover); font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-logo { padding: 6px 8px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-logo img { height: 26px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-wordmark { color: var(--ap-ink); font-family: var(--font-heading); font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-tagline { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-deliver .l1,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-action .l1 { color: var(--ap-ink-3); font-size: 11px; letter-spacing: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-deliver .l2,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-action .l2 { color: var(--ap-nav-ink); font-size: 12px; font-weight: 400; letter-spacing: -0.01em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-action:hover .l2,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-deliver:hover .l2 { color: var(--ap-nav-ink-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-action.is-active .l2 { color: var(--ap-nav-ink-hover); font-weight: 600; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .header-search { min-width: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .search-form {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-search { min-width: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-form {
   height: 36px;
   display: flex;
   overflow: hidden;
@@ -322,10 +322,10 @@ html:is([data-theme='apple'], [data-theme='vision']) .search-form {
   box-shadow: none;
   transition: background-color 240ms var(--ap-ease), box-shadow 240ms var(--ap-ease), border-color 240ms var(--ap-ease);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .search-form:hover { background: var(--ap-surface); }
-html:is([data-theme='apple'], [data-theme='vision']) .search-form:focus-within { background: var(--ap-surface); border-color: var(--ap-blue); box-shadow: var(--ap-focus); }
-html:is([data-theme='apple'], [data-theme='vision']) .search-category,
-html:is([data-theme='apple'], [data-theme='vision']) .search-input {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-form:hover { background: var(--ap-surface); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-form:focus-within { background: var(--ap-surface); border-color: var(--ap-blue); box-shadow: var(--ap-focus); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-category,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-input {
   color: var(--ap-ink);
   background: transparent;
   border: 0;
@@ -333,13 +333,13 @@ html:is([data-theme='apple'], [data-theme='vision']) .search-input {
   box-shadow: none;
   font-size: 14px;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .search-category { color: var(--ap-ink-2); border-right: 1px solid var(--ap-line-soft); }
-html:is([data-theme='apple'], [data-theme='vision']) .search-category option { color: var(--ap-ink); background: var(--ap-surface); }
-html:is([data-theme='apple'], [data-theme='vision']) .search-input::placeholder { color: var(--ap-ink-3); }
-html:is([data-theme='apple'], [data-theme='vision']) .search-input:focus,
-html:is([data-theme='apple'], [data-theme='vision']) .search-input:focus-visible,
-html:is([data-theme='apple'], [data-theme='vision']) .search-category:focus-visible { outline: none; box-shadow: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .search-form .search-submit {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-category { color: var(--ap-ink-2); border-right: 1px solid var(--ap-line-soft); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-category option { color: var(--ap-ink); background: var(--ap-surface); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-input::placeholder { color: var(--ap-ink-3); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-input:focus,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-input:focus-visible,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-category:focus-visible { outline: none; box-shadow: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-form .search-submit {
   width: 42px;
   min-height: 0;
   padding: 0;
@@ -350,14 +350,14 @@ html:is([data-theme='apple'], [data-theme='vision']) .search-form .search-submit
   border-radius: 0;
   box-shadow: none;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .search-form .search-submit:hover { color: var(--ap-ink); background: var(--ap-fill-hover); transform: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .search-form .search-submit svg { width: 17px; height: 17px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-form .search-submit:hover { color: var(--ap-ink); background: var(--ap-fill-hover); transform: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-form .search-submit svg { width: 17px; height: 17px; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .header-actions { display: flex; align-items: center; gap: 2px; }
-html:is([data-theme='apple'], [data-theme='vision']) .header-action { padding: 6px 9px; }
-html:is([data-theme='apple'], [data-theme='vision']) .header-cart { align-items: center; }
-html:is([data-theme='apple'], [data-theme='vision']) .header-cart svg { width: 22px; height: 22px; }
-html:is([data-theme='apple'], [data-theme='vision']) .count-badge {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-actions { display: flex; align-items: center; gap: 2px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-action { padding: 6px 9px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-cart { align-items: center; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-cart svg { width: 22px; height: 22px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .count-badge {
   top: -6px;
   right: -8px;
   min-width: 16px;
@@ -370,7 +370,7 @@ html:is([data-theme='apple'], [data-theme='vision']) .count-badge {
   font-weight: 600;
   line-height: 14px;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .site-header .header-signin {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .site-header .header-signin {
   min-height: 0;
   padding: 5px 13px;
   color: var(--ap-on-blue);
@@ -380,20 +380,20 @@ html:is([data-theme='apple'], [data-theme='vision']) .site-header .header-signin
   font-size: 12px;
   font-weight: 400;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .site-header .header-signin:hover { color: var(--ap-on-blue); background: var(--ap-blue-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .site-header .header-signin:hover { color: var(--ap-on-blue); background: var(--ap-blue-hover); }
 
 /* the department row is Apple's local nav: a quieter second band */
-html:is([data-theme='apple'], [data-theme='vision']) .category-band { background: transparent; border-top: 1px solid var(--ap-line-soft); }
-html:is([data-theme='apple'], [data-theme='vision']) .category-row {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-band { background: transparent; border-top: 1px solid var(--ap-line-soft); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-row {
   gap: 2px;
   min-height: 40px;
   overflow-x: auto;
   scrollbar-width: none;
   background: transparent;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .category-row::-webkit-scrollbar { display: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .category-trigger,
-html:is([data-theme='apple'], [data-theme='vision']) .category-chip {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-row::-webkit-scrollbar { display: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-trigger,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-chip {
   flex: none;
   padding: 5px 11px;
   color: var(--ap-nav-ink);
@@ -405,48 +405,48 @@ html:is([data-theme='apple'], [data-theme='vision']) .category-chip {
   letter-spacing: -0.01em;
   transition: color 240ms var(--ap-ease), background-color 240ms var(--ap-ease);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .category-trigger:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .category-trigger[aria-expanded='true'],
-html:is([data-theme='apple'], [data-theme='vision']) .category-chip:hover {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-trigger:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-trigger[aria-expanded='true'],
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-chip:hover {
   color: var(--ap-nav-ink-hover);
   background: var(--ap-fill-hover);
   text-decoration: none;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .category-chip.is-active { color: var(--ap-on-neutral); background: var(--ap-neutral-btn); }
-html:is([data-theme='apple'], [data-theme='vision']) .category-note { margin-left: auto; color: var(--ap-ink-3); font-size: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-chip.is-active { color: var(--ap-on-neutral); background: var(--ap-neutral-btn); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .category-note { margin-left: auto; color: var(--ap-ink-3); font-size: 12px; }
 
 /* the promo strip becomes Apple's ribbon */
-html:is([data-theme='apple'], [data-theme='vision']) .utility-band { background: var(--ap-surface-2); border: 0; border-top: 1px solid var(--ap-line-soft); }
-html:is([data-theme='apple'], [data-theme='vision']) .utility-bar { min-height: 30px; padding-block: 6px; color: var(--ap-ink-2); font-size: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .utility-bar a { color: var(--ap-link); }
-html:is([data-theme='apple'], [data-theme='vision']) .utility-bar a:hover { color: var(--ap-link); text-decoration: underline; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .utility-band { background: var(--ap-surface-2); border: 0; border-top: 1px solid var(--ap-line-soft); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .utility-bar { min-height: 30px; padding-block: 6px; color: var(--ap-ink-2); font-size: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .utility-bar a { color: var(--ap-link); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .utility-bar a:hover { color: var(--ap-link); text-decoration: underline; }
 
 /* flyouts: the global-nav dropdown — a solid sheet, not another blur layer */
-html:is([data-theme='apple'], [data-theme='vision']) .suggestions,
-html:is([data-theme='apple'], [data-theme='vision']) .mega-menu {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .suggestions,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-menu {
   color: var(--ap-ink);
   background: var(--ap-flyout);
   border: 0;
   border-radius: 0 0 18px 18px;
   box-shadow: var(--ap-shadow-pop);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .suggestions { border-radius: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .mega-menu { left: 0; right: 0; top: 100%; overflow: hidden; animation: ap-flyout-in 240ms var(--ap-ease); }
-html:is([data-theme='apple'], [data-theme='vision']) .mega-inner { max-width: var(--page-max); margin-inline: auto; grid-template-columns: 240px 1fr; padding: 0 var(--page-gutter); }
-html:is([data-theme='apple'], [data-theme='vision']) .mega-depts { padding: 20px 12px 24px 0; background: transparent; border-right: 1px solid var(--ap-line-soft); }
-html:is([data-theme='apple'], [data-theme='vision']) .mega-dept { margin: 1px 0; color: var(--ap-ink); border-radius: 8px; font-size: 14px; }
-html:is([data-theme='apple'], [data-theme='vision']) .mega-dept:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .mega-dept.is-active { color: var(--ap-ink); background: var(--ap-fill-hover); font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) .mega-panel { padding: 24px 0 28px 28px; }
-html:is([data-theme='apple'], [data-theme='vision']) .mega-pick-well { background: var(--ap-surface-2); border-radius: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .suggest-row,
-html:is([data-theme='apple'], [data-theme='vision']) .suggest-term { color: var(--ap-ink); border-radius: 8px; }
-html:is([data-theme='apple'], [data-theme='vision']) .suggest-row:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .suggest-row.is-active,
-html:is([data-theme='apple'], [data-theme='vision']) .suggest-term:hover { background: var(--ap-fill-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .suggestions { border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-menu { left: 0; right: 0; top: 100%; overflow: hidden; animation: ap-flyout-in 240ms var(--ap-ease); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-inner { max-width: var(--page-max); margin-inline: auto; grid-template-columns: 240px 1fr; padding: 0 var(--page-gutter); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-depts { padding: 20px 12px 24px 0; background: transparent; border-right: 1px solid var(--ap-line-soft); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-dept { margin: 1px 0; color: var(--ap-ink); border-radius: 8px; font-size: 14px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-dept:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-dept.is-active { color: var(--ap-ink); background: var(--ap-fill-hover); font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-panel { padding: 24px 0 28px 28px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-pick-well { background: var(--ap-surface-2); border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .suggest-row,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .suggest-term { color: var(--ap-ink); border-radius: 8px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .suggest-row:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .suggest-row.is-active,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .suggest-term:hover { background: var(--ap-fill-hover); }
 
 /* appearance trigger in the bar */
-html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle {
   min-height: 34px;
   padding: 3px 4px 3px 10px;
   color: var(--ap-nav-ink);
@@ -455,15 +455,15 @@ html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle {
   border-radius: 980px;
   box-shadow: none;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle:hover { color: var(--ap-nav-ink-hover); background: var(--ap-fill-hover); border-color: var(--ap-line-soft); transform: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle-eyebrow { color: var(--ap-ink-3); letter-spacing: 0.04em; }
-html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle-label { font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle-track { background: var(--ap-fill); box-shadow: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle-track[data-scheme='dark'] { background: var(--ap-blue); }
-html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle-thumb { color: var(--ap-ink); background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24); }
-html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle-track[data-scheme='dark'] .theme-toggle-thumb { color: #1d1d1f; }
-html:is([data-theme='apple'], [data-theme='vision']) .theme-menu[data-open='true'] .theme-toggle { background: var(--ap-fill-hover); }
-html:is([data-theme='apple'], [data-theme='vision']) .theme-menu {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle:hover { color: var(--ap-nav-ink-hover); background: var(--ap-fill-hover); border-color: var(--ap-line-soft); transform: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle-eyebrow { color: var(--ap-ink-3); letter-spacing: 0.04em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle-label { font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle-track { background: var(--ap-fill); box-shadow: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle-track[data-scheme='dark'] { background: var(--ap-blue); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle-thumb { color: var(--ap-ink); background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle-track[data-scheme='dark'] .theme-toggle-thumb { color: #1d1d1f; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-menu[data-open='true'] .theme-toggle { background: var(--ap-fill-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-menu {
   --tm-surface: var(--ap-flyout);
   --tm-ink: var(--ap-ink);
   --tm-ink-soft: var(--ap-ink-2);
@@ -480,34 +480,34 @@ html:is([data-theme='apple'], [data-theme='vision']) .theme-menu {
 
 /* ══ shared surfaces ════════════════════════════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .app-main { padding-top: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .page-pad { padding-block: 28px 44px; }
-html:is([data-theme='apple'], [data-theme='vision']) .rule-top { border-top-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .rule-bottom { border-bottom-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .text-muted,
-html:is([data-theme='apple'], [data-theme='vision']) .hint,
-html:is([data-theme='apple'], [data-theme='vision']) .meta,
-html:is([data-theme='apple'], [data-theme='vision']) .card-body { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .kicker { color: var(--ap-ink); font-size: 14px; font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .kicker-accent { color: var(--ap-orange); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .app-main { padding-top: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .page-pad { padding-block: 28px 44px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .rule-top { border-top-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .rule-bottom { border-bottom-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .text-muted,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hint,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .meta,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .card-body { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .kicker { color: var(--ap-ink); font-size: 14px; font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .kicker-accent { color: var(--ap-orange); }
 
-html:is([data-theme='apple'], [data-theme='vision']) .card,
-html:is([data-theme='apple'], [data-theme='vision']) .shelf,
-html:is([data-theme='apple'], [data-theme='vision']) .state-block,
-html:is([data-theme='apple'], [data-theme='vision']) .filter-rail,
-html:is([data-theme='apple'], [data-theme='vision']) .results-col,
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-gallery,
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-info,
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-buybox,
-html:is([data-theme='apple'], [data-theme='vision']) .cart-lines,
-html:is([data-theme='apple'], [data-theme='vision']) .summary-aside,
-html:is([data-theme='apple'], [data-theme='vision']) .checkout-section,
-html:is([data-theme='apple'], [data-theme='vision']) .profile-rail,
-html:is([data-theme='apple'], [data-theme='vision']) .profile-pane,
-html:is([data-theme='apple'], [data-theme='vision']) .auth-card,
-html:is([data-theme='apple'], [data-theme='vision']) .confirmation-main,
-html:is([data-theme='apple'], [data-theme='vision']) .confirmation-next,
-html:is([data-theme='apple'], [data-theme='vision']) .compare-scroll {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .card,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .shelf,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .state-block,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-rail,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .results-col,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-gallery,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-info,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-buybox,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-lines,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .summary-aside,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .checkout-section,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-rail,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-pane,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-card,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .confirmation-main,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .confirmation-next,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-scroll {
   color: var(--ap-ink);
   background: var(--ap-surface);
   border: 0;
@@ -515,31 +515,31 @@ html:is([data-theme='apple'], [data-theme='vision']) .compare-scroll {
   box-shadow: var(--ap-shadow-card);
 }
 
-html:is([data-theme='apple'], [data-theme='vision']) .card { gap: 10px; padding: 22px; }
-html:is([data-theme='apple'], [data-theme='vision']) .card-kicker { color: var(--ap-orange); letter-spacing: 0; text-transform: none; font-size: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .card-title { color: var(--ap-ink); font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) .section-head { padding: 28px 28px 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .section-head h2 { font-weight: 600; letter-spacing: -0.003em; }
-html:is([data-theme='apple'], [data-theme='vision']) .section-link { color: var(--ap-link); font-weight: 400; }
-html:is([data-theme='apple'], [data-theme='vision']) .section-link::after { content: ' ›'; }
-html:is([data-theme='apple'], [data-theme='vision']) .shelf { margin-bottom: 28px; overflow: hidden; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .card { gap: 10px; padding: 22px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .card-kicker { color: var(--ap-orange); letter-spacing: 0; text-transform: none; font-size: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .card-title { color: var(--ap-ink); font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .section-head { padding: 28px 28px 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .section-head h2 { font-weight: 600; letter-spacing: -0.003em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .section-link { color: var(--ap-link); font-weight: 400; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .section-link::after { content: ' ›'; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .shelf { margin-bottom: 28px; overflow: hidden; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .tag,
-html:is([data-theme='apple'], [data-theme='vision']) .a-badge,
-html:is([data-theme='apple'], [data-theme='vision']) .num,
-html:is([data-theme='apple'], [data-theme='vision']) .rating-chip { border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .tag { padding: 2px 9px; font-weight: 600; letter-spacing: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .tag-accent { color: var(--ap-orange); background: transparent; padding-inline: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .tag-accent-2,
-html:is([data-theme='apple'], [data-theme='vision']) .tag-gold { color: var(--ap-orange); background: var(--ap-surface-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .tag-neutral { color: var(--ap-ink-2); background: var(--ap-fill); }
-html:is([data-theme='apple'], [data-theme='vision']) .tag-sky { color: var(--ap-link); background: var(--ap-blue-tint); }
-html:is([data-theme='apple'], [data-theme='vision']) .tag-outline { color: var(--ap-ink-2); background: transparent; border: 1px solid var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .num { color: var(--ap-on-neutral); background: var(--ap-neutral-btn); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .tag,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .a-badge,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .num,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .rating-chip { border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .tag { padding: 2px 9px; font-weight: 600; letter-spacing: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .tag-accent { color: var(--ap-orange); background: transparent; padding-inline: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .tag-accent-2,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .tag-gold { color: var(--ap-orange); background: var(--ap-surface-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .tag-neutral { color: var(--ap-ink-2); background: var(--ap-fill); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .tag-sky { color: var(--ap-link); background: var(--ap-blue-tint); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .tag-outline { color: var(--ap-ink-2); background: transparent; border: 1px solid var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .num { color: var(--ap-on-neutral); background: var(--ap-neutral-btn); }
 
 /* ══ controls — pill buttons and Apple form fields ══════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .btn {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn {
   min-height: 36px;
   padding: 8px 17px;
   gap: 6px;
@@ -553,32 +553,32 @@ html:is([data-theme='apple'], [data-theme='vision']) .btn {
   letter-spacing: -0.016em;
   transition: background-color 240ms var(--ap-ease), color 240ms var(--ap-ease), border-color 240ms var(--ap-ease), transform 160ms var(--ap-ease);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .btn:hover { color: #fff; background: var(--ap-blue-hover); border-color: var(--ap-blue-hover); text-decoration: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .btn:active { background: var(--ap-blue-active); border-color: var(--ap-blue-active); box-shadow: none; transform: scale(0.98); }
-html:is([data-theme='apple'], [data-theme='vision']) .btn:focus-visible { outline: 2px solid var(--ap-blue); outline-offset: 2px; box-shadow: none; border-color: inherit; }
-html:is([data-theme='apple'], [data-theme='vision']) .btn:disabled,
-html:is([data-theme='apple'], [data-theme='vision']) .btn[aria-disabled='true'] { color: var(--ap-ink-3); background: transparent; border-color: var(--ap-line); opacity: 0.6; transform: none; cursor: default; }
-html:is([data-theme='apple'], [data-theme='vision']) .btn-primary,
-html:is([data-theme='apple'], [data-theme='vision']) .btn-primary:disabled { color: var(--ap-on-blue); background: var(--ap-blue); border-color: var(--ap-blue); }
-html:is([data-theme='apple'], [data-theme='vision']) .btn-primary:hover { color: var(--ap-on-blue); background: var(--ap-blue-hover); border-color: var(--ap-blue-hover); }
-html:is([data-theme='apple'], [data-theme='vision']) .btn-primary:disabled { opacity: 0.42; }
-html:is([data-theme='apple'], [data-theme='vision']) .btn-buy { color: var(--ap-on-neutral); background: var(--ap-neutral-btn); border-color: var(--ap-neutral-btn); }
-html:is([data-theme='apple'], [data-theme='vision']) .btn-buy:hover { color: var(--ap-on-neutral); background: var(--ap-neutral-btn-hover); border-color: var(--ap-neutral-btn-hover); }
-html:is([data-theme='apple'], [data-theme='vision']) .btn-secondary { color: var(--ap-link); background: transparent; border-color: var(--ap-link); }
-html:is([data-theme='apple'], [data-theme='vision']) .btn-ghost,
-html:is([data-theme='apple'], [data-theme='vision']) .linkish { color: var(--ap-link); background: transparent; border-color: transparent; box-shadow: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .btn-ghost:hover { color: var(--ap-link); background: transparent; border-color: transparent; text-decoration: underline; }
-html:is([data-theme='apple'], [data-theme='vision']) .btn-icon,
-html:is([data-theme='apple'], [data-theme='vision']) .icon-btn { width: 36px; height: 36px; padding: 0; color: var(--ap-ink); background: var(--ap-fill); border-color: transparent; border-radius: 50%; }
-html:is([data-theme='apple'], [data-theme='vision']) .btn-icon:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .icon-btn:hover { color: var(--ap-ink); background: var(--ap-line); border-color: transparent; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn:hover { color: #fff; background: var(--ap-blue-hover); border-color: var(--ap-blue-hover); text-decoration: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn:active { background: var(--ap-blue-active); border-color: var(--ap-blue-active); box-shadow: none; transform: scale(0.98); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn:focus-visible { outline: 2px solid var(--ap-blue); outline-offset: 2px; box-shadow: none; border-color: inherit; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn:disabled,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn[aria-disabled='true'] { color: var(--ap-ink-3); background: transparent; border-color: var(--ap-line); opacity: 0.6; transform: none; cursor: default; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-primary,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-primary:disabled { color: var(--ap-on-blue); background: var(--ap-blue); border-color: var(--ap-blue); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-primary:hover { color: var(--ap-on-blue); background: var(--ap-blue-hover); border-color: var(--ap-blue-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-primary:disabled { opacity: 0.42; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-buy { color: var(--ap-on-neutral); background: var(--ap-neutral-btn); border-color: var(--ap-neutral-btn); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-buy:hover { color: var(--ap-on-neutral); background: var(--ap-neutral-btn-hover); border-color: var(--ap-neutral-btn-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-secondary { color: var(--ap-link); background: transparent; border-color: var(--ap-link); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-ghost,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .linkish { color: var(--ap-link); background: transparent; border-color: transparent; box-shadow: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-ghost:hover { color: var(--ap-link); background: transparent; border-color: transparent; text-decoration: underline; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-icon,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .icon-btn { width: 36px; height: 36px; padding: 0; color: var(--ap-ink); background: var(--ap-fill); border-color: transparent; border-radius: 50%; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .btn-icon:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .icon-btn:hover { color: var(--ap-ink); background: var(--ap-line); border-color: transparent; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .input,
-html:is([data-theme='apple'], [data-theme='vision']) .select,
-html:is([data-theme='apple'], [data-theme='vision']) .textarea,
-html:is([data-theme='apple'], [data-theme='vision']) input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.search-input),
-html:is([data-theme='apple'], [data-theme='vision']) textarea,
-html:is([data-theme='apple'], [data-theme='vision']) select:not(.search-category) {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .input,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .select,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .textarea,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.search-input),
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) textarea,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) select:not(.search-category) {
   min-height: 44px;
   color: var(--ap-ink);
   background: var(--ap-surface);
@@ -589,32 +589,32 @@ html:is([data-theme='apple'], [data-theme='vision']) select:not(.search-category
   letter-spacing: -0.012em;
   transition: border-color 240ms var(--ap-ease), box-shadow 240ms var(--ap-ease);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .input:hover,
-html:is([data-theme='apple'], [data-theme='vision']) input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.search-input):hover,
-html:is([data-theme='apple'], [data-theme='vision']) textarea:hover,
-html:is([data-theme='apple'], [data-theme='vision']) select:not(.search-category):hover { border-color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .input:focus,
-html:is([data-theme='apple'], [data-theme='vision']) .input:focus-visible,
-html:is([data-theme='apple'], [data-theme='vision']) input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.search-input):focus,
-html:is([data-theme='apple'], [data-theme='vision']) textarea:focus,
-html:is([data-theme='apple'], [data-theme='vision']) select:not(.search-category):focus { border-color: var(--ap-blue); box-shadow: var(--ap-focus); outline: none; }
-html:is([data-theme='apple'], [data-theme='vision']) input::placeholder,
-html:is([data-theme='apple'], [data-theme='vision']) textarea::placeholder { color: var(--ap-ink-3); }
-html:is([data-theme='apple'], [data-theme='vision']) select option { color: var(--ap-ink); background: var(--ap-surface); }
-html:is([data-theme='apple'], [data-theme='vision']) input[type='checkbox'],
-html:is([data-theme='apple'], [data-theme='vision']) input[type='radio'] { width: 18px; height: 18px; accent-color: var(--ap-blue); cursor: pointer; }
-html:is([data-theme='apple'], [data-theme='vision']) input[type='range'] { accent-color: var(--ap-blue); }
-html:is([data-theme='apple'], [data-theme='vision']) input[type='checkbox']:focus-visible,
-html:is([data-theme='apple'], [data-theme='vision']) input[type='radio']:focus-visible { outline: 2px solid var(--ap-blue); outline-offset: 2px; }
-html:is([data-theme='apple'], [data-theme='vision']) .field-label,
-html:is([data-theme='apple'], [data-theme='vision']) .field > label { color: var(--ap-ink); font-size: 12px; font-weight: 600; letter-spacing: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .field-error { color: var(--ap-red); }
-html:is([data-theme='apple'], [data-theme='vision']) .has-error .input { border-color: var(--ap-red); background: var(--ap-red-tint); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .input:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.search-input):hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) textarea:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) select:not(.search-category):hover { border-color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .input:focus,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .input:focus-visible,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.search-input):focus,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) textarea:focus,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) select:not(.search-category):focus { border-color: var(--ap-blue); box-shadow: var(--ap-focus); outline: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) input::placeholder,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) textarea::placeholder { color: var(--ap-ink-3); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) select option { color: var(--ap-ink); background: var(--ap-surface); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) input[type='checkbox'],
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) input[type='radio'] { width: 18px; height: 18px; accent-color: var(--ap-blue); cursor: pointer; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) input[type='range'] { accent-color: var(--ap-blue); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) input[type='checkbox']:focus-visible,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) input[type='radio']:focus-visible { outline: 2px solid var(--ap-blue); outline-offset: 2px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .field-label,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .field > label { color: var(--ap-ink); font-size: 12px; font-weight: 600; letter-spacing: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .field-error { color: var(--ap-red); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .has-error .input { border-color: var(--ap-red); background: var(--ap-red-tint); }
 
 /* segmented controls, Apple style */
-html:is([data-theme='apple'], [data-theme='vision']) .seg,
-html:is([data-theme='apple'], [data-theme='vision']) .view-toggle,
-html:is([data-theme='apple'], [data-theme='vision']) .auth-tabs {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .seg,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .view-toggle,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-tabs {
   padding: 2px;
   gap: 2px;
   overflow: hidden;
@@ -623,25 +623,25 @@ html:is([data-theme='apple'], [data-theme='vision']) .auth-tabs {
   border-radius: 9px;
   box-shadow: none;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .seg-opt,
-html:is([data-theme='apple'], [data-theme='vision']) .view-toggle button,
-html:is([data-theme='apple'], [data-theme='vision']) .auth-tab { color: var(--ap-ink); background: transparent; border: 0; border-radius: 7px; transition: background-color 240ms var(--ap-ease), box-shadow 240ms var(--ap-ease); }
-html:is([data-theme='apple'], [data-theme='vision']) .seg-opt + .seg-opt { border-left: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .seg-opt:not(:has(input:checked)):hover { background: var(--ap-fill-hover); }
-html:is([data-theme='apple'], [data-theme='vision']) .seg-opt:has(input:checked),
-html:is([data-theme='apple'], [data-theme='vision']) .view-toggle .is-active,
-html:is([data-theme='apple'], [data-theme='vision']) .auth-tab.is-active { color: var(--ap-ink); background: var(--ap-surface); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04); font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) .seg-opt:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--ap-blue); }
-html:is([data-theme='apple'], [data-theme='vision']) .radio .dot { width: 18px; height: 18px; background: var(--ap-surface); border-color: var(--ap-ink-3); }
-html:is([data-theme='apple'], [data-theme='vision']) .radio:hover .dot { border-color: var(--ap-blue); }
-html:is([data-theme='apple'], [data-theme='vision']) .radio input:checked + .dot { background: var(--ap-blue); border-color: var(--ap-blue); box-shadow: inset 0 0 0 5px var(--ap-surface); }
-html:is([data-theme='apple'], [data-theme='vision']) .radio input:focus-visible + .dot { outline: 2px solid var(--ap-blue); outline-offset: 2px; box-shadow: inset 0 0 0 5px var(--ap-surface); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .seg-opt,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .view-toggle button,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-tab { color: var(--ap-ink); background: transparent; border: 0; border-radius: 7px; transition: background-color 240ms var(--ap-ease), box-shadow 240ms var(--ap-ease); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .seg-opt + .seg-opt { border-left: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .seg-opt:not(:has(input:checked)):hover { background: var(--ap-fill-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .seg-opt:has(input:checked),
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .view-toggle .is-active,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-tab.is-active { color: var(--ap-ink); background: var(--ap-surface); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04); font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .seg-opt:has(input:focus-visible) { box-shadow: 0 0 0 2px var(--ap-blue); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .radio .dot { width: 18px; height: 18px; background: var(--ap-surface); border-color: var(--ap-ink-3); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .radio:hover .dot { border-color: var(--ap-blue); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .radio input:checked + .dot { background: var(--ap-blue); border-color: var(--ap-blue); box-shadow: inset 0 0 0 5px var(--ap-surface); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .radio input:focus-visible + .dot { outline: 2px solid var(--ap-blue); outline-offset: 2px; box-shadow: inset 0 0 0 5px var(--ap-surface); }
 
 /* ══ home — Apple's centred hero tile and product shelves ═══════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .home-hero { padding: 0; color: var(--ap-ink); background: var(--ap-bg-alt); }
-html:is([data-theme='apple'], [data-theme='vision']) .home-hero::after { content: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-inner {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .home-hero { padding: 0; color: var(--ap-ink); background: var(--ap-bg-alt); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .home-hero::after { content: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-inner {
   max-width: 1080px;
   margin-inline: auto;
   min-height: 0;
@@ -654,10 +654,10 @@ html:is([data-theme='apple'], [data-theme='vision']) .hero-inner {
   text-align: center;
   background: transparent;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-copy { display: grid; justify-items: center; gap: 0; color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-label .tag-outline { padding: 0; color: var(--ap-orange); background: transparent; border: 0; font-size: 17px; font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-label { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-title {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-copy { display: grid; justify-items: center; gap: 0; color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-label .tag-outline { padding: 0; color: var(--ap-orange); background: transparent; border: 0; font-size: 17px; font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-label { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-title {
   max-width: 820px;
   margin: 8px 0 0;
   color: var(--ap-ink);
@@ -668,7 +668,7 @@ html:is([data-theme='apple'], [data-theme='vision']) .hero-title {
   letter-spacing: -0.009em;
   text-shadow: none;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-lede {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-lede {
   max-width: 700px;
   margin: 10px auto 0;
   color: var(--ap-ink);
@@ -678,33 +678,33 @@ html:is([data-theme='apple'], [data-theme='vision']) .hero-lede {
   line-height: 1.25;
   letter-spacing: 0.007em;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-actions { justify-content: center; gap: 14px; margin-top: 24px; }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-actions .btn { min-height: 44px; padding: 11px 22px; font-size: 17px; letter-spacing: -0.022em; }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-stats { justify-content: center; margin-top: 28px; padding-top: 0; border-top: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-stat { padding-inline: clamp(14px, 2.4vw, 32px); border-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-stat-value { color: var(--ap-ink); font-family: var(--font-heading); font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-stat-label { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-figure {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-actions { justify-content: center; gap: 14px; margin-top: 24px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-actions .btn { min-height: 44px; padding: 11px 22px; font-size: 17px; letter-spacing: -0.022em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-stats { justify-content: center; margin-top: 28px; padding-top: 0; border-top: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-stat { padding-inline: clamp(14px, 2.4vw, 32px); border-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-stat-value { color: var(--ap-ink); font-family: var(--font-heading); font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-stat-label { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-figure {
   width: min(100%, 760px);
   padding: 0;
   background: transparent;
   border: 0;
   box-shadow: none;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .hero-figure img { border-radius: 18px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-figure img { border-radius: 18px; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .dept-grid,
-html:is([data-theme='apple'], [data-theme='vision']) .pgrid { gap: 20px; padding: 8px 28px 28px; }
-html:is([data-theme='apple'], [data-theme='vision']) .dept-grid { margin-top: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .dept-cell,
-html:is([data-theme='apple'], [data-theme='vision']) .pcard,
-html:is([data-theme='apple'], [data-theme='vision']) .prow,
-html:is([data-theme='apple'], [data-theme='vision']) .compact-cell,
-html:is([data-theme='apple'], [data-theme='vision']) .wish-cell,
-html:is([data-theme='apple'], [data-theme='vision']) .compare-slot,
-html:is([data-theme='apple'], [data-theme='vision']) .job-card,
-html:is([data-theme='apple'], [data-theme='vision']) .is-product-card,
-html:is([data-theme='apple'], [data-theme='vision']) .compact-card {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-grid,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pgrid { gap: 20px; padding: 8px 28px 28px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-grid { margin-top: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-cell,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-cell,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wish-cell,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-slot,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .job-card,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-product-card,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-card {
   position: relative;
   color: var(--ap-ink);
   background: var(--ap-surface);
@@ -715,15 +715,15 @@ html:is([data-theme='apple'], [data-theme='vision']) .compact-card {
 }
 /* the hover shadow lives on a pseudo-element and only its opacity animates,
    so hovering a grid of cards never repaints a box-shadow */
-html:is([data-theme='apple'], [data-theme='vision']) .dept-cell::after,
-html:is([data-theme='apple'], [data-theme='vision']) .pcard::after,
-html:is([data-theme='apple'], [data-theme='vision']) .prow::after,
-html:is([data-theme='apple'], [data-theme='vision']) .compact-cell::after,
-html:is([data-theme='apple'], [data-theme='vision']) .wish-cell::after,
-html:is([data-theme='apple'], [data-theme='vision']) .compare-slot::after,
-html:is([data-theme='apple'], [data-theme='vision']) .job-card::after,
-html:is([data-theme='apple'], [data-theme='vision']) .is-product-card::after,
-html:is([data-theme='apple'], [data-theme='vision']) .compact-card::after {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-cell::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-cell::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wish-cell::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-slot::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .job-card::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-product-card::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-card::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -734,118 +734,118 @@ html:is([data-theme='apple'], [data-theme='vision']) .compact-card::after {
   pointer-events: none;
   transition: opacity 300ms var(--ap-ease-out);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .dept-cell,
-html:is([data-theme='apple'], [data-theme='vision']) .pcard,
-html:is([data-theme='apple'], [data-theme='vision']) .prow,
-html:is([data-theme='apple'], [data-theme='vision']) .compact-cell,
-html:is([data-theme='apple'], [data-theme='vision']) .wish-cell,
-html:is([data-theme='apple'], [data-theme='vision']) .compare-slot,
-html:is([data-theme='apple'], [data-theme='vision']) .job-card,
-html:is([data-theme='apple'], [data-theme='vision']) .is-product-card,
-html:is([data-theme='apple'], [data-theme='vision']) .compact-card { isolation: isolate; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-cell,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-cell,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wish-cell,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-slot,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .job-card,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-product-card,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-card { isolation: isolate; }
 @media (hover: hover) {
-  html:is([data-theme='apple'], [data-theme='vision']) .dept-cell:hover,
-  html:is([data-theme='apple'], [data-theme='vision']) .pcard:hover,
-  html:is([data-theme='apple'], [data-theme='vision']) .compact-cell:hover,
-  html:is([data-theme='apple'], [data-theme='vision']) .wish-cell:hover,
-  html:is([data-theme='apple'], [data-theme='vision']) .compare-slot:hover,
-  html:is([data-theme='apple'], [data-theme='vision']) .job-card:hover,
-  html:is([data-theme='apple'], [data-theme='vision']) .is-product-card:hover,
-  html:is([data-theme='apple'], [data-theme='vision']) .compact-card:hover { transform: scale(1.01); }
-  html:is([data-theme='apple'], [data-theme='vision']) .dept-cell:hover::after,
-  html:is([data-theme='apple'], [data-theme='vision']) .pcard:hover::after,
-  html:is([data-theme='apple'], [data-theme='vision']) .prow:hover::after,
-  html:is([data-theme='apple'], [data-theme='vision']) .compact-cell:hover::after,
-  html:is([data-theme='apple'], [data-theme='vision']) .wish-cell:hover::after,
-  html:is([data-theme='apple'], [data-theme='vision']) .compare-slot:hover::after,
-  html:is([data-theme='apple'], [data-theme='vision']) .job-card:hover::after,
-  html:is([data-theme='apple'], [data-theme='vision']) .is-product-card:hover::after,
-  html:is([data-theme='apple'], [data-theme='vision']) .compact-card:hover::after { opacity: 1; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-cell:hover,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard:hover,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-cell:hover,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wish-cell:hover,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-slot:hover,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .job-card:hover,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-product-card:hover,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-card:hover { transform: scale(1.01); }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-cell:hover::after,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard:hover::after,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow:hover::after,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-cell:hover::after,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wish-cell:hover::after,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-slot:hover::after,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .job-card:hover::after,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-product-card:hover::after,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-card:hover::after { opacity: 1; }
 }
-html:is([data-theme='apple'], [data-theme='vision']) .dept-cell:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .pcard:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .compact-cell:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .wish-cell:hover { color: var(--ap-ink); background: var(--ap-surface); border-color: transparent; box-shadow: var(--ap-shadow-card); }
-html:is([data-theme='apple'], [data-theme='vision']) .pcard:focus-within { border-color: transparent; }
-html:is([data-theme='apple'], [data-theme='vision']) .dept-cell { padding: 22px; }
-html:is([data-theme='apple'], [data-theme='vision']) .dept-icon,
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-well,
-html:is([data-theme='apple'], [data-theme='vision']) .prow-well,
-html:is([data-theme='apple'], [data-theme='vision']) .compact-well,
-html:is([data-theme='apple'], [data-theme='vision']) .wish-well,
-html:is([data-theme='apple'], [data-theme='vision']) .compare-well,
-html:is([data-theme='apple'], [data-theme='vision']) .cart-thumb,
-html:is([data-theme='apple'], [data-theme='vision']) .summary-item-thumb,
-html:is([data-theme='apple'], [data-theme='vision']) .is-card-image,
-html:is([data-theme='apple'], [data-theme='vision']) .compact-card-img {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-cell:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-cell:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wish-cell:hover { color: var(--ap-ink); background: var(--ap-surface); border-color: transparent; box-shadow: var(--ap-shadow-card); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard:focus-within { border-color: transparent; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-cell { padding: 22px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-icon,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-well,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow-well,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-well,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wish-well,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-well,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-thumb,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .summary-item-thumb,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-card-image,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-card-img {
   background: var(--ap-surface-3);
   border-radius: 12px;
   overflow: hidden;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-well img { transition: transform 400ms var(--ap-ease-out); }
-html:is([data-theme='apple'], [data-theme='vision']) .dept-name,
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-title,
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-title a { color: var(--ap-ink); font-weight: 600; letter-spacing: -0.01em; }
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-title a:hover { color: var(--ap-link); text-decoration: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .dept-count { color: var(--ap-link); }
-html:is([data-theme='apple'], [data-theme='vision']) .dept-cell:hover .dept-count { color: var(--ap-link); }
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-brand,
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-stock { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-price .now,
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-price,
-html:is([data-theme='apple'], [data-theme='vision']) .price-tag { color: var(--ap-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-rating .count { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-hover {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-well img { transition: transform 400ms var(--ap-ease-out); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-name,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-title,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-title a { color: var(--ap-ink); font-weight: 600; letter-spacing: -0.01em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-title a:hover { color: var(--ap-link); text-decoration: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-count { color: var(--ap-link); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-cell:hover .dept-count { color: var(--ap-link); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-brand,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-stock { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-price .now,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-price,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .price-tag { color: var(--ap-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-rating .count { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-hover {
   color: var(--ap-ink);
   background: var(--ap-nav-solid);
   border-radius: 12px;
   box-shadow: var(--ap-shadow-pop);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-actions { gap: 8px; flex-wrap: wrap; }
-html:is([data-theme='apple'], [data-theme='vision']) .pcard-actions .btn,
-html:is([data-theme='apple'], [data-theme='vision']) .pcard .btn { min-height: 32px; padding: 6px 14px; font-size: 13px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-actions { gap: 8px; flex-wrap: wrap; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard-actions .btn,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pcard .btn { min-height: 32px; padding: 6px 14px; font-size: 13px; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .spotlight {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .spotlight {
   color: #f5f5f7;
   background: #000;
   border: 0;
   border-radius: 18px;
   box-shadow: none;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .spotlight h2,
-html:is([data-theme='apple'], [data-theme='vision']) .spotlight p { color: #f5f5f7; }
-html:is([data-theme='apple'], [data-theme='vision']) .spotlight a:not(.btn) { color: #2997ff; }
-html:is([data-theme='apple'], [data-theme='vision']) .spotlight-figure { border-radius: 12px; overflow: hidden; }
-html:is([data-theme='apple'], [data-theme='vision']) .trust-grid { gap: 16px; }
-html:is([data-theme='apple'], [data-theme='vision']) .trust-cell { padding: 22px; color: var(--ap-ink); background: var(--ap-surface); border: 0; border-radius: 18px; box-shadow: var(--ap-shadow-card); }
-html:is([data-theme='apple'], [data-theme='vision']) .poster { color: var(--ap-ink); background: var(--ap-surface); border: 0; border-radius: 18px; box-shadow: var(--ap-shadow-card); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .spotlight h2,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .spotlight p { color: #f5f5f7; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .spotlight a:not(.btn) { color: #2997ff; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .spotlight-figure { border-radius: 12px; overflow: hidden; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .trust-grid { gap: 16px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .trust-cell { padding: 22px; color: var(--ap-ink); background: var(--ap-surface); border: 0; border-radius: 18px; box-shadow: var(--ap-shadow-card); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .poster { color: var(--ap-ink); background: var(--ap-surface); border: 0; border-radius: 18px; box-shadow: var(--ap-shadow-card); }
 
 /* ══ loading, skeletons and states ═══════════════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .loading-orbit { border-color: var(--ap-fill); border-top-color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .loading-orbit-dot { display: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .loading-indicator { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .loading-orbit { border-color: var(--ap-fill); border-top-color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .loading-orbit-dot { display: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .loading-indicator { color: var(--ap-ink-2); }
 
-html:is([data-theme='apple'], [data-theme='vision']) .sk,
-html:is([data-theme='apple'], [data-theme='vision']) .pskel,
-html:is([data-theme='apple'], [data-theme='vision']) .skeleton-card,
-html:is([data-theme='apple'], [data-theme='vision']) .skeleton-image,
-html:is([data-theme='apple'], [data-theme='vision']) .skeleton-title,
-html:is([data-theme='apple'], [data-theme='vision']) .skeleton-badge {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sk,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pskel,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .skeleton-card,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .skeleton-image,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .skeleton-title,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .skeleton-badge {
   position: relative;
   overflow: hidden;
   background: var(--ap-skeleton);
   border-color: transparent;
   border-radius: 12px;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .sk-cell,
-html:is([data-theme='apple'], [data-theme='vision']) .skeleton-shimmer { animation: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .sk::after,
-html:is([data-theme='apple'], [data-theme='vision']) .pskel::after,
-html:is([data-theme='apple'], [data-theme='vision']) .skeleton-card::after,
-html:is([data-theme='apple'], [data-theme='vision']) .skeleton-image::after,
-html:is([data-theme='apple'], [data-theme='vision']) .skeleton-title::after,
-html:is([data-theme='apple'], [data-theme='vision']) .skeleton-badge::after {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sk-cell,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .skeleton-shimmer { animation: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sk::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pskel::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .skeleton-card::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .skeleton-image::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .skeleton-title::after,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .skeleton-badge::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -854,150 +854,150 @@ html:is([data-theme='apple'], [data-theme='vision']) .skeleton-badge::after {
   animation: ap-shimmer 1.6s var(--ap-ease) infinite;
   will-change: transform;
 }
-html:is([data-theme='apple'], [data-theme='vision']) .sk-well,
-html:is([data-theme='apple'], [data-theme='vision']) .sk-title,
-html:is([data-theme='apple'], [data-theme='vision']) .sk-brand,
-html:is([data-theme='apple'], [data-theme='vision']) .sk-price,
-html:is([data-theme='apple'], [data-theme='vision']) .sk-tag,
-html:is([data-theme='apple'], [data-theme='vision']) .sk-cta { background: var(--ap-skeleton); border-radius: 8px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sk-well,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sk-title,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sk-brand,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sk-price,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sk-tag,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sk-cta { background: var(--ap-skeleton); border-radius: 8px; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .state-block { max-width: 760px; padding: 36px; text-align: center; }
-html:is([data-theme='apple'], [data-theme='vision']) .state-block h3 { color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .state-block p { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .state-label { color: var(--ap-ink-3); letter-spacing: 0; text-transform: none; font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) .state-error,
-html:is([data-theme='apple'], [data-theme='vision']) .auth-error { color: var(--ap-ink); background: var(--ap-red-tint); border: 1px solid var(--ap-red); border-radius: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .auth-error-label { color: var(--ap-red); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .state-block { max-width: 760px; padding: 36px; text-align: center; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .state-block h3 { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .state-block p { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .state-label { color: var(--ap-ink-3); letter-spacing: 0; text-transform: none; font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .state-error,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-error { color: var(--ap-ink); background: var(--ap-red-tint); border: 1px solid var(--ap-red); border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-error-label { color: var(--ap-red); }
 
 /* ══ catalogue listing and filters ══════════════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .breadcrumb { color: var(--ap-ink-2); font-size: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .breadcrumb a { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .breadcrumb a:hover { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .breadcrumb { color: var(--ap-ink-2); font-size: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .breadcrumb a { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .breadcrumb a:hover { color: var(--ap-ink); }
 /* Apple Store pages set the filter column and the result cards straight on
    the canvas — the white wrapper box goes, and with it the overflow clip that
    would otherwise trap the sticky rail. */
-html:is([data-theme='apple'], [data-theme='vision']) .listing-layout { grid-template-columns: 236px minmax(0, 1fr); gap: 24px; align-items: start; overflow: visible; background: transparent; border-radius: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .filter-rail { padding: 8px 4px 24px 0; overflow: visible; background: transparent; border: 0; border-radius: 0; box-shadow: none; top: 140px; }
-html:is([data-theme='apple'], [data-theme='vision']) .rail-head,
-html:is([data-theme='apple'], [data-theme='vision']) .results-head,
-html:is([data-theme='apple'], [data-theme='vision']) .filter-bar { border-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .filter-group-label { color: var(--ap-ink); font-size: 14px; font-weight: 600; letter-spacing: 0; text-transform: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .filter-option { padding: 6px 8px; border-radius: 8px; color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .filter-option:hover { background: var(--ap-fill-hover); }
-html:is([data-theme='apple'], [data-theme='vision']) .rail-clear,
-html:is([data-theme='apple'], [data-theme='vision']) .filter-more { color: var(--ap-link); }
-html:is([data-theme='apple'], [data-theme='vision']) .results-col { overflow: hidden; }
-html:is([data-theme='apple'], [data-theme='vision']) .results-head { padding: 26px 28px 14px; }
-html:is([data-theme='apple'], [data-theme='vision']) .results-count { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .results-tools { gap: 10px; }
-html:is([data-theme='apple'], [data-theme='vision']) .sort-select { min-width: 180px; }
-html:is([data-theme='apple'], [data-theme='vision']) .filter-bar { padding: 10px 24px; background: var(--ap-surface-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .filter-bar-count { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .prow-list { gap: 12px; padding: 12px 20px 24px; }
-html:is([data-theme='apple'], [data-theme='vision']) .prow { padding: 18px; }
-html:is([data-theme='apple'], [data-theme='vision']) .prow-specs,
-html:is([data-theme='apple'], [data-theme='vision']) .prow-delivery { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .filter-drawer {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .listing-layout { grid-template-columns: 236px minmax(0, 1fr); gap: 24px; align-items: start; overflow: visible; background: transparent; border-radius: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-rail { padding: 8px 4px 24px 0; overflow: visible; background: transparent; border: 0; border-radius: 0; box-shadow: none; top: 140px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .rail-head,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .results-head,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-bar { border-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-group-label { color: var(--ap-ink); font-size: 14px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-option { padding: 6px 8px; border-radius: 8px; color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-option:hover { background: var(--ap-fill-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .rail-clear,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-more { color: var(--ap-link); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .results-col { overflow: hidden; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .results-head { padding: 26px 28px 14px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .results-count { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .results-tools { gap: 10px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sort-select { min-width: 180px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-bar { padding: 10px 24px; background: var(--ap-surface-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-bar-count { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow-list { gap: 12px; padding: 12px 20px 24px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow { padding: 18px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow-specs,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow-delivery { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-drawer {
   color: var(--ap-ink);
   background: var(--ap-surface);
   border-left: 0;
   box-shadow: var(--ap-shadow-pop);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .filter-drawer-backdrop { background: var(--ap-scrim); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
-html:is([data-theme='apple'], [data-theme='vision']) .drawer-head { border-bottom-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .pagination { gap: 6px; }
-html:is([data-theme='apple'], [data-theme='vision']) .page-cell { min-width: 36px; height: 36px; color: var(--ap-ink); background: transparent; border-color: transparent; border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .page-cell:hover { color: var(--ap-ink); background: var(--ap-fill); }
-html:is([data-theme='apple'], [data-theme='vision']) .page-cell.is-current { color: var(--ap-on-neutral); background: var(--ap-neutral-btn); border-color: var(--ap-neutral-btn); box-shadow: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-drawer-backdrop { background: var(--ap-scrim); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .drawer-head { border-bottom-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pagination { gap: 6px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .page-cell { min-width: 36px; height: 36px; color: var(--ap-ink); background: transparent; border-color: transparent; border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .page-cell:hover { color: var(--ap-ink); background: var(--ap-fill); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .page-cell.is-current { color: var(--ap-on-neutral); background: var(--ap-neutral-btn); border-color: var(--ap-neutral-btn); box-shadow: none; }
 
 /* ══ product details — Apple Store buy flow ═════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-top { grid-template-columns: minmax(290px, 1fr) minmax(320px, 1fr) minmax(260px, 0.7fr); gap: 24px; align-items: start; padding: 0; background: transparent; border-radius: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-gallery,
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-info,
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-buybox { padding: clamp(20px, 2vw, 32px); }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-gallery { position: sticky; top: 140px; }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-main-well { background: var(--ap-surface-3); border-radius: 18px; }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-thumb { background: var(--ap-surface-3); border-color: transparent; border-radius: 10px; transition: border-color 240ms var(--ap-ease); }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-thumb:hover { border-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-thumb.is-active { border-color: var(--ap-blue); box-shadow: 0 0 0 1px var(--ap-blue); }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-title { color: var(--ap-ink); font-size: clamp(28px, 3vw, 40px); font-weight: 600; line-height: 1.1; letter-spacing: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-byline,
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-reviews,
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-price-note { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-ratingline,
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-price-row { border-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-price { color: var(--ap-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-discount { color: var(--ap-orange); }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-options { padding: 0; background: transparent; border-radius: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .opt-row { gap: 10px; }
-html:is([data-theme='apple'], [data-theme='vision']) .opt-btn,
-html:is([data-theme='apple'], [data-theme='vision']) .size-cell {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-top { grid-template-columns: minmax(290px, 1fr) minmax(320px, 1fr) minmax(260px, 0.7fr); gap: 24px; align-items: start; padding: 0; background: transparent; border-radius: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-gallery,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-info,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-buybox { padding: clamp(20px, 2vw, 32px); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-gallery { position: sticky; top: 140px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-main-well { background: var(--ap-surface-3); border-radius: 18px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-thumb { background: var(--ap-surface-3); border-color: transparent; border-radius: 10px; transition: border-color 240ms var(--ap-ease); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-thumb:hover { border-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-thumb.is-active { border-color: var(--ap-blue); box-shadow: 0 0 0 1px var(--ap-blue); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-title { color: var(--ap-ink); font-size: clamp(28px, 3vw, 40px); font-weight: 600; line-height: 1.1; letter-spacing: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-byline,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-reviews,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-price-note { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-ratingline,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-price-row { border-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-price { color: var(--ap-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-discount { color: var(--ap-orange); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-options { padding: 0; background: transparent; border-radius: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .opt-row { gap: 10px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .opt-btn,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .size-cell {
   color: var(--ap-ink);
   background: var(--ap-surface);
   border: 1px solid var(--ap-ink-3);
   border-radius: 12px;
   transition: border-color 240ms var(--ap-ease), box-shadow 240ms var(--ap-ease);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .opt-btn:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .size-cell:hover { border-color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .opt-btn.is-selected,
-html:is([data-theme='apple'], [data-theme='vision']) .size-cell.is-selected { color: var(--ap-ink); background: var(--ap-surface); border-color: var(--ap-blue); box-shadow: 0 0 0 1px var(--ap-blue); }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-buybox { position: sticky; top: 140px; }
-html:is([data-theme='apple'], [data-theme='vision']) .bb-stock,
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-stock { color: var(--ap-green); }
-html:is([data-theme='apple'], [data-theme='vision']) .bb-delivery,
-html:is([data-theme='apple'], [data-theme='vision']) .bb-note,
-html:is([data-theme='apple'], [data-theme='vision']) .bb-secure { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .qty-stepper { padding: 2px; background: var(--ap-fill); border-color: transparent; border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .qty-stepper button { color: var(--ap-ink); border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .trust-grid,
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-assurance { border-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-lower { gap: 24px; }
-html:is([data-theme='apple'], [data-theme='vision']) .pdp-specs,
-html:is([data-theme='apple'], [data-theme='vision']) .review-summary,
-html:is([data-theme='apple'], [data-theme='vision']) .review-item { color: var(--ap-ink); background: var(--ap-surface); border: 0; border-radius: 18px; box-shadow: var(--ap-shadow-card); }
-html:is([data-theme='apple'], [data-theme='vision']) .spec-key { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .review-bar { overflow: hidden; background: var(--ap-fill); border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .review-bar .fill { background: var(--ap-star); border-radius: inherit; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .opt-btn:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .size-cell:hover { border-color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .opt-btn.is-selected,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .size-cell.is-selected { color: var(--ap-ink); background: var(--ap-surface); border-color: var(--ap-blue); box-shadow: 0 0 0 1px var(--ap-blue); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-buybox { position: sticky; top: 140px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .bb-stock,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-stock { color: var(--ap-green); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .bb-delivery,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .bb-note,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .bb-secure { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .qty-stepper { padding: 2px; background: var(--ap-fill); border-color: transparent; border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .qty-stepper button { color: var(--ap-ink); border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .trust-grid,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-assurance { border-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-lower { gap: 24px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-specs,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .review-summary,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .review-item { color: var(--ap-ink); background: var(--ap-surface); border: 0; border-radius: 18px; box-shadow: var(--ap-shadow-card); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .spec-key { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .review-bar { overflow: hidden; background: var(--ap-fill); border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .review-bar .fill { background: var(--ap-star); border-radius: inherit; }
 
 /* ══ cart, checkout and confirmation ════════════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .cart-layout,
-html:is([data-theme='apple'], [data-theme='vision']) .checkout-layout { gap: 24px; align-items: start; }
-html:is([data-theme='apple'], [data-theme='vision']) .cart-lines { overflow: hidden; }
-html:is([data-theme='apple'], [data-theme='vision']) .cart-head { padding: 26px 28px; background: transparent; border-bottom-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .cart-line { margin: 0 28px; padding: 24px 0; background: transparent; border: 0; border-bottom: 1px solid var(--ap-line); border-radius: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .cart-line-stock { color: var(--ap-green); }
-html:is([data-theme='apple'], [data-theme='vision']) .cart-line-unit,
-html:is([data-theme='apple'], [data-theme='vision']) .cart-line-tools { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .cart-line-total { color: var(--ap-ink); font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) .cart-foot { padding: 20px 28px; background: transparent; border-top-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .summary-aside { padding: 26px; }
-html:is([data-theme='apple'], [data-theme='vision']) .summary-sticky { top: 140px; }
-html:is([data-theme='apple'], [data-theme='vision']) .summary-row,
-html:is([data-theme='apple'], [data-theme='vision']) .summary-total,
-html:is([data-theme='apple'], [data-theme='vision']) .summary-lines { border-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .summary-note { color: var(--ap-ink-2); background: var(--ap-surface-2); border-radius: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .coupon-box { padding: 14px; background: var(--ap-surface-2); border-radius: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .coupon-field { gap: 8px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-layout,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .checkout-layout { gap: 24px; align-items: start; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-lines { overflow: hidden; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-head { padding: 26px 28px; background: transparent; border-bottom-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-line { margin: 0 28px; padding: 24px 0; background: transparent; border: 0; border-bottom: 1px solid var(--ap-line); border-radius: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-line-stock { color: var(--ap-green); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-line-unit,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-line-tools { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-line-total { color: var(--ap-ink); font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-foot { padding: 20px 28px; background: transparent; border-top-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .summary-aside { padding: 26px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .summary-sticky { top: 140px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .summary-row,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .summary-total,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .summary-lines { border-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .summary-note { color: var(--ap-ink-2); background: var(--ap-surface-2); border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .coupon-box { padding: 14px; background: var(--ap-surface-2); border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .coupon-field { gap: 8px; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .steps { padding: 2px; background: var(--ap-fill); border: 0; border-radius: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .step { padding: 10px 14px; border-radius: 10px; color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .step.is-current { color: var(--ap-ink); background: var(--ap-surface); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); }
-html:is([data-theme='apple'], [data-theme='vision']) .step.is-done { color: var(--ap-green); }
-html:is([data-theme='apple'], [data-theme='vision']) .step-num { color: var(--ap-ink-2); background: var(--ap-surface); border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .step.is-current .step-num { color: #fff; background: var(--ap-blue); }
-html:is([data-theme='apple'], [data-theme='vision']) .step.is-done .step-num { color: #fff; background: var(--ap-green); }
-html:is([data-theme='apple'], [data-theme='vision']) .step-title { color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .step-note { color: var(--ap-ink-3); }
-html:is([data-theme='apple'], [data-theme='vision']) .checkout-panels { gap: 20px; background: transparent; }
-html:is([data-theme='apple'], [data-theme='vision']) .checkout-section { overflow: hidden; }
-html:is([data-theme='apple'], [data-theme='vision']) .checkout-section-head { padding: 20px 26px; background: transparent; border-bottom-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .radio-row,
-html:is([data-theme='apple'], [data-theme='vision']) .check-row,
-html:is([data-theme='apple'], [data-theme='vision']) .demo-row {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .steps { padding: 2px; background: var(--ap-fill); border: 0; border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .step { padding: 10px 14px; border-radius: 10px; color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .step.is-current { color: var(--ap-ink); background: var(--ap-surface); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .step.is-done { color: var(--ap-green); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .step-num { color: var(--ap-ink-2); background: var(--ap-surface); border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .step.is-current .step-num { color: #fff; background: var(--ap-blue); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .step.is-done .step-num { color: #fff; background: var(--ap-green); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .step-title { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .step-note { color: var(--ap-ink-3); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .checkout-panels { gap: 20px; background: transparent; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .checkout-section { overflow: hidden; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .checkout-section-head { padding: 20px 26px; background: transparent; border-bottom-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .radio-row,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .check-row,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .demo-row {
   padding: 14px 16px;
   color: var(--ap-ink);
   background: var(--ap-surface);
@@ -1005,15 +1005,15 @@ html:is([data-theme='apple'], [data-theme='vision']) .demo-row {
   border-radius: 12px;
   transition: border-color 240ms var(--ap-ease), box-shadow 240ms var(--ap-ease);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .radio-row:hover,
-html:is([data-theme='apple'], [data-theme='vision']) .check-row:hover { border-color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .radio-row:has(input:checked),
-html:is([data-theme='apple'], [data-theme='vision']) .check-row:has(input:checked) { background: var(--ap-surface); border-color: var(--ap-blue); box-shadow: 0 0 0 1px var(--ap-blue); }
-html:is([data-theme='apple'], [data-theme='vision']) .radio-row:has(input:focus-visible),
-html:is([data-theme='apple'], [data-theme='vision']) .check-row:has(input:focus-visible) { box-shadow: var(--ap-focus); }
-html:is([data-theme='apple'], [data-theme='vision']) .demo-block { color: var(--ap-ink-2); background: var(--ap-surface-2); border-color: var(--ap-line); border-radius: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .checkout-hint { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .checkout-bar {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .radio-row:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .check-row:hover { border-color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .radio-row:has(input:checked),
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .check-row:has(input:checked) { background: var(--ap-surface); border-color: var(--ap-blue); box-shadow: 0 0 0 1px var(--ap-blue); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .radio-row:has(input:focus-visible),
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .check-row:has(input:focus-visible) { box-shadow: var(--ap-focus); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .demo-block { color: var(--ap-ink-2); background: var(--ap-surface-2); border-color: var(--ap-line); border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .checkout-hint { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .checkout-bar {
   color: var(--ap-ink);
   background: var(--ap-nav);
   border-top: 1px solid var(--ap-line-soft);
@@ -1021,94 +1021,94 @@ html:is([data-theme='apple'], [data-theme='vision']) .checkout-bar {
   -webkit-backdrop-filter: saturate(180%) blur(10px);
   backdrop-filter: saturate(180%) blur(10px);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .confirmation { padding-top: 28px; }
-html:is([data-theme='apple'], [data-theme='vision']) .confirmation-main,
-html:is([data-theme='apple'], [data-theme='vision']) .confirmation-next { padding: 32px; }
-html:is([data-theme='apple'], [data-theme='vision']) .confirmation-step { color: var(--ap-ink-2); background: var(--ap-surface-2); border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .confirmation { padding-top: 28px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .confirmation-main,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .confirmation-next { padding: 32px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .confirmation-step { color: var(--ap-ink-2); background: var(--ap-surface-2); border-radius: 12px; }
 
 /* ══ auth and profile ═══════════════════════════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .auth-page { min-height: 72vh; display: grid; place-items: center; padding: 44px var(--page-gutter); background: var(--ap-bg-alt); }
-html:is([data-theme='apple'], [data-theme='vision']) .auth-column { width: min(100%, 460px); }
-html:is([data-theme='apple'], [data-theme='vision']) .auth-card { padding: 40px 36px; box-shadow: none; background: transparent; }
-html:is([data-theme='apple'], [data-theme='vision']) .auth-logo { color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .auth-card h1,
-html:is([data-theme='apple'], [data-theme='vision']) .auth-card h2 { text-align: center; }
-html:is([data-theme='apple'], [data-theme='vision']) .auth-lede,
-html:is([data-theme='apple'], [data-theme='vision']) .auth-fine { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .auth-stack { gap: 14px; }
-html:is([data-theme='apple'], [data-theme='vision']) .auth-divider { color: var(--ap-ink-3); }
-html:is([data-theme='apple'], [data-theme='vision']) .auth-divider::before,
-html:is([data-theme='apple'], [data-theme='vision']) .auth-divider::after { background: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .strength-meter { overflow: hidden; background: var(--ap-fill); border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .strength-meter .fill { background: var(--ap-green); border-radius: inherit; }
-html:is([data-theme='apple'], [data-theme='vision']) .strength-note { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-page { min-height: 72vh; display: grid; place-items: center; padding: 44px var(--page-gutter); background: var(--ap-bg-alt); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-column { width: min(100%, 460px); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-card { padding: 40px 36px; box-shadow: none; background: transparent; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-logo { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-card h1,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-card h2 { text-align: center; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-lede,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-fine { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-stack { gap: 14px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-divider { color: var(--ap-ink-3); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-divider::before,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-divider::after { background: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .strength-meter { overflow: hidden; background: var(--ap-fill); border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .strength-meter .fill { background: var(--ap-green); border-radius: inherit; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .strength-note { color: var(--ap-ink-2); }
 
-html:is([data-theme='apple'], [data-theme='vision']) .profile-layout { grid-template-columns: 240px minmax(0, 1fr); gap: 24px; align-items: start; }
-html:is([data-theme='apple'], [data-theme='vision']) .profile-rail { padding: 14px; }
-html:is([data-theme='apple'], [data-theme='vision']) .profile-identity { padding: 18px; background: var(--ap-surface-2); border-radius: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .profile-nav { gap: 2px; }
-html:is([data-theme='apple'], [data-theme='vision']) .profile-nav-item { padding: 9px 12px; color: var(--ap-ink); border-radius: 8px; }
-html:is([data-theme='apple'], [data-theme='vision']) .profile-nav-item:hover { color: var(--ap-ink); background: var(--ap-fill-hover); text-decoration: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .profile-nav-item.is-active { color: var(--ap-ink); background: var(--ap-fill); font-weight: 600; box-shadow: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .profile-pane { overflow: hidden; }
-html:is([data-theme='apple'], [data-theme='vision']) .profile-pane-head { padding: 26px 28px; background: transparent; border-bottom-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .profile-section { margin: 0; padding: 24px 28px; background: transparent; border: 0; border-bottom: 1px solid var(--ap-line); border-radius: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .chip-remove { border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-layout { grid-template-columns: 240px minmax(0, 1fr); gap: 24px; align-items: start; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-rail { padding: 14px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-identity { padding: 18px; background: var(--ap-surface-2); border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-nav { gap: 2px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-nav-item { padding: 9px 12px; color: var(--ap-ink); border-radius: 8px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-nav-item:hover { color: var(--ap-ink); background: var(--ap-fill-hover); text-decoration: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-nav-item.is-active { color: var(--ap-ink); background: var(--ap-fill); font-weight: 600; box-shadow: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-pane { overflow: hidden; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-pane-head { padding: 26px 28px; background: transparent; border-bottom-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-section { margin: 0; padding: 24px 28px; background: transparent; border: 0; border-bottom: 1px solid var(--ap-line); border-radius: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .chip-remove { border-radius: 980px; }
 
 /* ══ wishlist, comparison and orders ════════════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .compact-grid { gap: 18px; }
-html:is([data-theme='apple'], [data-theme='vision']) .compact-cell,
-html:is([data-theme='apple'], [data-theme='vision']) .wish-cell,
-html:is([data-theme='apple'], [data-theme='vision']) .compare-slot { padding: 18px; }
-html:is([data-theme='apple'], [data-theme='vision']) .compact-meta,
-html:is([data-theme='apple'], [data-theme='vision']) .wish-meta { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .compact-price,
-html:is([data-theme='apple'], [data-theme='vision']) .wish-price,
-html:is([data-theme='apple'], [data-theme='vision']) .compare-price { color: var(--ap-ink); font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) .compact-cell:hover h3 { color: var(--ap-link); text-decoration: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .compare-scroll { padding: 14px; }
-html:is([data-theme='apple'], [data-theme='vision']) .compare-table { border-collapse: separate; border-spacing: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .compare-table th,
-html:is([data-theme='apple'], [data-theme='vision']) .compare-table td { background: transparent; border: 0; border-bottom: 1px solid var(--ap-line); border-radius: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .compare-head { color: var(--ap-ink); background: transparent; }
-html:is([data-theme='apple'], [data-theme='vision']) .compare-name { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-grid { gap: 18px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-cell,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wish-cell,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-slot { padding: 18px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-meta,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wish-meta { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-price,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wish-price,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-price { color: var(--ap-ink); font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-cell:hover h3 { color: var(--ap-link); text-decoration: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-scroll { padding: 14px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-table { border-collapse: separate; border-spacing: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-table th,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-table td { background: transparent; border: 0; border-bottom: 1px solid var(--ap-line); border-radius: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-head { color: var(--ap-ink); background: transparent; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compare-name { color: var(--ap-ink); }
 
 /* ══ tables and dialogs ═════════════════════════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .table,
-html:is([data-theme='apple'], [data-theme='vision']) table { border-collapse: separate; border-spacing: 0; overflow: hidden; color: var(--ap-ink); border: 0; border-radius: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .table th,
-html:is([data-theme='apple'], [data-theme='vision']) table th { color: var(--ap-ink-2); background: transparent; border-bottom: 1px solid var(--ap-line); font-weight: 600; }
-html:is([data-theme='apple'], [data-theme='vision']) .table td,
-html:is([data-theme='apple'], [data-theme='vision']) table td { border-bottom: 1px solid var(--ap-line-soft); }
-html:is([data-theme='apple'], [data-theme='vision']) .table tbody tr:nth-child(even),
-html:is([data-theme='apple'], [data-theme='vision']) table tbody tr:nth-child(even) { background: transparent; }
-html:is([data-theme='apple'], [data-theme='vision']) .table tbody tr:hover,
-html:is([data-theme='apple'], [data-theme='vision']) table tbody tr:hover { background: var(--ap-fill-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .table,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) table { border-collapse: separate; border-spacing: 0; overflow: hidden; color: var(--ap-ink); border: 0; border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .table th,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) table th { color: var(--ap-ink-2); background: transparent; border-bottom: 1px solid var(--ap-line); font-weight: 600; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .table td,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) table td { border-bottom: 1px solid var(--ap-line-soft); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .table tbody tr:nth-child(even),
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) table tbody tr:nth-child(even) { background: transparent; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .table tbody tr:hover,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) table tbody tr:hover { background: var(--ap-fill-hover); }
 
-html:is([data-theme='apple'], [data-theme='vision']) .dialog-backdrop,
-html:is([data-theme='apple'], [data-theme='vision']) .modal-overlay { padding: 20px; background: var(--ap-scrim); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
-html:is([data-theme='apple'], [data-theme='vision']) .dialog,
-html:is([data-theme='apple'], [data-theme='vision']) .modal-surface,
-html:is([data-theme='apple'], [data-theme='vision']) .toast-surface {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dialog-backdrop,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .modal-overlay { padding: 20px; background: var(--ap-scrim); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dialog,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .modal-surface,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .toast-surface {
   color: var(--ap-ink);
   background: var(--ap-surface);
   border: 0;
   border-radius: 18px;
   box-shadow: var(--ap-shadow-pop);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .dialog { overflow: hidden; animation: ap-dialog-in 300ms var(--ap-ease-out); }
-html:is([data-theme='apple'], [data-theme='vision']) .dialog-head { min-height: 56px; padding: 18px 24px 8px; background: transparent; border-bottom: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .dialog-title { color: var(--ap-ink); font-size: 21px; font-weight: 600; letter-spacing: 0.01em; }
-html:is([data-theme='apple'], [data-theme='vision']) .dialog-body { padding: 8px 24px 20px; color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .dialog-actions { padding: 14px 24px 22px; background: transparent; border-top: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .dialog-close { color: var(--ap-ink-2); background: var(--ap-fill); border: 0; border-radius: 50%; }
-html:is([data-theme='apple'], [data-theme='vision']) .dialog-close:hover { color: var(--ap-ink); background: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dialog { overflow: hidden; animation: ap-dialog-in 300ms var(--ap-ease-out); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dialog-head { min-height: 56px; padding: 18px 24px 8px; background: transparent; border-bottom: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dialog-title { color: var(--ap-ink); font-size: 21px; font-weight: 600; letter-spacing: 0.01em; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dialog-body { padding: 8px 24px 20px; color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dialog-actions { padding: 14px 24px 22px; background: transparent; border-top: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dialog-close { color: var(--ap-ink-2); background: var(--ap-fill); border: 0; border-radius: 50%; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dialog-close:hover { color: var(--ap-ink); background: var(--ap-line); }
 
-html:is([data-theme='apple'], [data-theme='vision']) .cookie-banner,
-html:is([data-theme='apple'], [data-theme='vision']) [class*='cookie-banner'] {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cookie-banner,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) [class*='cookie-banner'] {
   color: var(--ap-ink);
   background: var(--ap-surface);
   border: 0;
@@ -1118,201 +1118,201 @@ html:is([data-theme='apple'], [data-theme='vision']) [class*='cookie-banner'] {
 
 /* ══ footer — Apple's quiet grey directory ══════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .site-footer { margin-top: 44px; color: var(--ap-ink-2); background: var(--ap-surface-2); font-size: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-top { color: var(--ap-link); background: transparent; border-block: 0; border-bottom: 1px solid var(--ap-line); font-size: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-top:hover { color: var(--ap-link); background: transparent; text-decoration: underline; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-links { padding: 32px var(--page-gutter); color: var(--ap-ink-2); background: transparent; border-top: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-grid { max-width: 980px; margin-inline: auto; gap: clamp(20px, 4vw, 48px); }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-col-title { color: var(--ap-ink); font-size: 12px; font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-col a { color: var(--ap-ink-2); font-size: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-col a:hover { color: var(--ap-ink); text-decoration: underline; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-base { color: var(--ap-ink-2); background: transparent; border-top: 1px solid var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-brand,
-html:is([data-theme='apple'], [data-theme='vision']) .footer-tagline { color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-blurb { color: var(--ap-ink-2); font-size: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-locale { color: var(--ap-ink-2); background: transparent; border-color: var(--ap-line); border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-locale:hover { color: var(--ap-ink); border-color: var(--ap-ink-3); }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-legal { color: var(--ap-ink-3); background: transparent; border-top: 1px solid var(--ap-line); padding-block: 18px 26px; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-fine { gap: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-fine a { padding-inline: 10px; color: var(--ap-ink-2); border-right: 1px solid var(--ap-line); line-height: 1; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-fine a:last-child { border-right: 0; }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-fine a:hover { color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .footer-copy { color: var(--ap-ink-3); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .site-footer { margin-top: 44px; color: var(--ap-ink-2); background: var(--ap-surface-2); font-size: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-top { color: var(--ap-link); background: transparent; border-block: 0; border-bottom: 1px solid var(--ap-line); font-size: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-top:hover { color: var(--ap-link); background: transparent; text-decoration: underline; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-links { padding: 32px var(--page-gutter); color: var(--ap-ink-2); background: transparent; border-top: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-grid { max-width: 980px; margin-inline: auto; gap: clamp(20px, 4vw, 48px); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-col-title { color: var(--ap-ink); font-size: 12px; font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-col a { color: var(--ap-ink-2); font-size: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-col a:hover { color: var(--ap-ink); text-decoration: underline; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-base { color: var(--ap-ink-2); background: transparent; border-top: 1px solid var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-brand,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-tagline { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-blurb { color: var(--ap-ink-2); font-size: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-locale { color: var(--ap-ink-2); background: transparent; border-color: var(--ap-line); border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-locale:hover { color: var(--ap-ink); border-color: var(--ap-ink-3); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-legal { color: var(--ap-ink-3); background: transparent; border-top: 1px solid var(--ap-line); padding-block: 18px 26px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-fine { gap: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-fine a { padding-inline: 10px; color: var(--ap-ink-2); border-right: 1px solid var(--ap-line); line-height: 1; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-fine a:last-child { border-right: 0; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-fine a:hover { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .footer-copy { color: var(--ap-ink-3); }
 
 /* ══ QA fixture and utility routes ══════════════════════════════════════ */
 
-html:is([data-theme='apple'], [data-theme='vision']) .pg-hero,
-html:is([data-theme='apple'], [data-theme='vision']) .pg-group,
-html:is([data-theme='apple'], [data-theme='vision']) .poster-capture,
-html:is([data-theme='apple'], [data-theme='vision']) .dual-scroll-container,
-html:is([data-theme='apple'], [data-theme='vision']) .team-split-page .ts-container,
-html:is([data-theme='apple'], [data-theme='vision']) .combined-panel,
-html:is([data-theme='apple'], [data-theme='vision']) .is-container,
-html:is([data-theme='apple'], [data-theme='vision']) .heavy-container,
-html:is([data-theme='apple'], [data-theme='vision']) .shadow-dom-container,
-html:is([data-theme='apple'], [data-theme='vision']) .iframe-wrapper {
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pg-hero,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pg-group,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .poster-capture,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dual-scroll-container,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .team-split-page .ts-container,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .combined-panel,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-container,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .heavy-container,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .shadow-dom-container,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .iframe-wrapper {
   color: var(--ap-ink);
   background: var(--ap-surface);
   border: 0;
   border-radius: 18px;
   box-shadow: var(--ap-shadow-card);
 }
-html:is([data-theme='apple'], [data-theme='vision']) .pg-hero { background: var(--ap-bg-alt); box-shadow: none; text-align: left; }
-html:is([data-theme='apple'], [data-theme='vision']) .pg-stat { color: var(--ap-ink); background: var(--ap-surface-2); border-color: transparent; border-radius: 12px; }
-html:is([data-theme='apple'], [data-theme='vision']) .pg-group-head { background: transparent; border-bottom-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .pg-route:hover { background: var(--ap-fill-hover); }
-html:is([data-theme='apple'], [data-theme='vision']) .pg-table { border-radius: 12px; overflow: hidden; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pg-hero { background: var(--ap-bg-alt); box-shadow: none; text-align: left; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pg-stat { color: var(--ap-ink); background: var(--ap-surface-2); border-color: transparent; border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pg-group-head { background: transparent; border-bottom-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pg-route:hover { background: var(--ap-fill-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pg-table { border-radius: 12px; overflow: hidden; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .team-split-page { color: var(--ap-ink); background: transparent; }
-html:is([data-theme='apple'], [data-theme='vision']) .ts-container { padding: clamp(18px, 3vw, 36px); }
-html:is([data-theme='apple'], [data-theme='vision']) .ts-header,
-html:is([data-theme='apple'], [data-theme='vision']) .ts-title { color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .ts-subtitle,
-html:is([data-theme='apple'], [data-theme='vision']) .ts-helper,
-html:is([data-theme='apple'], [data-theme='vision']) .ts-hint { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .ts-panel,
-html:is([data-theme='apple'], [data-theme='vision']) .ts-team-card,
-html:is([data-theme='apple'], [data-theme='vision']) .ts-joker-card { color: var(--ap-ink); background: var(--ap-surface-2); border: 0; border-radius: 18px; box-shadow: none; }
-html:is([data-theme='apple'], [data-theme='vision']) .ts-chip { color: var(--ap-link); background: var(--ap-blue-tint); border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .ts-stepper { background: var(--ap-fill); border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .ts-step-btn { color: var(--ap-ink); border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .ts-shuffle { color: var(--ap-on-blue); background: var(--ap-blue); border-radius: 980px; box-shadow: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .team-split-page { color: var(--ap-ink); background: transparent; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-container { padding: clamp(18px, 3vw, 36px); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-header,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-title { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-subtitle,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-helper,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-hint { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-panel,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-team-card,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-joker-card { color: var(--ap-ink); background: var(--ap-surface-2); border: 0; border-radius: 18px; box-shadow: none; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-chip { color: var(--ap-link); background: var(--ap-blue-tint); border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-stepper { background: var(--ap-fill); border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-step-btn { color: var(--ap-ink); border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .ts-shuffle { color: var(--ap-on-blue); background: var(--ap-blue); border-radius: 980px; box-shadow: none; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .dual-scroll-container { overflow: hidden; }
-html:is([data-theme='apple'], [data-theme='vision']) .sidebar { color: var(--ap-ink); background: var(--ap-surface-2); border-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .sidebar-title,
-html:is([data-theme='apple'], [data-theme='vision']) .job-title { color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .sidebar-subtitle,
-html:is([data-theme='apple'], [data-theme='vision']) .job-location,
-html:is([data-theme='apple'], [data-theme='vision']) .job-time { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .nav-link,
-html:is([data-theme='apple'], [data-theme='vision']) .tab-item { color: var(--ap-ink); border-radius: 8px; }
-html:is([data-theme='apple'], [data-theme='vision']) .tab-active { color: var(--ap-ink); background: var(--ap-surface); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); }
-html:is([data-theme='apple'], [data-theme='vision']) .job-tags > *,
-html:is([data-theme='apple'], [data-theme='vision']) .salary-tag,
-html:is([data-theme='apple'], [data-theme='vision']) .stat-badge { border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dual-scroll-container { overflow: hidden; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sidebar { color: var(--ap-ink); background: var(--ap-surface-2); border-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sidebar-title,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .job-title { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .sidebar-subtitle,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .job-location,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .job-time { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .nav-link,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .tab-item { color: var(--ap-ink); border-radius: 8px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .tab-active { color: var(--ap-ink); background: var(--ap-surface); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .job-tags > *,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .salary-tag,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .stat-badge { border-radius: 980px; }
 
-html:is([data-theme='apple'], [data-theme='vision']) .infinite-scroll-page,
-html:is([data-theme='apple'], [data-theme='vision']) .infinite-text-page,
-html:is([data-theme='apple'], [data-theme='vision']) .multi-scroll-page,
-html:is([data-theme='apple'], [data-theme='vision']) .heavy-page,
-html:is([data-theme='apple'], [data-theme='vision']) .shadow-dom-page,
-html:is([data-theme='apple'], [data-theme='vision']) .iframe-page,
-html:is([data-theme='apple'], [data-theme='vision']) .combined-page { color: var(--ap-ink); background: transparent; }
-html:is([data-theme='apple'], [data-theme='vision']) .is-page-header,
-html:is([data-theme='apple'], [data-theme='vision']) .multi-page-header,
-html:is([data-theme='apple'], [data-theme='vision']) .blog-header,
-html:is([data-theme='apple'], [data-theme='vision']) .shadow-dom-header,
-html:is([data-theme='apple'], [data-theme='vision']) .iframe-page-header,
-html:is([data-theme='apple'], [data-theme='vision']) .combined-header { color: var(--ap-ink); background: var(--ap-bg-alt); border: 0; border-radius: 18px; box-shadow: none; text-align: center; }
-html:is([data-theme='apple'], [data-theme='vision']) .blog-content,
-html:is([data-theme='apple'], [data-theme='vision']) .heavy-block,
-html:is([data-theme='apple'], [data-theme='vision']) .scroll-column { color: var(--ap-ink); background: var(--ap-surface); border: 0; border-radius: 18px; box-shadow: var(--ap-shadow-card); }
-html:is([data-theme='apple'], [data-theme='vision']) .is-card-title,
-html:is([data-theme='apple'], [data-theme='vision']) .compact-title { color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .is-card-brand,
-html:is([data-theme='apple'], [data-theme='vision']) .is-card-delivery { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .is-card-badge,
-html:is([data-theme='apple'], [data-theme='vision']) .is-card-stock-badge { border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .is-spinner,
-html:is([data-theme='apple'], [data-theme='vision']) .blog-spinner { border-color: var(--ap-fill); border-top-color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .combined-tab { color: var(--ap-ink); border-radius: 8px; }
-html:is([data-theme='apple'], [data-theme='vision']) .combined-tab.active { color: var(--ap-ink); background: var(--ap-surface); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .infinite-scroll-page,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .infinite-text-page,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .multi-scroll-page,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .heavy-page,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .shadow-dom-page,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .iframe-page,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .combined-page { color: var(--ap-ink); background: transparent; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-page-header,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .multi-page-header,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .blog-header,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .shadow-dom-header,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .iframe-page-header,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .combined-header { color: var(--ap-ink); background: var(--ap-bg-alt); border: 0; border-radius: 18px; box-shadow: none; text-align: center; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .blog-content,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .heavy-block,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .scroll-column { color: var(--ap-ink); background: var(--ap-surface); border: 0; border-radius: 18px; box-shadow: var(--ap-shadow-card); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-card-title,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .compact-title { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-card-brand,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-card-delivery { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-card-badge,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-card-stock-badge { border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .is-spinner,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .blog-spinner { border-color: var(--ap-fill); border-top-color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .combined-tab { color: var(--ap-ink); border-radius: 8px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .combined-tab.active { color: var(--ap-ink); background: var(--ap-surface); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); }
 
 /* webhook inspector — payloads stay terminal-dark in both schemes */
-html:is([data-theme='apple'], [data-theme='vision']) .wi-page { background: transparent; }
-html:is([data-theme='apple'], [data-theme='vision']) .wi-panel { overflow: hidden; color: var(--ap-ink); background: var(--ap-surface); border: 0; border-radius: 18px; box-shadow: var(--ap-shadow-card); }
-html:is([data-theme='apple'], [data-theme='vision']) .wi-panel-head,
-html:is([data-theme='apple'], [data-theme='vision']) .wi-toolbar,
-html:is([data-theme='apple'], [data-theme='vision']) .wi-code-bar { background: var(--ap-surface-2); border-color: var(--ap-line); }
-html:is([data-theme='apple'], [data-theme='vision']) .wi-title { color: var(--ap-ink); }
-html:is([data-theme='apple'], [data-theme='vision']) .wi-eyebrow,
-html:is([data-theme='apple'], [data-theme='vision']) .wi-row-meta,
-html:is([data-theme='apple'], [data-theme='vision']) .wi-note { color: var(--ap-ink-2); }
-html:is([data-theme='apple'], [data-theme='vision']) .wi-row { border-radius: 10px; }
-html:is([data-theme='apple'], [data-theme='vision']) .wi-row:hover { background: var(--ap-fill-hover); }
-html:is([data-theme='apple'], [data-theme='vision']) .wi-row.is-selected { background: var(--ap-blue-tint); border-color: var(--ap-blue); }
-html:is([data-theme='apple'], [data-theme='vision']) .wi-method,
-html:is([data-theme='apple'], [data-theme='vision']) .wi-status,
-html:is([data-theme='apple'], [data-theme='vision']) .wi-count,
-html:is([data-theme='apple'], [data-theme='vision']) .wi-code-badge { border-radius: 980px; }
-html:is([data-theme='apple'], [data-theme='vision']) .wi-code { border-radius: 0 0 18px 18px; }
-html:is([data-theme='apple'], [data-theme='vision']) .wi-callout { border-radius: 12px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-page { background: transparent; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-panel { overflow: hidden; color: var(--ap-ink); background: var(--ap-surface); border: 0; border-radius: 18px; box-shadow: var(--ap-shadow-card); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-panel-head,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-toolbar,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-code-bar { background: var(--ap-surface-2); border-color: var(--ap-line); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-title { color: var(--ap-ink); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-eyebrow,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-row-meta,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-note { color: var(--ap-ink-2); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-row { border-radius: 10px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-row:hover { background: var(--ap-fill-hover); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-row.is-selected { background: var(--ap-blue-tint); border-color: var(--ap-blue); }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-method,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-status,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-count,
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-code-badge { border-radius: 980px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-code { border-radius: 0 0 18px 18px; }
+html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .wi-callout { border-radius: 12px; }
 
 /* ══ fallbacks, responsive layout and accessibility ═════════════════════ */
 
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-  html:is([data-theme='apple'], [data-theme='vision']) .site-header,
-  html:is([data-theme='apple'], [data-theme='vision']) .checkout-bar { background: var(--ap-nav-solid); }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .site-header,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .checkout-bar { background: var(--ap-nav-solid); }
 }
 
 @media (max-width: 1180px) {
-  html:is([data-theme='apple'], [data-theme='vision']) .header-deliver { display: none; }
-  html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle-copy { display: none; }
-  html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle { padding: 3px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .pdp-top { grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr); }
-  html:is([data-theme='apple'], [data-theme='vision']) .pdp-buybox { position: static; grid-column: 1 / -1; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-deliver { display: none; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle-copy { display: none; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle { padding: 3px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-top { grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr); }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-buybox { position: static; grid-column: 1 / -1; }
 }
 
 @media (max-width: 900px) {
   /* a sticky three-band header would eat a phone screen — scroll it away */
-  html:is([data-theme='apple'], [data-theme='vision']) .site-header { position: relative; }
-  html:is([data-theme='apple'], [data-theme='vision']) .filter-rail,
-  html:is([data-theme='apple'], [data-theme='vision']) .pdp-gallery { position: static; }
-  html:is([data-theme='apple'], [data-theme='vision']) .listing-layout,
-  html:is([data-theme='apple'], [data-theme='vision']) .profile-layout { grid-template-columns: 1fr; }
-  html:is([data-theme='apple'], [data-theme='vision']) .filter-rail { display: none; }
-  html:is([data-theme='apple'], [data-theme='vision']) .pdp-top { grid-template-columns: 1fr; }
-  html:is([data-theme='apple'], [data-theme='vision']) .pdp-buybox { grid-column: auto; }
-  html:is([data-theme='apple'], [data-theme='vision']) .cart-layout,
-  html:is([data-theme='apple'], [data-theme='vision']) .checkout-layout { grid-template-columns: 1fr; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .site-header { position: relative; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-rail,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-gallery { position: static; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .listing-layout,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .profile-layout { grid-template-columns: 1fr; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .filter-rail { display: none; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-top { grid-template-columns: 1fr; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pdp-buybox { grid-column: auto; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-layout,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .checkout-layout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
-  html:is([data-theme='apple'], [data-theme='vision']) { --page-gutter: 16px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .header-logo-text { display: none; }
-  html:is([data-theme='apple'], [data-theme='vision']) .header-actions { justify-content: flex-end; }
-  html:is([data-theme='apple'], [data-theme='vision']) .header-action { padding: 6px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .theme-toggle { min-width: 44px; min-height: 44px; justify-content: center; border-color: transparent; }
-  html:is([data-theme='apple'], [data-theme='vision']) .search-form { height: 38px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .search-category { max-width: 76px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .utility-links { display: none; }
-  html:is([data-theme='apple'], [data-theme='vision']) .mega-inner { grid-template-columns: 1fr; }
-  html:is([data-theme='apple'], [data-theme='vision']) .mega-depts { border-right: 0; padding-right: 0; }
-  html:is([data-theme='apple'], [data-theme='vision']) .mega-panel { display: none; }
-  html:is([data-theme='apple'], [data-theme='vision']) .hero-title { font-size: clamp(36px, 11vw, 48px); }
-  html:is([data-theme='apple'], [data-theme='vision']) .hero-lede { font-size: 19px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .hero-actions { flex-wrap: wrap; }
-  html:is([data-theme='apple'], [data-theme='vision']) .hero-stats { grid-template-columns: repeat(3, 1fr); }
-  html:is([data-theme='apple'], [data-theme='vision']) .hero-stat { padding-inline: 8px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .hero-stat-value { font-size: 22px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .section-head { padding: 22px 18px 10px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .dept-grid,
-  html:is([data-theme='apple'], [data-theme='vision']) .pgrid { padding: 6px 14px 18px; gap: 12px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .prow { grid-template-columns: 104px minmax(0, 1fr); }
-  html:is([data-theme='apple'], [data-theme='vision']) .prow-buy { grid-column: 1 / -1; }
-  html:is([data-theme='apple'], [data-theme='vision']) .cart-line { margin-inline: 18px; grid-template-columns: 94px minmax(0, 1fr); }
-  html:is([data-theme='apple'], [data-theme='vision']) .cart-line-total { grid-column: 2; }
-  html:is([data-theme='apple'], [data-theme='vision']) .steps { overflow-x: auto; }
-  html:is([data-theme='apple'], [data-theme='vision']) .step { min-width: 145px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .auth-card { padding: 28px 4px; }
-  html:is([data-theme='apple'], [data-theme='vision']) .dialog-backdrop { padding: 10px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) { --page-gutter: 16px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-logo-text { display: none; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-actions { justify-content: flex-end; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .header-action { padding: 6px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .theme-toggle { min-width: 44px; min-height: 44px; justify-content: center; border-color: transparent; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-form { height: 38px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .search-category { max-width: 76px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .utility-links { display: none; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-inner { grid-template-columns: 1fr; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-depts { border-right: 0; padding-right: 0; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .mega-panel { display: none; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-title { font-size: clamp(36px, 11vw, 48px); }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-lede { font-size: 19px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-actions { flex-wrap: wrap; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-stats { grid-template-columns: repeat(3, 1fr); }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-stat { padding-inline: 8px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .hero-stat-value { font-size: 22px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .section-head { padding: 22px 18px 10px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dept-grid,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .pgrid { padding: 6px 14px 18px; gap: 12px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow { grid-template-columns: 104px minmax(0, 1fr); }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .prow-buy { grid-column: 1 / -1; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-line { margin-inline: 18px; grid-template-columns: 94px minmax(0, 1fr); }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .cart-line-total { grid-column: 2; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .steps { overflow-x: auto; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .step { min-width: 145px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .auth-card { padding: 28px 4px; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .dialog-backdrop { padding: 10px; }
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  html:is([data-theme='apple'], [data-theme='vision']) .site-header,
-  html:is([data-theme='apple'], [data-theme='vision']) .checkout-bar { background: var(--ap-nav-solid); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .site-header,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) .checkout-bar { background: var(--ap-nav-solid); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html:is([data-theme='apple'], [data-theme='vision']) *,
-  html:is([data-theme='apple'], [data-theme='vision']) *::before,
-  html:is([data-theme='apple'], [data-theme='vision']) *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) *,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) *::before,
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
 @media (prefers-contrast: more) {
-  html:is([data-theme='apple'], [data-theme='vision']) { --ap-ink-2: #3a3a3c; --ap-ink-3: #48484a; --ap-line: #8e8e93; --ap-nav: var(--ap-nav-solid); }
-  html:is([data-theme='apple'], [data-theme='vision'])[data-scheme='dark'] { --ap-ink-2: #d1d1d6; --ap-ink-3: #aeaeb2; --ap-line: #8e8e93; }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio']) { --ap-ink-2: #3a3a3c; --ap-ink-3: #48484a; --ap-line: #8e8e93; --ap-nav: var(--ap-nav-solid); }
+  html:is([data-theme='apple'], [data-theme='vision'], [data-theme='studio'])[data-scheme='dark'] { --ap-ink-2: #d1d1d6; --ap-ink-3: #aeaeb2; --ap-line: #8e8e93; }
 }
 
 @keyframes ap-shimmer {

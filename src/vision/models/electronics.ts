@@ -115,7 +115,7 @@ export function buildLaptop(style: ModelStyle): BuiltModel {
   const m = makeMaterials(t, style)
   const g = new Group()
 
-  const baseMat = t.mat(new MeshStandardMaterial({ color: 0x2b2a72, metalness: 0.85, roughness: 0.46, envMapIntensity: 0.7 }))
+  const baseMat = t.mat(new MeshStandardMaterial({ color: style.look === 'studio' ? 0x9a9da3 : 0x2b2a72, metalness: 0.85, roughness: 0.46, envMapIntensity: 0.7 }))
   const base = new Mesh(rbox(t, 2.24, 0.075, 1.52, 0.035, 4), baseMat)
   base.position.y = 0.0375
   g.add(base)
@@ -125,7 +125,7 @@ export function buildLaptop(style: ModelStyle): BuiltModel {
 
   // backlit keys
   const keyGeo = t.geo(new RoundedBoxGeometry(0.118, 0.03, 0.118, 2, 0.025))
-  const keyMat = t.mat(new MeshStandardMaterial({ color: 0x0a0a28, metalness: 0.2, roughness: 0.45, emissive: style.accent, emissiveIntensity: 0.55 }))
+  const keyMat = t.mat(new MeshStandardMaterial({ color: style.look === 'studio' ? 0x202226 : 0x0a0a28, metalness: 0.2, roughness: 0.45, emissive: style.accent, emissiveIntensity: style.look === 'studio' ? 0 : 0.55 }))
   const cols = 14
   const rows = 5
   const keys = new InstancedMesh(keyGeo, keyMat, cols * rows)
@@ -173,7 +173,7 @@ export function buildLaptop(style: ModelStyle): BuiltModel {
   wash.scale.set(1.15, 0.7, 1)
   wash.position.set(0, 0.092, -0.1)
   wash.userData.noFit = true
-  g.add(wash)
+  if (style.look === 'neon') g.add(wash)
 
   return seat(g, t)
 }
@@ -201,7 +201,7 @@ export function buildTv(style: ModelStyle): BuiltModel {
   halo.scale.set(1.3, 0.85, 1)
   halo.position.set(0, 1.3, -0.12)
   halo.userData.noFit = true
-  g.add(halo)
+  if (style.look === 'neon') g.add(halo)
 
   const neck = new Mesh(rbox(t, 0.22, 0.4, 0.06, 0.02, 2), m.metal)
   neck.position.set(0, 0.34, -0.03)
@@ -273,7 +273,7 @@ export function buildWatch(style: ModelStyle): BuiltModel {
   const m = makeMaterials(t, style)
   const g = new Group()
 
-  const strapMat = t.mat(new MeshStandardMaterial({ color: style.accent, metalness: 0.1, roughness: 0.62, emissive: style.accent, emissiveIntensity: 0.12 }))
+  const strapMat = t.mat(new MeshStandardMaterial({ color: style.look === 'studio' ? 0x3a3d44 : style.accent, metalness: 0.1, roughness: 0.62, emissive: style.accent, emissiveIntensity: style.look === 'studio' ? 0 : 0.12 }))
   for (const side of [1, -1] as const) {
     const strap = new Group()
     strap.position.set(0, side * 0.5, -0.005)

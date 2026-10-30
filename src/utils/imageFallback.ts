@@ -6,7 +6,7 @@ import { placeholderFor } from '../data/catalog'
    that matches what it shows. `error` does not bubble, so the listener is
    registered on the capture phase of the document. */
 
-const OWN_PREFIXES = ['/images/catalog/', '/logo/', 'data:']
+const OWN_PREFIXES = ['/images/catalog/', '/images/studio/', '/logo/', 'data:']
 
 function nameFor(img: HTMLImageElement): string {
   if (img.alt) return img.alt

@@ -1,4 +1,5 @@
-/* Three themes: Vision (the default), Apple, and the macOS 27 frost theme. All
+/* Four themes: Vision (the default), Apple, the macOS 27 frost theme and Studio
+   (graphite and cobalt, the quiet professional one). All
    are CSS layers over the shared base in design-system.css / app.css, enabled
    by data-theme on <html>, which is therefore always set. Vision reuses the
    Apple component skin (apple.css) and re-points its tokens at a dark violet
@@ -9,7 +10,7 @@
    theme can carry its own dark palette. The inline script in index.html runs
    the same resolution before first paint — keep the two in step. */
 
-export const THEMES = ['vision', 'apple', 'macos-27'] as const
+export const THEMES = ['vision', 'apple', 'macos-27', 'studio'] as const
 
 export type Theme = (typeof THEMES)[number]
 
@@ -19,12 +20,14 @@ export const THEME_STORAGE_KEY = 'angaadi:theme'
 
 export const THEME_LABELS: Record<Theme, string> = {
   vision: 'Vision',
+  studio: 'Studio',
   'macos-27': 'macOS 27',
   apple: 'Apple',
 }
 
 export const THEME_DESCRIPTIONS: Record<Theme, string> = {
   vision: 'Spatial glass, indigo glow and floating panels',
+  studio: 'Graphite surfaces, one cobalt accent, matte product shots',
   'macos-27': 'Frosted glass windows and aurora light',
   apple: 'Clean canvas, SF type and pill buttons',
 }
@@ -40,6 +43,7 @@ export type Scheme = Exclude<Appearance, 'system'>
    mode the visitor has chosen always wins, whatever the theme. */
 export const DEFAULT_APPEARANCE_BY_THEME: Record<Theme, Appearance> = {
   vision: 'dark',
+  studio: 'light',
   apple: 'light',
   'macos-27': 'light',
 }
@@ -58,6 +62,7 @@ export const APPEARANCE_LABELS: Record<Appearance, string> = {
 
 const THEME_COLORS: Record<Theme, Record<Scheme, string>> = {
   vision: { light: '#ebe8ff', dark: '#0a0b26' },
+  studio: { light: '#f7f6f3', dark: '#141415' },
   'macos-27': { light: '#e9f1fb', dark: '#141a26' },
   apple: { light: '#f5f5f7', dark: '#000000' },
 }

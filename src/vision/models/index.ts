@@ -1,8 +1,8 @@
 import { buildHeadphones, buildLaptop, buildPhone, buildTablet, buildTv, buildWatch } from './electronics'
 import { buildBeauty, buildBooks, buildFashion, buildGrocery, buildKitchen, buildSports } from './lifestyle'
-import { MODEL_STYLES, type BuiltModel } from './helpers'
+import { MODEL_STYLES, STUDIO_STYLES, type BuiltModel } from './helpers'
 
-export { MODEL_STYLES } from './helpers'
+export { MODEL_STYLES, STUDIO_STYLES } from './helpers'
 export type { BuiltModel, ModelStyle } from './helpers'
 
 export type ModelKind =
@@ -36,7 +36,10 @@ const BUILDERS = {
   grocery: buildGrocery,
 } as const
 
-/** Builds one product model in colourway `variant` (0–3). */
-export function buildModel(kind: ModelKind, variant = 0): BuiltModel {
-  return BUILDERS[kind](MODEL_STYLES[((variant % MODEL_STYLES.length) + MODEL_STYLES.length) % MODEL_STYLES.length])
+export type ModelLook = 'neon' | 'studio'
+
+/** Builds one product model in colourway `variant` (0–3) and the given look. */
+export function buildModel(kind: ModelKind, variant = 0, look: ModelLook = 'neon'): BuiltModel {
+  const styles = look === 'studio' ? STUDIO_STYLES : MODEL_STYLES
+  return BUILDERS[kind](styles[((variant % styles.length) + styles.length) % styles.length])
 }
