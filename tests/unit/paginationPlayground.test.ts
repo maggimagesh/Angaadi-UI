@@ -88,3 +88,42 @@ describe('A17 data and end parameters', () => {
     for (const q of ['data=0', 'data=101', 'end=0', 'end=abc']) assert.equal((await get(`type=1&page=1&${q}`)).status, 400, q)
   })
 })
+
+describe('A16 data, dataEnd and pageEnd parameters', () => {
+  const get = async (q: string) => {
+    const r = await fetch(`${base}/pagination/s/A16/list?${q}`, { redirect: 'manual' })
+    const body = await r.text()
+    return { status: r.status, count: [...body.matchAll(/data-id="/g)].length }
+  }
+  const expect = async (q: string, status: number, count: number) =>
+    assert.deepEqual(await get(q), { status, count }, q)
+
+  test('data sets the page size and the pages still never end', async () => {
+    await expect('page=1&data=500', 200, 500)
+    await expect('page=9999&data=3', 200, 3)
+  })
+
+  test('dataEnd: records up to it, empty 200 pages after', async () => {
+    await expect('page=50&data=5&dataend=50', 200, 5)
+    await expect('page=51&data=5&dataend=50', 200, 0)
+    await expect('page=5000&data=5&dataEnd=50', 200, 0)
+  })
+
+  test('pageEnd: 404 after it, with or without dataEnd', async () => {
+    const q = 'data=5&dataEnd=50&pageEnd=100'
+    await expect(`page=50&${q}`, 200, 5)
+    await expect(`page=51&${q}`, 200, 0)
+    await expect(`page=100&${q}`, 200, 0)
+    await expect(`page=101&${q}`, 404, 0)
+    await expect('page=10&data=10&dataEnd=10&pageEnd=10', 200, 10)
+    await expect('page=11&data=10&dataEnd=10&pageEnd=10', 404, 0)
+    await expect('page=15&data=10&dataEnd=10&pageEnd=15', 200, 0)
+    await expect('page=16&data=10&dataEnd=10&pageEnd=15', 404, 0)
+    await expect('page=20&pageEnd=20', 200, 10)
+    await expect('page=21&pageEnd=20', 404, 0)
+  })
+
+  test('rejects invalid values', async () => {
+    for (const q of ['data=0', 'data=10001', 'dataEnd=x', 'pageEnd=0']) await expect(`page=1&${q}`, 400, 0)
+  })
+})

@@ -223,11 +223,62 @@ add(past404({
   pagination: { param: 'page', firstValue: 1, step: 1 },
 }))
 
+/*
+ * A16 tuning, all optional (names are case-insensitive: dataEnd = dataend):
+ *   data=D     records per page (default 10)
+ *   dataEnd=E  pages 1…E have records; later pages are 200 with no records
+ *   pageEnd=P  pages after P are 404
+ * With both, pages E+1…P are empty 200s and P+1 on is 404. With only pageEnd,
+ * pages 1…P have records. With neither, the pages never end.
+ */
+const A16_MAX_DATA = 10_000 // one page of 10,000 cards is already ~5 MB of HTML
+const A16_PARAMS = { data: 'data', dataend: 'dataEnd', pageend: 'pageEnd' }
+function a16Tuning(ctx) {
+  if (ctx._a16 !== undefined) return ctx._a16
+  const raw = {}
+  for (const [k, v] of ctx.query) if (A16_PARAMS[k.toLowerCase()]) raw[A16_PARAMS[k.toLowerCase()]] = v
+  const out = { per: 10, dataEnd: null, pageEnd: null, given: {} }
+  for (const [name, v] of Object.entries(raw)) {
+    const max = name === 'data' ? A16_MAX_DATA : 9_999_999
+    if (!/^\d{1,7}$/.test(v) || Number(v) < 1 || Number(v) > max) return (ctx._a16 = badRequest(`${name} must be a whole number from 1 to ${max}`))
+    out.given[name] = Number(v)
+  }
+  if (out.given.data) out.per = out.given.data
+  out.dataEnd = out.given.dataEnd ?? null
+  out.pageEnd = out.given.pageEnd ?? null
+  return (ctx._a16 = out)
+}
+/** Last page (1-based) that has records, or Infinity. */
+const a16LastDataPage = ({ dataEnd, pageEnd }) => Math.min(dataEnd ?? Infinity, pageEnd ?? Infinity)
+
 add(endless({
   id: 'A16', category: 'url-parameter', title: 'Never-ending ?page=', kind: 'page-query-endless', ...pageQuery('/list'),
-  description: 'Every ?page=N returns 10 records and a Next link, however high N goes. There is no last page.',
-  howTo: 'Request /list?page=1 and increment page, but stop at your own page cap.',
-  pagination: { param: 'page', firstValue: 1, step: 1, endless: true },
+  // Pager links keep the caller's data / dataEnd / pageEnd.
+  url: (i, ctx) => {
+    const t = ctx && a16Tuning(ctx)
+    return addParams(`/list?page=${i + 1}`, t && !isResponse(t) ? t.given : {})
+  },
+  description: 'Every ?page=N returns 10 records and a Next link, however high N goes. There is no last page. Optional: &data=D records per page; &dataEnd=E records on pages 1–E only, then empty 200 pages; &pageEnd=P pages after P are 404.',
+  howTo: 'Request /list?page=1 and increment page, but stop at your own page cap. For example /list?page=1&data=5&dataEnd=50&pageEnd=100: 5 records on pages 1–50, empty 200 pages 51–100, 404 from page 101.',
+  pagination: {
+    param: 'page', firstValue: 1, step: 1, endless: true,
+    perPage: { param: 'data', default: 10, min: 1, max: A16_MAX_DATA },
+    dataEnd: { param: 'dataEnd', note: 'pages after it are 200 with no records' },
+    pageEnd: { param: 'pageEnd', note: 'pages after it are 404' },
+  },
+  pageSizeFor: (ctx) => { const t = a16Tuning(ctx); return isResponse(t) ? t : t.per },
+  totalFor: (ctx) => {
+    const t = a16Tuning(ctx)
+    if (isResponse(t)) return undefined
+    const last = a16LastDataPage(t)
+    return last === Infinity ? Infinity : last * t.per
+  },
+  intercept: (ctx, i) => {
+    const t = a16Tuning(ctx)
+    if (isResponse(t)) return t
+    if (t.pageEnd !== null && i >= t.pageEnd) return notFound(ctx)
+    return undefined
+  },
 }))
 
 function hashAppScript(dataPath, parseExpr, linkExpr) {
