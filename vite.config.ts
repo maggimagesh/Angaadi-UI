@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import legacy from '@vitejs/plugin-legacy'
 import fs from 'fs'
 import path from 'path'
-import { fileURLToPath } from 'url'
+import { fileURLToPath, pathToFileURL } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -63,6 +63,39 @@ function paginationPlaygroundPlugin(): Plugin {
   }
 }
 
+// Serves /loop-detected (a page that never finishes loading) in dev and
+// preview with the same handler the Vercel function api/loop-detected.js uses.
+function loopDetectedPlugin(): Plugin {
+  const matches = (url?: string) => !!url && /^\/loop-detected(\/status)?\/?(\?|$)/.test(url)
+  return {
+    name: 'loop-detected',
+
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!matches(req.url)) return next()
+        try {
+          const { handle } = await server.ssrLoadModule('/api/_loop/app.js')
+          handle(req, res)
+        } catch (e) {
+          next(e)
+        }
+      })
+    },
+
+    configurePreviewServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!matches(req.url)) return next()
+        try {
+          const { handle } = await import(pathToFileURL(path.resolve(__dirname, 'api', '_loop', 'app.js')).href)
+          handle(req, res)
+        } catch (e) {
+          next(e)
+        }
+      })
+    }
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -76,6 +109,7 @@ export default defineConfig({
     }),
     serve5mbPagesPlugin(),
     paginationPlaygroundPlugin(),
+    loopDetectedPlugin(),
   ],
   
   server: { 

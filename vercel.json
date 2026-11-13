@@ -13,6 +13,14 @@
       "destination": "/api/slow-loading"
     },
     {
+      "source": "/loop-detected",
+      "destination": "/api/loop-detected"
+    },
+    {
+      "source": "/loop-detected/status",
+      "destination": "/api/loop-detected?status=1"
+    },
+    {
       "source": "/request-headers",
       "destination": "/api/request-headers"
     },
