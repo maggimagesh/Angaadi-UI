@@ -22,6 +22,20 @@
     "firstValue": 1,
     "step": 1,
     "endless": true,
+    "perPage": {
+      "param": "data",
+      "default": 10,
+      "min": 1,
+      "max": 10000
+    },
+    "dataEnd": {
+      "param": "dataEnd",
+      "note": "pages after it are 200 with no records"
+    },
+    "pageEnd": {
+      "param": "pageEnd",
+      "note": "pages after it are 404"
+    },
     "end": {
       "behaviour": "custom",
       "description": "Never ends: every page has records and a way to the next one. Stop at your own page cap (100 pages at most)."
