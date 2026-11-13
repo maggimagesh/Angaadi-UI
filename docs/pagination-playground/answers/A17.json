@@ -32,6 +32,18 @@
       "T%3=1": "empty 200 after page 5",
       "T%3=2": "endless"
     },
+    "perPage": {
+      "param": "data",
+      "default": 10,
+      "min": 1,
+      "max": 100
+    },
+    "lastPage": {
+      "param": "end",
+      "min": 1,
+      "max": 99999,
+      "note": "pages after end are 200 with no records, for every type"
+    },
     "end": {
       "behaviour": "custom",
       "description": "Per type: T % 3 = 0 → 404 after page 5; T % 3 = 1 → empty 200 after page 5; T % 3 = 2 → endless."
