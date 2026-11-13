@@ -128,7 +128,7 @@ export const APP_ROUTES: AppRoute[] = [
   /* ── responses, timing & failure ──────────────────────────────────── */
   { path: '/all-resp', element: <AllResponsesPage />, group: 'responses', description: 'Every HTTP status the API can return, each on its own trigger.', watchOut: 'Error-path coverage' },
   { path: '/slow-loading', element: <HomePage />, group: 'responses', description: 'The home page, served slowly — same DOM, worse timing.', watchOut: 'Premature assertions' },
-  { path: '/loop-detected', element: <LoopDetectedPage />, group: 'responses', description: 'A redirect loop that trips the guard.', watchOut: 'Navigation timeouts' },
+  { path: '/loop-detected', element: <LoopDetectedPage />, group: 'responses', description: 'A page that never finishes loading: no DOMContentLoaded, no load, no network idle.', watchOut: 'Navigation timeouts' },
   { path: '/health', element: <HealthPage />, group: 'responses', description: 'Service status rendered as a table.', watchOut: '—' },
 
   /* ── consent, docs & misc ─────────────────────────────────────────── */
