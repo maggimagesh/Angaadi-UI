@@ -407,18 +407,41 @@ const TPE_MAX_TYPE = 999
 const TPE_MAX_PAGE = 99_999 // keeps ids under 10 digits; effectively endless
 const TPE_RULE = ['404 after page 5', 'empty 200 page after page 5', 'never ends']
 const TPE_RULES = { 'T%3=0': '404 after page 5', 'T%3=1': 'empty 200 after page 5', 'T%3=2': 'endless' }
-const tpeRecords = (sc, t, i, total) => records(sc, i * 10, 10, total).map((r, k) => {
-  const n = t * 1_000_000 + i * 10 + k + 1
+const TPE_MAX_DATA = 100
+const tpeRecords = (sc, t, i, total, per = 10) => records(sc, i * per, per, total).map((r, k) => {
+  const n = t * 1_000_000 + i * per + k + 1
   return { ...record(sc, n), id: recordId(n), url: r.url.replace(r.id, recordId(n)) }
 })
+/**
+ * Optional ?data=D&end=E (scenarios with `tunable`): D records per page (1–100,
+ * default 10); pages 1…E have records and every page after E is a 200 with no
+ * records, whatever the type's own rule. Returns { per, end } or a 400.
+ */
+function tpeTuning(ctx) {
+  const int = (name, min, max) => {
+    const v = ctx.query.get(name)
+    if (v === null) return null
+    if (!/^\d{1,7}$/.test(v) || Number(v) < min || Number(v) > max) return badRequest(`${name} must be a whole number from ${min} to ${max}`)
+    return Number(v)
+  }
+  const per = int('data', 1, TPE_MAX_DATA)
+  if (isResponse(per)) return per
+  const end = int('end', 1, TPE_MAX_PAGE)
+  if (isResponse(end)) return end
+  return { per: per ?? 10, end }
+}
 /** url(T, i) → scenario URL of type T, 0-based page i; typeOf(ctx) → T | undefined (not this route) | a response. */
-const typedPages = ({ url, typeOf, typeText, ...def }) => add({
+const typedPages = ({ url, typeOf, typeText, tunable = false, ...def }) => add({
   kind: 'type-and-page', total: Infinity, extra: 200,
   description: `Types ${typeText} 1, 2 … (up to 999), each with its own page=N. The type number decides how it ends: T divisible by 3 has 5 pages, then 404; T % 3 = 1 has 5 pages, then a 200 page with no records; T % 3 = 2 never ends.`,
   howTo: `For each type T, request ${url('T', 0)} and increment page until 404, an empty page, or your page cap. Then move to type T+1 until your type cap. Type 1000 and above are 404.`,
   endText: 'Per type: T % 3 = 0 → 404 after page 5; T % 3 = 1 → empty 200 after page 5; T % 3 = 2 → endless.', recordsText: HTML_REC,
   entryPath: url(1, 0),
   ...def,
+  ...(tunable ? {
+    description: `Types ${typeText} 1, 2 … (up to 999), each with its own page=N. The type number decides how it ends: T divisible by 3 has 5 pages, then 404; T % 3 = 1 has 5 pages, then a 200 page with no records; T % 3 = 2 never ends. Optional &data=D sets records per page (1–100, default 10); optional &end=E puts records on pages 1–E and makes every later page a 200 with no records, for any type.`,
+    howTo: `For each type T, request ${url('T', 0)} and increment page until 404, an empty page, or your page cap. Then move to type T+1 until your type cap. Type 1000 and above are 404. Add &data=20&end=50 for 20 records per page on pages 1–50 and empty pages after.`,
+  } : {}),
   handle(ctx) {
     const t = typeOf(ctx)
     if (t === undefined || isResponse(t)) return t
@@ -426,15 +449,34 @@ const typedPages = ({ url, typeOf, typeText, ...def }) => add({
     if (isResponse(i)) return i
     if (t < 1) return notFound(ctx)
     if (i >= TPE_MAX_PAGE) return badRequest(`page must be at most ${TPE_MAX_PAGE}`)
+    const tune = tunable ? tpeTuning(ctx) : { per: 10, end: null }
+    if (isResponse(tune)) return tune
+    const { per, end } = tune
+    // Links keep the caller's data/end, so the whole walk stays tuned.
+    const extra = {}
+    if (tunable && ctx.query.has('data')) extra.data = per
+    if (end !== null) extra.end = end
+    const link = (tt, k) => addParams(url(tt, k), extra)
     const rule = t % 3
-    if (rule === 0 && i >= 5) return notFound(ctx)
-    const pages = rule === 2 ? Infinity : 5
-    const recs = i < pages ? tpeRecords(ctx.sc.id, t, i, rule === 2 ? Infinity : 47) : []
+    let pages, total, info
+    if (end !== null) {
+      pages = end
+      total = end * per
+      info = `${per} per page, records on pages 1–${end}, then empty pages`
+    } else {
+      if (rule === 0 && i >= 5) return notFound(ctx)
+      pages = rule === 2 ? Infinity : 5
+      total = rule === 2 ? Infinity : Math.round(per * 4.7) // a short last page, like the default 47
+      info = TPE_RULE[rule]
+    }
+    // Record ids are T × 1,000,000 + n, so n must stay under a million.
+    if (i < pages && (i + 1) * per >= 1_000_000) return badRequest('page × data must stay under 1,000,000')
+    const recs = i < pages ? tpeRecords(ctx.sc.id, t, i, total, per) : []
     const types = nav('Types: ' + [...range(9).map((k) => k + 1), ...(t > 9 ? [t] : []), ...(t + 1 > 9 && t < TPE_MAX_TYPE ? [t + 1] : [])].map((k) =>
-      k === t ? `<span class="type current" aria-current="true">${k}</span>` : `<a class="type" href="${esc(ctx.link(url(k, 0)))}">${k}</a>`).join(' '))
+      k === t ? `<span class="type current" aria-current="true">${k}</span>` : `<a class="type" href="${esc(ctx.link(link(k, 0)))}">${k}</a>`).join(' '))
     return html(page(ctx, {
       title: `Type ${t} — page ${i + 1}`,
-      body: `<h1>Type ${t} — page ${i + 1}</h1>\n<p class="page-info">Type ${t} (T % 3 = ${rule}): ${TPE_RULE[rule]}</p>\n${types}\n${list(ctx, recs)}\n${recs.length ? navBar(ctx, i, pages, (k) => url(t, k)) : ''}`,
+      body: `<h1>Type ${t} — page ${i + 1}</h1>\n<p class="page-info">Type ${t} (T % 3 = ${rule}): ${info}</p>\n${types}\n${list(ctx, recs)}\n${recs.length ? navBar(ctx, i, pages, (k) => link(t, k)) : ''}`,
     }))
   },
   answer: (A) => ({
@@ -458,13 +500,18 @@ typedPages({
 
 typedPages({
   id: 'A17', category: 'url-parameter', title: 'Type and page both as query params: /list?type=T&page=P', typeText: '?type=T,',
+  tunable: true,
   url: (t, i) => `/list?type=${t}&page=${i + 1}`,
   typeOf: onPath('/list', (c) => {
     const v = c.query.get('type')
     if (v === null) return 1
     return /^\d{1,3}$/.test(v) ? Number(v) : /^\d+$/.test(v) ? notFound(c) : badRequest('type must be a number')
   }),
-  pagination: { type: { param: 'type', firstValue: 1, max: TPE_MAX_TYPE }, page: { param: 'page', firstValue: 1 }, rules: TPE_RULES },
+  pagination: {
+    type: { param: 'type', firstValue: 1, max: TPE_MAX_TYPE }, page: { param: 'page', firstValue: 1 }, rules: TPE_RULES,
+    perPage: { param: 'data', default: 10, min: 1, max: TPE_MAX_DATA },
+    lastPage: { param: 'end', min: 1, max: TPE_MAX_PAGE, note: 'pages after end are 200 with no records, for every type' },
+  },
 })
 
 /* ═════════ C. Link-following pagination ═════════ */

@@ -56,3 +56,35 @@ describe('reference client', () => {
     assert.equal(summary.mustNotRequestHits.length, 1)
   })
 })
+
+describe('A17 data and end parameters', () => {
+  const get = async (q: string) => {
+    const r = await fetch(`${base}/pagination/s/A17/list?${q}`, { redirect: 'manual' })
+    const body = await r.text()
+    return { status: r.status, ids: [...body.matchAll(/data-id="([^"]+)"/g)].map((m) => m[1]), next: /rel="next" href="([^"]+)"/.exec(body)?.[1] ?? null }
+  }
+
+  test('data sets records per page and end makes later pages empty, for every type', async () => {
+    const p1 = await get('type=1&page=1&data=20&end=50')
+    assert.equal(p1.status, 200)
+    assert.equal(p1.ids.length, 20)
+    assert.match(p1.next ?? '', /page=2&amp;data=20&amp;end=50/)
+    const p2 = await get('type=1&page=2&data=20&end=50')
+    assert.equal(p2.ids[0], 'p-1000021')
+    assert.equal((await get('type=1&page=50&data=20&end=50')).ids.length, 20)
+    for (const t of [1, 2, 3]) {
+      const after = await get(`type=${t}&page=51&data=20&end=50`)
+      assert.deepEqual([after.status, after.ids.length], [200, 0], `type ${t}`)
+    }
+  })
+
+  test('without the parameters A17 keeps its type rules', async () => {
+    assert.equal((await get('type=1&page=1')).ids.length, 10)
+    assert.equal((await get('type=3&page=6')).status, 404)
+    assert.equal((await get('type=2&page=3&data=25')).ids.length, 25)
+  })
+
+  test('rejects out-of-range values', async () => {
+    for (const q of ['data=0', 'data=101', 'end=0', 'end=abc']) assert.equal((await get(`type=1&page=1&${q}`)).status, 400, q)
+  })
+})
