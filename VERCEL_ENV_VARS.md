@@ -27,6 +27,27 @@ orders flow is still fully exercisable. Set a real PayPal REST app's client id
 here (and its client id/secret on the API — see below) to pay with an actual
 PayPal sandbox buyer account instead.
 
+### Google reCAPTCHA (optional)
+```
+VITE_RECAPTCHA_SITE_KEY=your-recaptcha-site-key
+RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
+```
+Adds a reCAPTCHA v2 "I'm not a robot" checkbox to the sign-in page, the
+sign-in modal and the sign-up page. The token is checked by the
+`/api/verify-recaptcha` Vercel function before the request reaches the backend.
+
+- `VITE_RECAPTCHA_SITE_KEY` is public and is built into the browser bundle.
+- `RECAPTCHA_SECRET_KEY` must **not** have the `VITE_` prefix: it is read only
+  by the serverless function and must never reach the browser.
+- Optional `RECAPTCHA_MIN_SCORE` (default `0.5`) only applies to v3 keys.
+- Leave `VITE_RECAPTCHA_SITE_KEY` unset to turn reCAPTCHA off (the forms then
+  work exactly as before).
+- Redeploy after adding them: `VITE_*` values are read at build time.
+- In the reCAPTCHA admin console (https://www.google.com/recaptcha/admin), add
+  your production domain, `vercel.app` (preview deployments) and `localhost`.
+- `/api` functions do not run under `npm run dev`; use `vercel dev` to test the
+  check locally, or leave the site key unset in `.env.local`.
+
 ## How to Add Environment Variables in Vercel
 
 1. Go to your Vercel project dashboard
