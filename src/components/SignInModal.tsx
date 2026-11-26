@@ -5,8 +5,6 @@ import { useAuthStore } from '../store/auth'
 import { signIn } from '../api/user'
 import { setAuthTokenCookie } from '../utils/token'
 import LoadingSpinner from './LoadingSpinner'
-import Recaptcha from './Recaptcha'
-import { verifyRecaptcha } from '../lib/recaptcha'
 
 export function SignInModal() {
   const navigate = useNavigate()
@@ -16,8 +14,6 @@ export function SignInModal() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
-  const [captchaReset, setCaptchaReset] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
@@ -39,16 +35,9 @@ export function SignInModal() {
 
     setIsLoading(true)
     try {
-      const captchaError = await verifyRecaptcha(captchaToken)
-      if (captchaError) {
-        setError(captchaError)
-        setCaptchaReset((n) => n + 1)
-        return
-      }
       const res = await signIn({ emailId: e, password: p })
       if (res.error) {
         setError(res.error.message || 'Invalid email or password')
-        setCaptchaReset((n) => n + 1)
         return
       }
 
@@ -195,8 +184,6 @@ export function SignInModal() {
                 <span className="label">Show password</span>
               </label>
             </div>
-
-            <Recaptcha id="modal-recaptcha" onChange={setCaptchaToken} resetKey={captchaReset} />
 
             {error && (
               <div role="alert" style={{ color: 'var(--color-danger)', fontSize: 14 }}>

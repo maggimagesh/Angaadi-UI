@@ -9,8 +9,6 @@ import { useAuthStore } from '../store/auth'
 import { clearAuthRedirect, getAuthRedirect, rememberAuthRedirect } from '../utils/authRedirect'
 import { supabase } from '../lib/supabase'
 import LoadingSpinner from '../components/LoadingSpinner'
-import Recaptcha from '../components/Recaptcha'
-import { verifyRecaptcha } from '../lib/recaptcha'
 import { Footer } from '../components/Footer'
 
 type AuthTab = 'signin' | 'signup'
@@ -113,8 +111,6 @@ function SignInPanel({ onSwitch }: { onSwitch: () => void }) {
   const [passwordError, setPasswordError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
-  const [captchaReset, setCaptchaReset] = useState(0)
 
   const REMEMBER_KEY = 'login.remember'
   const REMEMBER_EMAIL_KEY = 'login.email'
@@ -405,8 +401,6 @@ function SignInPanel({ onSwitch }: { onSwitch: () => void }) {
           <span>Keep me signed in</span>
         </label>
 
-        <Recaptcha id="login-recaptcha" onChange={setCaptchaToken} resetKey={captchaReset} />
-
         <button
           className="btn btn-primary btn-block"
           id="login-submit"
@@ -445,16 +439,8 @@ function SignInPanel({ onSwitch }: { onSwitch: () => void }) {
             ;(async () => {
               setIsLoading(true);
               try {
-                const captchaError = await verifyRecaptcha(captchaToken)
-                if (captchaError) {
-                  setError(captchaError)
-                  if (statusEl) statusEl.textContent = captchaError
-                  setCaptchaReset((n) => n + 1)
-                  return
-                }
                 const res = await signIn({ emailId: e, password: p })
                 if (res.error) {
-                  setCaptchaReset((n) => n + 1)
                   setPasswordError(true)
                   setError(res.error.message || 'Invalid email or password')
                   if (statusEl) statusEl.textContent = res.error.message || 'Invalid email or password'
@@ -560,8 +546,6 @@ function SignUpPanel({ onSwitch }: { onSwitch: () => void }) {
   const [passwordError, setPasswordError] = useState(false)
   const [confirmError, setConfirmError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
-  const [captchaReset, setCaptchaReset] = useState(0)
 
   useEffect(() => {
     const statusEl = document.getElementById('signup-status')
@@ -680,8 +664,6 @@ function SignUpPanel({ onSwitch }: { onSwitch: () => void }) {
           </span>
         </label>
 
-        <Recaptcha id="signup-recaptcha" onChange={setCaptchaToken} resetKey={captchaReset} />
-
         <button
           className="btn btn-primary btn-block"
           id="signup-submit"
@@ -736,12 +718,6 @@ function SignUpPanel({ onSwitch }: { onSwitch: () => void }) {
             ;(async () => {
               setIsLoading(true);
               try {
-                const captchaError = await verifyRecaptcha(captchaToken)
-                if (captchaError) {
-                  setError(captchaError)
-                  setCaptchaReset((n) => n + 1)
-                  return
-                }
                 const res = await createUserRecord({
                   firstName,
                   lastName,
@@ -750,7 +726,6 @@ function SignUpPanel({ onSwitch }: { onSwitch: () => void }) {
                 })
                 if (res.error) {
                   setError(res.error.message)
-                  setCaptchaReset((n) => n + 1)
                   return
                 }
                 const s = document.getElementById('signup-status')

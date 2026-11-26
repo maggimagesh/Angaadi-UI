@@ -5,7 +5,6 @@ import { Header } from './components/Header'
 import { CookieBanner } from './components/CookieBanner'
 import { APP_ROUTES } from './routes'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import BotGate from './components/BotGate'
 
 import { SuccessModal } from './components/SuccessModal'
 import { DocModal } from './components/DocModal'
@@ -27,24 +26,22 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <BotGate>
-        <BrowserRouter>
-          <Header />
-          <Routes>
-            {/* One <Route> per entry in src/routes.tsx — the same table
-                /playground enumerates, so the two can never drift apart. */}
-            {APP_ROUTES.map((route) => (
-              <Route key={route.path} path={route.path} element={<ErrorBoundary key={route.path}>{route.element}</ErrorBoundary>} />
-            ))}
-          </Routes>
-          <SuccessModal />
-          <DocModal />
-          <SignInModal />
-          <ForgotPasswordModal />
-          <WelcomeModal />
-          <CookieBanner />
-        </BrowserRouter>
-      </BotGate>
+      <BrowserRouter>
+        <Header />
+        <Routes>
+          {/* One <Route> per entry in src/routes.tsx — the same table
+              /playground enumerates, so the two can never drift apart. */}
+          {APP_ROUTES.map((route) => (
+            <Route key={route.path} path={route.path} element={<ErrorBoundary key={route.path}>{route.element}</ErrorBoundary>} />
+          ))}
+        </Routes>
+        <SuccessModal />
+        <DocModal />
+        <SignInModal />
+        <ForgotPasswordModal />
+        <WelcomeModal />
+        <CookieBanner />
+      </BrowserRouter>
     </div>
   )
 }
