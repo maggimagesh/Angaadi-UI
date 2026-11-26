@@ -30,6 +30,7 @@ async function call(req: object, fetchImpl?: FetchLike): Promise<Res> {
 describe('/api/verify-recaptcha', () => {
   beforeEach(() => {
     process.env.RECAPTCHA_SECRET_KEY = 'test-secret'
+    process.env.RECAPTCHA_V3_SECRET_KEY = 'test-v3-secret'
     delete process.env.RECAPTCHA_MIN_SCORE
   })
 
@@ -76,5 +77,39 @@ describe('/api/verify-recaptcha', () => {
   test('502 when Google cannot be reached', async () => {
     const out = await call({ method: 'POST', body: { token: 't' } }, async () => { throw new Error('down') })
     assert.equal(out.statusCode, 502)
+  })
+
+  test('v3: uses the v3 secret and passes a good score for the right action', async () => {
+    const seen: URLSearchParams[] = []
+    const out = await call(
+      { method: 'POST', body: { token: 't', version: 'v3', action: 'pageload' } },
+      fakeGoogle({ success: true, score: 0.9, action: 'pageload' }, seen),
+    )
+    assert.equal(out.statusCode, 200)
+    assert.equal(seen[0].get('secret'), 'test-v3-secret')
+  })
+
+  test('v3: 403 for a low score, so the page asks for the checkbox', async () => {
+    const out = await call(
+      { method: 'POST', body: { token: 't', version: 'v3', action: 'pageload' } },
+      fakeGoogle({ success: true, score: 0.1, action: 'pageload' }),
+    )
+    assert.equal(out.statusCode, 403)
+  })
+
+  test('v3: 403 when the token was made for a different action', async () => {
+    const out = await call(
+      { method: 'POST', body: { token: 't', version: 'v3', action: 'pageload' } },
+      fakeGoogle({ success: true, score: 0.9, action: 'login' }),
+    )
+    assert.equal(out.statusCode, 403)
+  })
+
+  test('v3: 400 without an action, 500 without the v3 secret', async () => {
+    const noAction = await call({ method: 'POST', body: { token: 't', version: 'v3' } })
+    assert.equal(noAction.statusCode, 400)
+    delete process.env.RECAPTCHA_V3_SECRET_KEY
+    const noSecret = await call({ method: 'POST', body: { token: 't', version: 'v3', action: 'pageload' } })
+    assert.equal(noSecret.statusCode, 500)
   })
 })

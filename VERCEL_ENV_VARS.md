@@ -29,24 +29,33 @@ PayPal sandbox buyer account instead.
 
 ### Google reCAPTCHA (optional)
 ```
-VITE_RECAPTCHA_SITE_KEY=your-recaptcha-site-key
-RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
-```
-Adds a reCAPTCHA v2 "I'm not a robot" checkbox to the sign-in page, the
-sign-in modal and the sign-up page. The token is checked by the
-`/api/verify-recaptcha` Vercel function before the request reaches the backend.
+# v3 (score based) — invisible check on every page load
+VITE_RECAPTCHA_V3_SITE_KEY=your-v3-site-key
+RECAPTCHA_V3_SECRET_KEY=your-v3-secret-key
 
-- `VITE_RECAPTCHA_SITE_KEY` is public and is built into the browser bundle.
-- `RECAPTCHA_SECRET_KEY` must **not** have the `VITE_` prefix: it is read only
-  by the serverless function and must never reach the browser.
-- Optional `RECAPTCHA_MIN_SCORE` (default `0.5`) only applies to v3 keys.
-- Leave `VITE_RECAPTCHA_SITE_KEY` unset to turn reCAPTCHA off (the forms then
-  work exactly as before).
+# v2 (checkbox) — shown when the v3 score is low, and on sign-in / sign-up
+VITE_RECAPTCHA_SITE_KEY=your-v2-site-key
+RECAPTCHA_SECRET_KEY=your-v2-secret-key
+```
+reCAPTCHA keys only work for the type they were created as, so v3 and v2 need
+**separate key pairs** (create each in https://www.google.com/recaptcha/admin).
+
+- **Page load (v3):** when the app loads, reCAPTCHA v3 scores the visitor
+  invisibly and `/api/verify-recaptcha` checks the score. Visitors below
+  `RECAPTCHA_MIN_SCORE` (optional, default `0.5`) get a full-page "I'm not a
+  robot" checkbox (v2). With no v2 key set, they get a "couldn't verify" screen
+  with a retry button instead. If the check itself can't run (Google blocked or
+  down), the visitor is let through. Passing is remembered for the browser tab.
+- **Sign-in / sign-up (v2):** the checkbox on those forms is verified before the
+  request reaches the backend.
+- Site keys (`VITE_*`) are public and built into the browser bundle. Secret keys
+  must **not** have the `VITE_` prefix: only the serverless function reads them.
+- Leave a site key unset to switch that part off.
 - Redeploy after adding them: `VITE_*` values are read at build time.
-- In the reCAPTCHA admin console (https://www.google.com/recaptcha/admin), add
-  your production domain, `vercel.app` (preview deployments) and `localhost`.
+- In the reCAPTCHA admin console, add your production domain, `vercel.app`
+  (preview deployments) and `localhost` to each key.
 - `/api` functions do not run under `npm run dev`; use `vercel dev` to test the
-  check locally, or leave the site key unset in `.env.local`.
+  checks locally, or leave the site keys unset in `.env.local`.
 
 ## How to Add Environment Variables in Vercel
 
